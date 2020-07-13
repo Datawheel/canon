@@ -1,8 +1,7 @@
 #! /usr/bin/env node
 
 const Sequelize = require("sequelize");
-const fs = require("fs");
-const path = require("path");
+const loadModels = require("./loadModels");
 
 const name = process.env.CANON_DB_NAME;
 const user = process.env.CANON_DB_USER;
@@ -11,57 +10,62 @@ const host = process.env.CANON_DB_HOST;
  
 const {Translate} = require("@google-cloud/translate").v2;
 
-const catcher = e => console.log("error: ", e);
-
-const loadModels = (db, modelPath, clear) => {
-  const folder = path.join(__dirname, modelPath);
-  fs.readdirSync(folder)
-    .filter(file => file && file.indexOf(".") !== 0)
-    .forEach(file => {
-      const fullPath = path.join(folder, file);
-      const model = db.import(fullPath);
-      db[model.name] = model;
-    });
-  Object.keys(db).forEach(modelName => {
-    if ("associate" in db[modelName]) db[modelName].associate(db);
-  });
-  if (clear) {
-    return db.sync({force: true}).catch(catcher);
-  }
-  else {
-    return db.sync().catch(catcher);
-  }
-};
-
 const db = new Sequelize(name, user, pw, {host, dialect: "postgres", define: {timestamps: true}, logging: () => {}});
 
 const translate = new Translate();
 
-const text = "Hello, world!";
 const source = "en";
 const target = "es";
 
 const faketranslate = s => s.length ? `hola, ${s}` : s;
+const re = /([A-z0-9]*)\{\{([^\}]+)\}\}/g;
+const spanify = s => {
+  if (s.length) {
+    return console.log()
+    return s;
+  }
+  else {
+    return s;
+  }
+  s.length ? s.replace(/\{\{/g, "<span class=\"notranslate\">").replace(/\}\}/g, "</span>") : s;
+const varify = s => s.length ? s.replace(/\<span class\=\"notranslate\"\>/g, "{{").replace(/\<\/span>/g, "}}") : s;
+
+const catcher = e => console.log("error: ", e);
 
 /** */
 async function translateText() {
   await loadModels(db, "../../src/db");
-  const where = {where: {locale: source}};
-  let content = await db.profile_content.findAll(where).catch(() => []);
-  content = content.map(d => d.toJSON());
-  const newContent = content.map(d => {
-    const {id, locale, ...rest} = d; //eslint-disable-line
-    return Object.keys(rest).reduce((acc, key) => ({...acc, [key]: faketranslate(rest[key])}), {id, locale: target});
-  });
-  for (const c of newContent) {
-    db.profile_content.upsert(c).catch(catcher);
+  const sections = await db.section.findAll({where: {profile_id: 1}}).catch(() => []);
+  const sids = sections.map(d => d.id);
+  const descriptions = await db.section_description.findAll({where: {section_id: sids}}).catch(() => []);
+  const cids = descriptions.map(d => d.id);
+  let dcontent = await db.section_description_content.findAll({where: {id: 608, locale: source}}).catch(() => []);
+  dcontent = dcontent.map(d => d.toJSON()).slice(0, 1);
+  for (const row of dcontent) {
+    const {id, locale, ...rest} = row; //eslint-disable-line
+    const newContent = {id, locale: "gt"};
+    const keys = Object.keys(rest);
+    for (const key of keys) {
+      if (rest[key]) {
+        const text = spanify(rest[key]);
+        console.log("before", text);
+        // let resp;
+        const resp = await translate.translate(text, target);
+        if (resp && resp[0]) {
+          console.log("mid", resp[0]);
+          newContent[key] = varify(resp[0]);
+          console.log("after", newContent[key]);
+        }
+        else newContent[key] = rest[key];
+      }
+      else {
+        newContent[key] = rest[key];
+      }
+    }
+    // console.log("WOULD SEND", newContent);
+    await db.section_description_content.upsert(newContent).catch(catcher);
   }
   console.log("done");
-  /*
-  const resp = await translate.translate(text, target);
-  const translation = resp[0];
-  console.log(`${text} => (${target}) ${translation}`);  
-  */
 }
 
 translateText();
