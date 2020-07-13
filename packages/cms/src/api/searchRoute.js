@@ -301,8 +301,8 @@ module.exports = function(app) {
           const [unaccentResult, unaccentMetadata] = await db.query("SELECT * FROM pg_extension WHERE extname = 'unaccent';");
           unaccentExtensionInstalled = unaccentMetadata.rowCount >= 1;
           if (!unaccentExtensionInstalled) {
-            console.log("WARNING: Consider install 'unaccent' extension in Postgres server for better search results running: CREATE EXTENSION IF NOT EXISTS unaccent;");
-            console.log("Do not forget to restart this web application after extension were installed.");
+            console.log("WARNING: For better search results, Consider installing the 'unaccent' extension in Postgres by running: CREATE EXTENSION IF NOT EXISTS unaccent;");
+            console.log("Do not forget to restart the web application after installation.");
           }
         }
 
