@@ -571,7 +571,7 @@ module.exports = function(app) {
               // Now that we have a correct hierarchy/level, query the neighbors endpoint
               const neighbors = await axios
                 .get(url, config)
-                .then(d => d.data.data)
+                .then(d => d && d.data && d.data.data && Array.isArray(d.data.data) ? d.data.data : [])
                 .catch(catcher);
               // Fetch the FULL members for each neighbor and collate them by dimension slug
               for (const neighbor of neighbors) {
