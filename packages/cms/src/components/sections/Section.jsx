@@ -233,13 +233,11 @@ class Section extends Component {
     let paragraphs;
 
     if (descriptions.length && contents.position !== "sticky") {
-      paragraphs = loading
-        ? <p>Loading...</p>
-        : descriptions.map((content, i) =>
-          <Parse className={`cp-section-paragraph ${layoutClass}-paragraph`} key={`${content.description}-paragraph-${i}`}>
-            {content.description}
-          </Parse>
-        );
+      paragraphs = descriptions.map((content, i) =>
+        <Parse className={`cp-section-paragraph ${layoutClass}-paragraph`} key={`${content.description}-paragraph-${i}`}>
+          {content.description}
+        </Parse>
+      );
     }
 
     // sources
