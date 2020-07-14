@@ -1,6 +1,7 @@
 import React, {Component, Fragment} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
+import {withNamespaces} from "react-i18next";
 import {nest} from "d3-collection";
 import {AnchorLink} from "@datawheel/canon-core";
 
@@ -162,8 +163,7 @@ class Section extends Component {
 
   render() {
     const {contents, sources, isStickyIE, height, showReset} = this.state;
-    const {headingLevel, hideAnchor, hideOptions, isModal, loading} = this.props;
-    const initialVariables = this.props.initialVariables || this.context.initialVariables || {};
+    const {headingLevel, hideAnchor, hideOptions, isModal, loading, t} = this.props;
 
     // remap old section names
     const layout = contents.type;
@@ -254,7 +254,7 @@ class Section extends Component {
       fill={!showReset}
       key="var-reset-button"
     >
-      Reset visualizations
+      {t("CMS.Section.Reset visualizations")}
     </Button>;
 
     const componentProps = {
@@ -318,6 +318,6 @@ Section.childContextTypes = {
   updateSource: PropTypes.func
 };
 
-export default connect(state => ({
+export default withNamespaces()(connect(state => ({
   locale: state.i18n.locale
-}))(Section);
+}))(Section));
