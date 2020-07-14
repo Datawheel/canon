@@ -18,17 +18,8 @@ const source = "en";
 const target = "es";
 
 const faketranslate = s => s.length ? `hola, ${s}` : s;
-const re = /([A-z0-9]*)\{\{([^\}]+)\}\}/g;
-const spanify = s => {
-  if (s.length) {
-    return console.log()
-    return s;
-  }
-  else {
-    return s;
-  }
-  s.length ? s.replace(/\{\{/g, "<span class=\"notranslate\">").replace(/\}\}/g, "</span>") : s;
-const varify = s => s.length ? s.replace(/\<span class\=\"notranslate\"\>/g, "{{").replace(/\<\/span>/g, "}}") : s;
+const spanify = s => s.length ? s.replace(/\{\{/g, "<span class=\"notranslate\">").replace(/\}\}/g, "</span>") : s;
+const varify = s => s.length ? s.replace(/\<span class\=\"notranslate\"\>([^\<]+)\<\/span\>/g, "{{$1}}") : s;
 
 const catcher = e => console.log("error: ", e);
 
@@ -49,14 +40,15 @@ async function translateText() {
       if (rest[key]) {
         const text = spanify(rest[key]);
         console.log("before", text);
-        // let resp;
-        const resp = await translate.translate(text, target);
+        let resp;
+        //const resp = await translate.translate(text, target);
         if (resp && resp[0]) {
           console.log("mid", resp[0]);
           newContent[key] = varify(resp[0]);
           console.log("after", newContent[key]);
         }
         else newContent[key] = rest[key];
+        console.log("after", varify(rest[key]));
       }
       else {
         newContent[key] = rest[key];
