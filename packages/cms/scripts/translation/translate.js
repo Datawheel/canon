@@ -24,38 +24,45 @@ const varify = s => s.length ? s.replace(/\<span class\=\"notranslate\"\>([^\<]+
 const catcher = e => console.log("error: ", e);
 
 /** */
+async function translateRow(row) {
+  const {id, locale, ...rest} = row; //eslint-disable-line
+  const newContent = {id, locale: "gt"};
+  const keys = Object.keys(rest);
+  for (const key of keys) {
+    if (rest[key]) {
+      const text = spanify(rest[key]);
+      //let resp;
+      const resp = await translate.translate(text, target);
+      if (resp && resp[0]) {
+        newContent[key] = varify(resp[0]);
+      }
+      else newContent[key] = rest[key];
+    }
+    else {
+      newContent[key] = rest[key];
+    }
+  }
+  return newContent;
+}
+
+/** */
 async function translateText() {
   await loadModels(db, "../../src/db");
   const sections = await db.section.findAll({where: {profile_id: 1}}).catch(() => []);
   const sids = sections.map(d => d.id);
-  const descriptions = await db.section_description.findAll({where: {section_id: sids}}).catch(() => []);
-  const cids = descriptions.map(d => d.id);
-  let dcontent = await db.section_description_content.findAll({where: {id: 608, locale: source}}).catch(() => []);
-  dcontent = dcontent.map(d => d.toJSON()).slice(0, 1);
-  for (const row of dcontent) {
-    const {id, locale, ...rest} = row; //eslint-disable-line
-    const newContent = {id, locale: "gt"};
-    const keys = Object.keys(rest);
-    for (const key of keys) {
-      if (rest[key]) {
-        const text = spanify(rest[key]);
-        console.log("before", text);
-        let resp;
-        //const resp = await translate.translate(text, target);
-        if (resp && resp[0]) {
-          console.log("mid", resp[0]);
-          newContent[key] = varify(resp[0]);
-          console.log("after", newContent[key]);
-        }
-        else newContent[key] = rest[key];
-        console.log("after", varify(rest[key]));
-      }
-      else {
-        newContent[key] = rest[key];
-      }
+  const content = await db.section_content.findAll({where: {id: sids, locale: source}}).catch(() => []);
+  for (const row of content) {
+    const newContent = await translateRow(row.toJSON());
+    await db.section_content.upsert(newContent).catch(catcher);
+  }
+  for (const table of ["section_description", "section_stat", "section_subtitle"]) {
+    const entities = await db[table].findAll({where: {section_id: sids}}).catch(() => []);
+    const cids = entities.map(d => d.id);
+    const content = await db[`${table}_content`].findAll({where: {id: cids, locale: source}}).catch(() => []);
+    for (const row of content) {
+      const newContent = await translateRow(row.toJSON());
+      await db[`${table}_content`].upsert(newContent).catch(catcher);  
     }
-    // console.log("WOULD SEND", newContent);
-    await db.section_description_content.upsert(newContent).catch(catcher);
   }
   console.log("done");
 }
