@@ -152,33 +152,14 @@ class ProfileRenderer extends Component {
 
   onSelector(name, value) {
     const {profile, selectors, formatterFunctions} = this.state;
-    const {id, variables} = profile;
-    const {locale, sectionID} = this.props;
-    const {params} = this.context.router;
+    const {variables} = profile;
+    const {locale} = this.props;
 
     if (value instanceof Array && !value.length) delete selectors[name];
     else selectors[name] = value;
 
-    // this.setState({loading: true, selectors});
     const newProfile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, selectors);
     this.setState({selectors, profile: {...profile, ...newProfile}});
-    
-    /*
-    const payload = {variables};
-    let url = `/api/profile?profile=${id}&locale=${locale}`;
-    if (Object.keys(selectors).length > 0) url += `&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
-    if (sectionID) url += `&section=${sectionID}`;
-    // Provide some uniqueness tokens so that the url for slug/id/role POSTs can be cached
-    url += `&tokenSlug=${params.slug}&tokenId=${params.id}`;
-    if (params.slug2 && params.id2) url += `&tokenSlug2=${params.slug2}&tokenId2=${params.id2}`;
-    const {user, _matStatus, _genStatus, ...variablesWithoutUser} = payload.variables; // eslint-disable-line
-    const hash = hashCode(JSON.stringify(variablesWithoutUser));
-    url += `&token=${hash}`;
-    axios.post(url, payload)
-      .then(resp => {
-        this.setState({profile: {neighbors: profile.neighbors, ...resp.data}, loading: false});
-      });
-    */
   }
 
   render() {
