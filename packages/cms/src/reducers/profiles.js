@@ -1,5 +1,3 @@
-const deepClone = require("../utils/deepClone");
-
 const sorter = (a, b) => a.ordering - b.ordering;
 
 const addSectionEntity = (profiles, data, accessor) => profiles.map(p => 
@@ -180,8 +178,8 @@ export default (profiles = [], action) => {
           s.id === action.data.parent_id ? Object.assign({}, s, {selectors: action.data.selectors}) : s)}));
 
     // Variables
-    case "VARIABLES_SET":
-      return profiles.map(p => p.id === action.data.id ? Object.assign({}, p, {variables: deepClone(action.data.variables)}) : p);
+    // case "VARIABLES_SET":
+    //   return profiles.map(p => p.id === action.data.id ? Object.assign({}, p, {variables: deepClone(action.data.variables)}) : p);
     default: return profiles;
   }
 };

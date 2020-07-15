@@ -2,6 +2,7 @@ const sequelize = require("sequelize");
 const shell = require("shelljs");
 const yn = require("yn");
 const path = require("path");
+const fs = require("fs");
 const Op = sequelize.Op;
 
 const populateSearch = require("../utils/populateSearch");
@@ -10,6 +11,7 @@ const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 const sectionTypeDir = path.join(__dirname, "../components/sections/");
+const sectionTypeDirCustom = path.join(process.cwd(), "app/cms/sections/");
 
 const cmsCheck = () => process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
 const cmsMinRole = () => process.env.CANON_CMS_MINIMUM_ROLE ? Number(process.env.CANON_CMS_MINIMUM_ROLE) : 1;
@@ -240,6 +242,13 @@ const getSectionTypes = () => {
     const compName = file.replace(sectionTypeDirFixed, "").replace(".jsx", "");
     if (compName !== "Section") sectionTypes.push(compName);
   });
+  if (fs.existsSync(sectionTypeDirCustom)) {
+    shell.ls(`${sectionTypeDirCustom}*.jsx`).forEach(file => {
+      const sectionTypeDirCustomFixed = sectionTypeDirCustom.replace(/\\/g, "/");
+      const compName = file.replace(sectionTypeDirCustomFixed, "").replace(".jsx", "");
+      sectionTypes.push(compName);
+    });    
+  }
   return sectionTypes;
 };
 

@@ -8,7 +8,7 @@ import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 
-import {Intent} from "@blueprintjs/core";
+import {Intent, Switch, Alignment} from "@blueprintjs/core";
 
 import Loading from "components/Loading";
 import Card from "./Card";
@@ -137,7 +137,7 @@ class TextCard extends Component {
     const {localeDefault, localeSecondary, query} = this.props.status;
     const {formatterFunctions} = this.props.resources;
     // Stories use TextCards, but don't need variables.
-    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
+    const variables = this.props.variables[localeDefault] || {};
 
     // For future use: This is a list of the vars used by this TextCard. Could combine with
     // Some selector replacing and create a quick way to open generators in the future.
@@ -197,7 +197,7 @@ class TextCard extends Component {
     if (plainFields) plainFields.forEach(field => primaryLocale[field] = sanitize(primaryLocale[field]));
 
     const secondaryLocale = minData.content.find(c => c.locale === localeSecondary);
-    
+
     fields.forEach(field => secondaryLocale[field] = sanitize(secondaryLocale[field]));
     if (plainFields) plainFields.forEach(field => secondaryLocale[field] = sanitize(secondaryLocale[field]));
     // If hideAllowed is true, this TextCard is being used by a top-level Section, whose
@@ -267,9 +267,9 @@ class TextCard extends Component {
     const {alertObj, primaryDisplayData, secondaryDisplayData, isOpen} = this.state;
     const {minData} = this.props;
     const {fields: richFields, hideAllowed, plainFields, type, showReorderButton} = this.props;
-    const {localeDefault, localeSecondary} = this.props.status;
+    const {localeDefault, localeSecondary, showToolbar} = this.props.status;
     // Stories use TextCards, but don't need variables.
-    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
+    const variables = this.props.variables[localeDefault] || {};
 
     if (!minData || !primaryDisplayData) return <Loading />;
 
@@ -382,6 +382,13 @@ class TextCard extends Component {
 
         {/* edit content */}
         <Dialog {...dialogProps}>
+          <Switch
+            alignIndicator={Alignment.RIGHT}
+            className="cms-toolbar-switch u-font-xs"
+            checked={showToolbar}
+            label="Rich Formatting"
+            onChange={e => this.props.setStatus({showToolbar: e.target.checked})}
+          />
           <div className="cms-dialog-locale-group">
             {/* primary locale */}
             <div className="cms-dialog-locale-container">
@@ -430,6 +437,7 @@ TextCard.contextTypes = {
 };
 
 const mapStateToProps = state => ({
+  variables: state.cms.variables,
   status: state.cms.status,
   resources: state.cms.resources,
   selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []

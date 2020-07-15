@@ -129,7 +129,7 @@ class VisualizationCard extends Component {
     const {selectors, type} = this.props;
     const {localeDefault} = this.props.status;
     // Stories can use VisualizationCards, but don't have variables.
-    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
+    const variables = this.props.variables[localeDefault] || {};
     const formatters = formatterFunctions[localeDefault];
 
     // TODO: add formatters toggle for secondaryLocale & secondaryVariables
@@ -219,6 +219,7 @@ VisualizationCard.contextTypes = {
 };
 
 const mapStateToProps = state => ({
+  variables: state.cms.variables,
   status: state.cms.status,
   resources: state.cms.resources,
   selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []

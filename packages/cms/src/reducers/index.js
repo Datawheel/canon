@@ -9,12 +9,12 @@ import status from "./status.js";
 import formatters from "./formatters.js";
 import stories from "./stories.js";
 import resources from "./resources.js";
+import variables from "./variables.js";
 
 const initialState = {
   status: {
     diffCounter: 0,
     previews: null,
-    variables: {},
     query: {},
     pathObj: {}
   },
@@ -24,7 +24,8 @@ const initialState = {
   formatters: [],
   resources: {
     formatterFunctions: {}
-  }
+  },
+  variables: {}
 };
 
 /** */
@@ -35,6 +36,7 @@ export default function cmsReducer(state = initialState, action) {
     profiles: profiles(state.profiles, action),
     stories: stories(state.stories, action),
     formatters: formatters(state.formatters, action),
-    resources: resources(state.resources, action)
+    resources: resources(state.resources, action),
+    variables: variables(state.variables, action)
   };
 }

@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
-let cubeRoot = process.env.CANON_CMS_CUBES;
+let cubeRoot = process.env.CANON_CMS_CUBES || "localhost";
 if (cubeRoot.substr(-1) === "/") cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
 
 const {OLAP_PROXY_SECRET, CANON_CMS_MINIMUM_ROLE} = process.env;

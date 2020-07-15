@@ -25,7 +25,7 @@
 
 /* space out cells */
 .cms-selector-editor-row:not(:last-child) > *:not(.cms-reorder) {
-  padding-bottom: 0.5rem;
+  padding-bottom: .75rem;
   & > * { z-index: 1; } /* in front of reorder buttons */
 }
 
@@ -54,7 +54,7 @@
   /* display: table-row & position: relative don't play nicely together */
   &.cms-reorder {
     bottom: auto;
-    transform: translateY(1.5rem);
+    transform: translateY(.75rem);
     border-bottom: 1px solid var(--light-2);
 
     @mixin dark-mode {

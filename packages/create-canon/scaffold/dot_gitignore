@@ -1,0 +1,21 @@
+npm-debug.log*
+.DS_Store
+
+# node modules should never be synced with git
+node_modules
+
+# these static files will be generated on build
+**/static/assets
+**/static/reports
+**/*.bundle.js
+
+# environment variable files for autoenv and direnv
+.env
+.envrc
+
+# docker files
+dockerfiles/nginx/certs/*
+dockerfiles/nginx/conf.d/default.conf
+
+# pm2 ecosystem config
+ecosystem.config.js

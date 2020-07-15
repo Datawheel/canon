@@ -2,12 +2,11 @@
 
 .cms .cms-dialog {
   /* override theming inherited from .cms  */
-  & .cp-section-heading:not(.cp-hero-heading):not(.cp-grouping-section-heading):not(.cp-info-card-section-heading),
+  & .cp-section-heading:not(.cp-hero-heading):not(.cp-grouping-section-heading),
   & .cp-viz-title {
     color: var(--section-heading-color);
   }
   & .cp-grouping-section-heading { color: var(--grouping-heading-color); }
-  & .cp-info-card-section-heading { color: var(--infocard-header-text-color); }
   /* override positioning inherited from .cms  */
   & .cp-hero-credits-button,
   & .cp-hero-img-outer,

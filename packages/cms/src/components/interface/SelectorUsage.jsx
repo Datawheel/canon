@@ -47,7 +47,7 @@ class SelectorUsage extends Component {
 
     const {currentValues, showMore} = this.state;
     const {localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
+    const variables = this.props.variables[localeDefault];
     const {minData, allSelectors} = this.props;
 
     if (!minData) return null;
@@ -185,6 +185,7 @@ class SelectorUsage extends Component {
 }
 
 const mapStateToProps = state => ({
+  variables: state.cms.variables,
   status: state.cms.status,
   allSelectors: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors
 });

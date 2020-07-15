@@ -3,8 +3,8 @@
 const utils = require("./migrationUtils.js");
 const {catcher, resetSequence, fetchOldModel, fetchNewModel} = utils;
 const shell = require("shelljs");
-const oldDBName = process.env.CANON_CONST_MIGRATION_OLD_DB_NAME;
-const newDBName = process.env.CANON_CONST_MIGRATION_NEW_DB_NAME;
+const oldDBName = process.env.CANON_CMS_MIGRATION_OLD_DB_NAME || process.env.CANON_CONST_MIGRATION_OLD_DB_NAME;
+const newDBName = process.env.CANON_CMS_MIGRATION_NEW_DB_NAME || process.env.CANON_CONST_MIGRATION_NEW_DB_NAME;
 
 const populateSearch = require("../../src/utils/populateSearch");
 

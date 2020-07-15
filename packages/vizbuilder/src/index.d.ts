@@ -1,157 +1,168 @@
-import * as React from "react";
-import { Cube, Level, Measure } from "mondrian-rest-client";
-import Member from "mondrian-rest-client/lib/types/member";
-import { Datagroup } from "./helpers/chartCriteria";
+import {MiddlewareAPI, Dispatch, AnyAction} from "redux";
 
-export function vbStateReducer(state: any, action: any): any;
+import {D3plusConfig} from "./types/d3plus";
 
-declare class Grouping {
-  private uuid: string;
-  public level: Level;
-  public members: Member[];
+export function vizbuilderReducer(state: any, action: any): any;
 
-  public key?: string;
-  public name?: string;
-  public hasMembers: boolean;
+export function vizbuilderMiddleware({
+  dispatch,
+  getState
+}: MiddlewareAPI<Dispatch<AnyAction>, GeneralState>): (
+  next: Dispatch<AnyAction>
+) => (action: AnyAction) => any;
 
-  static isValid(grouping: Grouping): boolean;
-  static isValidCut(grouping: Grouping): boolean;
-
-  public toString(): string;
-  public serialize(): string;
-  public getClone(): Grouping;
-  public setLevel(level: Level): Grouping;
-  public addMember(member: Member): Grouping;
-  public removeMember(member: Member): Grouping;
-}
-
-declare class Filter {
-  private uuid: string;
-  public measure: Measure;
-  public operator: number;
-  public value: number;
-  public visibleValue: string | number;
-
-  public key: string;
-  public name: string;
-  public operatorLabel: string;
-  public hasValue: boolean;
-
-  public toString(): string;
-  public serialize(): string;
-  public getClone(): Filter;
-  public getFormatter(): (d: number) => string;
-  public getMultiplier(): number;
-  public setMeasure(measure: Measure): Filter;
-  public setOperator(evt: Event): Filter;
-  public setValue(valueAsNumber: number, valueAsString: string): Filter;
-}
-
-declare class Vizbuilder extends React.Component<VizbuilderProps, any> {}
+export declare class Vizbuilder extends React.Component<VizbuilderProps, any> {}
 
 export interface VizbuilderProps {
-  /** The source for the cubes to visualize. A mondrian-rest server URL, or an array of mondrian-rest server URLs. */
+  /**
+   * The source for the cubes to visualize.
+   * An OLAP server URL, or an array of OLAP server URLs.
+   */
   src: string | string[];
 
-  /** A d3plus chart config object. This object is combined and passed to all charts displayed by Vizbuilder. */
-  config?: D3plusConfigObject;
+  /**
+   * A d3plus chart config object.
+   * This object is combined and passed to all charts displayed by Vizbuilder.
+   */
+  config?: Partial<D3plusConfig>;
 
-  /** The amount of data points Vizbuilder should be allowed to handle as a result of a query. A value too high could freeze the browser. Default is 20000. */
+  /**
+   * The amount of data points Vizbuilder should be allowed to handle as a
+   * result of a query. A value too high could freeze the browser.
+   * Default is 20000.
+   */
   datacap?: number;
 
-  /** An array with names of the Level that should be selected by default after a Measure is selected. The order of the strings determines which Level will be picked first. */
+  /**
+   * An array with names of the Level that should be selected by default after
+   * a Measure is selected. The order of the strings determines which Level will
+   * be picked first.
+   */
   defaultGroup?: string[];
 
-  /** The name of the measure that should be loaded when Vizbuilder is rendered for the first time. */
+  /**
+   * The name of the measure that should be loaded when Vizbuilder is rendered
+   * for the first time.
+   */
   defaultMeasure?: string;
 
-  /** An object, whose keys are [`Measure.annotations.units_of_measurement`](https://github.com/Datawheel/company/wiki/Data-Cube-Annotations#suggested-units-of-measurement) names, and their values are functions that accept a number argument and return an string with the formatted value. There's a list of [default formatters](https://github.com/Datawheel/canon/blob/master/packages/vizbuilder/src/helpers/formatting.js#L6), but if there's no match, [`d3plus-format.formatAbbreviate`](https://github.com/d3plus/d3plus-format/blob/master/src/abbreviate.js) is used instead. */
-  formatting?: {[key: string]: (d: number) => string};
+  /**
+   * After picking the default measure, if the measure's cube belongs to a table,
+   * this function let's the user pick the cube the measure will be used from.
+   */
+  defaultTable?: (cubes: CubeItem[]) => CubeItem;
 
-  /** In case the site has more than one instance of Vizbuilder (like a full view + a map mode view), the instances must have a `instanceKey` to reset the general state and not have interference between views. See [Multiple instances](#multiple-instances) on the Readme for details. */
+  /**
+   * An object, whose keys are [`Measure.annotations.units_of_measurement`](https://github.com/Datawheel/company/wiki/Data-Cube-Annotations#suggested-units-of-measurement)
+   * names, and their values are functions that accept a number argument and
+   * return an string with the formatted value. There's a list of [default formatters](https://github.com/Datawheel/canon/blob/master/packages/vizbuilder/src/helpers/formatting.js#L6),
+   * but if there's no match, [`d3plus-format.formatAbbreviate`](https://github.com/d3plus/d3plus-format/blob/master/src/abbreviate.js)
+   * is used instead.
+   */
+  formatting?: Record<string, (d: number) => string>;
+
+  /**
+   * In case the site has more than one instance of Vizbuilder (like a full
+   * view + a map mode view), the instances must have a `instanceKey` to reset
+   * the general state and not have interference between views.
+   * See [Multiple instances](#multiple-instances) on the Readme for details.
+   */
   instanceKey?: string;
 
-  /** An object, whose keys are Measure names, and their values are d3plus chart config objects. These are specific configurations for each Measure, and take priority over the configurations set in the `config` property. */
-  measureConfig?: {[key: string]: D3plusConfigObject};
+  /**
+   * The language to show the data to the user, in ISO 639-1 format.
+   * Defaults to "en".
+   */
+  locale: string;
 
-  /** An object, whose keys are [`Measure.annotations.units_of_measurement`](https://github.com/Datawheel/company/wiki/Data-Cube-Annotations#suggested-units-of-measurement) names, and their values are numbers. These are used in Filters for conversion of the input value to the real value represented and backwards. See [Issue #325](https://github.com/Datawheel/canon/issues/325) for details. */
-  multipliers?: {[key: string]: number};
+  /**
+   * An object, whose keys are Measure names, and their values are d3plus chart
+   * config objects. These are specific configurations for each Measure, and
+   * take priority over the configurations set in the `config` property.
+   */
+  measureConfig?: {[key: string]: Partial<D3plusConfig>};
 
-  /** A hook function called afted the internal State is modified. Useful to extract the state and prepare features outside of Vizbuilder's scope. The parameters this function receives must be considered as *READ-ONLY* objects; modifying them could have uncertain consequencies. */
-  onChange?(query: VbQuery, charts: VbChart[]): void;
+  /**
+   * TODO: resolve an implementation
+   */
+  measureUnitConfig?: Record<string, (chart: Chart, uiParams: any) => Partial<D3plusConfig>>;
 
-  /** The switch that enables or disables permalinks on the current instance. See [Using Permalinks](#using-permalinks) on the Readme for details. */
+  /**
+   * An object, whose keys are [`Measure.annotations.units_of_measurement`](https://github.com/Datawheel/company/wiki/Data-Cube-Annotations#suggested-units-of-measurement)
+   * names, and their values are numbers. These are used in Filters for
+   * conversion of the input value to the real value represented and backwards.
+   * Keys are case sensitive.
+   * See [Issue #325](https://github.com/Datawheel/canon/issues/325) for details.
+   */
+  multipliers?: Record<string, number>;
+
+  /**
+   * A hook function called afted the internal State is modified. Useful to
+   * extract the state and prepare features outside of Vizbuilder's scope. The
+   * parameters this function receives must be considered as *READ-ONLY* objects;
+   * modifying them could have uncertain consequencies.
+   */
+  onChange?(query: QueryState, charts: Chart[]): void;
+
+  /**
+   * The switch that enables or disables permalinks on the current instance.
+   * See [Using Permalinks](#using-permalinks) on the Readme for details.
+   */
   permalink?: boolean;
 
-  /** An object to configure the parameter names to parse from/to the URL.search string. See [Using Permalinks](#using-permalinks) on the Readme for details. */
-  permalinkKeywords?: {[key: string]: string};
+  /**
+   * An object to configure the parameter names to parse from/to the URL.search string.
+   * See [Using Permalinks](#using-permalinks) on the Readme for details.
+   */
+  permalinkKeywords?: Partial<PermalinkKeywordMap>;
 
-  /** A component to render just above the chart area. Can be used to put a custom toolbar inside the Vizbuilder. See [Styling](#styling) for a reference of the position. */
-  toolbar?: JSX.Element;
+  /**
+   * A function to select the default measure to use in case it belongs to a table.
+   * The function receives an array ob cubes, and must return one of them.
+   */
+  tableLogic?: (cubes: CubeItem[]) => CubeItem;
 
-  /** An object, whose keys are Geographic Level names, and their values are d3plus chart config objects, restricted to topojson-related properties. These are only applied on geomap charts. See [Chart configuration](#chart-configuration) for details. */
-  topojson?: {[key: string]: D3plusTopojsonConfigObject};
+  /**
+   * An object, whose keys are Geographic Level names, and their values are
+   * d3plus chart config objects, restricted to topojson-related properties.
+   * These are only applied on geomap charts.
+   * See [Chart configuration](#chart-configuration) for details.
+   */
+  topojson?: Record<string, TopojsonConfig>;
 
-  /** An array of the allowed chart types to show in this instance. Available options are "geomap", "treemap", "barchart", "lineplot", "barchartyear", and "stacked". Only allowing "geomap" charts enables the Map-only mode, see README.md (Map-only mode) for details. */
-  visualizations?: string[];
+  /**
+   * An array of the allowed chart types to show in this instance.
+   * Available options are "geomap", "treemap", "barchart", "lineplot", "barchartyear", and "stacked".
+   * If the only chart allowed is "geomap", vizbuilder will run in [Map-only mode](https://github.com/Datawheel/canon/tree/master/packages/vizbuilder#map-only-mode).
+   */
+  visualizations?: (
+    | "barchart"
+    | "barchartyear"
+    | "donut"
+    | "geomap"
+    | "histogram"
+    | "lineplot"
+    | "pie"
+    | "stacked"
+    | "treemap")[];
+
+  /**
+   * This parameter will be rendered in the sidebar, between filters and source info.
+   */
+  controlsArea?: JSX.Element;
+
+  /**
+   * This parameter will be rendered in the sidebar, between source info and rankings.
+   */
+  sourcesArea?: JSX.Element;
+
+  /**
+   * This parameter will be rendered in the sidebar, before the measure selector.
+   */
+  titleArea?: JSX.Element;
+
+  /**
+   * This parameter will be rendered at the top of the chart area.
+   */
+  toolbarArea?: JSX.Element;
 }
-
-export interface VbState {
-  charts: VbChart[];
-  datagroups: Datagroup[];
-  instanceKey: string;
-  load: VbLoadState;
-  options: VbOptions;
-  query: VbQuery;
-  uiParams: VbUIParams;
-}
-
-export interface VbDatagroup {
-  aggType: string;
-  charts: string[];
-  dataset: any[];
-  formatter: (d: number) => string;
-  key: string;
-  members: {[key: string]: string[] | number[]};
-  names: {[key: string]: string};
-  query: VbQuery;
-  quirk: string;
-}
-
-export interface VbChart implements VbDatagroup {
-  aggType: string;
-  baseConfig: Partial<D3plusConfigObject>;
-  chartType: string;
-  charts: string[];
-  component: React.Component;
-  dataset: any[];
-  formatter: (d: number) => string;
-  key: string;
-  members: {[key: string]: string[] | number[]};
-  names: {[key: string]: string};
-  query: VbQuery;
-  setup: Level[];
-  topoConfig: {projection: string; ocean: string; topojson: string};
-  userConfig: Partial<D3plusConfigObject>;
-}
-
-export interface VbQuery {
-  measure: Measure;
-  groups: Grouping[];
-  filters: Filter[];
-  cube: Cube;
-  timeLevel: Level;
-  lci?: Measure;
-  uci?: Measure;
-  moe?: Measure;
-  source: string;
-  collection: string;
-}
-
-export interface VbUIParams {
-  activeChart: string | null;
-  selectedTime: number | null;
-  showConfidenceInt: boolean;
-}
-
-export default Vizbuilder;

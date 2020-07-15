@@ -1,156 +1,54 @@
-import Filter from "./Filter";
-import Grouping from "./Grouping";
-
-import {fetchMembers} from "./fetch";
-import OPERATORS from "./operators";
-import {generateBaseState} from "./query";
-import {findByKey, getGeoLevel} from "./sorting";
-import {isValidFilter, isValidGrouping} from "./validation";
-
-/**
- * Parses the current `locationSearch` using the `keywords` defined by the user, and
- * returns the result in an object. This object can also be optionally passed as `target`.
- * @param {PermalinkKeywordMap} keywords A map with the parameter keys to parse from the location search
- * @param {Location & {query:object}} location A location search parameter string
- * @returns {Partial<PermalinkKeywordMap>}
- */
-export function parsePermalink(keywords, location) {
-  const locationQuery = location.query || {};
-  const sortByPermalinkKey = (a, b) =>
-    parseInt(a.split("-")[0], 10) - parseInt(b.split("-")[0], 10);
-  return {
-    measure: locationQuery[keywords.measure],
-    groups: []
-      .concat(locationQuery[keywords.groups])
-      .filter(Boolean)
-      .sort(sortByPermalinkKey),
-    filters: []
-      .concat(locationQuery[keywords.filters])
-      .filter(Boolean)
-      .sort(sortByPermalinkKey),
-    enlarged: locationQuery[keywords.enlarged]
-  };
-}
+import formUrlDecoded from "form-urldecoded";
+import formUrlEncoded from "form-urlencoded";
+import yn from "yn";
+import {isValidFilter, isValidGroup} from "./validation";
 
 /**
  * Builds the permalink query object, to update in the current location.
- * @param {PermalinkKeywordMap} keywords Permalink keyword map
- * @param {object} query The `query` element from the Vizbuilder's state.
+ * @param {PermalinkKeywordMap} keywords
+ * @param {object} state
+ * @param {string?} state.activeChart
+ * @param {FilterItem[]} state.filters
+ * @param {GroupItem[]} state.groups
+ * @param {MeasureItem} state.measure
+ * @param {boolean} state.showConfInt
+ * @param {number?} state.timePeriod
  */
-export function stateToPermalink(keywords, query, uiParams) {
-  const toString = (item, i) => `${i}-${item}`;
-  return {
-    [keywords.measure]: query.measure.annotations._key,
-    [keywords.groups]: query.groups
-      .filter(isValidGrouping)
-      .map(toString)
-      .sort(),
-    [keywords.filters]: query.filters
-      .filter(isValidFilter)
-      .map(toString)
-      .sort(),
-    [keywords.enlarged]: uiParams.activeChart || undefined
+export function stateToPermalink(keywords, state) {
+  const locationQuery = {
+    [keywords.measure]: state.measure.hash,
+    [keywords.groups]: state.groups
+      .filter(isValidGroup)
+      .map(item => [item.hash, item.combine ? 1 : 0].concat(item.members).join("|")),
+    [keywords.filters]: state.filters.length > 0
+      ? state.filters
+        .filter(isValidFilter)
+        .map(item => `${item.measure}|${item.operator}|${item.interpretedValue}`)
+      : undefined,
+    [keywords.enlarged]: state.activeChart || undefined,
+    [keywords.confint]: state.showConfInt || undefined,
+    [keywords.period]: state.timePeriod || undefined
   };
-}
-
-/**
- * Reconstructs a complete minimal state from a permalink query object.
- * @param {ExternalQueryParams} queryParams The current permalink parameter object.
- * @param {object} prevState The current entire Vizbuilder's `state` object.
- */
-export function permalinkToState(queryParams, prevState) {
-  const prevOptions = prevState.options;
-
-  const measures = prevOptions.measures;
-  const measure = findByKey(queryParams.measure, measures);
-
-  const newState =
-    measure && measure !== prevState.query.measure
-      ? generateBaseState(prevOptions.cubes, measure, prevOptions.geomapLevels)
-      : prevState;
-  const newOptions = newState.options;
-  const newQuery = newState.query;
-  const newUiParams = newState.uiParams;
-
-  newOptions.cubes = prevOptions.cubes;
-  newOptions.measures = prevOptions.measures;
-  newOptions.measureMap = prevOptions.measureMap;
-
-  newUiParams.activeChart = queryParams.enlarged || null;
-
-  newQuery.filters = queryParams.filters
-    .map(filterHash => {
-      const parts = filterHash.split("-");
-      parts.shift(); // remove order numeral
-      const value = parts.pop() * 1 || 0;
-      const operator = parts.pop() * 1 || OPERATORS.EQUAL;
-      const measureKey = parts.join("-");
-      const measure = findByKey(measureKey, measures);
-      return measure && new Filter(measure, operator, value);
-    })
-    .filter(Boolean);
-
-  return Promise.resolve(newState).then(state => {
-    const groupPromises = queryParams.groups.reduce((promises, groupHash) => {
-      const combine = groupHash.indexOf("_") > -1;
-      const parts = groupHash.split(/[-_]/);
-      parts.shift(); // remove order numeral
-      const levelKey = parts.shift();
-      const level = findByKey(levelKey, state.options.levels);
-      if (level) {
-        const memberKeys = parts.join("-").split("~").filter(Boolean);
-        let promise;
-        if (memberKeys.length > 0) {
-          promise = fetchMembers(state.query, level).then(members => {
-            const finalMembers = members
-              .filter(member => memberKeys.indexOf(`${member.key}`) > -1)
-              .sort((a, b) => `${a.key}`.localeCompare(`${b.key}`));
-            return new Grouping(level, finalMembers, combine);
-          });
-        }
-        else {
-          promise = new Grouping(level, [], combine);
-        }
-        promises.push(promise);
-      }
-      return promises;
-    }, []);
-
-    if (!groupPromises.length) {
-      const level = state.options.levels[0];
-      groupPromises.push(
-        fetchMembers(state.query, level).then(members => new Grouping(level, members))
-      );
-    }
-
-    return Promise.all(groupPromises).then(groups => {
-      state.query.groups = groups;
-      state.query.geoLevel = getGeoLevel(state.query);
-      return state;
-    });
+  return formUrlEncoded(locationQuery, {
+    ignorenull: true,
+    sorted: false,
+    skipIndex: false
   });
 }
 
 /**
- * @typedef {Object<string,string>} DefaultQueryParams
- * @prop {string} [defaultDimension] Initial dimension set by the user
- * @prop {string} [defaultLevel] Initial level for drilldown set by the user
- * @prop {string} [defaultMeasure] Initial measure set by the user
+ * @param {PermalinkKeywordMap} keywords
+ * @param {string} locationSearch
+ * @returns {{activeChart: string | undefined, filters: string[], groups: string[], measure: string, showConfInt: boolean, timePeriod: number}}
  */
-
-/**
- * @typedef {Object<string,string>} PermalinkQueryParams
- * @prop {string} [measure] Measure name hashed key
- * @prop {string} [level] Level name hashed key
- * @prop {string} [dimension] Dimension name hashed key
- * @prop {string} [filters] Condition hash key list
- * @prop {string} [enlarged] Chart type name
- */
-
-/**
- * @typedef {DefaultQueryParams & PermalinkQueryParams} ExternalQueryParams
- */
-
-/**
- * @typedef {PermalinkQueryParams} PermalinkKeywordMap
- */
+export function permalinkToState(keywords, locationSearch) {
+  const locationQuery = formUrlDecoded(locationSearch);
+  return {
+    activeChart: locationQuery[keywords.enlarged],
+    filters: locationQuery[keywords.filters] || [],
+    groups: locationQuery[keywords.groups] || [],
+    measure: locationQuery[keywords.measure],
+    showConfInt: yn(locationQuery[keywords.confint]) || false,
+    timePeriod: Number.parseInt(locationQuery[keywords.period], 10)
+  };
+}

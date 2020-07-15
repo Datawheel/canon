@@ -1,7 +1,7 @@
 {
   "name": "@datawheel/canon-logiclayer",
   "description": "API logic using mondrian-rest-client.",
-  "version": "0.4.2",
+  "version": "0.4.5",
   "author": "Dave Landry",
   "license": "MIT",
   "scripts": {
@@ -13,16 +13,21 @@
     "start": "canon-start"
   },
   "dependencies": {
+    "@blueprintjs/core": "^3.28.1",
+    "axios": "^0.19.2",
     "d3-array": "^1.2.1",
     "d3-collection": "^1.0.4",
+    "d3plus-common": "^0.6.60",
     "mondrian-rest-client": "^1.1.4",
-    "promise-throttle": "^1.0.0"
+    "promise-throttle": "^1.0.0",
+    "sequelize": "^4.13.10",
+    "yn": "^4.0.0"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "^0.16.34"
+    "@datawheel/canon-core": "workspace:^0.18.0"
   },
   "peerDependencies": {
-    "@datawheel/canon-core": "^0.16.34"
+    "@datawheel/canon-core": "^0.18.15"
   },
   "repository": {
     "type": "git",

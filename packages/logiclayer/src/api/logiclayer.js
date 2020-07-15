@@ -8,6 +8,7 @@ const Sequelize = require("sequelize"),
       path = require("path"),
       yn = require("yn");
 
+const {CANON_LOGICLAYER_CUBE} = process.env;
 const logging = process.env.CANON_LOGICLAYER_LOGGING;
 const slugs = yn(process.env.CANON_LOGICLAYER_SLUGS);
 const verbose = yn(logging);
@@ -97,8 +98,10 @@ module.exports = function(app) {
 
   app.get("/api/data/", async(req, res) => {
 
+    if (!CANON_LOGICLAYER_CUBE) return res.json({error: "Logic Layer path not defined."});
+
     const measures = findKey(req.query, "measures", []);
-    if (!measures.length) res.json({error: "Query must contain at least one measure."});
+    if (!measures.length) return res.json({error: "Query must contain at least one measure."});
     else {
 
       let reserved = ["captions", "drilldowns", "limit", "measures", "order", "parents", "properties", "sort", "Year", "debug"];
@@ -771,7 +774,7 @@ module.exports = function(app) {
         return d;
       });
 
-      res.json({data: mergedData, source});
+      return res.json({data: mergedData, source});
 
     }
 

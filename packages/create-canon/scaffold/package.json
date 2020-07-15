@@ -1,0 +1,28 @@
+{
+  "name": "canon-app",
+  "description": "A new instance of a canon app.",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "canon-dev",
+    "build": "canon-build",
+    "locale": "canon-locale"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@datawheel/canon-core": "latest",
+    "redux-logger": "^3.0.6"
+  },
+  "devDependencies": {
+    "@datawheel/eslint-config": "latest",
+    "babel-eslint": ">=6",
+    "eslint": ">=3",
+    "eslint-plugin-react": ">=7"
+  },
+  "eslintConfig": {
+    "extends": "@datawheel"
+  }
+}

@@ -1,0 +1,36 @@
+.area-sidebar {
+  & .grouping-item:only-child .action-delete {
+    display: none;
+  }
+
+  & .ranking-item {
+    & .row {
+      display: flex;
+      flex-direction: row;
+    }
+
+    & .item-label {
+      flex: 1 0 auto;
+      width: 0;
+    }
+
+    & .item-value {
+      margin-left: 1ex;
+      text-align: right;
+    }
+  }
+
+  & .details {
+    margin: 0.5rem 0;
+    font-size: 0.75rem;
+    color: #666;
+
+    &:empty {
+      display: none;
+    }
+  }
+}
+
+.bp3-multi-select .bp3-spinner {
+  align-self: center;
+}

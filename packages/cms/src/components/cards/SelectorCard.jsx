@@ -155,7 +155,7 @@ class SelectorCard extends Component {
     const {isOpen, alertObj, allowSave} = this.state;
     const {onMove, parentArray, type, minData} = this.props;
     const {localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
+    const variables = this.props.variables[localeDefault];
 
     // define initial card props
     const cardProps = {
@@ -281,6 +281,7 @@ SelectorCard.contextTypes = {
 };
 
 const mapStateToProps = state => ({
+  variables: state.cms.variables,
   status: state.cms.status
 });
 

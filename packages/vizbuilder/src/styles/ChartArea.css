@@ -1,0 +1,57 @@
+.area-chart {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: stretch;
+
+  & > .wrapper {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
+    min-height: 420px;
+  }
+
+  & .error-message {
+    white-space: pre-line;
+  }
+
+  & .chart-wrapper {
+    flex: 1 0 470px;
+    height: 0;
+
+    &.multi {
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: space-between;
+      align-items: stretch;
+    }
+  }
+
+  & .chart-card {
+    flex: 1 0 33%;
+    min-width: 500px;
+
+    & > .wrapper {
+      display: flex;
+      flex-flow: column nowrap;
+      margin: 0 5px 10px;
+      min-height: 45vh;
+    }
+
+    &:only-child,
+    &:only-child > .wrapper {
+      margin: 0;
+      height: 100%;
+    }
+
+    & .viz {
+      flex: 1 0;
+      transform: rotateZ(360deg);
+
+      & > svg {
+        display: block;
+        max-width: 100%;
+      }
+    }
+  }
+}

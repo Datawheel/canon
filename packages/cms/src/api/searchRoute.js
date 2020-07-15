@@ -26,7 +26,7 @@ const validLicenses = ["4", "5", "7", "8", "9", "10"];
 const validLicensesString = validLicenses.join();
 const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
 
-let cubeRoot = CANON_CMS_CUBES;
+let cubeRoot = CANON_CMS_CUBES || "localhost";
 if (cubeRoot.substr(-1) === "/") cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
 
 const catcher = e => {
@@ -43,6 +43,9 @@ let deepsearchAPI = process.env.CANON_CMS_DEEPSEARCH_API;
 if (deepsearchAPI) deepsearchAPI = deepsearchAPI.replace(/\/$/, "");
 const f = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
 const cartesian = (a, b, ...c) => b ? cartesian(f(a, b), ...c) : a;
+
+
+let unaccentExtensionInstalled;
 
 module.exports = function(app) {
 
@@ -290,6 +293,19 @@ module.exports = function(app) {
         if (results) results.origin = "deepsearch";
       }
       if (!deepsearchAPI || deepsearchAPI && !results) {
+
+        // Check just the first time if unaccent Extension is installed.
+        // If not launch a warning and use the fallback search.
+        // Install it running in the db: "CREATE EXTENSION IF NOT EXISTS unaccent;";
+        if (typeof unaccentExtensionInstalled === "undefined") {
+          const [unaccentResult, unaccentMetadata] = await db.query("SELECT * FROM pg_extension WHERE extname = 'unaccent';");
+          unaccentExtensionInstalled = unaccentMetadata.rowCount >= 1;
+          if (!unaccentExtensionInstalled) {
+            console.log("WARNING: For better search results, Consider installing the 'unaccent' extension in Postgres by running: CREATE EXTENSION IF NOT EXISTS unaccent;");
+            console.log("Do not forget to restart the web application after installation.");
+          }
+        }
+
         results = {};
         const {query} = req.query;
         const where = {};
@@ -297,9 +313,36 @@ module.exports = function(app) {
         const terms = query.split(" ");
         const orArray = [];
         terms.forEach(term => {
-          orArray.push({name: {[sequelize.Op.iLike]: `%${term}%`}});
-          orArray.push({keywords: {[sequelize.Op.overlap]: [query]}});
+
+          // Use unaccent extension from postgres if exists.
+          if (unaccentExtensionInstalled) {
+
+            // Where by name
+            orArray.push(
+              sequelize.where(
+                sequelize.fn("unaccent", sequelize.col("name")),
+                {[sequelize.Op.iLike]: sequelize.fn("concat", "%", sequelize.fn("unaccent", term), "%")})
+            );
+
+            // Where by keywords
+            orArray.push(
+              sequelize.where(
+                sequelize.fn("unaccent", sequelize.fn("array_to_string", sequelize.col("keywords"), " ", "")),
+                {[sequelize.Op.iLike]: sequelize.fn("concat", "%", sequelize.fn("unaccent", term), "%")})
+            );
+
+          }
+          else {
+            // Where by name: Use simple ilike query if unaccent extension doesn't exists.
+            orArray.push({name: {[sequelize.Op.iLike]: `%${term}%`}});
+          }
         });
+
+        // Where by keywords: Add simple overlap to look into keywords if unaccent extension doesn't exists.
+        if (!unaccentExtensionInstalled) {
+          orArray.push({keywords: {[sequelize.Op.overlap]: [query]}});
+        }
+
         where[sequelize.Op.or] = orArray;
         where.locale = locale;
         const contentRows = await db.search_content.findAll({where}).catch(catcher);
@@ -389,7 +432,7 @@ module.exports = function(app) {
       else {
         combinedResults = combinedResults.filter(d => {
           const ids = d.map(o => o.id);
-          return (new Set(ids)).size === ids.length;
+          return new Set(ids).size === ids.length;
         });
       }
 

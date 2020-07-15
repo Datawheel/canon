@@ -64,14 +64,20 @@ export default class VariableEditorUI extends Component {
     // If a simple config has not been provided, then the user has never used one before,
     // so prepare the interface based on the payload itself
     else {
-      objects = pl.map((obj, i) =>
-        Object.keys(obj).map(k => ({
-          use: true,
-          keyName: `${this.camelize(k)}${i + 1}`,
-          pKey: k,
-          pVal: obj[k]
-        }))
-      );
+      if (Array.isArray(pl)) {
+        objects = pl.map((obj, i) =>
+          Object.keys(obj).map(k => ({
+            use: true,
+            keyName: `${this.camelize(k)}${i + 1}`,
+            pKey: k,
+            pVal: obj[k]
+          }))
+        );
+      }
+      else {
+        objects = [];
+      }
+      
       // If this component is mounting and is NOT provided a simple config, it means the
       // user has just enabled simple mode. This means the parent component must be given
       // the simple logic NOW, so if the user clicks save without editing anything, it's there.

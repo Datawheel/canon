@@ -2,6 +2,7 @@ import React, {Component, Fragment} from "react";
 import Button from "../fields/Button";
 import Select from "../fields/Select";
 import TextInput from "../fields/TextInput";
+import VariableSuggest from "../fields/VariableSuggest";
 import ButtonGroup from "../fields/ButtonGroup";
 import {connect} from "react-redux";
 import {setStatus} from "../../actions/status";
@@ -14,20 +15,31 @@ class SelectorEditor extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: null
+      data: null,
+      vsOptions: []
     };
   }
 
   componentDidMount() {
     const {data} = this.props;
     const showCustom = data.default.includes("{{");
-    this.setState({data, showCustom});
+    const {localeDefault} = this.props.status;
+    const variables = this.props.variables[localeDefault];
+    const vsOptions = Object.entries(variables)
+      .filter(([key]) => !key.startsWith("_"))
+      .sort(([a], [b]) => a.localeCompare(b))
+      .reduce((acc, [key, value]) => acc.concat({key, value}), []);
+    this.setState({data, showCustom, vsOptions});
+  }
+
+  strip(t) {
+    return typeof t === "string" ? t.replace("{{", "").replace("}}", "") : t;
   }
 
   addOption() {
     const {data, isDirty} = this.state;
     const {localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
+    const variables = this.props.variables[localeDefault];
     if (!data.options) data.options = [];
     const varList = Object.keys(variables).filter(v => !v.startsWith("_") && !data.options.map(o => o.option).includes(v));
     if (varList.length > 0) {
@@ -45,9 +57,20 @@ class SelectorEditor extends Component {
     }
   }
 
-  chooseOption(index, e) {
+  chooseOption(index, key) {
     const {data, isDirty} = this.state;
-    data.options[index].option = e.target.value;
+    const original = data.options[index].option;
+    // If the old option was the default, make this new option the default.
+    if (data.type === "single" && data.default === original) {
+      data.default = key;
+    }
+    else if (data.type === "multi") {
+      const defaults = data.default.split(",");
+      if (defaults.includes(original)) {
+        data.default = defaults.filter(o => o !== original).concat(key).join();
+      }
+    }
+    data.options[index].option = key;
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
       this.setState({isDirty: true, data});
@@ -57,9 +80,9 @@ class SelectorEditor extends Component {
     }
   }
 
-  chooseAllowed(index, e) {
+  chooseAllowed(index, key) {
     const {data, isDirty} = this.state;
-    data.options[index].allowed = e.target.value;
+    data.options[index].allowed = key;
     this.setState({data});
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
@@ -70,9 +93,9 @@ class SelectorEditor extends Component {
     }
   }
 
-  chooseCustom(e) {
+  chooseCustom(key) {
     const {data, isDirty} = this.state;
-    data.default = e.target.value;
+    data.default = `{{${key}}}`;
     if (!isDirty) {
       if (this.props.markAsDirty) this.props.markAsDirty();
       this.setState({isDirty: true, data});
@@ -82,11 +105,11 @@ class SelectorEditor extends Component {
     }
   }
 
-  chooseDynamic(e) {
+  chooseDynamic(key) {
     const {data, isDirty} = this.state;
     const {localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
-    data.dynamic = e.target.value;
+    const variables = this.props.variables[localeDefault];
+    data.dynamic = key;
     const dynamicStatus = validateDynamic(variables[data.dynamic]);
     if (this.props.setAllowSave) this.props.setAllowSave(dynamicStatus === "valid");
     if (!isDirty) {
@@ -105,7 +128,9 @@ class SelectorEditor extends Component {
       data.default = option;
     }
     else if (data.type === "multi") {
-      const defaults = data.default.split(",");
+      const defaults = data.default.split(",")
+        // The user may have previously had a custom Default. Selecting an option must implicitly clear it.
+        .filter(d => !d.includes("{{")); 
       if (checked && !defaults.includes(option)) data.default = defaults.concat(option).join();
       if (!checked && defaults.includes(option)) data.default = defaults.filter(o => o !== option).join();
     }
@@ -205,9 +230,8 @@ class SelectorEditor extends Component {
   }
 
   openGenerator(key) {
-    this.props.setStatus({dialogOpen: false});
     const {localeDefault} = this.props.status;
-    const {variables} = this.props.status;
+    const {variables} = this.props;
     const vars = variables[localeDefault];
 
     const gens = Object.keys(vars._genStatus);
@@ -226,10 +250,9 @@ class SelectorEditor extends Component {
   }
 
   toggleDynamic() {
-    const {data, isDirty} = this.state;
+    const {data, isDirty, vsOptions} = this.state;
     const {localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
-    const arrayOptions = Object.keys(variables).filter(key => Array.isArray(variables[key])).sort((a, b) => a.localeCompare(b));
+    const variables = this.props.variables[localeDefault];
     if (data.dynamic) {
       data.dynamic = "";
       data.default = "";
@@ -237,6 +260,7 @@ class SelectorEditor extends Component {
     }
     else {
       // Shouldn't be able to get here without arrayOptions having length (see render), so assume first element exists.
+      const arrayOptions = vsOptions.filter(d => Array.isArray(d.value)).map(d => d.key);
       data.default = "";
       data.dynamic = arrayOptions[0];
       const dynamicStatus = validateDynamic(variables[data.dynamic]);
@@ -254,41 +278,15 @@ class SelectorEditor extends Component {
 
   render() {
 
-    const {data, showCustom} = this.state;
+    const {data, showCustom, vsOptions} = this.state;
     const {localeDefault} = this.props.status;
-    const variables = this.props.status.variables[localeDefault];
+    const variables = this.props.variables[localeDefault];
 
     if (!data || !variables) return null;
 
     const makeLabel = (type, value) => !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`
 
-    const varOptions = [<option key="always" value="always">Always</option>]
-      .concat(Object.keys(variables)
-        .filter(key => !key.startsWith("_"))
-        .filter(key => typeof variables[key] !== "object")
-        .sort((a, b) => a.localeCompare(b))
-        .map(key => {
-          const value = variables[key];
-          const type = typeof value;
-          const label = makeLabel(type, value);
-          return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
-        }));
-
-    const customOptions = Object.keys(variables)
-      .filter(key => !key.startsWith("_"))
-      .filter(key => typeof variables[key] !== "object")
-      .sort((a, b) => a.localeCompare(b))
-      .map(key => {
-        const value = variables[key];
-        const type = typeof value;
-        const label = makeLabel(type, value);
-        return <option key={`{{${key}}}`} value={`{{${key}}}`} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
-      });
-
-    const arrayOptions = Object.keys(variables)
-      .filter(key => Array.isArray(variables[key]))
-      .sort((a, b) => a.localeCompare(b))
-      .map(key => <option key={key} value={key}>{key}</option>);
+    const enableDynamic = vsOptions.some(d => Array.isArray(d.value));
 
     const buttonProps = {
       className: "u-font-xs",
@@ -332,22 +330,20 @@ class SelectorEditor extends Component {
             className="cms-selector-editor-custom-checkbox"
             type="checkbox"
             checked={data.dynamic}
-            disabled={arrayOptions.length === 0}
+            disabled={!enableDynamic}
             onChange={this.toggleDynamic.bind(this)}
           />
           {!data.dynamic
             ? "Use Dynamic Variable for options (advanced)"
             : <Fragment>Dynamic Variable: 
-              <Select
-                label=" "
-                namespace="cms"
+              <VariableSuggest
+                keyOnly={true}
+                fill={false}
+                options={vsOptions.filter(d => Array.isArray(d.value))}
                 value={data.dynamic}
-                onChange={this.chooseDynamic.bind(this)}
-                inline
-              >
-                {arrayOptions}
-              </Select>
-              <Button onClick={this.openGenerator.bind(this, data.dynamic)}>Open Originating Generator</Button>  
+                onItemSelect={key => this.chooseDynamic.bind(this)(key)}
+              />
+              { /* <Button onClick={this.openGenerator.bind(this, data.dynamic)}>Open Originating Generator</Button> */ }
             </Fragment>
           }
         </label>
@@ -399,15 +395,11 @@ class SelectorEditor extends Component {
                     <td className="cms-selector-editor-cell">
                       {dynamicAndValid
                         ? <div>{`${option.option}${makeLabel(typeof option.option, option.label ? option.label : variables[option.option])}`}</div>
-                        : <Select
-                          label="option (new)"
-                          labelHidden
-                          namespace="cms"
+                        : <VariableSuggest
+                          options={vsOptions.filter(d => typeof d.value !== "object")}
                           value={option.option}
-                          onChange={this.chooseOption.bind(this, i)}
-                        >
-                          {varOptions.slice(1) /* the first position "Always" is not a valid variable */ }  
-                        </Select>
+                          onItemSelect={key => this.chooseOption.bind(this)(i, key)}
+                        />
                       }
                     </td>
 
@@ -415,15 +407,12 @@ class SelectorEditor extends Component {
                     <td className="cms-selector-editor-cell">
                       {dynamicAndValid
                         ? <div>{`${option.allowed}${option.allowed !== "always" ? makeLabel(typeof option.allowed, variables[option.allowed]) : ""}`}</div>
-                        : <Select
-                          label="Visible"
-                          labelHidden
-                          namespace="cms"
+                        : <VariableSuggest
+                          options={vsOptions.filter(d => typeof d.value !== "object")}
                           value={option.allowed}
-                          onChange={this.chooseAllowed.bind(this, i)}
-                        >
-                          {varOptions}
-                        </Select>
+                          onItemSelect={key => this.chooseAllowed.bind(this)(i, key)}
+                          prependAlways={true}
+                        />
                       }
                     </td>
 
@@ -433,6 +422,7 @@ class SelectorEditor extends Component {
                         onClick={this.deleteOption.bind(this, i)}
                         namespace="cms"
                         icon="trash"
+                        fontSize="xxs"
                         iconOnly
                         disabled={data.dynamic}
                       >
@@ -485,16 +475,12 @@ class SelectorEditor extends Component {
           {!showCustom
             ? "Override default with custom logic"
             : <Fragment>Custom default: 
-              <Select
-                label=" "
-                labelHidden
-                namespace="cms"
-                value={data.default}
-                onChange={this.chooseCustom.bind(this)}
-                inline
-              >
-                {customOptions}
-              </Select>
+              <VariableSuggest
+                options={vsOptions.filter(d => typeof d.value !== "object")}
+                value={this.strip(data.default)}
+                onItemSelect={key => this.chooseCustom.bind(this)(key)}
+                fill={false}
+              />
             </Fragment>
           }
         </label>
@@ -504,6 +490,7 @@ class SelectorEditor extends Component {
 }
 
 const mapStateToProps = state => ({
+  variables: state.cms.variables,
   status: state.cms.status
 });
 

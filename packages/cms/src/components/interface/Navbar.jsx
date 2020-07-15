@@ -191,7 +191,7 @@ class Navbar extends Component {
     const {profiles} = this.props;
     const {query, localeDefault, currentPid} = this.props.status;
     const {formatterFunctions} = this.props.resources;
-    const variables = this.props.status.variables[localeDefault] || {};
+    const variables = this.props.variables[localeDefault] || {};
     const formatters = formatterFunctions[localeDefault];
     const thisProfile = profiles.find(p => p.id === currentPid);
     const allSelectors = thisProfile ? thisProfile.selectors : [];
@@ -475,6 +475,7 @@ const mapStateToProps = state => ({
   status: state.cms.status,
   resources: state.cms.resources,
   profiles: state.cms.profiles,
+  variables: state.cms.variables,
   stories: state.cms.stories
 });
 

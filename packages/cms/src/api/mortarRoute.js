@@ -26,6 +26,17 @@ const catcher = e => {
   return [];
 };
 
+const getConfig = () => {
+  const config = {};
+  if (OLAP_PROXY_SECRET) {
+    const jwtPayload = {sub: "server", status: "valid"};
+    if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+    const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+    config.headers = {"x-tesseract-jwt-token": apiToken};
+  }
+  return config;
+};
+
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "canon";
 const LANGUAGES = process.env.CANON_LANGUAGES || LANGUAGE_DEFAULT;
 const LOGINS = process.env.CANON_LOGINS || false;
@@ -33,7 +44,7 @@ const PORT = process.env.CANON_PORT || 3300;
 const NODE_ENV = process.env.NODE_ENV || "development";
 const REQUESTS_PER_SECOND = process.env.CANON_CMS_REQUESTS_PER_SECOND ? parseInt(process.env.CANON_CMS_REQUESTS_PER_SECOND, 10) : 20;
 const GENERATOR_TIMEOUT = process.env.CANON_CMS_GENERATOR_TIMEOUT ? parseInt(process.env.CANON_CMS_GENERATOR_TIMEOUT, 10) : 5000;
-let cubeRoot = process.env.CANON_CMS_CUBES;
+let cubeRoot = process.env.CANON_CMS_CUBES || "localhost";
 if (cubeRoot.substr(-1) === "/") cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
 
 const canonVars = {
@@ -137,6 +148,7 @@ const formatters4eval = async(db, locale) => {
 };
 
 const sorter = (a, b) => a.ordering - b.ordering;
+const selectsorter = (a, b) => a.section_selector && b.section_selector ? a.section_selector.ordering - b.section_selector.ordering : 0;
 
 // Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. Eventually move it up to the query.
 const sortProfile = profile => {
@@ -145,7 +157,7 @@ const sortProfile = profile => {
     profile.sections.sort(sorter);
     profile.sections.forEach(section => {
       if (section.subtitles) section.subtitles.sort(sorter);
-      if (section.selectors) section.selectors.sort(sorter);
+      if (section.selectors) section.selectors.sort(selectsorter);
       if (section.stats) section.stats.sort(sorter);
       if (section.descriptions) section.descriptions.sort(sorter);
       if (section.visualizations) section.visualizations.sort(sorter);
@@ -201,8 +213,7 @@ const bubbleUp = (obj, locale) => {
 };
 
 const extractLocaleContent = (sourceObj, locale, mode) => {
-  let obj = deepClone(sourceObj);
-  obj = bubbleUp(obj, locale);
+  const obj = bubbleUp(sourceObj, locale);
   if (mode === "story") {
     ["footnotes", "descriptions", "authors"].forEach(type => {
       if (obj[type]) obj[type] = obj[type].map(o => bubbleUp(o, locale));
@@ -287,13 +298,7 @@ module.exports = function(app) {
       }
       // Fetch Parents
       const url = `${cubeRoot}/relations.jsonrecords?cube=${attr.cubeName}&${attr.hierarchy}=${attr.id}:parents`;
-      const config = {};
-      if (OLAP_PROXY_SECRET) {
-        const jwtPayload = {sub: "server", status: "valid"};
-        if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
-        const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
-        config.headers = {"x-tesseract-jwt-token": apiToken};
-      }
+      const config = getConfig();
       const resp = await axios.get(url, config).catch(() => {
         if (verbose) console.log("Warning: Parent endpoint misconfigured or not available (mortarRoute)");
         return [];
@@ -301,6 +306,13 @@ module.exports = function(app) {
       if (resp && resp.data && resp.data.data && resp.data.data.length > 0) {
         smallAttr.parents = resp.data.data;
       }
+      // Fetch Custom Magic Generator
+      const magicURL = `${ req.protocol }://${ req.headers.host }/api/cms/customAttributes/${pid}`;
+      const magicResp = await axios.post(magicURL, {variables: smallAttr, locale}).catch(() => ({data: {}}));
+      if (typeof magicResp.data === "object") {
+        smallAttr = {...smallAttr, ...magicResp.data};
+      }
+
     }
     const genObj = id ? {where: {id}} : {where: {profile_id: pid}};
     let generators = await db.generator.findAll(genObj).catch(catcher);
@@ -316,13 +328,7 @@ module.exports = function(app) {
         url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
       }
 
-      const config = {};
-      if (OLAP_PROXY_SECRET) {
-        const jwtPayload = {sub: "server", status: "valid"};
-        if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
-        const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
-        config.headers = {"x-tesseract-jwt-token": apiToken};
-      }
+      const config = getConfig();
 
       config.timeout = GENERATOR_TIMEOUT;
 
@@ -435,13 +441,6 @@ module.exports = function(app) {
     const origin = `${ req.protocol }://${ req.headers.host }`;
 
     const dims = collate(req.query);
-    // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
-    // Replace that slug with the actual real id from the search table.
-    for (let i = 0; i < dims.length; i++) {
-      const dim = dims[i];
-      const attribute = await db.search.findOne({where: {slug: dim.id}}).catch(catcher);
-      if (attribute && attribute.id) dim.id = attribute.id;
-    }
 
     const sectionID = req.query.section;
     const profileID = req.query.profile;
@@ -499,6 +498,19 @@ module.exports = function(app) {
         return res.json({error: `Profile not found for slug: ${match}`, errorCode: 404});
       }
     }
+    
+    // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
+    // Replace that slug with the actual real id from the search table. To do this, however,
+    // We need the meta from the profile so we can filter by cubename.
+    for (let i = 0; i < dims.length; i++) {
+      const dim = dims[i];
+      const meta = await db.profile_meta.findOne({where: {slug: dim.slug}});
+      if (meta && meta.cubeName) {
+        const attribute = await db.search.findOne({where: {slug: dim.id, cubeName: meta.cubeName}}).catch(catcher);
+        if (attribute && attribute.id) dim.id = attribute.id;
+      }
+    }
+
     let returnObject = {};
     let variables = {};
     // If the user has provided variables, this is a POST request. Use those variables,
@@ -555,10 +567,12 @@ module.exports = function(app) {
             }
             const getNeighborsForId = async id => {
               const members = [];
+              const url = `${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:neighbors`;
+              const config = getConfig();
               // Now that we have a correct hierarchy/level, query the neighbors endpoint
               const neighbors = await axios
-                .get(`${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:neighbors`)
-                .then(d => d.data.data)
+                .get(url, config)
+                .then(d => d && d.data && d.data.data && Array.isArray(d.data.data) ? d.data.data : [])
                 .catch(catcher);
               // Fetch the FULL members for each neighbor and collate them by dimension slug
               for (const neighbor of neighbors) {
@@ -679,14 +693,14 @@ module.exports = function(app) {
     // See profileReq above to see the sequelize formatting for fetching the entire profile
     let profile;
     if (variables._rawProfile) {
-      profile = sortProfile(extractLocaleContent(variables._rawProfile, locale, "profile"));
+      profile = sortProfile(extractLocaleContent(deepClone(variables._rawProfile), locale, "profile"));
     }
     else {
       const reqObj = Object.assign({}, profileReq, {where: {id: pid}});
       const rawProfile = await db.profile.findOne(reqObj).catch(catcher);
       if (rawProfile) {
         variables._rawProfile = rawProfile.toJSON();
-        profile = sortProfile(extractLocaleContent(variables._rawProfile, locale, "profile"));
+        profile = sortProfile(extractLocaleContent(deepClone(variables._rawProfile), locale, "profile"));
         // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
         // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
         // which power the actual rendered dropdowns on the front-end profile page.
@@ -709,6 +723,23 @@ module.exports = function(app) {
     // into "real ones" so that all the ensuing logic can treat them as if they were normal.
     profile.sections.forEach(section => {
       section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
+    });
+    // Before sending the profiles down to be varswapped, remember that some sections have groupings. If a grouping
+    // has been set to NOT be visible, then its "virtual children" should not be visible either. Copy the outer grouping's
+    // visible prop down to the child sections so they get hidden in the same manner.
+    let latestGrouping = {};
+    profile.sections.forEach(section => {
+      if (section.type === "Grouping") {
+        latestGrouping = section;
+      }
+      else {
+        // Get the visibility of the parent group
+        const parentGroupingAllowed = !latestGrouping.allowed || latestGrouping.allowed === "always" || variables[latestGrouping.allowed];
+        // If the parent group is invisible, copy its allowed setting down into this section.
+        if (!parentGroupingAllowed) {
+          section.allowed = latestGrouping.allowed;
+        }
+      }
     });
     profile = varSwapRecursive(profile, formatterFunctions, variables, req.query);
     // If the user provided selectors in the query, then the user has changed a dropdown.

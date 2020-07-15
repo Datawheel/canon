@@ -109,7 +109,7 @@ class VariableEditor extends Component {
     const {attr, env} = this.props;
     const {previews, localeDefault} = this.props.status;
     // Stories can use VariableEditors, but don't have variables
-    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
+    const variables = this.props.variables[localeDefault] || {};
     if (api) {
       // The API will have <ids> in it that needs to be replaced with the current preview.
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
@@ -220,7 +220,7 @@ class VariableEditor extends Component {
     const {localeDefault} = this.props.status;
 
     // Stories can use VariableEditors, but don't have variables
-    const variables = this.props.status.variables[localeDefault] ? this.props.status.variables[localeDefault] : {};
+    const variables = this.props.variables[localeDefault] || {};
 
     if (!data) return null;
 
@@ -371,6 +371,7 @@ class VariableEditor extends Component {
 }
 
 const mapStateToProps = state => ({
+  variables: state.cms.variables,
   env: state.env,
   status: state.cms.status
 });

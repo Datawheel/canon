@@ -1,4 +1,4 @@
-# vizbuilder
+# @datawheel/canon-vizbuilder
 
 ## Getting started
 

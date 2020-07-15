@@ -58,11 +58,6 @@ module.exports = [
     methods: [groupBy, x, y, xConfigTitle, yConfigTitle]
   },
   {
-    name: "Percentage Bar",
-    type: "PercentageBar",
-    methods: [groupBy, value]
-  },
-  {
     name: "Pie Chart",
     type: "Pie",
     methods: [groupBy, value]

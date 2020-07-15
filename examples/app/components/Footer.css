@@ -1,0 +1,20 @@
+@import "./mixins";
+footer {
+  background-color: var(--light-1);
+  box-sizing: border-box;
+  @mixin padding 25px;
+  text-align: center;
+  width: 100%;
+  & .datawheel {
+    width: 150px;
+    vertical-align: top;
+  }
+  & .datawheel-css {
+    background-image: url("/images/logos/datawheel.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: inline-block;
+    height: 46px;
+    width: 150px;
+  }
+}

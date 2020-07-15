@@ -40,7 +40,7 @@ class RichTextEditor extends Component {
     const {data, fields} = this.state;
     const {contentType, locale} = this.props;
     // Stories use TextEditors, but don't need variables.
-    const variables = this.props.status.variables[locale] ? this.props.status.variables[locale] : {};
+    const variables = this.props.variables[locale] || {};
     const {formatters, selectors} = this.props;
 
     if (!data || !fields || !variables) return null;
@@ -61,6 +61,7 @@ class RichTextEditor extends Component {
               variables={variables}
               defaultValue={thisLocale[f] || ""}
               onChange={this.handleEditor.bind(this, f)}
+              showToolbar={this.props.status.showToolbar}
             />
           </div>
         )}
@@ -79,6 +80,7 @@ class RichTextEditor extends Component {
 }
 
 const mapStateToProps = state => ({
+  variables: state.cms.variables,
   status: state.cms.status,
   formatters: state.cms.formatters,
   selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []

@@ -25,3 +25,8 @@
     width: 1.125em;
   }
 }
+
+.cms-console-warning {
+  margin-top: 1px;
+  margin-left: 5px;
+}

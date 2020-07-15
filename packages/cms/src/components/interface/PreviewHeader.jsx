@@ -55,7 +55,7 @@ class PreviewHeader extends Component {
     const {meta} = this.props;
     const locale = useLocaleSecondary ? localeSecondary : localeDefault;
 
-    const localeList = locales.concat([localeDefault]);
+    const localeList = locales ? locales.concat([localeDefault]) : [localeDefault];
 
     const groupedMeta = groupMeta(meta);
 

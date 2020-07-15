@@ -1,6 +1,7 @@
 import React, {Component, Fragment} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
+import {withNamespaces} from "react-i18next";
 import {nest} from "d3-collection";
 import {AnchorLink} from "@datawheel/canon-core";
 
@@ -20,14 +21,16 @@ import Selector from "./components/Selector";
 
 import Default from "./Default";
 import Grouping from "./Grouping";
-import InfoCard from "./InfoCard";
 import MultiColumn from "./MultiColumn";
 import SingleColumn from "./SingleColumn";
 import Tabs from "./Tabs";
 
+// User must define custom sections in app/cms/sections, and export them from an index.js in that folder.
+import * as CustomSections from "CustomSections";
+
 // used to construct component
 // NOTE: should be every Component in `components/sections/` except for Section (i.e., this component) and Hero (always rendered separately)
-const sectionTypes = {Default, Grouping, InfoCard, MultiColumn, SingleColumn, Tabs};
+const sectionTypes = {Default, Grouping, MultiColumn, SingleColumn, Tabs, ...CustomSections};
 
 /** wrapper for all sections */
 class Section extends Component {
@@ -160,8 +163,7 @@ class Section extends Component {
 
   render() {
     const {contents, sources, isStickyIE, height, showReset} = this.state;
-    const {headingLevel, hideAnchor, hideOptions, isModal, loading} = this.props;
-    const initialVariables = this.props.initialVariables || this.context.initialVariables || {};
+    const {headingLevel, hideAnchor, hideOptions, isModal, loading, t} = this.props;
 
     // remap old section names
     const layout = contents.type;
@@ -215,23 +217,14 @@ class Section extends Component {
     );
 
     // stats
-    let secondaryStatContent, statContent;
+    let statContent;
 
     if (contents.position !== "sticky") {
       const statGroups = nest().key(d => d.title).entries(stats);
 
       if (stats.length > 0) {
         statContent = <div className={`cp-stat-group-wrapper${stats.length === 1 ? " single-stat" : ""}`}>
-          {statGroups.map(({key, values}, i) => !(layout === "InfoCard" && i > 0) // only push the first stat for cards
-            ? <StatGroup key={key} title={key} stats={values} /> : ""
-          )}
-        </div>;
-      }
-      if (stats.length > 1 && layout === "InfoCard") {
-        secondaryStatContent = <div className="cp-stat-group-wrapper cp-secondary-stat-group-wrapper">
-          {statGroups.map(({key, values}, i) => i > 0 // don't push the first stat again
-            ? <StatGroup key={key} title={key} stats={values} /> : ""
-          )}
+          {statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />)}
         </div>;
       }
     }
@@ -240,13 +233,11 @@ class Section extends Component {
     let paragraphs;
 
     if (descriptions.length && contents.position !== "sticky") {
-      paragraphs = loading
-        ? <p>Loading...</p>
-        : descriptions.map((content, i) =>
-          <Parse className={`cp-section-paragraph ${layoutClass}-paragraph`} key={`${content.description}-paragraph-${i}`}>
-            {content.description}
-          </Parse>
-        );
+      paragraphs = descriptions.map((content, i) =>
+        <Parse className={`cp-section-paragraph ${layoutClass}-paragraph`} key={`${content.description}-paragraph-${i}`}>
+          {content.description}
+        </Parse>
+      );
     }
 
     // sources
@@ -263,7 +254,7 @@ class Section extends Component {
       fill={!showReset}
       key="var-reset-button"
     >
-      Reset visualizations
+      {t("CMS.Section.Reset visualizations")}
     </Button>;
 
     const componentProps = {
@@ -274,14 +265,14 @@ class Section extends Component {
       subTitle,
       filters,
       stats: statContent,
-      secondaryStats: secondaryStatContent,
       sources: sourceContent,
       paragraphs: layout === "Tabs" ? contents.descriptions : paragraphs,
       resetButton,
       visualizations: contents.position !== "sticky" ? visualizations : [],
       vizHeadingLevel: `h${parseInt(headingLevel.replace("h", ""), 10) + 1}`,
       hideOptions,
-      loading
+      loading,
+      contents
     };
 
     return (
@@ -327,6 +318,6 @@ Section.childContextTypes = {
   updateSource: PropTypes.func
 };
 
-export default connect(state => ({
+export default withNamespaces()(connect(state => ({
   locale: state.i18n.locale
-}))(Section);
+}))(Section));

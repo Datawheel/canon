@@ -5,7 +5,6 @@ import {SizeMe} from "react-sizeme";
 import {hot} from "react-hot-loader/root";
 
 import Graphic from "./Graphic";
-import PercentageBar from "./PercentageBar";
 import HTML from "./HTML";
 import Table from "./Table";
 import Options from "./Options";
@@ -15,7 +14,10 @@ import Parse from "../sections/components/Parse";
 import "./Viz.css";
 import defaultConfig from "./defaultConfig";
 
-const vizTypes = Object.assign({PercentageBar, Table, Graphic, HTML}, d3plus);
+// User must define custom sections in app/cms/sections, and export them from an index.js in that folder.
+import * as CustomVizzes from "CustomVizzes";
+
+const vizTypes = {Table, Graphic, HTML, ...d3plus, ...CustomVizzes};
 
 class Viz extends Component {
 
@@ -26,8 +28,15 @@ class Viz extends Component {
   }
 
   analyzeData(resp) {
-    const {updateSource} = this.context;
-    if (updateSource && resp.source) updateSource(resp.source);
+    const {updateSource} = this.context;    
+    if (updateSource) {
+      if (resp.source) {
+        updateSource(resp.source);  
+      }
+      else if (Array.isArray(resp)) {
+        updateSource(resp.reduce((acc, d) => d.source && Array.isArray(d.source) ? acc.concat(d.source) : acc, []));
+      }
+    }
   }
 
   render() {
