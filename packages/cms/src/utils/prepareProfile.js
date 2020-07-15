@@ -7,7 +7,6 @@
 const validateDynamic = require("./selectors/validateDynamic");
 const scaffoldDynamic = require("./selectors/scaffoldDynamic");
 const varSwapRecursive = require("./varSwapRecursive");
-const libs = require("../utils/libs"); 
 const deepClone = require("../utils/deepClone");
 
 const sorter = (a, b) => a.ordering - b.ordering;
@@ -95,14 +94,8 @@ const fixSelector = (selector, dynamic) => {
 };
 
 // Perform a local varswap
-module.exports = (profile, variables, formatters, locale, query) => {
+module.exports = (profile, variables, formatterFunctions, locale, query) => {
   profile = sortProfile(extractLocaleContent(variables._rawProfile, locale, "profile"));
-  const formatterFunctions = formatters.reduce((acc, d) => {
-    const f = Function("n", "libs", "locale", "formatters", d.logic);
-    const fName = d.name.replace(/^\w/g, chr => chr.toLowerCase());
-    acc[fName] = n => f(n, libs, locale, acc);
-    return acc;
-  }, {});
   
   profile.sections.forEach(section => {
     section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);

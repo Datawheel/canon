@@ -19,6 +19,7 @@ import hashCode from "../utils/hashCode.js";
 
 import deepClone from "../utils/deepClone.js";
 import prepareProfile from "../utils/prepareProfile";
+import funcifyFormatterByLocale from "../utils/funcifyFormatterByLocale";
 
 // User must define custom sections in app/cms/sections, and export them from an index.js in that folder.
 import * as CustomSections from "CustomSections";
@@ -43,7 +44,8 @@ class ProfileRenderer extends Component {
       selectors: {},
       modalSlug: null,
       loading: false,
-      setVarsLoading: false
+      setVarsLoading: false,
+      formatterFunctions: funcifyFormatterByLocale(props.formatters, props.locale)
     };
   }
 
@@ -79,17 +81,12 @@ class ProfileRenderer extends Component {
   }
 
   getChildContext() {
-    const {formatters, locale} = this.props;
+    const {locale} = this.props;
     const {router} = this.context;
-    const {profile, initialVariables} = this.state;
+    const {profile, initialVariables, formatterFunctions} = this.state;
     const {variables} = profile;
     return {
-      formatters: formatters.reduce((acc, d) => {
-        const f = Function("n", "libs", "locale", "formatters", d.logic);
-        const fName = d.name.replace(/^\w/g, chr => chr.toLowerCase());
-        acc[fName] = n => f(n, libs, locale, acc);
-        return acc;
-      }, {}),
+      formatters: formatterFunctions,
       router,
       onSelector: this.onSelector.bind(this),
       onOpenModal: this.onOpenModal.bind(this),
@@ -112,9 +109,9 @@ class ProfileRenderer extends Component {
    * the "allowed" status of a given section.
    */
   onSetVariables(newVariables, forceMats) {
-    const {profile, selectors, setVarsLoading} = this.state;
+    const {profile, selectors, setVarsLoading, formatterFunctions} = this.state;
     const {id, variables} = profile;
-    const {locale, sectionID, formatters} = this.props;
+    const {locale, sectionID} = this.props;
     const {params} = this.context.router;
     // Users should ONLY call setVariables in a callback - never in the main execution, as this
     // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
@@ -147,23 +144,23 @@ class ProfileRenderer extends Component {
       // If forceMats is not true, no phone-home is required. Using the locally stored _rawProfile and the now-combined 
       // old and new variables, you have all that you need to make the profile update.
       else {
-        const newProfile = prepareProfile(variables._rawProfile, Object.assign({}, variables, newVariables), formatters, locale, selectors);
+        const newProfile = prepareProfile(variables._rawProfile, Object.assign({}, variables, newVariables), formatterFunctions, locale, selectors);
         this.setState({profile: {...profile, ...newProfile}});
       }
     }
   }
 
   onSelector(name, value) {
-    const {profile, selectors} = this.state;
+    const {profile, selectors, formatterFunctions} = this.state;
     const {id, variables} = profile;
-    const {locale, sectionID, formatters} = this.props;
+    const {locale, sectionID} = this.props;
     const {params} = this.context.router;
 
     if (value instanceof Array && !value.length) delete selectors[name];
     else selectors[name] = value;
 
     // this.setState({loading: true, selectors});
-    const newProfile = prepareProfile(variables._rawProfile, variables, formatters, locale, selectors);
+    const newProfile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, selectors);
     this.setState({selectors, profile: {...profile, ...newProfile}});
     
     /*
