@@ -122,6 +122,10 @@ class ProfileRenderer extends Component {
     const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
     if (!setVarsLoading && !alreadySet) {
       this.setState({setVarsLoading: true});
+      // If forceMats is true, this function has been called by the componentDidMount. User login requires a phone-home,
+      // because materializers need to run again to make variables like `isLoggedIn` become true. TODO:
+      // Do not perform an entire post/get of the entire profile to this endpoint - instead, just post the variables object
+      // to the materializers directly, fold in the received variables, and run prepareProfile.
       if (forceMats) {
         const payload = {variables: Object.assign({}, variables, newVariables)};
         let url = `/api/profile?profile=${id}&locale=${locale}`;
@@ -140,6 +144,8 @@ class ProfileRenderer extends Component {
             this.setState({profile: {neighbors: profile.neighbors, ...resp.data}, setVarsLoading: false});
           });
       }
+      // If forceMats is not true, no phone-home is required. Using the locally stored _rawProfile and the now-combined 
+      // old and new variables, you have all that you need to make the profile update.
       else {
         const newProfile = prepareProfile(variables._rawProfile, Object.assign({}, variables, newVariables), formatters, locale, selectors);
         this.setState({profile: {...profile, ...newProfile}});

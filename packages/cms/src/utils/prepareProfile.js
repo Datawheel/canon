@@ -1,3 +1,9 @@
+/**
+ * prepareProfile is part of an effort to move varSwap local. A great deal of "profile preparation" was occuring serverside,
+ * including the sql get, bubbling up language content, sorting, and varswapping. In order for profiles to be able to varswap
+ * locally, they need to do all this themselves. TODO: Make the server-side version use this too (deduplicate)
+ */
+
 const validateDynamic = require("./selectors/validateDynamic");
 const scaffoldDynamic = require("./selectors/scaffoldDynamic");
 const varSwapRecursive = require("./varSwapRecursive");
@@ -5,6 +11,7 @@ const libs = require("../utils/libs");
 const deepClone = require("../utils/deepClone");
 
 const sorter = (a, b) => a.ordering - b.ordering;
+const selectsorter = (a, b) => a.section_selector && b.section_selector ? a.section_selector.ordering - b.section_selector.ordering : 0;
 
 const sortProfile = profile => {
   profile.meta.sort(sorter);
@@ -12,7 +19,7 @@ const sortProfile = profile => {
     profile.sections.sort(sorter);
     profile.sections.forEach(section => {
       if (section.subtitles) section.subtitles.sort(sorter);
-      if (section.selectors) section.selectors.sort(sorter);
+      if (section.selectors) section.selectors.sort(selectsorter);
       if (section.stats) section.stats.sort(sorter);
       if (section.descriptions) section.descriptions.sort(sorter);
       if (section.visualizations) section.visualizations.sort(sorter);
