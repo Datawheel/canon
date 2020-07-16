@@ -71,6 +71,108 @@
       background-color: var(--accent);
     }
   }
+
+}
+
+.cp-subnav-group-list {
+  @mixin list-reset;
+  max-height: calc(100vh - calc(var(--nav-height) * 3));
+  overflow-y: auto;
+  text-align: left;
+
+  /* sizing */
+  min-width: 100%;
+  width: max-content;
+  padding-top: var(--gutter-xs);
+  padding-bottom: var(--gutter-sm);
+
+  /* position below nav bar on non-small screens */
+  @mixin min-sm {
+    /* positioning */
+    position: absolute;
+    top: var(--nav-height);
+  }
+
+  /* hidden state */
+  &.is-closed {
+    /* make it invisible */
+    opacity: 0;
+    transform: translateY(-20px);
+    z-index: -1;
+    /* prevent clicks */
+    clip: rect(1px, 1px, 1px, 1px);
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  /* base theming from hero vars */
+  & .cp-subnav-group-link {
+    color: var(--hero-text-color);
+    display: block;
+    opacity: 0.75;
+    padding: calc(var(--gutter-xs) / 2) var(--gutter-md) calc(var(--gutter-xs) / 2) var(--gutter-sm);
+    transition:
+      color 0.2s ease-out,
+      opacity 0.2s ease-out;
+
+    & .cp-subnav-group-link-icon {
+      margin-right: var(--gutter-xs);
+      transform: scale(0.875);
+    }
+
+    /* interactions */
+    &:hover, &:focus {
+      color: var(--hero-heading-color);
+      opacity: 1;
+      text-decoration: none;
+
+      & .cp-subnav-group-link-icon {
+        transform: scale(1);
+      }
+    }
+
+    /* current section */
+    &.is-active {
+      color: var(--accent);
+      opacity: 1;
+
+      &:after {
+        background-color: var(--accent);
+      }
+    }
+
+  }
+}
+/* open/hover state */
+.cp-subnav-group-list.is-open,
+.cp-subnav-item:hover > .cp-subnav-group-list {
+  background-color: var(--dark-3);
+
+  @mixin min-sm {
+    background-color: var(--dark-2);
+    box-shadow:
+      0 0.25em 0.5em color(var(--black) a(0.125)),
+      0 0.5em 1em color(var(--black) a(0.125));
+    transition:
+      opacity 0.2s ease-out,
+      transform 0.2s ease-out;
+  }
+}
+/* adjust open state theming & positioning */
+@mixin max-sm {
+  .cp-subnav-group-list.is-closed {
+    position: absolute;
+  }
+}
+/* override closed styles on hover */
+@mixin min-sm {
+  .cp-subnav-item:hover > .cp-subnav-group-list.is-closed {
+    opacity: 1;
+    transform: none;
+    clip: auto;
+    pointer-events: auto;
+    z-index: 1;
+  }
 }
 
 /* stacked layout on small screens */
@@ -110,13 +212,20 @@
       margin-left: 0;
       padding: 0 var(--gutter-sm);
       margin-right: var(--gutter-sm);
-      @mixin horizontal-overflow-container;
+      overflow: visible;
     }
 
     /* equally spaced items where possible */
     & .cp-subnav-item {
       flex: 1 0 auto;
+      position: relative;
       text-align: center;
+
+      /* prevent the rightmost menu item from getting cropped off the page */
+      &:last-of-type:hover .cp-subnav-group-list,
+      &:last-of-type .cp-subnav-group-list.is-open {
+        right: 0;
+      }
     }
 
     /* links fill the subnav height */

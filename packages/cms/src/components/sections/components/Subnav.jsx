@@ -4,6 +4,8 @@ import {Icon} from "@blueprintjs/core";
 
 import {AnchorLink} from "@datawheel/canon-core";
 
+import {merge} from "d3-array";
+
 import throttle from "../../../utils/throttle";
 import blueprintIcons from "../../../utils/blueprintIcons";
 import pxToInt from "../../../utils/formatters/pxToInt";
@@ -14,15 +16,39 @@ import styles from "style.yml";
 import "./Subnav.css";
 
 class Subnav extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
       currSection: false,
+      isOpen: false,
       top: false,
-      fixed: false
+      fixed: false,
+      sections: this.flattenSections(props.sections)
     };
     this.subnav = React.createRef();
     this.scrollBind = this.handleScroll.bind(this);
+    this.toggleButton = React.createRef();
+  }
+
+  /** when tabbing out of the nav group, collapse it */
+  onBlur(e) {
+    const currentTarget = e.currentTarget;
+
+    setTimeout(() => {
+      if (!currentTarget.contains(document.activeElement)) {
+        this.setState({isOpen: false});
+      }
+    }, 85); // register the click before closing
+  }
+
+  /** when clicking a subtitle, refocus the button to prevent the nav from losing focus and collapsing */
+  onFocusButton() {
+    setTimeout(() => {
+      if (this.toggleButton.current) {
+        this.toggleButton.current.focus();
+      }
+    }, 0);
   }
 
   componentDidMount() {
@@ -52,7 +78,7 @@ class Subnav extends Component {
       // we got groupings
       else {
         flattenedSections = sections
-          .map(s => s[0][0])
+          .map(s => ({...s[0][0], children: merge(s.slice(1))}))
           .filter(s => s.type.toLowerCase() === "grouping"); // only show groupings
       }
     }
@@ -68,7 +94,7 @@ class Subnav extends Component {
 
   /** on scroll, determine whether subnav is fixed, and which section we're in */
   handleScroll() {
-    const sections = this.flattenSections(this.props.sections);
+    const {sections} = this.state;
 
     if (sections) {
       throttle(() => {
@@ -104,10 +130,9 @@ class Subnav extends Component {
 
   render() {
     const {children} = this.props;
-    const {currSection, fixed} = this.state;
-    const sections = this.flattenSections(this.props.sections);
+    const {currSection, fixed, isOpen, sections} = this.state;
 
-    if (!sections || !Array.isArray(sections) || sections.length < 3) return null;
+    if (!sections || !Array.isArray(sections) || sections.length < 2) return null;
 
     let height = 50;
     if (typeof window !== "undefined" && this.subnav.current) {
@@ -121,9 +146,15 @@ class Subnav extends Component {
 
           {sections.length ? <ol className="cp-subnav-list" key="l">
             {sections.map(section =>
-              <li className="cp-subnav-item" key={section.slug}>
+              <li className="cp-subnav-item" key={section.slug}
+                // onBlur={e => this.onBlur(e)}
+                // onClick={() => this.onFocusButton()}
+              >
                 <AnchorLink
-                  className={`cp-subnav-link ${currSection.slug === section.slug ? "is-active" : "is-inactive"} ${sections.length >= 5 ? "u-font-xs" : "u-font-sm" }`}
+                  // onClick={() => this.setState({isOpen: !isOpen})}
+                  // onFocus={() => this.setState({isOpen: true})}
+                  ref={this.toggleButton}
+                  className={`cp-subnav-link ${isOpen || currSection.slug === section.slug ? "is-active" : "is-inactive"} ${sections.length >= 5 ? "u-font-xs" : "u-font-sm" }`}
                   to={section.slug}
                 >
                   {section.icon && blueprintIcons.find(i => i === section.icon) &&
@@ -131,6 +162,21 @@ class Subnav extends Component {
                   }
                   {section.short && stripHTML(section.short) ? stripHTML(section.short) : stripHTML(section.title)}
                 </AnchorLink>
+                { section.children.length
+                  ? <ul className={`cp-subnav-group-list ${isOpen ? "is-open" : "is-closed"}`}>
+                    { section.children.map(child =>
+                      <li key={child.id} className="cp-subnav-group-item">
+                        <AnchorLink
+                          className="cp-subnav-group-link u-font-xs"
+                          to={child.slug}
+                        >
+                          <Icon className="cp-subnav-group-link-icon" icon={child.icon && blueprintIcons.find(i => i === child.icon) ? child.icon : "dot"} />
+                          {child.short && stripHTML(child.short) ? stripHTML(child.short) : stripHTML(child.title)}
+                        </AnchorLink>
+                      </li>
+                    ) }
+                  </ul>
+                  : null }
               </li>
             )}
           </ol> : ""}
