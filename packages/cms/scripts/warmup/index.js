@@ -59,12 +59,12 @@ Environment variables:
     The following parameters are needed to connect to the database and get the
     needed meta info from profiles and search options:
 
-    CANON_CMS_DB_USER         The username to connect to the database.
-    CANON_CMS_DB_PSWD         The password to connect to the database, if needed.
-    CANON_CMS_DB_HOST         The host and port where to connect to the database.
+    CANON_DB_USER         The username to connect to the database.
+    CANON_DB_PW           The password to connect to the database, if needed.
+    CANON_DB_HOST         The host and port where to connect to the database.
                               Defaults to "localhost:5432".
-    CANON_CMS_DB_NAME         The name of the database where the info is stored.
-    CANON_CMS_DB_CONNECTION   The full connection URI string to connect to the database.
+    CANON_DB_NAME         The name of the database where the info is stored.
+    CANON_DB_CONNECTION   The full connection URI string to connect to the database.
                               Format is "engine://dbUser:dbPswd@dbHost/dbName".
                               If this variable is set, the previous ones are ignored.
 `);

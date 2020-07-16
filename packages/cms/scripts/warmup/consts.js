@@ -7,20 +7,20 @@ const {env} = process;
  */
 
 /** Database name */
-const dbName = env.CANON_CMS_DB_NAME;
+const dbName = env.CANON_DB_NAME;
 
 /** Database username */
-const dbUser = env.CANON_CMS_DB_USER;
+const dbUser = env.CANON_DB_USER;
 
 /** Database password */
-const dbPswd = env.CANON_CMS_DB_PSWD;
+const dbPswd = env.CANON_DB_PW;
 
 /** Database host and port */
-const dbHost = env.CANON_CMS_DB_HOST || "localhost:5432";
+const dbHost = env.CANON_DB_HOST || "localhost:5432";
 
 /** Database connection string */
-const dbConnection = env.CANON_CMS_DB_CONNECTION || `postgresql://${dbUser}:${dbPswd}@${dbHost}/${dbName}`;
-
+const dbConnection = env.CANON_DB_CONNECTION || `postgresql://${dbUser}:${dbPswd}@${dbHost}/${dbName}`;
+console.log("dbConnection", dbConnection);
 module.exports = {
   dbConnection,
   dbHost,
