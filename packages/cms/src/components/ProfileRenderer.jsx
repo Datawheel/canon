@@ -118,7 +118,6 @@ class ProfileRenderer extends Component {
     // loop by checking if the vars are in there already, only updating if they are not yet set.
     const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
     if (!setVarsLoading && !alreadySet) {
-      this.setState({setVarsLoading: true});
       // If forceMats is true, this function has been called by the componentDidMount. User login requires a phone-home,
       // because materializers need to run again to make variables like `isLoggedIn` become true. 
       if (forceMats) {
@@ -126,12 +125,13 @@ class ProfileRenderer extends Component {
         // There is no need to post the (giant) _rawProfile to materializers...
         const {_rawProfile, ...otherVars} = combinedVariables;
         const payload = {variables: otherVars};
+        this.setState({setVarsLoading: true});
         axios.post(`/api/materializers/${id}?locale=${locale}`, payload)
           .then(resp => {
             const newProfile = prepareProfile(_rawProfile, resp.data, formatterFunctions, locale, selectors);
             // ... but don't forget to add it back in on return!
             newProfile.variables._rawProfile = _rawProfile;
-            this.setState({profile: {...profile, ...newProfile}});
+            this.setState({profile: {...profile, ...newProfile}, setVarsLoading: false});
           });
       }
       // If forceMats is not true, no phone-home is required. Using the locally stored _rawProfile and the now-combined 
