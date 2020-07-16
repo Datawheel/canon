@@ -15,6 +15,7 @@ import SectionGrouping from "./sections/components/SectionGrouping";
 import Subnav from "./sections/components/Subnav";
 import Mirror from "./Viz/Mirror";
 import isIE from "../utils/isIE.js";
+import mortarEval from "../utils/mortarEval";
 import hashCode from "../utils/hashCode.js";
 
 import deepClone from "../utils/deepClone.js";
@@ -105,7 +106,7 @@ class ProfileRenderer extends Component {
 
   /**
    * Visualizations have the ability to "break out" and override a variable in the variables object.
-   * This requires a server round trip to run materializers, because the user may have changed a variable 
+   * This requires re-running materializers, because the user may have changed a variable 
    * that would affect the "allowed" status of a given section.
    */
   onSetVariables(newVariables, forceMats) {
@@ -118,21 +119,17 @@ class ProfileRenderer extends Component {
     // loop by checking if the vars are in there already, only updating if they are not yet set.
     const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
     if (!setVarsLoading && !alreadySet) {
-      // If forceMats is true, this function has been called by the componentDidMount. User login requires a phone-home,
-      // because materializers need to run again to make variables like `isLoggedIn` become true. 
+      // If forceMats is true, this function has been called by the componentDidMount, and we must run materializers
+      // so that variables like `isLoggedIn` can resolve to true.
       if (forceMats) {
         const combinedVariables = {...variables, ...newVariables};
-        // There is no need to post the (giant) _rawProfile to materializers...
-        const {_rawProfile, ...otherVars} = combinedVariables;
-        const payload = {variables: otherVars};
-        this.setState({setVarsLoading: true});
-        axios.post(`/api/materializers/${id}?locale=${locale}`, payload)
-          .then(resp => {
-            const newProfile = prepareProfile(_rawProfile, resp.data, formatterFunctions, locale, selectors);
-            // ... but don't forget to add it back in on return!
-            newProfile.variables._rawProfile = _rawProfile;
-            this.setState({profile: {...profile, ...newProfile}, setVarsLoading: false});
-          });
+        const matVars = variables._rawProfile.allMaterializers.reduce((acc, m) => {
+          const evalResults = mortarEval("variables", acc, m.logic, formatterFunctions, locale);
+          if (typeof evalResults.vars !== "object") evalResults.vars = {};
+          return {...acc, ...evalResults.vars};
+        }, combinedVariables);
+        const newProfile = prepareProfile(variables._rawProfile, matVars, formatterFunctions, locale, selectors);
+        this.setState({profile: {...profile, ...newProfile}});
       }
       // If forceMats is not true, no phone-home is required. Using the locally stored _rawProfile and the now-combined 
       // old and new variables, you have all that you need to make the profile update.

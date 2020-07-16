@@ -94,8 +94,8 @@ const fixSelector = (selector, dynamic) => {
 };
 
 // Perform a local varswap
-module.exports = (profile, variables, formatterFunctions, locale, query = {}) => {
-  profile = sortProfile(extractLocaleContent(profile, locale, "profile"));
+module.exports = (rawProfile, variables, formatterFunctions, locale, query = {}) => {
+  let profile = sortProfile(extractLocaleContent(rawProfile, locale, "profile"));
   
   profile.sections.forEach(section => {
     section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
@@ -134,5 +134,9 @@ module.exports = (profile, variables, formatterFunctions, locale, query = {}) =>
     });
   });
   profile.variables = variables;
+  // By cloning rawProfile, allSelectors and allMaterializers have needlessly made their way out to the main, swapped profile.
+  // remove these from the top-level objects before returning the profile (remember, they are kept down in _rawProfile)
+  delete profile.allSelectors;
+  delete profile.allMaterializers;
   return profile;   
 };

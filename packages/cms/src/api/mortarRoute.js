@@ -675,9 +675,16 @@ module.exports = function(app) {
         // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
         // which power the actual rendered dropdowns on the front-end profile page.
         let allSelectors = await db.selector.findAll({where: {profile_id: pid}}).catch(catcher);
-        allSelectors = allSelectors.map(selector => selector.toJSON());
-        // The reusable _rawProfile needs this reference as well
+        allSelectors = allSelectors.map(d => d.toJSON());
         variables._rawProfile.allSelectors = allSelectors;
+        let allMaterializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
+        allMaterializers = allMaterializers.map(d => {
+          d = d.toJSON();
+          // make use of varswap for its buble transpiling, so the front end can run es5 code.
+          d = varSwapRecursive(d, formatterFunctions, variables)
+          return d;
+        }).sort((a, b) => a.ordering - b.ordering);
+        variables._rawProfile.allMaterializers = allMaterializers;
         profile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, req.query);
       }
       else {
