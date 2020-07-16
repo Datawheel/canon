@@ -28,7 +28,7 @@ class Viz extends Component {
   }
 
   analyzeData(resp) {
-    const {updateSource} = this.context;    
+    const {updateSource} = this.context;
     if (updateSource) {
       if (resp.source) {
         updateSource(resp.source);  
