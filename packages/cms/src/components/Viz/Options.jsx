@@ -92,7 +92,7 @@ class Options extends Component {
   }
 
   onCSV() {
-    const {title} = this.props;
+    const {title, dataAttachments} = this.props;
     const {results} = this.state;
 
     const colDelim = ",";
@@ -116,9 +116,38 @@ class Options extends Component {
     }
 
     const zip = new JSZip();
+
+    // Include generated data table
     zip.file(`${filename(title)}.csv`, csv);
-    zip.generateAsync({type: "blob"})
-      .then(content => saveAs(content, `${filename(title)}.zip`));
+
+    // Include any additional files defined in config
+    // const dataAttachments = 'http://localhost:3300/resources/AR-Summary.pdf';
+    if (typeof dataAttachments !== "undefined") {
+      // Determine filename
+      const dAName = dataAttachments.split("/").pop();
+
+      // Retrieve remote files
+      axios.get(dataAttachments, {responseType: "blob"})
+        .then(response => {
+          if (response.status === 200 || response.status === 0) {
+            const blob = new Blob([response.data], {type: response.data.type});
+            return Promise.resolve(blob);
+          }
+          else {
+            return Promise.reject(new Error(response.statusText));
+          }
+        })
+        .then(data => {
+          zip.file(`${dAName}`, data, {binary: true});
+          zip.generateAsync({type: "blob"}).then(content => {
+            saveAs(content, `${filename(title)}.zip`);
+          });
+        });
+    }
+    else {
+      zip.generateAsync({type: "blob"})
+        .then(content => saveAs(content, `${filename(title)}.zip`));
+    }
   }
 
   onSave() {
@@ -342,7 +371,7 @@ class Options extends Component {
 
         {dataURLs && dataURLs.map((link, i) =>
           <ShareDirectLink
-            link={data.indexOf("http") === 0 ? link : `${ domain }${ link }`}
+            link={link.indexOf("http") === 0 ? link : `${ domain }${ link }`}
             label={`${t("CMS.Options.Endpoint")}${dataURLs.length > 1 ? ` ${i + 1}` : "" }`}
             key={link}
           />
