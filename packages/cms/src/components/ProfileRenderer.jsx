@@ -105,8 +105,8 @@ class ProfileRenderer extends Component {
 
   /**
    * Visualizations have the ability to "break out" and override a variable in the variables object.
-   * This requires a server round trip, because the user may have changed a variable that would affect
-   * the "allowed" status of a given section.
+   * This requires a server round trip to run materializers, because the user may have changed a variable 
+   * that would affect the "allowed" status of a given section.
    */
   onSetVariables(newVariables, forceMats) {
     const {profile, selectors, setVarsLoading, formatterFunctions} = this.state;
@@ -120,25 +120,18 @@ class ProfileRenderer extends Component {
     if (!setVarsLoading && !alreadySet) {
       this.setState({setVarsLoading: true});
       // If forceMats is true, this function has been called by the componentDidMount. User login requires a phone-home,
-      // because materializers need to run again to make variables like `isLoggedIn` become true. TODO:
-      // Do not perform an entire post/get of the entire profile to this endpoint - instead, just post the variables object
-      // to the materializers directly, fold in the received variables, and run prepareProfile.
+      // because materializers need to run again to make variables like `isLoggedIn` become true. 
       if (forceMats) {
-        const payload = {variables: Object.assign({}, variables, newVariables)};
-        let url = `/api/profile?profile=${id}&locale=${locale}`;
-        if (Object.keys(selectors).length > 0) url += `&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
-        if (sectionID) url += `&section=${sectionID}`;
-        // If forceMats is true, this was called due to a user login. Run Materializers again.
-        if (forceMats) url += "&forceMats=true";
-        // Provide some uniqueness tokens so that the url for slug/id/role POSTs can be cached
-        url += `&tokenSlug=${params.slug}&tokenId=${params.id}`;
-        if (params.slug2 && params.id2) url += `&tokenSlug2=${params.slug2}&tokenId2=${params.id2}`;
-        const {user, _matStatus, _genStatus, ...variablesWithoutUser} = payload.variables; // eslint-disable-line
-        const hash = hashCode(JSON.stringify(variablesWithoutUser));
-        url += `&token=${hash}`;
-        axios.post(url, payload)
+        const combinedVariables = {...variables, ...newVariables};
+        // There is no need to post the (giant) _rawProfile to materializers...
+        const {_rawProfile, ...otherVars} = combinedVariables;
+        const payload = {variables: otherVars};
+        axios.post(`/api/materializers/${id}?locale=${locale}`, payload)
           .then(resp => {
-            this.setState({profile: {neighbors: profile.neighbors, ...resp.data}, setVarsLoading: false});
+            const newProfile = prepareProfile(_rawProfile, resp.data, formatterFunctions, locale, selectors);
+            // ... but don't forget to add it back in on return!
+            newProfile.variables._rawProfile = _rawProfile;
+            this.setState({profile: {...profile, ...newProfile}});
           });
       }
       // If forceMats is not true, no phone-home is required. Using the locally stored _rawProfile and the now-combined 
