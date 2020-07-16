@@ -125,6 +125,7 @@ class Viz extends Component {
               ? <Options
                 key="option-key"
                 component={{section, viz: this}}
+                dataAttachments={vizConfig.dataAttachments}
                 data={vizConfig.data}
                 dataFormat={vizProps.dataFormat}
                 slug={slug }
