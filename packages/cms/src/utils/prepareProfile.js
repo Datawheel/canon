@@ -95,7 +95,6 @@ const fixSelector = (selector, dynamic) => {
 
 // Perform a local varswap
 module.exports = (profile, variables, formatterFunctions, locale, query = {}) => {
-  console.log("QUERY", query);
   profile = sortProfile(extractLocaleContent(variables._rawProfile, locale, "profile"));
   
   profile.sections.forEach(section => {
