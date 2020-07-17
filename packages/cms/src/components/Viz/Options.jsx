@@ -116,34 +116,62 @@ class Options extends Component {
 
     const zip = new JSZip();
 
-    // Include generated data table
+    // add generated data table to ZIP
     zip.file(`${filename(title)}.csv`, csv);
 
     // Include any additional files defined in config
-    // const dataAttachments = 'http://localhost:3300/resources/AR-Summary.pdf';
     if (typeof dataAttachments !== "undefined") {
-      // Determine filename
-      const dAName = dataAttachments.split("/").pop();
 
-      // Retrieve remote files
-      axios.get(dataAttachments, {responseType: "blob"})
-        .then(response => {
-          if (response.status === 200 || response.status === 0) {
-            const blob = new Blob([response.data], {type: response.data.type});
-            return Promise.resolve(blob);
-          }
-          else {
-            return Promise.reject(new Error(response.statusText));
-          }
-        })
-        .then(data => {
-          zip.file(`${dAName}`, data, {binary: true});
-          zip.generateAsync({type: "blob"}).then(content => {
-            saveAs(content, `${filename(title)}.zip`);
+      // Attachment is a single file
+      if (typeof dataAttachments === "string") {
+
+        // Determine filename
+        const dAName = dataAttachments.split("/").pop();
+
+        // Retrieve remote file
+        axios.get(dataAttachments, {responseType: "blob"})
+          .then(response => {
+            if (response.status === 200 || response.status === 0) {
+              const blob = new Blob([response.data], {type: response.data.type});
+              return Promise.resolve(blob);
+            }
+            else {
+              return Promise.reject(new Error(response.statusText));
+            }
+          })
+          .then(data => {
+            zip.file(`${dAName}`, data, {binary: true});
+            zip.generateAsync({type: "blob"}).then(content => {
+              saveAs(content, `${filename(title)}.zip`);
+            });
           });
+
+      }
+      else if (Array.isArray(dataAttachments)) {
+        // List of a files for attaching included in config
+        const requests = [];
+        for (let i = 0; i < dataAttachments.length; i++) {
+          requests[i] = axios.get(dataAttachments[i], {responseType: "blob"});
+        }
+
+        Promise.all(requests).then(responses => {
+
+          for (let i = 0; i < responses.length; i++) {
+            if (responses[i].status === 200 || responses[i].status === 0) {
+              // Pull data, grab file name, and add to ZIP
+              const blob = new Blob([responses[i].data], {type: responses[i].data.type});
+              const dAName = dataAttachments[i].split("/").pop();
+              zip.file(`${dAName}`, blob, {binary: true});
+            }
+          }
+          zip.generateAsync({type: "blob"})
+            .then(content => saveAs(content, `${filename(title)}.zip`));
         });
+      }
+
     }
     else {
+      // No attachments listed in config, only ZIP data table
       zip.generateAsync({type: "blob"})
         .then(content => saveAs(content, `${filename(title)}.zip`));
     }
