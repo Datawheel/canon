@@ -1,7 +1,11 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import PropTypes from "prop-types";
 import {hot} from "react-hot-loader/root";
 import {strip} from "d3plus-text";
+
+import TopNav from "components/TopNav";
+import SideNav from "components/SideNav";
+import Footer from "components/Footer";
 
 // TODO: Add in docs for the following behaviors in core
 // import Login from "./pages/core/Login";
@@ -18,6 +22,7 @@ import Login from "./core/Login";
 import SignUp from "./core/SignUp";
 import NotFound from "./core/NotFound";
 import I18n from "./core/I18n";
+import FetchData from "./core/FetchData";
 
 // CMS
 import IntroCms from "./cms/Intro";
@@ -47,7 +52,8 @@ const PACKAGES = [
       {title: "Login", component: Login},
       {title: "SignUp", component: SignUp},
       {title: "Not Found", component: NotFound},
-      {title: "I18n", component: I18n}
+      {title: "I18n", component: I18n},
+      {title: "FetchData", component: FetchData}
     ]
   },
   {
@@ -79,6 +85,7 @@ class Docs extends Component {
 
   render() {
 
+    const {location} = this.props;
     const {pkg, page} = this.props.router.params;
 
     const PageComponent = PACKAGES
@@ -87,10 +94,23 @@ class Docs extends Component {
       .find(d => strip(d.title).toLowerCase() === page)
       .component;
 
-    return <PageComponent />;
+    return <Fragment>
+      <TopNav />
+      <main id="docs">
+        <SideNav key="sidenav" pathname={location.pathname} />
+        <div key="children" className="content">
+          <PageComponent />
+        </div>
+      </main>
+      <Footer />
+    </Fragment>;
 
   }
 }
+
+Docs.need = [
+  FetchData
+];
 
 Docs.contextTypes = {
   router: PropTypes.object

@@ -148,6 +148,7 @@ const formatters4eval = async(db, locale) => {
 };
 
 const sorter = (a, b) => a.ordering - b.ordering;
+const selectsorter = (a, b) => a.section_selector && b.section_selector ? a.section_selector.ordering - b.section_selector.ordering : 0;
 
 // Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. Eventually move it up to the query.
 const sortProfile = profile => {
@@ -156,7 +157,7 @@ const sortProfile = profile => {
     profile.sections.sort(sorter);
     profile.sections.forEach(section => {
       if (section.subtitles) section.subtitles.sort(sorter);
-      if (section.selectors) section.selectors.sort(sorter);
+      if (section.selectors) section.selectors.sort(selectsorter);
       if (section.stats) section.stats.sort(sorter);
       if (section.descriptions) section.descriptions.sort(sorter);
       if (section.visualizations) section.visualizations.sort(sorter);
@@ -571,7 +572,7 @@ module.exports = function(app) {
               // Now that we have a correct hierarchy/level, query the neighbors endpoint
               const neighbors = await axios
                 .get(url, config)
-                .then(d => d.data.data)
+                .then(d => d && d.data && d.data.data && Array.isArray(d.data.data) ? d.data.data : [])
                 .catch(catcher);
               // Fetch the FULL members for each neighbor and collate them by dimension slug
               for (const neighbor of neighbors) {
@@ -720,6 +721,23 @@ module.exports = function(app) {
     // into "real ones" so that all the ensuing logic can treat them as if they were normal.
     profile.sections.forEach(section => {
       section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
+    });
+    // Before sending the profiles down to be varswapped, remember that some sections have groupings. If a grouping
+    // has been set to NOT be visible, then its "virtual children" should not be visible either. Copy the outer grouping's
+    // visible prop down to the child sections so they get hidden in the same manner.
+    let latestGrouping = {};
+    profile.sections.forEach(section => {
+      if (section.type === "Grouping") {
+        latestGrouping = section;
+      }
+      else {
+        // Get the visibility of the parent group
+        const parentGroupingAllowed = !latestGrouping.allowed || latestGrouping.allowed === "always" || variables[latestGrouping.allowed];
+        // If the parent group is invisible, copy its allowed setting down into this section.
+        if (!parentGroupingAllowed) {
+          section.allowed = latestGrouping.allowed;
+        }
+      }
     });
     profile = varSwapRecursive(profile, formatterFunctions, variables, req.query);
     // If the user provided selectors in the query, then the user has changed a dropdown.

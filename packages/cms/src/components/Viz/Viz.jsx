@@ -28,8 +28,15 @@ class Viz extends Component {
   }
 
   analyzeData(resp) {
-    const {updateSource} = this.context;
-    if (updateSource && resp.source) updateSource(resp.source);
+    const {updateSource} = this.context;    
+    if (updateSource) {
+      if (resp.source) {
+        updateSource(resp.source);  
+      }
+      else if (Array.isArray(resp)) {
+        updateSource(resp.reduce((acc, d) => d.source && Array.isArray(d.source) ? acc.concat(d.source) : acc, []));
+      }
+    }
   }
 
   render() {

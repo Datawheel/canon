@@ -1,11 +1,20 @@
 import React from "react";
 
+/**
+ * Handles running any "needs" on the component to be rendered.
+ * @param {*} store
+ * @param {*} param1
+ */
 export default function preRenderMiddleware(store, {components, params}) {
 
   const data = store.data || {},
         debug = process.env.NODE_ENV === "development",
         dispatch = store.dispatch;
 
+  /**
+   * Finds any static Arrays on a Component and runs their associated actions.
+   * @param {*} str name of static Array
+   */
   function parseComponents(str) {
     return components
       .filter(Boolean)

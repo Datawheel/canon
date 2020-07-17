@@ -32,14 +32,17 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {dialogOpen: {type: "generator", id: action.data.id, force: true}});
     case "GENERATOR_DUPLICATE": 
       return Object.assign({}, status, {dialogOpen: {type: "generator", id: action.data.id, force: true}});
+    // Generator and Materializers do not include the same {dialogOpen: false} that other UPDATE reducers do. 
+    // This is because in the case where a generator is only shown using forceOpen (from output view)
+    // We don't want it to disappear before it gets a chance to fetchVariables. See VariableCard.jsx for the dialogOpen:false
     case "GENERATOR_UPDATE": 
-      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "generator", ...success}});
+      return Object.assign({}, status, {justUpdated: {type: "generator", ...success}});
     case "MATERIALIZER_NEW": 
       return Object.assign({}, status, {dialogOpen: {type: "materializer", id: action.data.id, force: true}});
     case "MATERIALIZER_DUPLICATE": 
       return Object.assign({}, status, {dialogOpen: {type: "materializer", id: action.data.id, force: true}});
     case "MATERIALIZER_UPDATE": 
-      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "materializer", ...success}});
+      return Object.assign({}, status, {justUpdated: {type: "materializer", ...success}});
     case "SELECTOR_NEW": 
       return Object.assign({}, status, {dialogOpen: {type: "selector", id: action.data.id, force: true}});
     case "SELECTOR_DUPLICATE": 

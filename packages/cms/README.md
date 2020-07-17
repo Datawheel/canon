@@ -15,6 +15,7 @@ Content Management System for Canon sites.
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
 * [Advanced Selector Techniques](#advanced-selector-techniques)
 * [Authentication](#authentication)
+* [Profile Caching](#profile-caching)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Release Notes](#release-notes)
 * [Migration](#migration)
@@ -189,6 +190,8 @@ import {Profile} from "@datawheel/canon-cms";
 <Route path="/profile/:slug/:id" component={Profile} />
 <Route path="/profile/:slug/:id/:slug2/:id2" component={Profile} />
 ```
+
+**NOTE**: These routes are determined by the CMS to be profiles by their matching on the the `:slug/:id` pattern. If you set up any other routes with these query arguments, the CMS will use them as profile-y links. In general you should try to avoid using this pattern, but if disambiguation is required you may add `isProfile={true}` to a route to tell the link builder what is a true profile.
 
 ---
 
@@ -419,7 +422,7 @@ Arguments are provided by url paramaters:
 
 |parameter|description|
 |---|---|
-|`q`|A string query which uses the SQL `LIKE` operator to search the `name` and `keywords` of the member|
+|`q`|A string query which uses the SQL `ILIKE` operator to search the `name` and `keywords` of the member. (For better results install `unaccent` package in your Postgres server running: `CREATE EXTENSION IF NOT EXISTS unaccent;`. [More info.](https://www.postgresql.org/docs/9.1/unaccent.html) )|
 |`dimension`|An exact-match string to filter results to members in the provided dimension|
 |`levels`|A comma-separated list of levels to filter results to members by the provided levels|
 |`cubeName`|An exact-match string to filter results to members from the provided cube|
@@ -726,6 +729,45 @@ The CMS also exports the `user` object and a `userRole` boolean for the currentl
 
 ---
 
+## Profile Caching
+
+Before releasing a production server, it is a good practice to enable some sort of caching (like NGINX) on the server so that subsequent visits to specific profile pages don't need to run all of their generators again. The CMS contains a `canon-cms-warmup` script that will ping every possible profile page, in order of their zvalue.
+
+1. make sure that you have the correct environment variables set for the connection to the postgres database
+2. run `npx canon-cms-warmup -b https://mysite.com/profile/:profile/:page` for basic usage
+
+```sh
+Usage: npx canon-cms-warmup <command> [args]
+
+Commands:
+    help    Shows this information.
+    scan    Inits a scan of all available routes in the installed CMS.
+    stress  Work in progress.
+
+Arguments:
+    -b, --base      The root url to use as template in the generation.
+                    Use ":profile" for the profile name, and ":page" for the page slug.
+    -h, --help      Shows this information.
+    -p, --pass      The password in case of needing basic authentication.
+    -t, --threads   The number of concurrent connections to work with. Default: 2.
+    -u, --user      The username in case of needing basic authentication.
+
+Environment variables:
+    The following parameters are needed to connect to the database and get the
+    needed meta info from profiles and search options:
+
+    CANON_DB_USER         The username to connect to the database.
+    CANON_DB_PW           The password to connect to the database, if needed.
+    CANON_DB_HOST         The host and port where to connect to the database.
+                              Defaults to "localhost:5432".
+    CANON_DB_NAME         The name of the database where the info is stored.
+    CANON_DB_CONNECTION   The full connection URI string to connect to the database.
+                              Format is "engine://dbUser:dbPswd@dbHost/dbName".
+                              If this variable is set, the previous ones are ignored.
+```
+
+---
+
 ## Frequently Asked Questions
 
 ### What is the structure of the JavaScipt _Object_ that a visualization returns?
@@ -789,6 +831,7 @@ Here is a list of Minor CMS versions and their release notes:
 - [canon-cms@0.10.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.10.0)
 - [canon-cms@0.11.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.11.0)
 - [canon-cms@0.12.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.12.0)
+- [canon-cms@0.13.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.13.0)
 
 ___
 
