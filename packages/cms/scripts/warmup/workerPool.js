@@ -7,13 +7,18 @@ const WORKER_STATUS = {
 };
 
 class WorkerPool extends EventEmitter {
-  constructor(script, size) {
+  constructor(script, size, onProgress) {
     super();
-    this.script = script;
-    this.size = parseInt(size, 10) || 2;
+
     this.pool = [];
     this.queue = [];
     this.results = [];
+    this.totalWorks = 0;
+
+    this.script = script;
+    this.size = parseInt(size, 10) || 2;
+    this.onProgress = onProgress;
+
     this._initialize();
   }
 
@@ -32,8 +37,12 @@ class WorkerPool extends EventEmitter {
       });
     }
 
+    typeof this.onProgress === "function" &&
+      this.on("progress", this.onProgress);
+
     this.on("workFinished", (workData, result) => {
       this.results.push({workData, status: result.status, error: result.error});
+      this.emit("progress", workData);
       const worker = this.getIdleWorker();
       this.runWork(worker);
     });
@@ -82,6 +91,7 @@ class WorkerPool extends EventEmitter {
    */
   queueWork(work) {
     this.queue.push(work);
+    this.totalWorks++;
     const worker = this.getIdleWorker();
     if (worker) {
       this.runWork(worker);
@@ -97,7 +107,6 @@ class WorkerPool extends EventEmitter {
 
     if (workData) {
       this.setWorkerBusy(worker);
-      this.emit("progress", workData);
 
       const {port1, port2} = new MessageChannel();
       worker.postMessage({workData, port: port1}, [port1]);
