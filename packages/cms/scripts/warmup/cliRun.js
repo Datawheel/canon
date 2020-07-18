@@ -22,7 +22,7 @@ module.exports = async function(options) {
   const limitedProfiles = `${options.profile}`.split(",");
 
   log.write("Requesting configured profiles...");
-  const profiles = await ProfileMeta.findAll({
+  let profiles = await ProfileMeta.findAll({
     where: {
       slug: limitedProfiles.length > 0
         ? {[Op.in]: limitedProfiles}
@@ -40,6 +40,7 @@ module.exports = async function(options) {
 
   if (limitedProfiles.length > 0) {
     log.write(`User requested for profiles: ${limitedProfiles.join(", ")}`);
+    profiles = profiles.sort((a, b) => limitedProfiles.indexOf(a.slug) - limitedProfiles.indexOf(b.slug));
   }
   log.write(`Profiles found: ${profiles.map(p => p.slug).join(", ")}`);
 
