@@ -733,37 +733,33 @@ The CMS also exports the `user` object and a `userRole` boolean for the currentl
 
 Before releasing a production server, it is a good practice to enable some sort of caching (like NGINX) on the server so that subsequent visits to specific profile pages don't need to run all of their generators again. The CMS contains a `canon-cms-warmup` script that will ping every possible profile page, in order of their zvalue.
 
-1. make sure that you have the correct environment variables set for the connection to the postgres database
-2. run `npx canon-cms-warmup -b https://mysite.com/profile/:profile/:page` for basic usage
-
 ```sh
 Usage: npx canon-cms-warmup <command> [args]
 
 Commands:
     help    Shows this information.
-    scan    Inits a scan of all available routes in the installed CMS.
+    run     Inits a scan of all available routes in the installed CMS.
     stress  Work in progress.
+
+If command is not set, "run" will be executed.
 
 Arguments:
     -b, --base      The root url to use as template in the generation.
                     Use ":profile" for the profile name, and ":page" for the page slug.
     -h, --help      Shows this information.
-    -p, --pass      The password in case of needing basic authentication.
+    -p, --password  The password in case of needing basic authentication.
+        --profile   A comma separated string of the profiles that should be loaded.
+                    If omitted or empty, all available profiles will be used.
     -t, --threads   The number of concurrent connections to work with. Default: 2.
-    -u, --user      The username in case of needing basic authentication.
-
-Environment variables:
-    The following parameters are needed to connect to the database and get the
-    needed meta info from profiles and search options:
-
-    CANON_DB_USER         The username to connect to the database.
-    CANON_DB_PW           The password to connect to the database, if needed.
-    CANON_DB_HOST         The host and port where to connect to the database.
-                              Defaults to "localhost:5432".
-    CANON_DB_NAME         The name of the database where the info is stored.
-    CANON_DB_CONNECTION   The full connection URI string to connect to the database.
-                              Format is "engine://dbUser:dbPswd@dbHost/dbName".
-                              If this variable is set, the previous ones are ignored.
+    -u, --username  The username in case of needing basic authentication.
+        --db-host   The host and port where to connect to the database.
+                    Defaults to "localhost:5432".
+        --db-name   The name of the database where the info is stored.
+        --db-user   The username to connect to the database.
+        --db-pass   The password to connect to the database, if needed.
+        --db        The full connection URI string to connect to the database.
+                    Format is "engine://dbUser:dbPswd@dbHost/dbName".
+                    If this variable is set, the previous ones are ignored.
 ```
 
 ---
