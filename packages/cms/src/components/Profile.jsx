@@ -17,7 +17,10 @@ class Profile extends Component {
   }
 
   render() {
-    const {profile, formatters, locale} = this.props;
+    const {profile, formatters, locale, location} = this.props;
+    const {query} = location;
+
+    const print = query.print === "true";
 
     if (profile.error) {
       const {error, errorCode} = profile;
@@ -39,6 +42,7 @@ class Profile extends Component {
         profile={profile}
         formatters={formatters}
         locale={locale}
+        print={print}
       />
     );
   }
