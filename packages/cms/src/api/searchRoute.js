@@ -503,22 +503,50 @@ module.exports = function(app) {
       });
     }
     else {
+
+      // Check just the first time if unaccent Extension is installed.
+      // If not launch a warning and use the fallback search.
+      // Install it running in the db: "CREATE EXTENSION IF NOT EXISTS unaccent;";
+      if (typeof unaccentExtensionInstalled === "undefined") {
+        const [unaccentResult, unaccentMetadata] = await db.query("SELECT * FROM pg_extension WHERE extname = 'unaccent';");
+        unaccentExtensionInstalled = unaccentMetadata.rowCount >= 1;
+        if (!unaccentExtensionInstalled) {
+          console.log("WARNING: For better search results, Consider installing the 'unaccent' extension in Postgres by running: CREATE EXTENSION IF NOT EXISTS unaccent;");
+          console.log("Do not forget to restart the web application after installation.");
+        }
+      }
+
       const searchWhere = {};
       if (q) {
-        if (locale === "all") {
+        // Use unaccent extension from postgres if exists.
+        if (unaccentExtensionInstalled) {
+
+          where[sequelize.Op.or] = [
+            // For name
+            sequelize.where(
+              sequelize.fn("unaccent", sequelize.col("name")),
+              {[sequelize.Op.iLike]: sequelize.fn("concat", "%", sequelize.fn("unaccent", q), "%")})
+              ,
+            // For keywords
+              sequelize.where(
+                sequelize.fn("unaccent", sequelize.fn("array_to_string", sequelize.col("keywords"), " ", "")),
+                {[sequelize.Op.iLike]: sequelize.fn("concat", "%", sequelize.fn("unaccent", q), "%")})
+          ];
+
+        }
+        // Use regular ilike search if unaccent is not installed.
+        else {
           where[sequelize.Op.or] = [
             {name: {[sequelize.Op.iLike]: `%${q}%`}},
             {keywords: {[sequelize.Op.overlap]: [q]}}
             // Todo - search attr and imagecontent for query
           ];
         }
-        else {
-          where[sequelize.Op.or] = [
-            {name: {[sequelize.Op.iLike]: `%${q}%`}},
-            {keywords: {[sequelize.Op.overlap]: [q]}}
-          ];
+
+        if (locale !== 'all'){
           where.locale = locale;
         }
+
         rows = await db.search_content.findAll({where}).catch(catcher);
         searchWhere.contentId = Array.from(new Set(rows.map(r => r.id)));
       }
