@@ -9,18 +9,18 @@ import "./Profile.css";
 
 class Profile extends Component {
   getChildContext() {
-    const {router, searchProps} = this.props;
+    const {router, searchProps, location} = this.props;
+    const {query} = location;
+    const print = query.print === "true";
     return {
+      print,
       router,
       searchProps
     };
   }
 
   render() {
-    const {profile, formatters, locale, location} = this.props;
-    const {query} = location;
-
-    const print = query.print === "true";
+    const {profile, formatters, locale} = this.props;
 
     if (profile.error) {
       const {error, errorCode} = profile;
@@ -42,7 +42,6 @@ class Profile extends Component {
         profile={profile}
         formatters={formatters}
         locale={locale}
-        print={print}
       />
     );
   }
@@ -58,6 +57,7 @@ Profile.need = [
 ];
 
 Profile.childContextTypes = {
+  print: PropTypes.bool,
   router: PropTypes.object,
   searchProps: PropTypes.object
 };

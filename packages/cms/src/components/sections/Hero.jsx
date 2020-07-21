@@ -1,9 +1,10 @@
+import axios from "axios";
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {nest} from "d3-collection";
 import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
-import {Dialog} from "@blueprintjs/core";
+import {Dialog, Icon} from "@blueprintjs/core";
 
 import stripHTML from "../../utils/formatters/stripHTML";
 import groupMeta from "../../utils/groupMeta";
@@ -32,7 +33,8 @@ class Hero extends Component {
       sources: [],
       images: [],
       creditsVisible: false,
-      clickedIndex: undefined
+      clickedIndex: undefined,
+      saving: false
     };
 
     if (typeof window !== "undefined") window.titleClick = this.titleClick.bind(this);
@@ -73,6 +75,26 @@ class Hero extends Component {
     setTimeout(() => {
       document.querySelector(".cp-hero-search .cp-input").focus();
     }, 300);
+  }
+
+  saveToPDF() {
+    const {saving} = this.state;
+    const {router} = this.context;
+    if (!saving) {
+      const url = "/api/pdf";
+      const path = `${router.location.pathname}?print=true`;
+      const payload = {path};
+      const config = {responseType: "arraybuffer", headers: {Accept: "application/pdf"}};
+      this.setState({saving: true});
+      axios.post(url, payload, config).then(resp => {
+        const blob = new Blob([resp.data], {type: "application/pdf"});
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = "your-file-name.pdf";
+        link.click();
+        this.setState({saving: false});
+      });
+    }
   }
 
   /**
@@ -167,7 +189,7 @@ class Hero extends Component {
 
   render() {
     const {contents, loading, sources, profile} = this.props;
-    const {images, creditsVisible, clickedIndex} = this.state;
+    const {images, creditsVisible, clickedIndex, saving} = this.state;
     const {searchProps} = this.context;
 
     let title = this.spanifyTitle(profile.title);
@@ -210,16 +232,17 @@ class Hero extends Component {
 
     // heading & subhead(s)
     const heading = <div className="cp-hero-heading-wrapper">
-        <Parse El="h1" id={contents ? contents.slug : `${stripHTML(profile.title)}-hero`} className="cp-section-heading cp-hero-heading u-font-xxl">
-          {title}
-        </Parse>
-        {subtitleContent}
-      </div>;
+      <Parse El="h1" id={contents ? contents.slug : `${stripHTML(profile.title)}-hero`} className="cp-section-heading cp-hero-heading u-font-xxl">
+        {title}
+      </Parse>
+      {subtitleContent}
+    </div>;
 
 
     return (
       <header className="cp-section cp-hero">
         <div className="cp-section-inner cp-hero-inner">
+          <button onClick={this.saveToPDF.bind(this)} className="cp-hero-pdf">{!saving ? "Save Profile as PDF" : "Saving..."} <Icon icon="document-open" /></button>
           {/* caption */}
           <div className="cp-section-content cp-hero-caption">
             {heading}
