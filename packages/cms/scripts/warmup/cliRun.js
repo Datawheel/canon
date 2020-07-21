@@ -71,8 +71,8 @@ module.exports = async function(options) {
     while (n--) {
       const page = pages[n];
       pool.queueWork({
-        auth: options.user && options.pass
-          ? {username: options.user, password: options.pass}
+        auth: options.username && options.password
+          ? {username: options.username, password: options.password}
           : undefined,
         method: "GET",
         url: `${options.base}`

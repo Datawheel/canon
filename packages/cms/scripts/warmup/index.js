@@ -52,9 +52,9 @@ const options = getopts(process.argv.slice(2), {
   alias: {
     base: "b",
     help: "h",
-    pass: "p",
+    password: "p",
     threads: "t",
-    user: "u"
+    username: "u"
   },
   default: {
     "db-host": "localhost:5432"
