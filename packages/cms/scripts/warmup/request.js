@@ -15,7 +15,7 @@ parentPort.on("message", async({workData, port}) => {
     // console.error(`Request to ${response.config.url} failed with status code ${response.status}:\n`, response.data);
   });
 
-  if (response.status < 300) {
+  if (response && response.status > 199 && response.status < 300) {
     status = "SUCCESS";
   }
 
