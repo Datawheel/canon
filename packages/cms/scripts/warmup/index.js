@@ -8,7 +8,12 @@ Usage: npx canon-cms-warmup <command> [args]
 Commands:
     help    Shows this information.
     run     Inits a scan of all available routes in the installed CMS.
-    stress  Work in progress.
+            - Required: base, db[-props]
+            - Optional: output, password, profile, threads, username
+    retry   Reads an outputted file from a previous scan and retries to load
+            the failed endpoints.
+            - Required: input
+            - Optional: threads, output
 
 If command is not set, "run" will be executed.
 
@@ -16,6 +21,7 @@ Arguments:
     -b, --base      The root url to use as template in the generation.
                     Use ":profile" for the profile name, and ":page" for the page slug.
     -h, --help      Shows this information.
+    -i, --input     The path to the file that contains the errored endpoints.
     -o, --output    The path to the file where to log the errored endpoints.
     -p, --password  The password in case of needing basic authentication.
         --profile   A comma separated string of the profiles that should be loaded.
@@ -43,6 +49,7 @@ Arguments:
  * @property {string} db-pass The password to connect to the database, if needed.
  * @property {string} db-user The username to connect to the database.
  * @property {boolean} help A flag to show the manual if the user needs it.
+ * @property {string} input The path to the file that contains the errored endpoints.
  * @property {string} output The path to the file where to log the errored endpoints.
  * @property {string} password The password in case of needing basic authentication.
  * @property {string} profile A comma separated string of the profiles that should be loaded.
@@ -54,13 +61,15 @@ const options = getopts(process.argv.slice(2), {
   alias: {
     base: "b",
     help: "h",
+    input: "i",
     output: "o",
     password: "p",
     threads: "t",
     username: "u"
   },
   default: {
-    "db-host": "localhost:5432"
+    "db-host": "localhost:5432",
+    "threads": "5"
   },
   boolean: ["help"],
   string: [
@@ -70,6 +79,7 @@ const options = getopts(process.argv.slice(2), {
     "db-name",
     "db-pass",
     "db-user",
+    "input",
     "output",
     "password",
     "profile",
@@ -79,6 +89,7 @@ const options = getopts(process.argv.slice(2), {
 });
 
 const actionMap = {
+  retry: () => require("./cliRetry"),
   run: () => require("./cliRun"),
   stress: () => require("./cliStress")
 };
