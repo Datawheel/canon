@@ -16,6 +16,7 @@ Arguments:
     -b, --base      The root url to use as template in the generation.
                     Use ":profile" for the profile name, and ":page" for the page slug.
     -h, --help      Shows this information.
+    -o, --output    The path to the file where to log the errored endpoints.
     -p, --password  The password in case of needing basic authentication.
         --profile   A comma separated string of the profiles that should be loaded.
                     If omitted or empty, all available profiles will be used.
@@ -42,6 +43,7 @@ Arguments:
  * @property {string} db-pass The password to connect to the database, if needed.
  * @property {string} db-user The username to connect to the database.
  * @property {boolean} help A flag to show the manual if the user needs it.
+ * @property {string} output The path to the file where to log the errored endpoints.
  * @property {string} password The password in case of needing basic authentication.
  * @property {string} profile A comma separated string of the profiles that should be loaded.
  * @property {string} threads The number of concurrent connections to work with.
@@ -52,6 +54,7 @@ const options = getopts(process.argv.slice(2), {
   alias: {
     base: "b",
     help: "h",
+    output: "o",
     password: "p",
     threads: "t",
     username: "u"
@@ -67,6 +70,7 @@ const options = getopts(process.argv.slice(2), {
     "db-name",
     "db-pass",
     "db-user",
+    "output",
     "password",
     "profile",
     "threads",

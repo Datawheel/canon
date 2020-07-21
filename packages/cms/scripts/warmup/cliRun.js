@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const fs = require("fs");
 const path = require("path");
 
 const Sequelize = require("sequelize");
@@ -19,7 +20,14 @@ module.exports = async function(options) {
 
   const {ProfileMeta, Search} = await hydrateModels(options);
 
-  const limitedProfiles = `${options.profile}`.split(",");
+  const limitedProfiles = `${options.profile}`.split(",").filter(slug => slug.trim());
+
+  let logStream;
+  if (options.output) {
+    const outputPath = path.resolve(process.cwd(), options.output);
+    log.write(`Logging errors to file: ${outputPath}`);
+    logStream = fs.createWriteStream(outputPath, {flags: "w"});
+  }
 
   log.write("Requesting configured profiles...");
   let profiles = await ProfileMeta.findAll({
@@ -45,10 +53,37 @@ module.exports = async function(options) {
   log.write(`Profiles found: ${profiles.map(p => p.slug).join(", ")}`);
 
   const workerPath = path.resolve(__dirname, "request.js");
-  const pool = new WorkerPool(workerPath, options.threads);
+  const widthSpace = process.stdout.columns * 1 || 80;
 
   for (const profile of profiles) {
     log.write(`\nStarting scan of profile "${profile.slug}"`);
+
+    const progressCallback = (error, workData) => {
+      if (logStream && error) {
+        logStream.write(`${JSON.stringify({error: error.message, workData})}\n`);
+      }
+      const worksTotal = pool.totalWorks;
+      const worksSuc = pool.results.filter(w => w.status === "SUCCESS").length;
+      const progress = pool.results.length / worksTotal;
+
+      const numLength = `${worksTotal}`.length;
+      const spaceBar = new Array(numLength + 1).join(" ");
+      const labels = Object.entries({
+        T: worksTotal,
+        S: worksSuc,
+        E: pool.results.length - worksSuc
+      }).map(item => `${item[0]}: ${`${spaceBar}${item[1]}`.substr(-1 * numLength)}`)
+        .join(" / ");
+
+      const barLength = widthSpace - labels.length - 10;
+      const bar = "".concat(
+        new Array(Math.floor(barLength * progress) + 1).join("#"),
+        new Array(barLength + 1).join(" ")
+      );
+
+      log.overwrite(`${labels} [${bar.substr(0, barLength)}] ${Math.floor(progress * 100)}%`);
+    };
+    const pool = new WorkerPool(workerPath, options.threads, progressCallback);
 
     log.write("Requesting saved pages on this profile...");
     const pages = await Search.findAll({
@@ -81,26 +116,21 @@ module.exports = async function(options) {
       });
     }
 
-    const progressLogger = () => {
-      const progress = Math.floor(pool.results.length / pool.totalWorks * 100);
-      const bar = "".concat(
-        new Array(Math.floor(progress / 2) + 1).join("#"),
-        new Array(51).join(" ")
-      );
-      const worksLength = `${pool.totalWorks}`.length * 2 + 1;
-      const works = `${new Array(worksLength).join(" ")}${pool.results.length}/${pool.totalWorks}`;
-      log.overwrite(`${works.substr(-1 * worksLength)} [${bar.substr(0, 50)}] ${progress}%`);
-    };
-
-    pool.on("progress", progressLogger);
     log.write("Waiting for results...");
     const results = await pool.waitForResults();
-    pool.off("progress", progressLogger);
 
-    const errors = results.filter(result => result.status === "ERROR");
-    errorCount += errors.length;
-    log.write(`\nRegistered ${errors.length} errors.`);
+    const failures = results.filter(result => result.status === "ERROR");
+    if (failures.length > 0) {
+      errorCount += failures.length;
+      log.write(`\nProfile "${profile.slug}" completed with ${failures.length} errors.`);
+    }
+    else {
+      log.write(`\nProfile "${profile.slug}" completed without errors.`);
+    }
+
+    await pool.terminate();
   }
 
   log.write(`\nWarming script finished with ${errorCount} errors.`);
+  logStream && logStream.end();
 };
