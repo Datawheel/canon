@@ -22,7 +22,8 @@ class LazyLoadImage extends Component {
       <p><code className="bp3-code">LazyImageBg</code> helps to improve the performance in image-intensive pages. Load the given image as background when the element is in the viewport. CSS, layout and content (childrens) are implementation responsability.</p>
       Built using:
       <ul>
-        <li>IntersectionObserver API using <a href="https://github.com/researchgate/react-intersection-observer">react-intersection-observer</a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API" target="_blank" without rel="noreferrer">Intersection Observer API</a> using <a href="https://github.com/researchgate/react-intersection-observer" target="_blank" without rel="noreferrer">react-intersection-observer</a> to detect when the box is visible in the viewport.</li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API" target="_blank" without rel="noreferrer">Web Workers API</a> using <a href="https://github.com/GoogleChromeLabs/comlink" target="_blank" without rel="noreferrer">Comlink</a> to load the image as blob in a separate thread.</li>
       </ul>
       <h3>Usage</h3>
       <p>Import:</p>

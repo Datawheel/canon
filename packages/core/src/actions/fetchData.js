@@ -4,6 +4,7 @@ import {encodeChars} from "../helpers/fixChars.js";
 import "@babel/polyfill";
 // @ts-ignore
 import FetchWorker from "./fetch.worker.js";
+// @ts-ignore
 import WrapperWorker from "./wrapper.worker.js";
 
 import {wrap, proxy} from "comlink";

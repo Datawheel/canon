@@ -1,28 +1,64 @@
 import React, {Component} from "react";
+import {wrap, proxy} from "comlink";
 import "intersection-observer";
 import Observer from "@researchgate/react-intersection-observer";
+
+// @ts-ignore
+import LoadImageWorker from "./../actions/loadImage.worker.js";
 
 class LazyImageBg extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      intersected: false
+      intersected: false,
+      isSSR: typeof window === "undefined",
+      imageWorker: false,
+      blobURL: false
     };
     this.handleIntersection = this.handleIntersection.bind(this);
   }
 
   handleIntersection(event) {
-    if (!this.state.intersected && event.isIntersecting) {
-      this.setState({intersected: true});
+    const {intersected, isSSR} = this.state;
+    const {bgSrc} = this.props;
+    if (!intersected && event.isIntersecting) {
+      const imageWorker = isSSR ? false : wrap(new LoadImageWorker());
+      this.launchWorker(imageWorker, bgSrc, data => {
+        if (data) {
+          const objectURL = URL.createObjectURL(data);
+          this.setState({intersected: true, imageWorker, blobURL: objectURL}, () => {
+            this.revokeURL(objectURL);
+          });
+        }
+      });
+    }
+  }
+
+  revokeURL(objectURL) {
+    setTimeout(() => {
+      URL.revokeObjectURL(objectURL);
+    }, 5000);
+  }
+
+  async launchWorker(imageWorker, imageUrl, callback) {
+    if (imageWorker) {
+      // @ts-ignore
+      try {
+        await imageWorker(proxy(callback), imageUrl);
+      }
+      catch (error) {
+        console.error(error);
+        callback(false);
+      }
     }
   }
 
   render() {
-    const {root, rootMargin, threshold, disabled, bgSrc, children, itemClassName} = this.props;
-    const {intersected} = this.state;
+    const {root, rootMargin, threshold, disabled, children, itemClassName} = this.props;
+    const {intersected, blobURL} = this.state;
 
-    const bgStyle = intersected ? `url(${bgSrc})` : "";
+    const bgStyle = intersected && blobURL ? `url(${blobURL})` : "";
 
     const options = {
       onChange: this.handleIntersection,
