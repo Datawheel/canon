@@ -18,7 +18,7 @@ class LazyImageBg extends Component {
   }
 
   render() {
-    const {root, rootMargin, bgSrc, children, itemClassName} = this.props;
+    const {root, rootMargin, threshold, disabled, bgSrc, children, itemClassName} = this.props;
     const {intersected} = this.state;
 
     const bgStyle = intersected ? `url(${bgSrc})` : "";
@@ -26,7 +26,9 @@ class LazyImageBg extends Component {
     const options = {
       onChange: this.handleIntersection,
       root,
-      rootMargin
+      rootMargin,
+      threshold,
+      disabled
     };
 
     return (
@@ -41,9 +43,11 @@ class LazyImageBg extends Component {
 }
 
 LazyImageBg.defaultProps = {
-  bgSrc: "",
   root: undefined,
   rootMargin: undefined,
+  threshold: 0,
+  disabled: false,
+  bgSrc: "",
   itemClassName: "canon-lazy-image-bg"
 };
 export {LazyImageBg};
