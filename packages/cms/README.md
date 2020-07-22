@@ -15,6 +15,7 @@ Content Management System for Canon sites.
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
 * [Advanced Selector Techniques](#advanced-selector-techniques)
 * [Authentication](#authentication)
+* [Profile Caching](#profile-caching)
 * [Frequently Asked Questions](#frequently-asked-questions)
 * [Release Notes](#release-notes)
 * [Migration](#migration)
@@ -421,7 +422,7 @@ Arguments are provided by url paramaters:
 
 |parameter|description|
 |---|---|
-|`q`|A string query which uses the SQL `LIKE` operator to search the `name` and `keywords` of the member|
+|`q`|A string query which uses the SQL `ILIKE` operator to search the `name` and `keywords` of the member. (For better results install `unaccent` package in your Postgres server running: `CREATE EXTENSION IF NOT EXISTS unaccent;`. [More info.](https://www.postgresql.org/docs/9.1/unaccent.html) )|
 |`dimension`|An exact-match string to filter results to members in the provided dimension|
 |`levels`|A comma-separated list of levels to filter results to members by the provided levels|
 |`cubeName`|An exact-match string to filter results to members from the provided cube|
@@ -725,6 +726,41 @@ To configure the minimum role for CMS access, use the `CANON_CMS_MINIMUM_ROLE` e
 The CMS also exports the `user` object and a `userRole` boolean for the currently logged in user in the Locked Attributes Generator for every profile. You can make use of these variables to hide, show, or limit information based on the role of the currently logged in user.
 
 **Note:** If you create new variables from the user data (e.g., `const isPro = role >= 1`), these operations **must** be performed in materializers to have any effect.
+
+---
+
+## Profile Caching
+
+Before releasing a production server, it is a good practice to enable some sort of caching (like NGINX) on the server so that subsequent visits to specific profile pages don't need to run all of their generators again. The CMS contains a `canon-cms-warmup` script that will ping every possible profile page, in order of their zvalue.
+
+```sh
+Usage: npx canon-cms-warmup <command> [args]
+
+Commands:
+    help    Shows this information.
+    run     Inits a scan of all available routes in the installed CMS.
+    stress  Work in progress.
+
+If command is not set, "run" will be executed.
+
+Arguments:
+    -b, --base      The root url to use as template in the generation.
+                    Use ":profile" for the profile name, and ":page" for the page slug.
+    -h, --help      Shows this information.
+    -p, --password  The password in case of needing basic authentication.
+        --profile   A comma separated string of the profiles that should be loaded.
+                    If omitted or empty, all available profiles will be used.
+    -t, --threads   The number of concurrent connections to work with. Default: 2.
+    -u, --username  The username in case of needing basic authentication.
+        --db-host   The host and port where to connect to the database.
+                    Defaults to "localhost:5432".
+        --db-name   The name of the database where the info is stored.
+        --db-user   The username to connect to the database.
+        --db-pass   The password to connect to the database, if needed.
+        --db        The full connection URI string to connect to the database.
+                    Format is "engine://dbUser:dbPswd@dbHost/dbName".
+                    If this variable is set, the previous ones are ignored.
+```
 
 ---
 

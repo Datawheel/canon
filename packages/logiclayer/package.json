@@ -1,7 +1,7 @@
 {
   "name": "@datawheel/canon-logiclayer",
   "description": "API logic using mondrian-rest-client.",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "author": "Dave Landry",
   "license": "MIT",
   "scripts": {
@@ -17,7 +17,7 @@
     "axios": "^0.19.2",
     "d3-array": "^1.2.1",
     "d3-collection": "^1.0.4",
-    "d3plus-common": "^0.6.60",
+    "d3plus-common": "^0.7.0",
     "mondrian-rest-client": "^1.1.4",
     "promise-throttle": "^1.0.0",
     "sequelize": "^4.13.10",

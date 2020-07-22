@@ -2,16 +2,15 @@ import React, {Component} from "react";
 import {hot} from "react-hot-loader/root";
 import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
-import {animateScroll} from "react-scroll";
 import ReactTable from "react-table";
 import PropTypes from "prop-types";
 import "./Table.css";
 import "./Options.css";
 
-import {Checkbox, Dialog, Icon, Label, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
+import {Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
 
 import {max, sum} from "d3-array";
-import {event, select} from "d3-selection";
+import {select} from "d3-selection";
 import {uuid} from "d3plus-common";
 import {saveAs} from "file-saver";
 import JSZip from "jszip";
