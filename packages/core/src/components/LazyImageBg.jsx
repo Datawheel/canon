@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import "intersection-observer";
 import Observer from "@researchgate/react-intersection-observer";
 
 class LazyImageBg extends Component {
