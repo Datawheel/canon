@@ -1,20 +1,8 @@
 import React, {Component} from "react";
-import {connect} from "react-redux";
-
-import {LazyImageBg} from "@datawheel/canon-core";
-import {range} from "d3-array";
 
 class LazyLoadImage extends Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      list: range(100)
-    };
-  }
-
   render() {
-    const {list} = this.state;
     return <div>
       <h1>Core Package</h1>
       <h2>LazyImageBg component</h2>
@@ -57,33 +45,11 @@ class LazyLoadImage extends Component {
         <li><code className="bp3-code">bgSrc</code>: Background image url/path.</li>
         <li>Observer component options available <code className="bp3-code">root</code>, <code className="bp3-code">rootMargin</code>, <code className="bp3-code">threshold</code>, <code className="bp3-code">disabled</code>. See more <a href="https://github.com/researchgate/react-intersection-observer#options">here</a>.</li>
       </ul>
-      <h3>Demo: Custom root element container example</h3>
-      <p>Scroll in the container to see it in action.</p>
-      <div id="test-tile-container-wrapper" style={{height: "200px", overflow: "scroll", border: "1px solid #ccc"}}>
-        {list.map((l, ix) =>
-          <LazyImageBg key={ix} root="#test-tile-container-wrapper" itemClassName="test-tile-class" bgSrc={`https://picsum.photos/300/200?a${ix}`}>
-            <h3>{ix + 1}. Name</h3>
-            <p>Lorem Text</p>
-          </LazyImageBg>
-        )}
-      </div>
-      <h3>Demo: Default window container example</h3>
-      <p>Scroll the full page to see it in action.</p>
-      <div className="test-tile-container">
-        {list.map((l, ix) =>
-          <LazyImageBg key={ix} itemClassName="test-tile-class" bgSrc={`https://picsum.photos/300/200?b${ix}`}>
-            <h3>{ix + 1}. Name</h3>
-            <p>Lorem Text</p>
-          </LazyImageBg>
-        )}
-      </div>
+      <h3>Demo</h3>
+      <p><a href="/docs/core-package/lazy-load-images-demo">See here.</a></p>
     </div>;
 
   }
 }
 
-LazyLoadImage.need = [
-];
-
-export default connect(state => ({
-}))(LazyLoadImage);
+export default LazyLoadImage;
