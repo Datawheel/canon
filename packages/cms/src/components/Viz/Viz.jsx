@@ -8,6 +8,7 @@ import Graphic from "./Graphic";
 import HTML from "./HTML";
 import Table from "./Table";
 import Options from "./Options";
+import SourceGroup from "./SourceGroup";
 import toKebabCase from "../../utils/formatters/toKebabCase";
 import propify from "../../utils/d3plusPropify";
 import Parse from "../sections/components/Parse";
@@ -21,6 +22,16 @@ const vizTypes = {Table, Graphic, HTML, ...d3plus, ...CustomVizzes};
 
 class Viz extends Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      // Once a viz loads, it uses the analyzeData method to report the sources to the parent section for embedding.
+      // However, dataOnly mode shows JUST the raw table of data. In this case, allow the Viz to keep a copy of its
+      // own sources for displaying as a title.
+      source: [] 
+    };
+  }
+
   getChildContext() {
     const context = {...this.context};
     context.d3plus = {...defaultConfig, ...context.d3plus};
@@ -29,17 +40,22 @@ class Viz extends Component {
 
   analyzeData(resp) {
     const {updateSource} = this.context;    
-    if (updateSource) {
-      if (resp.source) {
-        updateSource(resp.source);  
-      }
-      else if (Array.isArray(resp)) {
-        updateSource(resp.reduce((acc, d) => d.source && Array.isArray(d.source) ? acc.concat(d.source) : acc, []));
+    const {dataOnly} = this.props;
+    const sourceResp = resp.source ? resp.source : Array.isArray(resp) ? resp.reduce((acc, d) => d.source && Array.isArray(d.source) ? acc.concat(d.source) : acc, []) : [];
+    if (sourceResp) {
+      if (updateSource) updateSource(sourceResp);
+      if (dataOnly) {
+        const {source} = this.state;
+        sourceResp.map(s => s.annotations).forEach(sr => {
+          if (sr && sr.source_name && !source.find(s => s.source_name === source.source_name)) source.push(sr);
+        });
+        this.setState({source});
       }
     }
   }
 
   render() {
+    const {source} = this.state;
     const {
       config,
       configOverride,
@@ -116,10 +132,26 @@ class Viz extends Component {
         >
           {title || slug}
         </Parse>
+        <SourceGroup sources={source} />
         <Options
           component={{section, viz: this}}
           data={vizConfig.data}
-          dataFormat={vizProps.dataFormat}
+          // Usually the Viz itself uses this interceptive dataFormat to extract sources. However, dataOnly mode only shows the 
+          // raw data in a table, therefore the Options panel has to be the one to extract sources.
+          dataFormat={resp => {
+            const hasMultiples = vizProps.data && Array.isArray(vizProps.data) && vizProps.data.length > 1 && vizProps.data.some(d => typeof d === "string");
+            const sources = hasMultiples ? resp : [resp];
+            sources.forEach(r => this.analyzeData.bind(this)(r));
+            let data;
+            try {
+              data = vizProps.dataFormat(resp);
+            }
+            catch (e) {
+              console.log("Error in dataFormat: ", e);
+              data = [];
+            }
+            return data;
+          }}
           dataOnly={true}
           slug={slug }
           title={title || sectionTitle || slug}
