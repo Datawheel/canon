@@ -204,6 +204,18 @@ class SectionEditor extends Component {
               {varOptions}
             </Select>
 
+            {/* visibility select */}
+            <Select
+              label="Visible in PDF"
+              namespace="cms"
+              fontSize="xs"
+              inline
+              value={minDataState.print || "always"}
+              onChange={this.changeField.bind(this, "print", true)}
+            >
+              {varOptions}
+            </Select>
+
             {/* icon select */}
             <Select
               label="Icon"
