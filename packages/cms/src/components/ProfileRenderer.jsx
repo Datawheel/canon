@@ -17,6 +17,7 @@ import Subnav from "./sections/components/Subnav";
 import Mirror from "./Viz/Mirror";
 import isIE from "../utils/isIE.js";
 import hashCode from "../utils/hashCode.js";
+import stripHTML from "../utils/formatters/stripHTML";
 
 import deepClone from "../utils/deepClone.js";
 
@@ -197,9 +198,9 @@ class ProfileRenderer extends Component {
     const innerGroupedSections = []; // array for sections to be accumulated into
     let groupedSections = [];
 
-    let printTables = [];
+    let printSections = [];
     if (print) {
-      printTables = sections.reduce((acc, d) => acc.concat(d.visualizations), []);
+      printSections = sections.filter(d => d.visualizations.length > 0);
     }
 
     // make sure there are sections to loop through (issue #700)
@@ -293,22 +294,20 @@ class ProfileRenderer extends Component {
               <Related profiles={relatedProfiles} />
             }
             {
-              printTables.length > 0 && <div>
-                <h1>LOOK</h1>
-                {printTables.map(d => 
-                  <Viz
-                    config={d}
-                    key={d.id}
-                    dataOnly={true}
-                    
-                    /*
-                    section={this}
-                    headingLevel={vizHeadingLevel}
-                    sectionTitle={title}
-                    slug={slug}
-                    hideOptions={hideOptions}
-                    */
-                  />
+              printSections.length > 0 && <div>
+                <h1>APPENDIX</h1>
+                {printSections.map(section => 
+                  <div key={section.id}>
+                    <h3>{stripHTML(section.title)}</h3>
+                    {section.visualizations.map((viz, i) => 
+                      <Viz
+                        config={viz}
+                        key={viz.id}
+                        slug={`Visualization ${i + 1} (${stripHTML(section.title)})`}
+                        dataOnly={true}
+                      />
+                    )}
+                  </div>
                 )}
               </div>
             }

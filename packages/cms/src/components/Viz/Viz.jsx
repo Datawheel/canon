@@ -109,14 +109,22 @@ class Viz extends Component {
     const showHeader = (title && showTitle || !hideOptions) && type !== "Graphic" && type !== "HTML";
 
     if (dataOnly) {
-      return <Options
-        key="option-key"
-        component={{section, viz: this}}
-        data={vizConfig.data}
-        dataFormat={vizProps.dataFormat}
-        slug={slug }
-        title={title || sectionTitle || slug}
-      />;
+      return <div>
+        <Parse 
+          El={headingLevel} 
+          className={`${namespace}-viz-title u-margin-top-off u-margin-bottom-off u-font-xs`}
+        >
+          {title || slug}
+        </Parse>
+        <Options
+          component={{section, viz: this}}
+          data={vizConfig.data}
+          dataFormat={vizProps.dataFormat}
+          dataOnly={true}
+          slug={slug }
+          title={title || sectionTitle || slug}
+        />
+      </div>;
     }
 
     return <SizeMe render={({size}) =>
