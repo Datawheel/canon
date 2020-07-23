@@ -44,6 +44,7 @@ class Viz extends Component {
       config,
       configOverride,
       className,
+      dataOnly,
       debug,
       headingLevel,
       hideOptions,
@@ -106,6 +107,17 @@ class Viz extends Component {
 
     // whether to show the title and/or visualization options
     const showHeader = (title && showTitle || !hideOptions) && type !== "Graphic" && type !== "HTML";
+
+    if (dataOnly) {
+      return <Options
+        key="option-key"
+        component={{section, viz: this}}
+        data={vizConfig.data}
+        dataFormat={vizProps.dataFormat}
+        slug={slug }
+        title={title || sectionTitle || slug}
+      />;
+    }
 
     return <SizeMe render={({size}) =>
       <div

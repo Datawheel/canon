@@ -1,7 +1,6 @@
 const puppeteer = require("puppeteer");
 
 const pdfOptions = {
-  format: "A4",
   printBackground: true
 };
 
@@ -9,6 +8,7 @@ const generate = async path => {
   const browser = await puppeteer.launch({headless: true});
   const page = await browser.newPage();
   await page.goto(path, {waitUntil: "networkidle2"});
+  page.emulateMediaType("print");
   const pdf = await page.pdf(pdfOptions);
   await browser.close();
   return pdf;

@@ -11,6 +11,7 @@ import libs from "../utils/libs";
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 import Related from "./sections/Related";
+import Viz from "./Viz/Viz";
 import SectionGrouping from "./sections/components/SectionGrouping";
 import Subnav from "./sections/components/Subnav";
 import Mirror from "./Viz/Mirror";
@@ -174,6 +175,7 @@ class ProfileRenderer extends Component {
       hideHero,     // strip out the hero section
       hideSubnav    // strip out the subnav
     } = this.props;
+    const {print} = this.context;
 
     if (!this.state.profile) return null;
     if (this.state.profile.error) return <div>{this.state.profile.error}</div>;
@@ -194,6 +196,11 @@ class ProfileRenderer extends Component {
     const groupableSections = ["SingleColumn"].concat(Object.keys(CustomSections)); // sections to be grouped together
     const innerGroupedSections = []; // array for sections to be accumulated into
     let groupedSections = [];
+
+    let printTables = [];
+    if (print) {
+      printTables = sections.reduce((acc, d) => acc.concat(d.visualizations), []);
+    }
 
     // make sure there are sections to loop through (issue #700)
     if (sections.length) {
@@ -282,8 +289,28 @@ class ProfileRenderer extends Component {
                 )}
               </div>
             )}
-            {!hideHero && relatedProfiles && relatedProfiles.length > 0 &&
+            {!hideHero && !print && relatedProfiles && relatedProfiles.length > 0 &&
               <Related profiles={relatedProfiles} />
+            }
+            {
+              printTables.length > 0 && <div>
+                <h1>LOOK</h1>
+                {printTables.map(d => 
+                  <Viz
+                    config={d}
+                    key={d.id}
+                    dataOnly={true}
+                    
+                    /*
+                    section={this}
+                    headingLevel={vizHeadingLevel}
+                    sectionTitle={title}
+                    slug={slug}
+                    hideOptions={hideOptions}
+                    */
+                  />
+                )}
+              </div>
             }
           </main>
 
@@ -317,7 +344,8 @@ class ProfileRenderer extends Component {
 }
 
 ProfileRenderer.contextTypes = {
-  router: PropTypes.object
+  router: PropTypes.object,
+  print: PropTypes.bool
 };
 
 ProfileRenderer.childContextTypes = {
