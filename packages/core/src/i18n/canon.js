@@ -55,6 +55,9 @@ export default {
       "Related Profiles": "Related Profiles",
       "Search profiles": "Search profiles"
     },
+    "Section": {
+      "Reset visualizations": "Reset visualizations"
+    },
     "SourceGroup": {
       "and": "and",
       "Data provided by": "Data provided by"
@@ -67,7 +70,7 @@ export default {
       "Previous": "Previous",
       "of": "of",
       "rows": "rows"
-    },
+    }
   },
   "Loading": {
     "description": "Loading {{progress}} of {{total}} datasets",

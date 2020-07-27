@@ -13,6 +13,8 @@ class Home extends Component {
 
   render() {
 
+    const {location} = this.props;
+
     // use the 't' function for simple keys and strings, and
     // the Interpolate component for strings with variable replace.
     // const {t} = this.props;
