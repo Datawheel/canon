@@ -479,6 +479,10 @@ module.exports = function(app) {
       meta = meta.map(d => d.toJSON());
       meta.forEach(d => slugMap[d.slug] = d);
       const match = dims.map(d => d.slug).join();
+      let profiles = await db.profile.findAll();
+      profiles = profiles.map(d => d.toJSON());
+      const pidvisible = profiles.reduce((acc, d) => ({...acc, [d.id]: d.visible}), {});
+
       try {
         // Profile slugs are unique, so it is sufficient to use the first slug as a "profile finder"
         const potentialPid = meta.find(m => m.slug === dims[0].slug && m.ordering === 0).profile_id;
@@ -486,11 +490,11 @@ module.exports = function(app) {
         if (dims[1] && dims[1].slug) {
           const potentialSecondSlugs = meta.filter(m => m.profile_id === potentialPid && m.ordering === 1).map(d => d.slug);
           if (potentialSecondSlugs.includes(dims[1].slug)) {
-            pid = potentialPid;
+            if (pidvisible[potentialPid]) pid = potentialPid;
           }
         }
         else {
-          pid = potentialPid;
+          if (pidvisible[potentialPid]) pid = potentialPid;
         }
       }
       catch (e) {

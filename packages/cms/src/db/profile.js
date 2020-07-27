@@ -7,7 +7,11 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         autoIncrement: true
       },
-      ordering: db.INTEGER
+      ordering: db.INTEGER,
+      visible: {
+        type: db.BOOLEAN,
+        defaultValue: true
+      }
     },
     {
       tableName: "canon_cms_profile",
