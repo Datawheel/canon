@@ -7,7 +7,8 @@ class LazyImage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      intersected: false
+      intersected: false,
+      key: Math.random()
     };
     this.handleIntersection = this.handleIntersection.bind(this);
   }
@@ -20,7 +21,7 @@ class LazyImage extends Component {
 
   render() {
     const {imageProps, observerProps, backgroundImage, children} = this.props;
-    const {intersected} = this.state;
+    const {intersected, key} = this.state;
 
     const wrapperStyle = {};
 
@@ -29,10 +30,13 @@ class LazyImage extends Component {
     }
 
     return (
-      <Observer {...observerProps} onChange={this.handleIntersection}>
-        <div className={`canon-lazy-image-wrapper ${imageProps.className}`} style={wrapperStyle}>
+      <Observer key={`o${key}`} {...observerProps} onChange={this.handleIntersection}>
+        <div key={`d${key}`} className={`canon-lazy-image-wrapper ${imageProps.className}`} style={wrapperStyle}>
           {backgroundImage && <>{children}</> }
-          {!backgroundImage && <img className={`canon-lazy-image-img ${imageProps.className}-img`} src={intersected ? imageProps.src : ""} alt={imageProps.alt} /> }
+          {!backgroundImage && <img className={`canon-lazy-image-img ${imageProps.className}-img`} src={intersected ? imageProps.src : "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="} alt={imageProps.alt} />}
+          <noscript>
+            <img className={`canon-lazy-image-img ${imageProps.className}-img`} src={imageProps.src} alt={imageProps.alt} />
+          </noscript>
         </div>
       </Observer>
     );

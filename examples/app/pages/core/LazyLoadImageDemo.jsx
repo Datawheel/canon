@@ -38,7 +38,7 @@ class LazyLoadImageDemo extends Component {
       "}</style>
       <div className="test-tile-container">
         {range(48).map((l, ix) =>
-          <LazyImage key={ix} imageProps={{className: "test-tile-class", src: `https://picsum.photos/300/200?a${ix}`}} backgroundImage={true} >
+          <LazyImage key={`a${ix}`} imageProps={{className: "test-tile-class", src: `https://picsum.photos/300/200?a${ix}`}} backgroundImage={true} >
             <h3>{ix + 1}. Name</h3>
             <p>Lorem Text</p>
           </LazyImage>
@@ -48,11 +48,9 @@ class LazyLoadImageDemo extends Component {
       <p>Scroll in the container to see it in action.</p>
       <div className="test-tile-container-wrapper" style={{height: "200px", overflow: "scroll", border: "1px solid #ccc"}}>
         {range(48).map((l, ix) =>
-          <LazyImage key={ix} observerProps={{root: "#test-tile-container-wrapper"}} imageProps={{className: "test-tile-class", src: `https://picsum.photos/300/200?b${ix}`}} backgroundImage={true}>
-            <>
-              <h3>{ix + 1}. Name</h3>
-              <p>Lorem Text</p>
-            </>
+          <LazyImage key={`b${ix}`} observerProps={{root: "#test-tile-container-wrapper"}} imageProps={{className: "test-tile-class", src: `https://picsum.photos/300/200?b${ix}`}} backgroundImage={true}>
+            <h3>{ix + 1}. Name</h3>
+            <p>Lorem Text</p>
           </LazyImage>
         )}
       </div>
@@ -60,7 +58,7 @@ class LazyLoadImageDemo extends Component {
       <p>Scroll to see it in action.</p>
       <div className="test-image-container">
         {range(10).map((l, ix) =>
-          <LazyImage key={ix} imageProps={{className: "test-img-class", src: `https://picsum.photos/500/250?c${ix}`}} backgroundImage={false} />
+          <LazyImage key={`c${ix}`} imageProps={{className: "test-img-class", src: `https://picsum.photos/500/250?c${ix}`}} backgroundImage={false} />
         )}
       </div>
     </div>;

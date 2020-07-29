@@ -10,7 +10,7 @@ class LazyLoadImage extends Component {
       <p><code className="bp3-code">LazyImage</code> helps to improve the performance in image-intensive pages. Load the given image as background or img tag when the element is in the viewport. CSS, layout and content (childrens) are implementation responsability.</p>
       Built with:
       <ul>
-        <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API" target="_blank" without rel="noreferrer">Intersection Observer API</a> using <a href="https://github.com/researchgate/react-intersection-observer" target="_blank" without rel="noreferrer">react-intersection-observer</a> to detect when the box is visible in the viewport.</li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API" target="_blank" rel="noreferrer">Intersection Observer API</a> using <a href="https://github.com/researchgate/react-intersection-observer" target="_blank" rel="noreferrer">react-intersection-observer</a> to detect when the box is visible in the viewport.</li>
       </ul>
       <h3>Basic usage as background-image style (with childrens)</h3>
       <p>Import:</p>
