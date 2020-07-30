@@ -223,7 +223,7 @@
 
       /* prevent the rightmost menu item from getting cropped off the page */
       &:last-of-type:hover .cp-subnav-group-list,
-      &:last-of-type .cp-subnav-group-list.is-open {
+      &:last-of-type .cp-subnav-group-list {
         right: 0;
       }
     }

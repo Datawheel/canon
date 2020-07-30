@@ -6,14 +6,40 @@ const WORKER_STATUS = {
   BUSY: Symbol("busy")
 };
 
+/**
+ * @typedef WorkResult
+ * @property {Error | undefined} error
+ * @property {"ERROR" | "SUCCESS"} status
+ * @property {any} workData
+ */
+
 class WorkerPool extends EventEmitter {
-  constructor(script, size) {
+
+  /**
+   * Creates a new pool of worker threads.
+   *
+   * @param {string} script Path to the worker script
+   * @param {number} size Number of concurrent workers
+   * @param {(err?: Error, workData: any) => void} [onProgress] Hook for the "progress" event
+   */
+  constructor(script, size, onProgress) {
     super();
+
+    /** @type {{status: Symbol, worker: Worker}[]} */
+    this.pool = [];
+
+    /** @type {any[]} */
+    this.queue = [];
+
+    /** @type {WorkResult[]} */
+    this.results = [];
+
+    this.totalWorks = 0;
+
     this.script = script;
     this.size = parseInt(size, 10) || 2;
-    this.pool = [];
-    this.queue = [];
-    this.results = [];
+    this.onProgress = onProgress;
+
     this._initialize();
   }
 
@@ -32,8 +58,12 @@ class WorkerPool extends EventEmitter {
       });
     }
 
+    typeof this.onProgress === "function" &&
+      this.on("progress", this.onProgress);
+
     this.on("workFinished", (workData, result) => {
       this.results.push({workData, status: result.status, error: result.error});
+      this.emit("progress", result.error, workData);
       const worker = this.getIdleWorker();
       this.runWork(worker);
     });
@@ -43,6 +73,13 @@ class WorkerPool extends EventEmitter {
       const worker = this.getIdleWorker();
       this.runWork(worker);
     });
+  }
+
+  terminate() {
+    this.removeAllListeners();
+    return Promise.all(
+      this.pool.map(item => item.worker.terminate())
+    );
   }
 
   /**
@@ -78,10 +115,11 @@ class WorkerPool extends EventEmitter {
 
   /**
    * Add a new work to the queue
-   * @param {any} data
+   * @param {any} workData
    */
-  queueWork(work) {
-    this.queue.push(work);
+  queueWork(workData) {
+    this.queue.push(workData);
+    this.totalWorks++;
     const worker = this.getIdleWorker();
     if (worker) {
       this.runWork(worker);
@@ -97,7 +135,6 @@ class WorkerPool extends EventEmitter {
 
     if (workData) {
       this.setWorkerBusy(worker);
-      this.emit("progress", workData);
 
       const {port1, port2} = new MessageChannel();
       worker.postMessage({workData, port: port1}, [port1]);
@@ -118,12 +155,15 @@ class WorkerPool extends EventEmitter {
 
   /**
    * Returns a promise that resolves when the quere is cleared.
-   * @returns {Promise<any[]>}
+   * @returns {Promise<WorkResult[]>}
    */
   waitForResults() {
     return new Promise(resolve => {
       this.once("finished", () => {
-        resolve(this.results);
+        // Wait a bit before finishing so "progress" events complete
+        setTimeout(() => {
+          resolve(this.results);
+        }, 2000);
       });
     });
   }
