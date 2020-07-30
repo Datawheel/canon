@@ -122,52 +122,25 @@ class Options extends Component {
     // Include any additional files defined in config
     if (typeof dataAttachments !== "undefined") {
 
-      // Attachment is a single file
-      if (typeof dataAttachments === "string") {
+      const attachmentURLs = dataAttachments ? Array.isArray(dataAttachments) ? dataAttachments : [dataAttachments] : [];
 
-        // Determine filename
-        const dAName = dataAttachments.split("/").pop();
+      const requests = [];
+      attachmentURLs.forEach(url => {
+        requests.push(axios.get(url, {responseType: "blob"}));
+      });
 
-        // Retrieve remote file
-        axios.get(dataAttachments, {responseType: "blob"})
-          .then(response => {
-            if (response.status === 200 || response.status === 0) {
-              const blob = new Blob([response.data], {type: response.data.type});
-              return Promise.resolve(blob);
-            }
-            else {
-              return Promise.reject(new Error(response.statusText));
-            }
-          })
-          .then(data => {
-            zip.file(`${dAName}`, data, {binary: true});
-            zip.generateAsync({type: "blob"}).then(content => {
-              saveAs(content, `${filename(title)}.zip`);
-            });
-          });
-
-      }
-      else if (Array.isArray(dataAttachments)) {
-        // List of a files for attaching included in config
-        const requests = [];
-        for (let i = 0; i < dataAttachments.length; i++) {
-          requests[i] = axios.get(dataAttachments[i], {responseType: "blob"});
-        }
-
-        Promise.all(requests).then(responses => {
-
-          for (let i = 0; i < responses.length; i++) {
-            if (responses[i].status === 200 || responses[i].status === 0) {
-              // Pull data, grab file name, and add to ZIP
-              const blob = new Blob([responses[i].data], {type: responses[i].data.type});
-              const dAName = dataAttachments[i].split("/").pop();
-              zip.file(`${dAName}`, blob, {binary: true});
-            }
+      Promise.all(requests).then(responses => {
+        responses.forEach(response => {
+          if (response.status === 200 || response.status === 0) {
+            // Pull data, grab file name, and add to ZIP
+            const blob = new Blob([response.data], {type: response.data.type});
+            const dAName = response.request.responseURL.split("/").pop();
+            zip.file(`${dAName}`, blob, {binary: true});
           }
-          zip.generateAsync({type: "blob"})
-            .then(content => saveAs(content, `${filename(title)}.zip`));
         });
-      }
+        zip.generateAsync({type: "blob"})
+          .then(content => saveAs(content, `${filename(title)}.zip`));
+      });
 
     }
     else {

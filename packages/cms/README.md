@@ -664,6 +664,23 @@ return {
 }
 ```
 
+### Additional File Attachments
+
+Should you need to include additional files alongside the downloadable CSV data table, you can supply the optional `dataAttachments` field with the path(s) to those files in your visualization configuration:
+
+```js
+return {
+  ...
+  dataAttachments: "/path/to/file.ext"
+}
+```
+The `dataAttachments` property will also accept a list of files:
+
+```js
+  dataAttachments: ["/path/to/file1.ext", "/path/to/file2.ext"]
+```
+Once the list of attachments has been downloaded, it will be included with the CSV file in a ZIP archive file.
+
 ---
 
 ## Advanced Selector Techniques
