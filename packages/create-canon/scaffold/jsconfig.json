@@ -3,14 +3,19 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "checkJs": true,
+    "experimentalDecorators": true,
     "jsx": "react",
+    "module": "es2015",
     "moduleResolution": "node",
-    "strictNullChecks": true,
     "paths": {
       "$root/*": ["./*"],
       "$app/*": ["./app/*"]
     },
-    "target": "es2015"
+    "strictNullChecks": true,
+    "target": "es2016"
   },
-  "exclude": ["./node_modules/"]
+  "exclude": [
+    "./node_modules/",
+    "./static/"
+  ]
 }

@@ -14,6 +14,9 @@
   "license": "ISC",
   "dependencies": {
     "@datawheel/canon-core": "latest",
+    "prop-types": "^15.7.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "redux-logger": "^3.0.6"
   },
   "devDependencies": {
@@ -23,6 +26,10 @@
     "eslint-plugin-react": ">=7"
   },
   "eslintConfig": {
-    "extends": "@datawheel"
+    "extends": "@datawheel",
+    "globals": {
+      "__DEV__": true,
+      "__SERVER__": true
+    }
   }
 }
