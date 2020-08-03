@@ -1,3 +1,4 @@
+/** @type {import("../../types").DatabaseModelFactory} */
 module.exports = function(sequelize, db) {
 
   return sequelize.define("users",

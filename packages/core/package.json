@@ -3,6 +3,7 @@
   "version": "0.18.31",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "./src/index.js",
+  "types": "./types/index.d.ts",
   "bin": {
     "canon-build": "bin/build.js",
     "canon-dev": "bin/dev.js",

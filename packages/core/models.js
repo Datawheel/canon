@@ -1,3 +1,7 @@
+const models = {
+  users: require.resolve("./src/db/users")
+};
+
 module.exports = {
-  users: require("./src/db/users")
+  modelPaths: models
 };

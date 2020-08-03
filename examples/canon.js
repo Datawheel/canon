@@ -1,10 +1,9 @@
-const coreTables = require("@datawheel/canon-core/models");
-const cmsTables = require("@datawheel/canon-cms/models");
-// const passportTables = require("@datawheel/canon-passport/db");
-const testTable = require("./db/testTable");
+const {modelPaths: coreModelPaths} = require("@datawheel/canon-core/models");
+const {modelPaths: cmsModelPaths} = require("@datawheel/canon-cms/models");
 
 const {env} = process;
 
+/** @type {import("@datawheel/canon-core").Config} */
 module.exports = {
   express: {
     bodyParser: {
@@ -21,22 +20,19 @@ module.exports = {
   },
   db: [
     {
-      host: env.CANON_CMS_DBHOST || "localhost",
-      name: env.CANON_CMS_DBNAME,
-      user: env.CANON_CMS_DBUSER,
-      pass: env.CANON_CMS_DBPASS,
-      tables: Object.values(cmsTables)
+      connection: env.CANON_SERVER_DBCONNECTION ||
+        `postgresql://${env.CANON_DB_USER}:${env.CANON_DB_PASS}@${env.CANON_DB_HOST || "localhost"}:${env.CANON_DB_PORT || 5432}/${env.CANON_DB_NAME}`,
+      tables: [
+        coreModelPaths.users,
+        require("./db/testTable")
+      ]
     },
-    // {
-    //   connection: `postgresql://${env.CANON_DB_NAME}:${env.CANON_DB_PASS}@${env.CANON_DB_HOST || "localhost"}:${env.CANON_DB_PORT || 5432}/${env.CANON_DB_NAME}`,
-    //   tables: Object.values(passportTables)
-    // },
     {
-      connection: env.CANON_SERVER_DBCONNECTION,
-      tables: [].concat(
-        Object.values(coreTables),
-        testTable
-      )
+      host: env.CANON_DB_HOST || "localhost",
+      name: env.CANON_DB_NAME,
+      user: env.CANON_DB_USER,
+      pass: env.CANON_DB_PW,
+      tables: Object.values(cmsModelPaths)
     }
   ]
 };
