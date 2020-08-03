@@ -4,11 +4,12 @@
   "description": "A script to create a new canon-core instance.",
   "bin": "index.js",
   "keywords": [
-    "datawheel",
-    "canon",
     "boilerplate",
+    "datawheel-canon",
     "react",
-    "react app"
+    "react app",
+    "react boilerplate",
+    "ssr"
   ],
   "author": "Dave Landry <dave@datawheel.us>",
   "contributors": [
