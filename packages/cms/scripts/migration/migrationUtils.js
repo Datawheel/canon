@@ -18,11 +18,12 @@ const dbnew = new Sequelize(newDBName, newDBUser, newDBPW, {host: newDBHost, dia
 const catcher = e => console.log("error: ", e);
 
 const resetSequence = async(db, modelName, col) => {
-  const maxFetch = await db[modelName].findAll({attributes: [[Sequelize.fn("max", Sequelize.col(col)), "max"]], raw: true});
+  const model = db[modelName];
+  const maxFetch = await model.findAll({attributes: [[Sequelize.fn("max", Sequelize.col(col)), "max"]], raw: true});
   const max = maxFetch ? maxFetch[0].max : null;
   if (max && typeof max === "number") {
     const query = `SELECT setval(pg_get_serial_sequence('canon_cms_${modelName}', '${col}'), ${max})`;
-    return db.query(query);
+    return model.sequelize.query(query);
   }
   else {
     return null;
@@ -37,7 +38,7 @@ const loadModels = (db, modelPath, clear) => {
       const fullPath = path.join(folder, file);
       const model = db.import(fullPath);
       db[model.name] = model;
-    });  
+    });
   // find canon-core's users model
   const canonUserModelPath = path.join(process.cwd(), "node_modules/@datawheel/canon-core/src/db/users.js");
   const model = db.import(canonUserModelPath);

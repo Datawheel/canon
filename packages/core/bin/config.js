@@ -1,7 +1,10 @@
 const path = require("path");
+const canonConfigPath = path.resolve("canon.js");
 
 const defaultConfig = {
-  refresh: getCanonConfig
+  db: [],
+  i18nConfig: {},
+  plugins: []
 };
 
 module.exports = getCanonConfig;
@@ -9,11 +12,12 @@ module.exports = getCanonConfig;
 /**
  * Reads the canon.js file for the current app, and updates the central canon
  * config with its contents.
+ * This function must be used on server-side code only.
+ *
+ * @returns {import("../types").Config}
  */
 function getCanonConfig() {
-  const canonConfigPath = path.resolve("canon");
   const resolvedPath = require.resolve(canonConfigPath);
-  console.log(canonConfigPath, resolvedPath);
 
   delete require.cache[resolvedPath];
   const canonConfig = require(resolvedPath);
