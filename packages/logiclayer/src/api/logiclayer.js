@@ -158,20 +158,16 @@ module.exports = function(app) {
         if (obj instanceof Array) return obj;
         else if (obj.cut && obj.drilldown) {
           drilldowns.push(obj.drilldown);
-          const cuts = obj.cut instanceof Array ? obj.cut : [obj.cut];
-          for (let i = 0; i < cuts.length; i++) {
-            const cut = cuts[i];
-            if (searchDim in searchDims) {
-              dimensions.push({
-                alternate: key,
-                dimension: searchDim,
-                id: cut,
-                relation: obj.drilldown
-              });
-            }
-            else {
-              cuts.push([key, cut]);
-            }
+          if (searchDim in searchDims) {
+            dimensions.push({
+              alternate: key,
+              dimension: searchDim,
+              id: obj.cut,
+              relation: obj.drilldown
+            });
+          }
+          else {
+            cuts.push([key, obj.cut]);
           }
         }
         else if (obj.drilldown) {
@@ -270,21 +266,25 @@ module.exports = function(app) {
       const attributes = await Promise.all(searchQueries);
 
       const queries = {};
-      const dimCuts = d3Array.merge(attributes).reduce((obj, d) => {
-        const {hierarchy} = d;
-        const dim = dimensions.find(dim => dim.dimension === d.dimension);
-        const dimension = dim.alternate;
-        if (dim.relation) {
-          cuts.push([{dimension, level: hierarchy, hierarchy: dim.relation}, d.id]);
-          renames.push({[dimension]: dim.relation});
-        }
-        else {
-          if (!obj[dimension]) obj[dimension] = {};
-          if (!obj[dimension][hierarchy]) obj[dimension][hierarchy] = [];
-          obj[dimension][hierarchy].push(d);
-        }
-        return obj;
-      }, {});
+      const dimCuts = d3Collection.nest()
+        .key(d => d.hierarchy)
+        .entries(d3Array.merge(attributes))
+        .reduce((obj, group) => {
+          const hierarchy = group.key;
+          const dim = dimensions.find(dim => dim.dimension === group.values[0].dimension);
+          const dimension = dim.alternate;
+          const ids = group.values.map(d => d.id);
+          if (dim.relation) {
+            cuts.push([{dimension, level: hierarchy, hierarchy: dim.relation}, group.values.map(d => d.id)]);
+            renames.push({[dimension]: dim.relation});
+          }
+          else {
+            if (!obj[dimension]) obj[dimension] = {};
+            if (!obj[dimension][hierarchy]) obj[dimension][hierarchy] = [];
+            obj[dimension][hierarchy] = obj[dimension][hierarchy].concat(group.values);
+          }
+          return obj;
+        }, {});
 
       for (let i = 0; i < measures.length; i++) {
         const measure = measures[i];
