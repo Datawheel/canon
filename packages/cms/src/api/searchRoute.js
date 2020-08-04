@@ -50,6 +50,7 @@ let unaccentExtensionInstalled;
 module.exports = function(app) {
 
   const {db} = app.settings;
+  const dbQuery = db.search.sequelize.query.bind(db.search.sequelize);
 
   app.get("/api/isImageEnabled", async(req, res) => res.json(Boolean(flickr)));
 
@@ -298,7 +299,7 @@ module.exports = function(app) {
         // If not launch a warning and use the fallback search.
         // Install it running in the db: "CREATE EXTENSION IF NOT EXISTS unaccent;";
         if (typeof unaccentExtensionInstalled === "undefined") {
-          const [unaccentResult, unaccentMetadata] = await db.query("SELECT * FROM pg_extension WHERE extname = 'unaccent';");
+          const [unaccentResult, unaccentMetadata] = await dbQuery("SELECT * FROM pg_extension WHERE extname = 'unaccent';");
           unaccentExtensionInstalled = unaccentMetadata.rowCount >= 1;
           if (!unaccentExtensionInstalled) {
             console.log("WARNING: For better search results, Consider installing the 'unaccent' extension in Postgres by running: CREATE EXTENSION IF NOT EXISTS unaccent;");
@@ -508,7 +509,7 @@ module.exports = function(app) {
       // If not launch a warning and use the fallback search.
       // Install it running in the db: "CREATE EXTENSION IF NOT EXISTS unaccent;";
       if (typeof unaccentExtensionInstalled === "undefined") {
-        const [unaccentResult, unaccentMetadata] = await db.query("SELECT * FROM pg_extension WHERE extname = 'unaccent';");
+        const [unaccentResult, unaccentMetadata] = await dbQuery("SELECT * FROM pg_extension WHERE extname = 'unaccent';");
         unaccentExtensionInstalled = unaccentMetadata.rowCount >= 1;
         if (!unaccentExtensionInstalled) {
           console.log("WARNING: For better search results, Consider installing the 'unaccent' extension in Postgres by running: CREATE EXTENSION IF NOT EXISTS unaccent;");
