@@ -2,7 +2,7 @@
   "name": "@datawheel/create-canon",
   "version": "1.0.0",
   "description": "A script to create a new canon-core instance.",
-  "main": "index.js",
+  "bin": "index.js",
   "keywords": [
     "boilerplate",
     "datawheel-canon",
@@ -21,6 +21,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/datawheel/canon.git"
+    "url": "https://github.com/Datawheel/canon.git",
+    "directory": "packages/create-canon"
+  },
+  "bugs": {
+    "url": "https://github.com/datawheel/canon/issues"
   }
 }
