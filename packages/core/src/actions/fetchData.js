@@ -18,9 +18,18 @@ const throttle = new PromiseThrottle({
  */
 function fetchData(key, url, format = d => d, config = {}, useCache = true) {
 
-  const returnFunction = (params, store) => {
+  const returnFunction = (params, store, query = {}) => {
 
     let u = url.indexOf("http") === 0 ? url : `${store.env.CANON_API}${url}`;
+
+    // If a query was provided, then the URL of the requesting page contained ?query=params. Pass these through 
+    // via the config params object of the axios get, so that the API has visibility into these params.
+    if (Object.keys(query).length > 0) {
+      if (config.params) {
+        config.params = {...config.params, ...query};
+      }
+      else config.params = query;
+    }
 
     const variables = url.match(/<[^\&\=\/>]+>/g) || [];
 
