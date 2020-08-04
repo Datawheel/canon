@@ -62,26 +62,27 @@ class Selector extends Component {
     if (type === "multi") {
       return <div className={ `bp3-fill ${type === "multi" ? "" : "bp3-select"}` }>
         { title && <label htmlFor={slug}>{title}</label> }
-        {comparisons && comparisons.length > 0 && <Fragment>
+        {comparisons && comparisons.length > 0 && 
           <div className="multi-list">
             { comparisons.map(d => <div key={d} className="multi-item bp3-tag bp3-tag-removable">
               { stripHTML(labels[d] || variables[d] || d) }
               <button aria-label={`${labels[d] || variables[d] || d} (remove)`} className="bp3-tag-remove" onClick={this.removeComparison.bind(this, d)} />
             </div>) }
           </div>
-          {options && options.length && comparisons.length !== options.length
-            ? <BlueprintSelect name={slug}
-              filterable={false}
-              noResults={<MenuItem disabled text="No results." />}
-              onItemSelect={this.addComparison.bind(this)}
-              items={options.map(d => d.option)}
-              itemRenderer={this.renderItem.bind(this)}>
-              <button type="button" className="multi-add bp3-button bp3-icon-plus">
-                Add a Comparison
-              </button>
-            </BlueprintSelect>
-            : null }
-        </Fragment>}
+        }
+        {options && options.length && comparisons.length !== options.length
+          ? <BlueprintSelect name={slug}
+            filterable={false}
+            noResults={<MenuItem disabled text="No results." />}
+            onItemSelect={this.addComparison.bind(this)}
+            items={options.map(d => d.option)}
+            itemRenderer={this.renderItem.bind(this)}>
+            <button type="button" className="multi-add bp3-button bp3-icon-plus">
+              Add a Comparison
+            </button>
+          </BlueprintSelect>
+          : null 
+        }
       </div>;
     }
 
