@@ -292,6 +292,9 @@ export function fetchVariables(config) {
         // Bubble up userRole for easy access in front end (for hiding sections based on role)
         theseAttributes.userRole = user.role;
       }
+      // In the CMS, showWhenPrinting must exist so that users can make use of it in dropdowns/logic. However, in the CMS itself,
+      // the value is always true, because there is no such thing as a "print-mode" cms, only a front-end query param.
+      theseAttributes.showWhenPrinting = true;
       const magicResp = await axios.post(magicURL, {variables: theseAttributes, locale: thisLocale}).catch(() => ({data: {}}));
       attributesByLocale[thisLocale] = theseAttributes;
       if (typeof magicResp.data === "object") attributesByLocale[thisLocale] = {...attributesByLocale[thisLocale], ...magicResp.data};
