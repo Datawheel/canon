@@ -310,6 +310,7 @@ class Options extends Component {
         let results;
         try {
           results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
+          if (typeof results === "object" && !(results instanceof Array)) results = results.data || [];
         }
         catch (e) {
           console.log("Error in Options Panel: ", e);
