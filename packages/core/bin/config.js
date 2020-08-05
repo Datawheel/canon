@@ -14,7 +14,7 @@ module.exports = getCanonConfig;
  * config with its contents.
  * This function must be used on server-side code only.
  *
- * @returns {import("../types").Config}
+ * @returns {Canon.Config}
  */
 function getCanonConfig() {
   const resolvedPath = require.resolve(canonConfigPath);

@@ -183,13 +183,32 @@ export default hot(Home);
 
 ## Redux Store
 
-Default values can be added to the Redux Store by creating a file located at `app/store.js`. This file should export an Object, whose values will be merged with the defaul store. This file can use either ES6 or node style exports, but if you import any other dependencies into that file you must use node's `require` syntax.
+Some Redux store parameters, especifically the store initial state, reducers, and middleware, can be configured by exporting values on the file `app/store/index.js`.
+
+This file should export three constants:
+
+* `initialState`: an object, whose values will be merged with the default store.
+* `middleware`: an array, containing the middlewares that should be applied to enhance the store. The order of execution is first to last, and the internal core middleware are always executed before these ones.
+* `reducers`, an object, which should have the same structure as the object you would pass to [the `combineReducers` function](https://redux.js.org/api/combinereducers).
+
+This file can use either ES6 or node style exports, but if you import any other dependencies into that file you must use node's `require` syntax.
 
 Here is an example:
 
 ```js
-export default {
+const {reducer: cmsReducer} = require("@datawheel/canon-cms")
+const {createLogger} = require("redux-logger");
+
+export const initialState = {
   countries: ["nausa", "sabra", "aschn"]
+};
+
+export const middleware = [
+  createLogger({...})
+];
+
+export const reducers = {
+  cms: cmsReducer
 };
 ```
 
