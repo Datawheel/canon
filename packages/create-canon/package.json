@@ -1,6 +1,6 @@
 {
   "name": "@datawheel/create-canon",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A script to create a new canon-core instance.",
   "bin": "index.js",
   "keywords": [
