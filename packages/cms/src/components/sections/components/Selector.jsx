@@ -70,7 +70,7 @@ class Selector extends Component {
             </div>) }
           </div>
         }
-        {options && options.length && comparisons && comparisons.length && comparisons.length !== options.length
+        {options && options.length && comparisons && comparisons.length >= 0 && comparisons.length !== options.length
           ? <BlueprintSelect name={slug}
             filterable={false}
             noResults={<MenuItem disabled text="No results." />}
