@@ -306,6 +306,9 @@ module.exports = function(app) {
       if (resp && resp.data && resp.data.data && resp.data.data.length > 0) {
         smallAttr.parents = resp.data.data;
       }
+      // If this request was made with a print flag, set the "showWhenPrinting" variable to false, so that sections that
+      // use it in their allowed section will be hidden in for PDF printing.
+      smallAttr.showWhenPrinting = req.query.print !== "true";
       // Fetch Custom Magic Generator
       const magicURL = `${ req.protocol }://${ req.headers.host }/api/cms/customAttributes/${pid}`;
       const magicResp = await axios.post(magicURL, {variables: smallAttr, locale}).catch(() => ({data: {}}));

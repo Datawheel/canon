@@ -24,12 +24,7 @@ function fetchData(key, url, format = d => d, config = {}, useCache = true) {
 
     // If a query was provided, then the URL of the requesting page contained ?query=params. Pass these through 
     // via the config params object of the axios get, so that the API has visibility into these params.
-    if (Object.keys(query).length > 0) {
-      if (config.params) {
-        config.params = {...config.params, ...query};
-      }
-      else config.params = query;
-    }
+    const axiosConfig = {...config, params: {...config.params, ...query}};
 
     const variables = url.match(/<[^\&\=\/>]+>/g) || [];
 
@@ -55,7 +50,7 @@ function fetchData(key, url, format = d => d, config = {}, useCache = true) {
 
       return {
         type: "GET_DATA",
-        promise: throttle.add(() => axios.get(encodeURI(u), config).then(res => ({key, data: format(res.data)}))),
+        promise: throttle.add(() => axios.get(encodeURI(u), axiosConfig).then(res => ({key, data: format(res.data)}))),
         description: u
       };
 
