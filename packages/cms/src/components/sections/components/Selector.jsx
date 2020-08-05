@@ -62,7 +62,7 @@ class Selector extends Component {
     if (type === "multi") {
       return <div className={ `bp3-fill ${type === "multi" ? "" : "bp3-select"}` }>
         { title && <label htmlFor={slug}>{title}</label> }
-        {comparisons && comparisons.length > 0 && 
+        {comparisons && comparisons.length > 0 &&
           <div className="multi-list">
             { comparisons.map(d => <div key={d} className="multi-item bp3-tag bp3-tag-removable">
               { stripHTML(labels[d] || variables[d] || d) }
@@ -70,7 +70,7 @@ class Selector extends Component {
             </div>) }
           </div>
         }
-        {options && options.length && comparisons.length !== options.length
+        {options && options.length && comparisons && comparisons.length && comparisons.length !== options.length
           ? <BlueprintSelect name={slug}
             filterable={false}
             noResults={<MenuItem disabled text="No results." />}
@@ -81,7 +81,7 @@ class Selector extends Component {
               Add a Comparison
             </button>
           </BlueprintSelect>
-          : null 
+          : null
         }
       </div>;
     }
