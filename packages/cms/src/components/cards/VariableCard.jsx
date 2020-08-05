@@ -27,7 +27,8 @@ class VariableCard extends Component {
       alertObj: false,
       isDirty: false,
       dupes: [],
-      size: 0
+      size: 0,
+      duration: false
     };
   }
 
@@ -93,11 +94,13 @@ class VariableCard extends Component {
     let displayData, secondaryDisplayData = {};
     let dupes = [];
     let size = 0;
+    let duration = false;
     if (type === "generator") {
       displayData = variables._genStatus[id];
       if (localeSecondary) {
         secondaryDisplayData = secondaryVariables._genStatus[id];
       }
+      if (variables._genStatus.durations) duration = variables._genStatus.durations[id];
     }
     else if (type === "materializer") {
       displayData = variables._matStatus[id];
@@ -118,7 +121,7 @@ class VariableCard extends Component {
         size = JSON.stringify(theseVars).length;
       }
     }
-    this.setState({displayData, secondaryDisplayData, dupes, size});
+    this.setState({displayData, secondaryDisplayData, dupes, size, duration});
   }
 
   maybeDuplicate() {
@@ -199,7 +202,7 @@ class VariableCard extends Component {
   render() {
     const {attr, readOnly, minData, type, showReorderButton, variables} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
-    const {displayData, secondaryDisplayData, isOpen, alertObj, dupes, size} = this.state;
+    const {displayData, secondaryDisplayData, isOpen, alertObj, dupes, size, duration} = this.state;
 
     let description = "";
     let showDesc = false;
@@ -260,6 +263,17 @@ class VariableCard extends Component {
       usesConsole = true;
     }
 
+    let status = "ok";
+    if (duration) {
+      if (duration >= 500 && duration <= 5000) {
+        status = "warning";
+      }
+      else if (duration > 5000) {
+        status = "danger";
+      }
+    }
+
+
     return (
       <Fragment>
         <Card {...cardProps} key="c">
@@ -299,6 +313,11 @@ class VariableCard extends Component {
           {usesConsole && 
             <p className="cms-card-error u-font-xxs u-margin-top-xs">
               <Icon className="cms-card-error-icon" icon="warning-sign" /> Warning: Remove <pre className="cms-console-warning">console.log</pre>.
+            </p>
+          }
+          {duration && 
+            <p className={`cms-card-error cms-card-status-${status} u-font-xxs u-margin-top-xs`}>
+              <Icon className="cms-card-error-icon" icon="time" /> {`Duration: ${duration} ms.`}
             </p>
           }
         </Card>

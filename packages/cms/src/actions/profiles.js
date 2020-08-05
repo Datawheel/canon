@@ -10,6 +10,17 @@ const catcher = e => {
   return {data: {}};
 };
 
+axios.interceptors.request.use(d => {
+  d.meta = d.meta || {};
+  d.meta.requestStartedAt = new Date().getTime();
+  return d;
+});
+
+axios.interceptors.response.use(d => {
+  d.requestDuration = new Date().getTime() - d.config.meta.requestStartedAt;
+  return d;
+}, e => Promise.reject(e));
+
 /** */
 export function getProfiles() {
   return function(dispatch, getStore) {
@@ -284,6 +295,7 @@ export function fetchVariables(config) {
     
     const magicURL = `/api/cms/customAttributes/${currentPid}`;
     const attributesByLocale = {};
+    const durationByLocale = {};
     for (const thisLocale of locales) {
       const theseAttributes = attify(previews.map(d => d.searchObj), thisLocale);
       if (getStore().env.CANON_LOGINS && auth.user) {
@@ -294,11 +306,14 @@ export function fetchVariables(config) {
       }
       const magicResp = await axios.post(magicURL, {variables: theseAttributes, locale: thisLocale}).catch(() => ({data: {}}));
       attributesByLocale[thisLocale] = theseAttributes;
+      durationByLocale[thisLocale] = magicResp.requestDuration;
       if (typeof magicResp.data === "object") attributesByLocale[thisLocale] = {...attributesByLocale[thisLocale], ...magicResp.data};
     }
 
     for (const thisLocale of locales) {
       const attributes = attributesByLocale[thisLocale];
+      if (!variables[thisLocale]._genStatus.durations) variables[thisLocale]._genStatus.durations = {};
+      variables[thisLocale]._genStatus.durations.attributes = durationByLocale[thisLocale];
       let paramString = previews.reduce((acc, p, i) => `${acc}&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`, "");
       if (config && (config.type === "materializer" || config.type === "generator")) paramString += `&${config.type}=${config.id}`;
       if (!config || config && config.type === "generator") {

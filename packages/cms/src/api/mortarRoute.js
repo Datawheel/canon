@@ -24,6 +24,17 @@ const catcher = e => {
   return [];
 };
 
+axios.interceptors.request.use(d => {
+  d.meta = d.meta || {};
+  d.meta.requestStartedAt = new Date().getTime();
+  return d;
+});
+
+axios.interceptors.response.use(d => {
+  d.requestDuration = new Date().getTime() - d.config.meta.requestStartedAt;
+  return d;
+}, e => Promise.reject(e));
+
 const getConfig = () => {
   const config = {};
   if (OLAP_PROXY_SECRET) {
@@ -343,6 +354,7 @@ module.exports = function(app) {
     // Seed the return variables with the stripped-down attr object
     let returnVariables = {...smallAttr};
     const genStatus = {};
+    const durations = {};
     results.forEach((r, i) => {
       // For every API result, find ONLY the generators that depend on this data
       const requiredGenerators = generators.filter(g => g.api === requests[i]);
@@ -352,6 +364,7 @@ module.exports = function(app) {
         if (typeof evalResults.vars !== "object") evalResults.vars = {};
         // genStatus is used to track the status of each individual generator
         genStatus[g.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
+        durations[g.id] = r.requestDuration;
         // Fold the generated variables into the accumulating returnVariables
         return {...acc, ...evalResults.vars};
       }, returnVariables);
@@ -360,7 +373,7 @@ module.exports = function(app) {
     returnVariables._genStatus = genStatus;
     // Inject a special, hard-coded attr genstatus for the front-end
     returnVariables._genStatus.attributes = smallAttr;
-
+    returnVariables._genStatus.durations = durations;
     return returnVariables;
 
   };
