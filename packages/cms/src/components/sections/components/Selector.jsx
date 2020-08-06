@@ -53,7 +53,7 @@ class Selector extends Component {
 
   render() {
     const {comparisons} = this.state;
-    const {onSelector, variables} = this.context;
+    const {onSelector, print, variables} = this.context;
     const {default: activeValue, fontSize, id, loading, options, name, selectCutoff, title, type} = this.props;
     const slug = `${name}-${id}`;
     const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label}), {});
@@ -70,7 +70,7 @@ class Selector extends Component {
             </div>) }
           </div>
         }
-        {options && options.length && comparisons && comparisons.length >= 0 && comparisons.length !== options.length
+        {!print && options && options.length && comparisons && comparisons.length >= 0 && comparisons.length !== options.length
           ? <BlueprintSelect name={slug}
             filterable={false}
             noResults={<MenuItem disabled text="No results." />}
@@ -88,10 +88,25 @@ class Selector extends Component {
 
     // single selector
     else if (options && options.length >= 2) {
-      // options under selectCutoff; button group
-      if (options.length <= selectCutoff) {
+
+      // only show selected option in print mode
+      if (print) {
+        const b = options.find(b => b.option === activeValue);
         return <ButtonGroup label={title} className="cp-selector-button-group" fontSize={fontSize}>
-          {options.map(b =>
+          <Button
+            className="cp-selector-button"
+            fill={false}
+            fontSize={fontSize}
+          >
+            {stripHTML(b.label || variables[b.option])}
+          </Button>
+        </ButtonGroup>;
+      }
+
+      // options under selectCutoff; button group
+      if (print || options.length <= 1000) {
+        return <ButtonGroup label={title} className="cp-selector-button-group" fontSize={fontSize}>
+          {(print ? options.filter(b => b.option === activeValue) : options).map(b =>
             <Button
               className="cp-selector-button"
               onClick={() => onSelector(name, b.option)}
@@ -126,6 +141,7 @@ class Selector extends Component {
 
 Selector.contextTypes = {
   onSelector: PropTypes.func,
+  print: PropTypes.bool,
   variables: PropTypes.object
 };
 
