@@ -114,7 +114,7 @@ class Options extends Component {
   }
 
   onCSV() {
-    const {title} = this.props;
+    const {title, dataAttachments} = this.props;
     const {results} = this.state;
 
     const colDelim = ",";
@@ -138,9 +138,39 @@ class Options extends Component {
     }
 
     const zip = new JSZip();
+
+    // add generated data table to ZIP
     zip.file(`${filename(title)}.csv`, csv);
-    zip.generateAsync({type: "blob"})
-      .then(content => saveAs(content, `${filename(title)}.zip`));
+
+    // Include any additional files defined in config
+    if (typeof dataAttachments !== "undefined") {
+
+      const attachmentURLs = dataAttachments ? Array.isArray(dataAttachments) ? dataAttachments : [dataAttachments] : [];
+
+      const requests = [];
+      attachmentURLs.forEach(url => {
+        requests.push(axios.get(url, {responseType: "blob"}));
+      });
+
+      Promise.all(requests).then(responses => {
+        responses.forEach(response => {
+          if (response.status === 200 || response.status === 0) {
+            // Pull data, grab file name, and add to ZIP
+            const blob = new Blob([response.data], {type: response.data.type});
+            const dAName = response.request.responseURL.split("/").pop();
+            zip.file(`${dAName}`, blob, {binary: true});
+          }
+        });
+        zip.generateAsync({type: "blob"})
+          .then(content => saveAs(content, `${filename(title)}.zip`));
+      });
+
+    }
+    else {
+      // No attachments listed in config, only ZIP data table
+      zip.generateAsync({type: "blob"})
+        .then(content => saveAs(content, `${filename(title)}.zip`));
+    }
   }
 
   onSave() {
@@ -303,6 +333,7 @@ class Options extends Component {
         let results;
         try {
           results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
+          if (typeof results === "object" && !(results instanceof Array)) results = results.data || [];
         }
         catch (e) {
           console.log("Error in Options Panel: ", e);

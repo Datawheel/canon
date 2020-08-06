@@ -28,7 +28,7 @@ class Viz extends Component {
       // Once a viz loads, it uses the analyzeData method to report the sources to the parent section for embedding.
       // However, dataOnly mode shows JUST the raw table of data. In this case, allow the Viz to keep a copy of its
       // own sources for displaying as a title.
-      source: [] 
+      source: []
     };
   }
 
@@ -39,7 +39,7 @@ class Viz extends Component {
   }
 
   analyzeData(resp) {
-    const {updateSource} = this.context;    
+    const {updateSource} = this.context;
     const {dataOnly} = this.props;
     const sourceResp = resp.source ? resp.source : Array.isArray(resp) ? resp.reduce((acc, d) => d.source && Array.isArray(d.source) ? acc.concat(d.source) : acc, []) : [];
     if (sourceResp) {
@@ -126,8 +126,8 @@ class Viz extends Component {
 
     if (dataOnly) {
       return <div>
-        <Parse 
-          El={headingLevel} 
+        <Parse
+          El={headingLevel}
           className={`${namespace}-viz-title u-margin-top-off u-margin-bottom-off u-font-xs`}
         >
           {title || slug}
@@ -136,7 +136,7 @@ class Viz extends Component {
         <Options
           component={{section, viz: this}}
           data={vizConfig.data}
-          // Usually the Viz itself uses this interceptive dataFormat to extract sources. However, dataOnly mode only shows the 
+          // Usually the Viz itself uses this interceptive dataFormat to extract sources. However, dataOnly mode only shows the
           // raw data in a table, therefore the Options panel has to be the one to extract sources.
           dataFormat={resp => {
             const hasMultiples = vizProps.data && Array.isArray(vizProps.data) && vizProps.data.length > 1 && vizProps.data.some(d => typeof d === "string");
@@ -179,6 +179,7 @@ class Viz extends Component {
               ? <Options
                 key="option-key"
                 component={{section, viz: this}}
+                dataAttachments={vizConfig.dataAttachments}
                 data={vizConfig.data}
                 dataFormat={vizProps.dataFormat}
                 slug={slug }
@@ -199,6 +200,7 @@ class Viz extends Component {
               let data;
               try {
                 data = vizProps.dataFormat(resp);
+                if (typeof data === "object" && !(data instanceof Array)) data = data.data || [];
               }
               catch (e) {
                 console.log("Error in dataFormat: ", e);
