@@ -317,12 +317,14 @@ class ProfileRenderer extends Component {
                 {printSections.map(section =>
                   <div key={section.id}>
                     <h3>{stripHTML(section.title)}</h3>
-                    {section.visualizations.map((viz, i) =>
+                    <p>source will go here</p>
+                    {section.visualizations.map((viz, i) => 
                       <Viz
                         config={viz}
+                        configOverride={{type: "Table"}}
                         key={viz.id}
+                        hideOptions={true}
                         slug={`Visualization ${i + 1} (${stripHTML(section.title)})`}
-                        dataOnly={true}
                       />
                     )}
                   </div>

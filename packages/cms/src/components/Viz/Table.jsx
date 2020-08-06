@@ -158,12 +158,24 @@ class Table extends Component {
     const {d3plus} = this.context;
     config.data = data;
 
+    console.log("data", data);
+
+    /*
     // check that we have a valid columns object
     const columns = config.columns &&
       // it it's array, use it as-is; otherwise, make it an array
       Array.isArray(config.columns) ? config.columns : [config.columns] ||
       // otherwise, make an array from all available columns
       Object.keys(data.length ? data[0] : {});
+    */
+
+    let columns = [];
+    if (config.columns) {
+      columns = Array.isArray(config.columns) ? config.columns : [config.columns];
+    }
+    else {
+      columns = data.length ? Object.keys(data[0]) : [];
+    }
 
     const tableStructure = columns.map(col => {
       // if the current column is a string alone, render the column

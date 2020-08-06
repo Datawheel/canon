@@ -161,7 +161,7 @@ class Tabs extends Component {
 }
 
 Tabs.contextTypes = {
-  onTabSelect: PropTypes.function,
+  onTabSelect: PropTypes.func,
   router: PropTypes.object
 };
 

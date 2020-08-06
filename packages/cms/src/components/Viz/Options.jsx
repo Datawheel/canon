@@ -69,29 +69,6 @@ class Options extends Component {
     this.dialog = React.createRef();
   }
 
-  componentDidMount() {
-    // Options.jsx can be mounted in "dataOnly" mode, just prints all the data in a ReactTable. Used for printing PDFs.
-    // Therefore, fetch the data on mount (as opposed to behind a "view data" button click, as with regular Options)
-    const {dataOnly} = this.props;
-    if (dataOnly) {
-      const {data, dataFormat} = this.props;
-      const paths = typeof data === "string" ? [data] : data;
-      this.setState({loading: true});
-      Promise.all(paths.map(path => typeof path === "string" ? axios.get(path) : {data: path})).then(resps => {
-        const loaded = resps.map(d => d.data);
-        let results;
-        try {
-          results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
-        }
-        catch (e) {
-          console.log("Error in Options Panel: ", e);
-          results = [];
-        }
-        this.setState({loading: false, results});
-      });
-    }
-  }
-
   componentDidUpdate(prevProps) {
     const {data} = this.props;
     if (JSON.stringify(prevProps.data) !== JSON.stringify(data)) {
@@ -375,7 +352,7 @@ class Options extends Component {
   render() {
     if (this.context.print) return null;
     const {backgroundColor, imageContext, imageFormat, imageProcessing, includeSlug, dialogOpen, results, focusOptions} = this.state;
-    const {data, dataOnly, iconOnly, slug, t, transitionDuration} = this.props;
+    const {data, iconOnly, slug, t, transitionDuration} = this.props;
 
     // construct URL from a combination of redux & context (#537)
     const domain = this.props.location.origin;
@@ -447,22 +424,6 @@ class Options extends Component {
           </ButtonGroup>
         </label>
       </div>;
-
-    if (dataOnly) {
-      return results ? <div>
-        <ReactTable
-          data={results}
-          defaultPageSize={results.length}
-          columns={columns.map(col => this.renderColumn(col))}
-          minRows="0"
-          minWidth="300"
-          showPagination={false}
-          resizable={false}
-        />
-      </div> : <div className="bp3-dialog-body view-table">
-        <NonIdealState title={t("CMS.Options.Loading Data")} visual={<Spinner />} />
-      </div>;
-    }
 
     return <div
       className="Options"
