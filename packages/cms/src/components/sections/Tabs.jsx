@@ -40,11 +40,14 @@ class Tabs extends Component {
   }
 
   componentDidMount() {
+    const {visualizations} = this.props;
     const {id} = this.props.contents;
     const {query} = this.context.router.location;
     // If a query param was set that matches this section's id, then a panelIndex was provided in the URL.
     if (query[`tabsection-${id}`] !== undefined) {
-      this.setState({panelIndex: Number(query[`tabsection-${id}`])});
+      const targetTab = Number(query[`tabsection-${id}`]);
+      const panelIndex = targetTab < visualizations.length ? targetTab : 0;
+      this.setState({panelIndex});
     }
   }
 
