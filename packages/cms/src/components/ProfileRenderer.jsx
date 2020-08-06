@@ -146,10 +146,16 @@ class ProfileRenderer extends Component {
     const {profile, selectors} = this.state;
     const {id, variables} = profile;
     const {locale, sectionID} = this.props;
-    const {params} = this.context.router;
+    const {router} = this.context;
+    const {params, location} = router;
+    const {basename, pathname, query} = location;
 
-    if (value instanceof Array && !value.length) delete selectors[name];
-    else selectors[name] = value;
+    selectors[name] = value;
+    
+    const newQuery = {...query, ...selectors};
+    const queryString = Object.entries(newQuery).map(([key, val]) => `${key}=${val}`).join("&");
+    const newPath = `${basename}${pathname}?${queryString}`;
+    if (queryString) router.replace(newPath);
 
     this.setState({loading: true, selectors});
     const payload = {variables};
