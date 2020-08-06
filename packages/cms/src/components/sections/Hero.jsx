@@ -1,10 +1,9 @@
-import axios from "axios";
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {nest} from "d3-collection";
 import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
-import {Dialog, Icon} from "@blueprintjs/core";
+import {Dialog} from "@blueprintjs/core";
 
 import stripHTML from "../../utils/formatters/stripHTML";
 import groupMeta from "../../utils/groupMeta";
@@ -15,6 +14,7 @@ import StatGroup from "../Viz/StatGroup";
 
 import Button from "../fields/Button";
 
+import PDFButton from "./components/PDFButton";
 import Parse from "./components/Parse";
 import ProfileSearch from "../fields/ProfileSearch";
 
@@ -33,8 +33,7 @@ class Hero extends Component {
       sources: [],
       images: [],
       creditsVisible: false,
-      clickedIndex: undefined,
-      saving: false
+      clickedIndex: undefined
     };
 
     if (typeof window !== "undefined") window.titleClick = this.titleClick.bind(this);
@@ -75,26 +74,6 @@ class Hero extends Component {
     setTimeout(() => {
       document.querySelector(".cp-hero-search .cp-input").focus();
     }, 300);
-  }
-
-  saveToPDF() {
-    const {saving} = this.state;
-    const {router} = this.context;
-    if (!saving) {
-      const url = "/api/pdf";
-      const path = `${router.location.pathname}?print=true`;
-      const payload = {path};
-      const config = {responseType: "arraybuffer", headers: {Accept: "application/pdf"}};
-      this.setState({saving: true});
-      axios.post(url, payload, config).then(resp => {
-        const blob = new Blob([resp.data], {type: "application/pdf"});
-        const link = document.createElement("a");
-        link.href = window.URL.createObjectURL(blob);
-        link.download = "your-file-name.pdf";
-        link.click();
-        this.setState({saving: false});
-      });
-    }
   }
 
   /**
@@ -189,7 +168,7 @@ class Hero extends Component {
 
   render() {
     const {contents, loading, sources, profile} = this.props;
-    const {images, creditsVisible, clickedIndex, saving} = this.state;
+    const {images, creditsVisible, clickedIndex} = this.state;
     const {searchProps} = this.context;
 
     let title = this.spanifyTitle(profile.title);
@@ -242,7 +221,7 @@ class Hero extends Component {
     return (
       <header className="cp-section cp-hero">
         <div className="cp-section-inner cp-hero-inner">
-          <button onClick={this.saveToPDF.bind(this)} className="cp-hero-pdf">{!saving ? "Save Profile as PDF" : "Saving..."} <Icon icon="document-open" /></button>
+          <PDFButton className="cp-hero-pdf" />
           {/* caption */}
           <div className="cp-section-content cp-hero-caption">
             {heading}
