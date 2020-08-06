@@ -94,6 +94,7 @@ class ProfileRenderer extends Component {
       router,
       onSelector: this.onSelector.bind(this),
       onOpenModal: this.onOpenModal.bind(this),
+      onTabSelect: this.onTabSelect.bind(this),
       variables,
       initialVariables,
       locale
@@ -142,20 +143,26 @@ class ProfileRenderer extends Component {
     }
   }
 
+  updateQuery(obj) {
+    const {router} = this.context;
+    const {location} = router;
+    const {basename, pathname, query} = location;
+    const newQuery = {...query, ...obj};
+    const queryString = Object.entries(newQuery).map(([key, val]) => `${key}=${val}`).join("&");
+    const newPath = `${basename}${pathname}?${queryString}`;
+    if (queryString) router.replace(newPath);
+  }
+
   onSelector(name, value) {
     const {profile, selectors} = this.state;
     const {id, variables} = profile;
     const {locale, sectionID} = this.props;
     const {router} = this.context;
-    const {params, location} = router;
-    const {basename, pathname, query} = location;
+    const {params} = router;
 
     selectors[name] = value;
     
-    const newQuery = {...query, ...selectors};
-    const queryString = Object.entries(newQuery).map(([key, val]) => `${key}=${val}`).join("&");
-    const newPath = `${basename}${pathname}?${queryString}`;
-    if (queryString) router.replace(newPath);
+    this.updateQuery(selectors);
 
     this.setState({loading: true, selectors});
     const payload = {variables};
@@ -172,6 +179,10 @@ class ProfileRenderer extends Component {
       .then(resp => {
         this.setState({profile: {neighbors: profile.neighbors, ...resp.data}, loading: false});
       });
+  }
+
+  onTabSelect(id, index) {
+    this.updateQuery({[`tabsection-${id}`]: index});
   }
 
   render() {
@@ -360,7 +371,8 @@ ProfileRenderer.childContextTypes = {
   variables: PropTypes.object,
   initialVariables: PropTypes.object,
   onSelector: PropTypes.func,
-  onOpenModal: PropTypes.func
+  onOpenModal: PropTypes.func,
+  onTabSelect: PropTypes.func
 };
 
 const mapStateToProps = state => ({
