@@ -81,7 +81,7 @@ class ProfileRenderer extends Component {
 
   getChildContext() {
     const {formatters, locale} = this.props;
-    const {router} = this.context;
+    const {print, router} = this.context;
     const {profile, initialVariables} = this.state;
     const {variables} = profile;
     return {
@@ -96,7 +96,8 @@ class ProfileRenderer extends Component {
       onOpenModal: this.onOpenModal.bind(this),
       variables,
       initialVariables,
-      locale
+      locale,
+      print
     };
   }
 
@@ -248,7 +249,7 @@ class ProfileRenderer extends Component {
 
     return (
       <Fragment>
-        <div className="cp">
+        <div className={`cp${print ? " cp-print" : ""}`}>
 
           {!hideHero && <Hero key="cp-hero" profile={profile} contents={heroSection || null} {...hideElements} />}
 
@@ -296,10 +297,10 @@ class ProfileRenderer extends Component {
             {
               printSections.length > 0 && <div>
                 <h1>APPENDIX</h1>
-                {printSections.map(section => 
+                {printSections.map(section =>
                   <div key={section.id}>
                     <h3>{stripHTML(section.title)}</h3>
-                    {section.visualizations.map((viz, i) => 
+                    {section.visualizations.map((viz, i) =>
                       <Viz
                         config={viz}
                         key={viz.id}
@@ -354,7 +355,8 @@ ProfileRenderer.childContextTypes = {
   variables: PropTypes.object,
   initialVariables: PropTypes.object,
   onSelector: PropTypes.func,
-  onOpenModal: PropTypes.func
+  onOpenModal: PropTypes.func,
+  print: PropTypes.bool
 };
 
 const mapStateToProps = state => ({
