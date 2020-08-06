@@ -1,3 +1,5 @@
+@import "../css/mixins.css";
+
 .cp-error {
   background-color: var(--dark);
   color: var(--white);
@@ -5,5 +7,88 @@
   width: 100%;
   & .bp3-heading {
     color: var(--white);
+  }
+}
+
+@define-mixin cp-print-styles {
+  background: white;
+  background-color: white;
+  & a::after {
+    content: " [" attr(href) "]";
+    overflow-wrap: break-word;
+    word-break: break-all;
+    word-wrap: break-word;
+  }
+  & .cp-section-content {
+    & > * {
+      margin-bottom: var(--gutter-sm);
+    }
+    & .cp-button-group {
+      & .cp-button {
+        flex: none;
+      }
+    }
+  }
+  & .cp-section-heading {
+    margin: 0 0 var(--gutter-md);
+    padding: 0;
+  }
+  & .cp-section-heading-anchor {
+    display: none;
+  }
+  & .cp-grouping,
+  & .cp-section:not(.cp-grouping-section):not(.cp-hero) {
+    background: white;
+    background-color: white;
+    break-before: page;
+  }
+  & .cp-section.cp-hero,
+  & .cp-section.cp-grouping-section {
+    box-sizing: border-box;
+    height: 100vh;
+    padding: calc(var(--gutter-xl));
+  }
+  & .cp-section:not(.cp-hero) {
+    padding: calc(var(--gutter-xl));
+    & .cp-section-inner {
+      align-items: stretch;
+      flex-direction: column;
+      & > * {
+        width: 100%;
+      }
+    }
+  }
+  & .cp-section:not(.cp-grouping-section):not(.cp-hero) {
+    background: white;
+    background-color: white;
+  }
+  & img, & svg {
+    break-inside: avoid;
+  }
+  & .cp-viz-container {
+    margin-top: var(--gutter-lg);
+    & .cp-viz.header {
+      position: relative;
+    }
+    & .cp-viz-figure {
+      padding: 0;
+      position: relative;
+      & .cp-viz {
+        position: relative;
+        text-align: center;
+        & svg {
+          transform: scale(1);
+        }
+      }
+    }
+  }
+}
+
+.cp.cp-print {
+  @mixin cp-print-styles;
+}
+@media print {
+  .cp {
+    @mixin cp-print-styles;
   }
 }
