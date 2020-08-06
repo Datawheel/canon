@@ -216,11 +216,6 @@ class ProfileRenderer extends Component {
     const innerGroupedSections = []; // array for sections to be accumulated into
     let groupedSections = [];
 
-    let printSections = [];
-    if (print) {
-      printSections = sections.filter(d => d.visualizations.length > 0);
-    }
-
     // make sure there are sections to loop through (issue #700)
     if (sections.length) {
       // reduce sections into a nested array of groupedSections
@@ -247,6 +242,43 @@ class ProfileRenderer extends Component {
         else arr[arr.length - 1].push(group);
         return arr;
       }, []);
+    }
+
+    let printSections = [];
+    if (print) {
+      const index = sections.length + 1;
+      const groupingStubSection = {
+        allowed: "always",
+        descriptions: [],
+        icon: "",
+        id: "printGroup",
+        ordering: index,
+        position: "default",
+        profile_id: 1,
+        selectors: [],
+        short: "",
+        slug: "labels",
+        stats: [],
+        subtitles: [],
+        title: "<p>Appendix</p>",
+        type: "Grouping",
+        visualizations: []
+      };
+      printSections = sections
+        .filter(d => d.visualizations.length > 0)
+        .map(d => [{
+          ...d,
+          id: `print-${d.id}`,
+          ordering: index,
+          descriptions: [],
+          selectors: [],
+          stats: [],
+          subtitles: [],
+          position: "default",
+          type: "Default",
+          configOverride: {type: "Table", showPagination: false, minRows: 0}
+        }]);
+      groupedSections.push([[groupingStubSection], ...printSections]);
     }
 
     const modalSection = modalSlug ? profile.sections.find(s => s.slug === modalSlug) : null;
@@ -310,26 +342,6 @@ class ProfileRenderer extends Component {
             )}
             {!hideHero && !print && relatedProfiles && relatedProfiles.length > 0 &&
               <Related profiles={relatedProfiles} />
-            }
-            {
-              printSections.length > 0 && <div>
-                <h1>APPENDIX</h1>
-                {printSections.map(section =>
-                  <div key={section.id}>
-                    <h3>{stripHTML(section.title)}</h3>
-                    <p>source will go here</p>
-                    {section.visualizations.map((viz, i) => 
-                      <Viz
-                        config={viz}
-                        configOverride={{type: "Table"}}
-                        key={viz.id}
-                        hideOptions={true}
-                        slug={`Visualization ${i + 1} (${stripHTML(section.title)})`}
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
             }
           </main>
 
