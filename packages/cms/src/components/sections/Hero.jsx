@@ -80,9 +80,12 @@ class Hero extends Component {
   saveToPDF() {
     const {saving} = this.state;
     const {router} = this.context;
+    const {location} = router;
+    const {pathname, query} = location;
     if (!saving) {
       const url = "/api/pdf";
-      const path = `${router.location.pathname}?print=true`;
+      const queryString = Object.entries({...query, print: true}).map(([key, val]) => `${key}=${val}`).join("&");
+      const path = `${pathname}?${queryString}`;
       const payload = {path};
       const config = {responseType: "arraybuffer", headers: {Accept: "application/pdf"}};
       this.setState({saving: true});
