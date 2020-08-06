@@ -749,9 +749,12 @@ module.exports = function(app) {
     // where we want them to.
     profile.sections.forEach(section => {
       section.selectors.forEach(selector => {
-        const {name} = selector;
+        const {name, options} = selector;
+        const selections = req.query[name] !== undefined ? req.query[name].split(",") : false;
         // If the user provided a selector in the query, AND if it's actually an option
-        if (req.query[name] && selector.options.map(o => o.option).includes(req.query[name])) {
+        // However, remember that a multi-select with a blank query param is valid
+        const isBlankMulti = selector.type === "multi" && selections.length === 1 && selections[0] === "";
+        if (selections && (selections.every(sel => options.map(o => o.option).includes(sel)) || isBlankMulti)) {
           selector.default = req.query[name];
         }
       });

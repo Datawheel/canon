@@ -1,5 +1,6 @@
 import React, {Component, Fragment} from "react";
 import {hot} from "react-hot-loader/root";
+import PropTypes from "prop-types";
 
 import toSpacedCase from "../../utils/formatters/toSpacedCase";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
@@ -38,7 +39,25 @@ class Tabs extends Component {
     };
   }
 
+  componentDidMount() {
+    const {visualizations} = this.props;
+    const {id} = this.props.contents;
+    const {query} = this.context.router.location;
+    // If a query param was set that matches this section's id, then a panelIndex was provided in the URL.
+    if (query[`tabsection-${id}`] !== undefined) {
+      const targetTab = Number(query[`tabsection-${id}`]);
+      const panelIndex = targetTab < visualizations.length ? targetTab : 0;
+      this.setState({panelIndex});
+    }
+  }
+
+  /**
+   * When a tab changes, report the action out to ProfileRenderer so that it can inject the tab state into the URL.
+   * This way, direct links to pages can auto-open certain tabs (see componentDidMount)
+   */
   updateTabs(panelIndex) {
+    const {id} = this.props.contents;
+    this.context.onTabSelect(id, panelIndex);
     this.setState({panelIndex});
   }
 
@@ -140,5 +159,10 @@ class Tabs extends Component {
     </div>;
   }
 }
+
+Tabs.contextTypes = {
+  onTabSelect: PropTypes.function,
+  router: PropTypes.object
+};
 
 export default hot(Tabs);

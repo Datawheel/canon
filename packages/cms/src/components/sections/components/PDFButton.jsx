@@ -17,22 +17,23 @@ class PDFButton extends Component {
   saveToPDF() {
     const {saving} = this.state;
     const {router} = this.context;
+    const {location} = router;
+    const {pathname, query} = location;
     if (!saving) {
+      const url = "/api/pdf";
+      const queryString = Object.entries({...query, print: true}).map(([key, val]) => `${key}=${val}`).join("&");
+      const path = `${pathname}?${queryString}`;
+      const payload = {path};
+      const config = {responseType: "arraybuffer", headers: {Accept: "application/pdf"}};
       this.setState({saving: true});
-      setTimeout(() => {
-        const url = "/api/pdf";
-        const path = `${router.location.pathname}?print=true`;
-        const payload = {path};
-        const config = {responseType: "arraybuffer", headers: {Accept: "application/pdf"}, timeout: 1000 * 60 * 5};
-        axios.post(url, payload, config).then(resp => {
-          const blob = new Blob([resp.data], {type: "application/pdf"});
-          const link = document.createElement("a");
-          link.href = window.URL.createObjectURL(blob);
-          link.download = "your-file-name.pdf";
-          link.click();
-          this.setState({saving: false});
-        });
-      }, 1000);
+      axios.post(url, payload, config).then(resp => {
+        const blob = new Blob([resp.data], {type: "application/pdf"});
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = "your-file-name.pdf";
+        link.click();
+        this.setState({saving: false});
+      });
     }
   }
 
