@@ -244,7 +244,6 @@ class ProfileRenderer extends Component {
       }, []);
     }
 
-    let printSections = [];
     if (print) {
       const index = sections.length + 1;
       const groupingStubSection = {
@@ -264,7 +263,7 @@ class ProfileRenderer extends Component {
         type: "Grouping",
         visualizations: []
       };
-      printSections = sections
+      const printSections = sections
         .filter(d => d.visualizations.length > 0)
         .map(d => [{
           ...d,
