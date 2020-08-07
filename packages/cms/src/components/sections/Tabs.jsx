@@ -65,6 +65,7 @@ class Tabs extends Component {
     const {configOverride, slug, title, heading, hideOptions, loading, filters, resetButton, paragraphs, stats, sources, visualizations, vizHeadingLevel} = this.props;
     const selectors = filters || [];
     const {panelIndex} = this.state;
+    const {print} = this.context;
 
     const visualization = visualizations.length ? visualizations[panelIndex] : false;
 
@@ -105,7 +106,7 @@ class Tabs extends Component {
       <div className="cp-section-content cp-tabs-section-caption">
         {heading}
 
-        {tabs.length > 1 &&
+        {!print && tabs.length > 1 &&
           <Fragment>
             <p className="u-visually-hidden">Select tab: </p>
             <ButtonGroup>
@@ -163,6 +164,7 @@ class Tabs extends Component {
 
 Tabs.contextTypes = {
   onTabSelect: PropTypes.func,
+  print: PropTypes.bool,
   router: PropTypes.object
 };
 
