@@ -14,7 +14,7 @@
   background: white;
   background-color: white;
   & a::after {
-    content: " [" attr(href) "]";
+    content: " <" attr(href) ">";
     overflow-wrap: break-word;
     word-break: break-all;
     word-wrap: break-word;
@@ -31,6 +31,13 @@
     & .cp-var-reset-button {
       display: none;
     }
+    & .multi-list {
+      & .multi-item {
+        & button {
+          display: none;
+        }
+      }
+    }
   }
   & .cp-section-heading {
     margin: 0 0 var(--gutter-md);
@@ -43,7 +50,8 @@
   & .cp-section:not(.cp-grouping-section):not(.cp-hero) {
     background: white;
     background-color: white;
-    break-before: page;
+    page-break-after: always;
+    page-break-before: always;
   }
   & .cp-section.cp-hero,
   & .cp-section.cp-grouping-section {
@@ -66,12 +74,18 @@
     background-color: white;
   }
   & img, & svg {
-    break-inside: avoid;
+    page-break-inside: avoid;
   }
   & .cp-viz-container {
     margin-top: var(--gutter-md);
     &.cp-table-viz-container {
       margin: 0;
+      &:not(:first-of-type) {
+        page-break-before: always;
+      }
+      &:not(:last-child) {
+        page-break-after: always;
+      }
     }
     & .cp-viz.header {
       position: relative;
