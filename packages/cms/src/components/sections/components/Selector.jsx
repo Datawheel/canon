@@ -92,6 +92,7 @@ class Selector extends Component {
       // only show selected option in print mode
       if (print) {
         const b = options.find(b => b.option === activeValue);
+        if (!b) return null;
         return <ButtonGroup label={title} className="cp-selector-button-group" fontSize={fontSize}>
           <Button
             className="cp-selector-button"
@@ -104,7 +105,7 @@ class Selector extends Component {
       }
 
       // options under selectCutoff; button group
-      if (print || options.length <= selectCutoff) {
+      if (options.length <= selectCutoff) {
         return <ButtonGroup label={title} className="cp-selector-button-group" fontSize={fontSize}>
           {(print ? options.filter(b => b.option === activeValue) : options).map(b =>
             <Button
