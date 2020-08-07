@@ -6,7 +6,7 @@ import "./SingleColumn.css";
 export default class SingleColumn extends Component {
 
   render() {
-    const {slug, title, heading, hideOptions, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {configOverride, slug, title, heading, hideOptions, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
 
     return (
       <div
@@ -31,6 +31,7 @@ export default class SingleColumn extends Component {
               headingLevel={vizHeadingLevel}
               sectionTitle={title}
               hideOptions={hideOptions}
+              configOverride={configOverride}
               key={`${slug}-${ii}`}
             />
           )}

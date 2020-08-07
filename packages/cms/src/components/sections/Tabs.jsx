@@ -62,7 +62,7 @@ class Tabs extends Component {
   }
 
   render() {
-    const {slug, title, heading, hideOptions, loading, filters, resetButton, paragraphs, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {configOverride, slug, title, heading, hideOptions, loading, filters, resetButton, paragraphs, stats, sources, visualizations, vizHeadingLevel} = this.props;
     const selectors = filters || [];
     const {panelIndex} = this.state;
 
@@ -152,6 +152,7 @@ class Tabs extends Component {
           key={panelIndex}
           slug={slug}
           headingLevel={vizHeadingLevel}
+          configOverride={configOverride}
           hideOptions={hideOptions}
           sectionTitle={title}
         />
