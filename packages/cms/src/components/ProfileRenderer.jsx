@@ -256,10 +256,10 @@ class ProfileRenderer extends Component {
         profile_id: 1,
         selectors: [],
         short: "",
-        slug: "labels",
+        slug: "data-appendix",
         stats: [],
         subtitles: [],
-        title: "<p>Appendix</p>",
+        title: "<p>Data Appendix</p>",
         type: "Grouping",
         visualizations: []
       };
@@ -274,7 +274,7 @@ class ProfileRenderer extends Component {
           stats: [],
           subtitles: [],
           position: "default",
-          type: "Default",
+          type: "SingleColumn",
           configOverride: {type: "Table", showPagination: false, minRows: 0}
         }]);
       groupedSections.push([[groupingStubSection], ...printSections]);

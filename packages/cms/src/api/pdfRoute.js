@@ -5,17 +5,17 @@ const style = `
   .container {
     color: #444;
     font-family: 'Helvetica', 'Arial', sans-serif;
-    font-size: 8px;
+    font-size: 7px;
     text-align: center;
     width: 100%;
   }
   .pageNumber,
   .totalPages,
   .title {
-    font-size: 8px;
+    font-size: 7px;
   }
   .url {
-    font-size: 6px;
+    font-size: 5px;
   }
 </style>
 `;

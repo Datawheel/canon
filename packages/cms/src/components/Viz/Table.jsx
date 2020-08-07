@@ -100,6 +100,7 @@ class Table extends Component {
   // render ungrouped column
   renderColumn = (obj, config) => {
     const {data, headerFormat, cellFormat} = config;
+    const {print} = this.context;
     const col = typeof obj === "string" ? obj : obj.key;
     const onClick = typeof obj === "object" ? obj.onClick : undefined;
     const title = headerFormat ? headerFormat(col) : col;
@@ -141,8 +142,8 @@ class Table extends Component {
       </button>,
       id: col,
       accessor: d => d[col],
-      minWidth,
-      maxWidth: minWidth < 100 ? minWidth : undefined,
+      minWidth: print ? undefined : minWidth,
+      maxWidth: minWidth < 100 && !print ? minWidth : undefined,
       Cell: cell => {
         const html = formatValue(cell, cell.value);
         return <span className={`cp-table-cell-inner cp-table-cell-inner-${onClick ? "clickable" : "static"}`} onClick={onClick ? onClick.bind(this, cell.original) : undefined} dangerouslySetInnerHTML={{__html: html}} />;
@@ -181,6 +182,8 @@ class Table extends Component {
       <div className="cp-table-wrapper" ref={this.viz}>
         {tableStructure.length
           ? <ReactTable
+            resizable={!print}
+            sortable={!print}
             loadingText={t("CMS.Table.Loading")}
             nextText={t("CMS.Table.Next")}
             noDataText={t("CMS.Table.No rows found")}
@@ -202,7 +205,8 @@ class Table extends Component {
 }
 
 Table.contextTypes = {
-  d3plus: PropTypes.object
+  d3plus: PropTypes.object,
+  print: PropTypes.bool
 };
 
 Table.defaultProps = {

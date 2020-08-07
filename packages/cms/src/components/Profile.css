@@ -28,6 +28,9 @@
         flex: none;
       }
     }
+    & .cp-var-reset-button {
+      display: none;
+    }
   }
   & .cp-section-heading {
     margin: 0 0 var(--gutter-md);
@@ -66,7 +69,10 @@
     break-inside: avoid;
   }
   & .cp-viz-container {
-    margin-top: var(--gutter-lg);
+    margin-top: var(--gutter-md);
+    &.cp-table-viz-container {
+      margin: 0;
+    }
     & .cp-viz.header {
       position: relative;
     }
@@ -80,6 +86,19 @@
           transform: scale(1);
         }
       }
+    }
+  }
+  & .rt-table {
+    @mixin font-xxs;
+    overflow: visible;
+    width: 100%;
+    & .cp-table-header-button, & .rt-td {
+      overflow: visible;
+      position: static;
+      white-space: normal;
+    }
+    & .rt-tbody {
+      max-height: none;
     }
   }
 }
