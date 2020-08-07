@@ -272,7 +272,7 @@ class ProfileRenderer extends Component {
           subtitles: [],
           position: "default",
           type: "SingleColumn",
-          configOverride: {type: "Table", showPagination: false, minRows: 0}
+          configOverride: {title: false, type: "Table", showPagination: false, minRows: 0}
         }]);
       groupedSections.push([[groupingStubSection], ...printSections]);
     }
