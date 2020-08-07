@@ -105,7 +105,7 @@ class Viz extends Component {
     if (this.context.print) vizConfig.detectVisible = false;
 
     // whether to show the title and/or visualization options
-    const showHeader = (title && showTitle || !hideOptions) && type !== "Graphic" && type !== "HTML";
+    const showHeader = (title && showTitle || !hideOptions && !this.context.print) && type !== "Graphic" && type !== "HTML";
 
     return <SizeMe render={({size}) =>
       <div
