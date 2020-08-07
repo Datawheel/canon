@@ -11,14 +11,11 @@ import libs from "../utils/libs";
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 import Related from "./sections/Related";
-import Viz from "./Viz/Viz";
 import SectionGrouping from "./sections/components/SectionGrouping";
 import Subnav from "./sections/components/Subnav";
 import Mirror from "./Viz/Mirror";
 import isIE from "../utils/isIE.js";
 import hashCode from "../utils/hashCode.js";
-import stripHTML from "../utils/formatters/stripHTML";
-
 import deepClone from "../utils/deepClone.js";
 
 // User must define custom sections in app/cms/sections, and export them from an index.js in that folder.
