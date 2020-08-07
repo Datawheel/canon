@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from "react";
+import React, {Component} from "react";
 import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
 
@@ -104,7 +104,7 @@ class Selector extends Component {
       }
 
       // options under selectCutoff; button group
-      if (print || options.length <= 1000) {
+      if (print || options.length <= selectCutoff) {
         return <ButtonGroup label={title} className="cp-selector-button-group" fontSize={fontSize}>
           {(print ? options.filter(b => b.option === activeValue) : options).map(b =>
             <Button
