@@ -179,7 +179,7 @@ class CanonProvider extends Component {
     match({location: url, routes}, (err, redirect, props) => {
       if (err) console.error(err);
       if (serverRoutes.includes(url.pathname)) window.location.href = el.href;
-      else if (props) push(`${url.pathname}${url.search}`);
+      else if (props) push(`${url.pathname}${url.search}${url.hash}`);
       else window.location.href = el.href;
     });
 

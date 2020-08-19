@@ -21,6 +21,8 @@ Arguments:
     -b, --base      The root url to use as template in the generation.
                     Use ":profile" for the profile name, and ":page" for the page slug.
     -h, --help      Shows this information.
+    -H, --header    Set a header for all requests.
+                    This parameter must be used once for each "key: value" combo.
     -i, --input     The path to the file that contains the errored endpoints.
     -o, --output    The path to the file where to log the errored endpoints.
     -p, --password  The password in case of needing basic authentication.
@@ -49,6 +51,7 @@ Arguments:
  * @property {string} db-pass The password to connect to the database, if needed.
  * @property {string} db-user The username to connect to the database.
  * @property {boolean} help A flag to show the manual if the user needs it.
+ * @property {string[]} header A list of header params to add to each request.
  * @property {string} input The path to the file that contains the errored endpoints.
  * @property {string} output The path to the file where to log the errored endpoints.
  * @property {string} password The password in case of needing basic authentication.
@@ -61,6 +64,7 @@ const options = getopts(process.argv.slice(2), {
   alias: {
     base: "b",
     help: "h",
+    header: "H",
     input: "i",
     output: "o",
     password: "p",
@@ -69,6 +73,7 @@ const options = getopts(process.argv.slice(2), {
   },
   default: {
     "db-host": "localhost:5432",
+    "header": [],
     "threads": "5"
   },
   boolean: ["help"],
@@ -79,6 +84,7 @@ const options = getopts(process.argv.slice(2), {
     "db-name",
     "db-pass",
     "db-user",
+    "header",
     "input",
     "output",
     "password",
