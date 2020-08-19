@@ -756,7 +756,12 @@ Usage: npx canon-cms-warmup <command> [args]
 Commands:
     help    Shows this information.
     run     Inits a scan of all available routes in the installed CMS.
-    stress  Work in progress.
+            - Required: base, db[-props]
+            - Optional: output, password, profile, threads, username
+    retry   Reads an outputted file from a previous scan and retries to load
+            the failed endpoints.
+            - Required: input
+            - Optional: threads, output
 
 If command is not set, "run" will be executed.
 
@@ -764,6 +769,10 @@ Arguments:
     -b, --base      The root url to use as template in the generation.
                     Use ":profile" for the profile name, and ":page" for the page slug.
     -h, --help      Shows this information.
+    -H, --header    Set a header for all requests.
+                    This parameter must be used once for each "key: value" combo.
+    -i, --input     The path to the file that contains the errored endpoints.
+    -o, --output    The path to the file where to log the errored endpoints.
     -p, --password  The password in case of needing basic authentication.
         --profile   A comma separated string of the profiles that should be loaded.
                     If omitted or empty, all available profiles will be used.
