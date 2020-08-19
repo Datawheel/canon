@@ -2,14 +2,12 @@ const FUNC = require("../utils/FUNC"),
       PromiseThrottle = require("promise-throttle"),
       axios = require("axios"),
       collate = require("../utils/collate"),
-      deepClone = require("../utils/deepClone"),
       jwt = require("jsonwebtoken"),
       libs = require("../utils/libs"), // leave this! needed for the variable functions
       mortarEval = require("../utils/mortarEval"),
-      scaffoldDynamic = require("../utils/selectors/scaffoldDynamic"),
+      prepareProfile = require("../utils/prepareProfile"),
       sequelize = require("sequelize"),
       urlSwap = require("../utils/urlSwap"),
-      validateDynamic = require("../utils/selectors/validateDynamic"),
       varSwapRecursive = require("../utils/varSwapRecursive"),
       yn = require("yn");
 
@@ -148,23 +146,6 @@ const formatters4eval = async(db, locale) => {
 };
 
 const sorter = (a, b) => a.ordering - b.ordering;
-const selectsorter = (a, b) => a.section_selector && b.section_selector ? a.section_selector.ordering - b.section_selector.ordering : 0;
-
-// Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. Eventually move it up to the query.
-const sortProfile = profile => {
-  profile.meta.sort(sorter);
-  if (profile.sections) {
-    profile.sections.sort(sorter);
-    profile.sections.forEach(section => {
-      if (section.subtitles) section.subtitles.sort(sorter);
-      if (section.selectors) section.selectors.sort(selectsorter);
-      if (section.stats) section.stats.sort(sorter);
-      if (section.descriptions) section.descriptions.sort(sorter);
-      if (section.visualizations) section.visualizations.sort(sorter);
-    });
-  }
-  return profile;
-};
 
 const sortStory = story => {
   ["descriptions", "footnotes", "authors", "storysections"].forEach(type => story[type].sort(sorter));
@@ -172,19 +153,6 @@ const sortStory = story => {
     ["descriptions", "stats", "subtitles", "visualizations"].forEach(type => storysection[type].sort(sorter));
   });
   return story;
-};
-
-/* Some of the section-level selectors are dynamic. This means that their "options" field isn't truly
- * populated, it's just a reference to a user-defined variable. Scaffold out the dynamic selectors
- * into "real ones" so that all the ensuing logic can treat them as if they were normal. */
-const fixSelector = (selector, dynamic) => {
-  if (validateDynamic(dynamic) === "valid") {
-    selector.options = scaffoldDynamic(dynamic);
-  }
-  else {
-    selector.options = [];
-  }
-  return selector;
 };
 
 /**
@@ -690,69 +658,40 @@ module.exports = function(app) {
     // Given the completely built returnVariables and all the formatters (formatters are global)
     // Get the raw, unswapped, user-authored profile itself and all its dependencies and prepare
     // it to be formatted and regex replaced.
+    // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
+    // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
+    if (verbose) console.log("Variables Loaded, starting varSwap...");
     // See profileReq above to see the sequelize formatting for fetching the entire profile
     let profile;
     if (variables._rawProfile) {
-      profile = sortProfile(extractLocaleContent(deepClone(variables._rawProfile), locale, "profile"));
+      profile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, req.query);
     }
     else {
       const reqObj = Object.assign({}, profileReq, {where: {id: pid}});
       const rawProfile = await db.profile.findOne(reqObj).catch(catcher);
       if (rawProfile) {
         variables._rawProfile = rawProfile.toJSON();
-        profile = sortProfile(extractLocaleContent(deepClone(variables._rawProfile), locale, "profile"));
+        // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
+        // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
+        // which power the actual rendered dropdowns on the front-end profile page.
+        let allSelectors = await db.selector.findAll({where: {profile_id: pid}}).catch(catcher);
+        allSelectors = allSelectors.map(d => d.toJSON());
+        variables._rawProfile.allSelectors = allSelectors;
+        let allMaterializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
+        allMaterializers = allMaterializers.map(d => {
+          d = d.toJSON();
+          // make use of varswap for its buble transpiling, so the front end can run es5 code.
+          d = varSwapRecursive(d, formatterFunctions, variables)
+          return d;
+        }).sort((a, b) => a.ordering - b.ordering);
+        variables._rawProfile.allMaterializers = allMaterializers;
+        profile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, req.query);
       }
       else {
         if (verbose) console.error(`Profile not found for id: ${pid}`);
         return res.json({error: `Profile not found for id: ${pid}`, errorCode: 404});
       }
     }
-    // Given an object with completely built returnVariables, a hash array of formatter functions, and the profile itself
-    // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
-    // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
-    if (verbose) console.log("Variables Loaded, starting varSwap...");
-    // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
-    // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
-    // which power the actual rendered dropdowns on the front-end profile page.
-    const allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
-    profile.allSelectors = allSelectors.map(selector => selector.toJSON());
-    // Some of the section-level selectors are dynamic. This means that their "options" field isn't truly
-    // populated, it's just a reference to a user-defined variable. Scaffold out the dynamic selectors
-    // into "real ones" so that all the ensuing logic can treat them as if they were normal.
-    profile.sections.forEach(section => {
-      section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
-    });
-    // Before sending the profiles down to be varswapped, remember that some sections have groupings. If a grouping
-    // has been set to NOT be visible, then its "virtual children" should not be visible either. Copy the outer grouping's
-    // visible prop down to the child sections so they get hidden in the same manner.
-    let latestGrouping = {};
-    profile.sections.forEach(section => {
-      if (section.type === "Grouping") {
-        latestGrouping = section;
-      }
-      else {
-        // Get the visibility of the parent group
-        const parentGroupingAllowed = !latestGrouping.allowed || latestGrouping.allowed === "always" || variables[latestGrouping.allowed];
-        // If the parent group is invisible, copy its allowed setting down into this section.
-        if (!parentGroupingAllowed) {
-          section.allowed = latestGrouping.allowed;
-        }
-      }
-    });
-    profile = varSwapRecursive(profile, formatterFunctions, variables, req.query);
-    // If the user provided selectors in the query, then the user has changed a dropdown.
-    // This means that OTHER dropdowns on the page need to be set to match. To accomplish
-    // this, hijack the "default" property on any matching selector so the dropdowns "start"
-    // where we want them to.
-    profile.sections.forEach(section => {
-      section.selectors.forEach(selector => {
-        const {name} = selector;
-        // If the user provided a selector in the query, AND if it's actually an option
-        if (req.query[name] && selector.options.map(o => o.option).includes(req.query[name])) {
-          selector.default = req.query[name];
-        }
-      });
-    });
     // If the user provided a section ID in the query, that's all they want. Filter to return just that.
     if (sectionID) {
       profile.sections = profile.sections.filter(t => Number(t.id) === Number(sectionID) || t.slug === sectionID);
@@ -760,7 +699,6 @@ module.exports = function(app) {
     returnObject = Object.assign({}, returnObject, profile);
     returnObject.ids = dims.map(d => d.id).join();
     returnObject.dims = dims;
-    returnObject.variables = variables;
     // The provided ids may have images associated with them, and these images have metadata. Before we send
     // The object, we need to make a request to our /api/image endpoint to get any relevant image data.
     // Note! Images are strictly ordered to match your strictly ordered slug/id pairs
