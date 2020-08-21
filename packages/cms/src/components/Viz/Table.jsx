@@ -5,6 +5,7 @@ import {withNamespaces} from "react-i18next";
 import abbreviate from "../../utils/formatters/abbreviate";
 import stripHTML from "../../utils/formatters/stripHTML";
 import {max, min, sum} from "d3-array";
+import {scaleLinear} from "d3-scale";
 
 import {Icon} from "@blueprintjs/core";
 import ReactTable from "react-table";
@@ -100,7 +101,6 @@ class Table extends Component {
   // render ungrouped column
   renderColumn = (obj, config) => {
     const {data, headerFormat, cellFormat} = config;
-    const {print} = this.context;
     const col = typeof obj === "string" ? obj : obj.key;
     const onClick = typeof obj === "object" ? obj.onClick : undefined;
     const title = headerFormat ? headerFormat(col) : col;
@@ -136,14 +136,18 @@ class Table extends Component {
     const minWidth = min([200, max([padding * 2, columnWidth])]);
 
     return Object.assign({}, {
-      Header: <button className="cp-table-header-button">
-        {title} <span className="u-visually-hidden">, sort by column</span>
-        <Icon className="cp-table-header-icon" icon="caret-down" />
-      </button>,
+      Header: print
+        ? <button className="cp-table-header-button">
+          {title}
+        </button>
+        : <button className="cp-table-header-button">
+          {title} <span className="u-visually-hidden">, sort by column</span>
+          <Icon className="cp-table-header-icon" icon="caret-down" />
+        </button>,
       id: col,
       accessor: d => d[col],
-      minWidth: print ? undefined : minWidth,
-      maxWidth: minWidth < 100 && !print ? minWidth : undefined,
+      minWidth,
+      maxWidth: minWidth < 100 ? minWidth : undefined,
       Cell: cell => {
         const html = formatValue(cell, cell.value);
         return <span className={`cp-table-cell-inner cp-table-cell-inner-${onClick ? "clickable" : "static"}`} onClick={onClick ? onClick.bind(this, cell.original) : undefined} dangerouslySetInnerHTML={{__html: html}} />;
@@ -156,7 +160,7 @@ class Table extends Component {
     const {data, loading} = this.state;
     const {minRowsForPagination, t} = this.props;
     const config = {...this.props.config};
-    const {d3plus} = this.context;
+    const {d3plus, print} = this.context;
     config.data = data;
 
     let columns = [];
@@ -177,6 +181,19 @@ class Table extends Component {
       }
       else return {};
     }).filter(Boolean); // handle malformed tables
+
+    if (print && typeof window !== "undefined") {
+      const totalWidth = sum(tableStructure, d => d.minWidth);
+      const pagePadding = parseFloat(getComputedStyle(document.documentElement).fontSize) * 6;
+      const widthScale = scaleLinear()
+        .domain([0, totalWidth])
+        .range([0, window.innerWidth - pagePadding]);
+      tableStructure
+        .forEach(col => {
+          col.maxWidth = undefined;
+          col.minWidth = widthScale(col.minWidth);
+        });
+    }
 
     return (
       <div className="cp-table-wrapper" ref={this.viz}>
