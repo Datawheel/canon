@@ -103,9 +103,28 @@
     }
   }
   & .rt-table {
-    @mixin font-xxs;
+    font-size: var(--font-xxxs) !important;
     overflow: visible;
     width: 100%;
+    & .rt-tr-group {
+      page-break-inside: avoid;
+    }
+    & .cp-table-header-button {
+      hyphens: auto;
+      padding: 0;
+    }
+    & .rt-td {
+      background: none !important;
+      hyphens: auto;
+    }
+    & .rt-th, & .rt-td {
+      border-left: none !important;
+      border-right: none !important;
+      padding: 0.25rem 0.25rem 0.25rem 0 !important;
+      &:first-child {
+        padding-left: 0.25rem !important;
+      }
+    }
     & .cp-table-header-button, & .rt-td {
       overflow: visible;
       position: static;
