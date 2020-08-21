@@ -102,13 +102,23 @@ module.exports = async function(options) {
     log.overwrite("Requesting saved pages on this profile... SUCCESS");
     log.write(`Obtained ${pages.length} pages.\n`);
 
+    const auth = options.username && options.password
+      ? {username: options.username, password: options.password}
+      : undefined;
+
+    const headers = [].concat(options.header).reduce((headers, combo) => {
+      const splitIndex = combo.indexOf(":");
+      const key = combo.substr(0, splitIndex).trim();
+      headers[key] = combo.substr(splitIndex + 1).trim();
+      return headers;
+    }, {});
+
     let n = pages.length;
     while (n--) {
       const page = pages[n];
       pool.queueWork({
-        auth: options.username && options.password
-          ? {username: options.username, password: options.password}
-          : undefined,
+        auth,
+        headers,
         method: "GET",
         url: `${options.base}`
           .replace(/:profile\b/g, profile.slug)

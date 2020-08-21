@@ -153,6 +153,7 @@ importers:
       '@blueprintjs/core': 3.29.0_react-dom@16.8.6+react@16.8.6
       '@blueprintjs/icons': 3.19.0
       '@nuxtjs/friendly-errors-webpack-plugin': 2.1.0_webpack@4.38.0
+      '@researchgate/react-intersection-observer': 1.2.0_react-dom@16.8.6+react@16.8.6
       axios: 0.19.2
       babel-eslint: 10.1.0
       babel-loader: 8.1.0_6d9bf19aa9e6dc850f15a29b196dff14
@@ -183,6 +184,7 @@ importers:
       i18next-node-fs-backend: 2.1.3
       i18next-scanner: 2.11.0
       inline-environment-variables-webpack-plugin: 1.2.1
+      intersection-observer: 0.11.0
       iso-morphic-style-loader: 2.0.1
       js-yaml: 3.14.0
       lost: 8.3.1
@@ -270,6 +272,7 @@ importers:
       '@blueprintjs/core': ^3.18.0
       '@blueprintjs/icons': ^3.18.0
       '@nuxtjs/friendly-errors-webpack-plugin': ^2.1.0
+      '@researchgate/react-intersection-observer': ^1.2.0
       axios: ^0.19.2
       babel-eslint: ^10.0.3
       babel-loader: ^8.0.6
@@ -300,6 +303,7 @@ importers:
       i18next-node-fs-backend: ^2.1.1
       i18next-scanner: ^2.2.1
       inline-environment-variables-webpack-plugin: ^1.2.1
+      intersection-observer: ^0.11.0
       iso-morphic-style-loader: ^2.0.1
       js-yaml: ^3.10.0
       lost: ^8.2.0
@@ -1952,6 +1956,18 @@ packages:
     dev: false
     resolution:
       integrity: sha512-GorvORVwp244fGKEt3cgt/P+M0MGy4xEDbckw+K5ojEezxyMDgCaYPKVct+/eWQfZXOT7uq0xRpmrl/+hliabA==
+  /@researchgate/react-intersection-observer/1.2.0_react-dom@16.8.6+react@16.8.6:
+    dependencies:
+      react: 16.8.6
+      react-dom: 16.8.6_react@16.8.6
+    dev: false
+    engines:
+      node: '>=10.18.1'
+    peerDependencies:
+      react: ^16.3.2
+      react-dom: ^16.3.2
+    resolution:
+      integrity: sha512-SFknPRDc5g73g+iuiPjGshWJJPPxHRZ78oiQ0TYF3hF04frP4L6qnSM3e2AXiz3D5CDt6HAB30up1yrnxZXN7Q==
   /@tootallnate/once/1.1.2:
     dev: false
     engines:
@@ -6865,6 +6881,10 @@ packages:
       node: '>= 0.10'
     resolution:
       integrity: sha512-agE4QfB2Lkp9uICn7BAqoscw4SZP9kTE2hxiFI3jBPmXJfdqiahTbUuKGsMoN2GtqL9AxhYioAcVvgsb1HvRbA==
+  /intersection-observer/0.11.0:
+    dev: false
+    resolution:
+      integrity: sha512-KZArj2QVnmdud9zTpKf279m2bbGfG+4/kn16UU0NL3pTVl52ZHiJ9IRNSsnn6jaHrL9EGLFM5eWjTx2fz/+zoQ==
   /invariant/2.2.4:
     dependencies:
       loose-envify: 1.4.0

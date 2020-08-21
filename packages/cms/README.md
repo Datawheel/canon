@@ -664,6 +664,23 @@ return {
 }
 ```
 
+### Additional File Attachments
+
+Should you need to include additional files alongside the downloadable CSV data table, you can supply the optional `dataAttachments` field with the path(s) to those files in your visualization configuration:
+
+```js
+return {
+  ...
+  dataAttachments: "/path/to/file.ext"
+}
+```
+The `dataAttachments` property will also accept a list of files:
+
+```js
+  dataAttachments: ["/path/to/file1.ext", "/path/to/file2.ext"]
+```
+Once the list of attachments has been downloaded, it will be included with the CSV file in a ZIP archive file.
+
 ---
 
 ## Advanced Selector Techniques
@@ -739,7 +756,12 @@ Usage: npx canon-cms-warmup <command> [args]
 Commands:
     help    Shows this information.
     run     Inits a scan of all available routes in the installed CMS.
-    stress  Work in progress.
+            - Required: base, db[-props]
+            - Optional: output, password, profile, threads, username
+    retry   Reads an outputted file from a previous scan and retries to load
+            the failed endpoints.
+            - Required: input
+            - Optional: threads, output
 
 If command is not set, "run" will be executed.
 
@@ -747,6 +769,10 @@ Arguments:
     -b, --base      The root url to use as template in the generation.
                     Use ":profile" for the profile name, and ":page" for the page slug.
     -h, --help      Shows this information.
+    -H, --header    Set a header for all requests.
+                    This parameter must be used once for each "key: value" combo.
+    -i, --input     The path to the file that contains the errored endpoints.
+    -o, --output    The path to the file where to log the errored endpoints.
     -p, --password  The password in case of needing basic authentication.
         --profile   A comma separated string of the profiles that should be loaded.
                     If omitted or empty, all available profiles will be used.

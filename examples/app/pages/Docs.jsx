@@ -23,6 +23,9 @@ import SignUp from "./core/SignUp";
 import NotFound from "./core/NotFound";
 import I18n from "./core/I18n";
 import FetchData from "./core/FetchData";
+import LazyLoadImage from "./core/LazyLoadImage";
+import LazyLoadImageDemo from "./core/LazyLoadImageDemo";
+import Links from "./core/Links";
 
 // CMS
 import IntroCms from "./cms/Intro";
@@ -53,7 +56,10 @@ const PACKAGES = [
       {title: "SignUp", component: SignUp},
       {title: "Not Found", component: NotFound},
       {title: "I18n", component: I18n},
-      {title: "FetchData", component: FetchData}
+      {title: "FetchData", component: FetchData},
+      {title: "Lazy Load Images", component: LazyLoadImage},
+      {title: "Lazy Load Images DEMO", component: LazyLoadImageDemo},
+      {title: "Links", component: Links}
     ]
   },
   {
