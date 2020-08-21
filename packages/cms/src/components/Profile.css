@@ -20,10 +20,14 @@
     word-wrap: break-word;
   }
   & .cp-section-content {
+    margin-bottom: 0;
     & > * {
       margin-bottom: var(--gutter-sm);
     }
     & .cp-button-group {
+      display: inline-block;
+      margin-right: var(--gutter-sm);
+      width: auto;
       & .cp-button {
         flex: none;
       }
@@ -47,11 +51,15 @@
     display: none;
   }
   & .cp-grouping,
-  & .cp-section:not(.cp-grouping-section):not(.cp-hero) {
-    background: white;
-    background-color: white;
+  & .cp-section:not(.cp-grouping-section):not(.cp-hero):not(.cp-sticky) {
+    background: transparent;
+    background-color: transparent;
     page-break-after: always;
     page-break-before: always;
+  }
+  & .cp-section-sticky ~ .cp-section {
+    page-break-after: avoid;
+    page-break-before: avoid;
   }
   & .cp-section.cp-hero,
   & .cp-section.cp-grouping-section {
@@ -91,6 +99,7 @@
       position: relative;
     }
     & .cp-viz-figure {
+      margin: 0;
       padding: 0;
       position: relative;
       & .cp-viz {
@@ -102,28 +111,47 @@
       }
     }
   }
+
+  & .cp-table {
+    min-width: 0 !important;
+  }
+
   & .rt-table {
+    display: block;
     font-size: var(--font-xxxs) !important;
     overflow: visible;
-    width: 100%;
+    width: auto !important;
     & .rt-tr-group {
+      border-bottom: 1px solid var(--table-cell-border-color) !important;
+      border-left: 1px solid var(--table-cell-border-color) !important;
+      border-right: 1px solid var(--table-cell-border-color) !important;
       page-break-inside: avoid;
     }
     & .cp-table-header-button {
       hyphens: auto;
       padding: 0;
     }
-    & .rt-td {
-      background: none !important;
-      hyphens: auto;
+    & .rt-thead, & .rt-tbody , & .rt-tr-group, & .rt-tr {
+      display: block;
     }
     & .rt-th, & .rt-td {
-      border-left: none !important;
-      border-right: none !important;
+      border: none !important;
+      display: inline-block;
       padding: 0.25rem 0.25rem 0.25rem 0 !important;
       &:first-child {
         padding-left: 0.25rem !important;
       }
+    }
+    & .rt-th {
+      vertical-align: bottom;
+    }
+    & .rt-th > [class=""] {
+      min-height: 0;
+    }
+    & .rt-td {
+      background: none !important;
+      hyphens: auto;
+      vertical-align: top;
     }
     & .cp-table-header-button, & .rt-td {
       overflow: visible;
@@ -131,6 +159,7 @@
       white-space: normal;
     }
     & .rt-tbody {
+      border: none;
       max-height: none;
     }
   }
