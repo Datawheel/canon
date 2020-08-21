@@ -466,7 +466,7 @@ module.exports = function(app) {
 
       try {
         // Profile slugs are unique, so it is sufficient to use the first slug as a "profile finder"
-        const potentialPid = meta.find(m => m.slug === dims[0].slug && m.ordering === 0).profile_id;
+        const potentialPid = meta.find(m => m.slug === dims[0].slug && m.ordering === 0 && m.visible).profile_id;
         // However, still confirm that the second slug matches (if provided)
         if (dims[1] && dims[1].slug) {
           const potentialSecondSlugs = meta.filter(m => m.profile_id === potentialPid && m.ordering === 1).map(d => d.slug);
