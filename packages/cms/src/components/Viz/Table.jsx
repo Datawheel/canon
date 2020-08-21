@@ -5,6 +5,7 @@ import {withNamespaces} from "react-i18next";
 import abbreviate from "../../utils/formatters/abbreviate";
 import stripHTML from "../../utils/formatters/stripHTML";
 import {max, min, sum} from "d3-array";
+import {withSize} from "react-sizeme";
 import {scaleLinear} from "d3-scale";
 
 import {Icon} from "@blueprintjs/core";
@@ -158,7 +159,7 @@ class Table extends Component {
   render() {
 
     const {data, loading} = this.state;
-    const {minRowsForPagination, t} = this.props;
+    const {minRowsForPagination, size, t} = this.props;
     const config = {...this.props.config};
     const {d3plus, print} = this.context;
     config.data = data;
@@ -184,10 +185,9 @@ class Table extends Component {
 
     if (print && typeof window !== "undefined") {
       const totalWidth = sum(tableStructure, d => d.minWidth);
-      const pagePadding = parseFloat(getComputedStyle(document.documentElement).fontSize) * 6;
       const widthScale = scaleLinear()
         .domain([0, totalWidth])
-        .range([0, window.innerWidth - pagePadding]);
+        .range([0, size.width - 6]);
       tableStructure
         .forEach(col => {
           col.maxWidth = undefined;
@@ -230,4 +230,4 @@ Table.defaultProps = {
   minRowsForPagination: 15
 };
 
-export default withNamespaces()(Table);
+export default withNamespaces()(withSize()(Table));
