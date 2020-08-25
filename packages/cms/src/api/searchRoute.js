@@ -234,9 +234,14 @@ module.exports = function(app) {
 
     let meta = await db.profile_meta.findAll().catch(catcher);
     meta = meta.map(d => d.toJSON());
+    let allProfiles = await db.profile.findAll().catch(catcher);
+    allProfiles = allProfiles.map(d => d.toJSON());
+    const profileVisibilityHash = allProfiles.reduce((acc, d) => ({...acc, [d.id]: d.visible}), {});
     const allDimCubes = [];
     meta.forEach(m => {
-      if (!allDimCubes.find(d => d.dimension === m.dimension && d.cubeName === m.cubeName)) allDimCubes.push(m);
+      // Only register this variant as visible if both itself and its parent profile are visible.
+      const visible = profileVisibilityHash[m.profile_id] && m.visible;
+      if (visible && !allDimCubes.find(d => d.dimension === m.dimension && d.cubeName === m.cubeName)) allDimCubes.push(m);
     });
 
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
@@ -347,6 +352,11 @@ module.exports = function(app) {
         where.locale = locale;
         const contentRows = await db.search_content.findAll({where}).catch(catcher);
         searchWhere.contentId = Array.from(new Set(contentRows.map(r => r.id)));
+        // allDimCubes is a list of deduplicated profile_meta rows that are considered active (visible)
+        // to avoid returning search results from inactive (invisible) profiles, restrict the members
+        // to only return matching dimension/cube
+        searchWhere.dimension = allDimCubes.map(d => d.dimension);
+        searchWhere.cubeName = allDimCubes.map(d => d.cubeName);
         let rows = await db.search.findAll({
           include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
           // when a limit is provided, it is for EACH dimension, but this initial rowsearch is for a flat member list.
@@ -379,7 +389,7 @@ module.exports = function(app) {
     });
 
     const relevantPids = [...new Set(meta.filter(p => dimCubes.includes(`${p.dimension}/${p.cubeName}`)).map(d => d.profile_id))];
-    let profiles = await db.profile.findAll({where: {id: relevantPids}, include: {association: "meta"}}).catch(catcher);
+    let profiles = await db.profile.findAll({where: {id: relevantPids, visible: true}, include: {association: "meta"}}).catch(catcher);
     profiles = profiles.map(d => d.toJSON());
 
     // When searching for half a bilateral profile, what should be put in the other half?
@@ -525,12 +535,11 @@ module.exports = function(app) {
             // For name
             sequelize.where(
               sequelize.fn("unaccent", sequelize.col("name")),
-              {[sequelize.Op.iLike]: sequelize.fn("concat", "%", sequelize.fn("unaccent", q), "%")})
-              ,
+              {[sequelize.Op.iLike]: sequelize.fn("concat", "%", sequelize.fn("unaccent", q), "%")}),
             // For keywords
-              sequelize.where(
-                sequelize.fn("unaccent", sequelize.fn("array_to_string", sequelize.col("keywords"), " ", "")),
-                {[sequelize.Op.iLike]: sequelize.fn("concat", "%", sequelize.fn("unaccent", q), "%")})
+            sequelize.where(
+              sequelize.fn("unaccent", sequelize.fn("array_to_string", sequelize.col("keywords"), " ", "")),
+              {[sequelize.Op.iLike]: sequelize.fn("concat", "%", sequelize.fn("unaccent", q), "%")})
           ];
 
         }
@@ -543,9 +552,7 @@ module.exports = function(app) {
           ];
         }
 
-        if (locale !== 'all'){
-          where.locale = locale;
-        }
+        if (locale !== "all") where.locale = locale;
 
         rows = await db.search_content.findAll({where}).catch(catcher);
         searchWhere.contentId = Array.from(new Set(rows.map(r => r.id)));
