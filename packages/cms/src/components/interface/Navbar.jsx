@@ -240,7 +240,8 @@ class Navbar extends Component {
         profileNavItems[i] = {
           title: this.makeTitleFromDimensions(profile),
           onClick: this.handleClick.bind(this, {profile: profile.id, tab: "profiles"}),
-          selected: currentTab === "profiles" && currentPid === profile.id
+          selected: currentTab === "profiles" && currentPid === profile.id,
+          icon: profile.visible ? undefined : "eye-off"
         };
       });
       profileNavItems.sort((a, b) => a.title.localeCompare(b.title));
