@@ -207,7 +207,7 @@ class Navbar extends Component {
     const {currentPid, currentStoryPid, pathObj} = this.props.status;
     const currentTab = pathObj.tab;
 
-    let currEntity, currTree, currEntityHidden;
+    let currEntity, currEntityHidden, currTree;
     if (currentTab === "metadata") currEntity = "metadata"; // done
 
     // get entity title and sections
