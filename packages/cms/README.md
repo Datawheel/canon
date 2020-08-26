@@ -10,6 +10,8 @@ Content Management System for Canon sites.
 * [Environment Variables](#environment-variables)
 * [Sections](#sections)
 * [Custom Sections](#custom-sections)
+* [Custom Visualizations](#custom-visualizations)
+* [Hidden Profiles](#hidden-profiles)
 * [Search](#search)
 * [Advanced Generator Techniques](#advanced-generator-techniques)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
@@ -406,6 +408,22 @@ export {default as CustomViz2} from "./CustomViz2.jsx";
 
 ---
 
+## Hidden Profiles
+
+#### Profile visibility
+
+Profiles have a `Visibility` Dropdown in the Profile Editor panel that may be set to `Hidden` for pre-production profiles. Hiding a Profile will result in all profile paths returning a 404, as well as all legacy search endpoints excluding it from results (Note: Deepsearch is not included in this behavior, it must access the `canon-cms` db directly to mirror this behavior).
+
+#### Variant Visibility
+
+Individual profile variants can also be hidden, which will result in the same behavior as above. Importantly, *profile visibility always trumps variant visibility*. 
+
+#### A note on search
+
+The `/api/search` legacy search route will respect these hidden profiles and not return results from them. However, in some cases (such as the CMS), it is desirable for the search to ignore this restriction. Adding a `?cms=true` query param to the search endpoint will bypass the hidden profiles and show all members that match the query.
+
+---
+
 ## Search
 
 #### Legacy Search API (Dimensions only)
@@ -429,6 +447,7 @@ Arguments are provided by url paramaters:
 |`pslug`|If the cubeName is not known, you may provide the unique slug of the desired dimension to limit results to that profile|
 |`limit`|A number, passed through to SQL `LIMIT` to limit results|
 |`id`|Exact match `id` lookup. Keep in mind that a member `id` is not necessarily unique and may require a `dimension` specification|
+|`cms`|If set to true, bypasses all "Hiding" functionality (profile, variant, or member) and shows ALL matching results.
 
 Example query:
 
