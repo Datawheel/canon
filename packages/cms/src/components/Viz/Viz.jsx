@@ -29,7 +29,14 @@ class Viz extends Component {
 
   analyzeData(resp) {
     const {updateSource} = this.context;
-    if (updateSource && resp.source) updateSource(resp.source);
+    if (updateSource) {
+      if (resp.source) {
+        updateSource(resp.source);
+      }
+      else if (Array.isArray(resp)) {
+        updateSource(resp.reduce((acc, d) => d.source && Array.isArray(d.source) ? acc.concat(d.source) : acc, []));
+      }
+    }
   }
 
   render() {
@@ -118,6 +125,7 @@ class Viz extends Component {
               ? <Options
                 key="option-key"
                 component={{section, viz: this}}
+                dataAttachments={vizConfig.dataAttachments}
                 data={vizConfig.data}
                 dataFormat={vizProps.dataFormat}
                 slug={slug }
@@ -138,6 +146,7 @@ class Viz extends Component {
               let data;
               try {
                 data = vizProps.dataFormat(resp);
+                if (typeof data === "object" && !(data instanceof Array)) data = data.data || [];
               }
               catch (e) {
                 console.log("Error in dataFormat: ", e);

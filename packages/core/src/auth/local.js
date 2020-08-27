@@ -33,7 +33,10 @@ module.exports = function(app) {
   const {db, passport} = app.settings;
 
   passport.use("local-login", new Strategy({usernameField: "email"},
-    (email, password, done) => {
+    (rawEmail, password, done) => {
+
+      const email = `${rawEmail}`.trim().toLowerCase();
+
       db.users.findOne({where: {email}, raw: true})
         .then(user => {
 
@@ -55,7 +58,15 @@ module.exports = function(app) {
   }), (req, res) => res.json({user: req.user}));
 
   passport.use("local-signup", new Strategy({usernameField: "email", passReqToCallback: true},
-    (req, email, password, done) => {
+    (req, rawEmail, password, done) => {
+
+      const email = `${rawEmail}`.trim().toLowerCase();
+
+      const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      if (!emailRegex.test(email)) {
+        done(null, false, {message: "Entered e-mail is not valid."});
+        return;
+      }
 
       db.users.findOne({where: {email}, raw: true})
         .then(user => {
@@ -98,6 +109,7 @@ module.exports = function(app) {
     failureFlash: false
   }), (req, res) => res.json({user: req.user}));
 
+  /** */
   function sendActivation(user, req, err, done) {
 
     const mailgun = new Mailgun({apiKey: mgApiKey, domain: mgDomain});

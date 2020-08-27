@@ -2,16 +2,15 @@ import React, {Component} from "react";
 import {hot} from "react-hot-loader/root";
 import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
-import {animateScroll} from "react-scroll";
 import ReactTable from "react-table";
 import PropTypes from "prop-types";
 import "./Table.css";
 import "./Options.css";
 
-import {Checkbox, Dialog, Icon, Label, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
+import {Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
 
 import {max, sum} from "d3-array";
-import {event, select} from "d3-selection";
+import {select} from "d3-selection";
 import {uuid} from "d3plus-common";
 import {saveAs} from "file-saver";
 import JSZip from "jszip";
@@ -92,7 +91,7 @@ class Options extends Component {
   }
 
   onCSV() {
-    const {title} = this.props;
+    const {title, dataAttachments} = this.props;
     const {results} = this.state;
 
     const colDelim = ",";
@@ -116,9 +115,39 @@ class Options extends Component {
     }
 
     const zip = new JSZip();
+
+    // add generated data table to ZIP
     zip.file(`${filename(title)}.csv`, csv);
-    zip.generateAsync({type: "blob"})
-      .then(content => saveAs(content, `${filename(title)}.zip`));
+
+    // Include any additional files defined in config
+    if (typeof dataAttachments !== "undefined") {
+
+      const attachmentURLs = dataAttachments ? Array.isArray(dataAttachments) ? dataAttachments : [dataAttachments] : [];
+
+      const requests = [];
+      attachmentURLs.forEach(url => {
+        requests.push(axios.get(url, {responseType: "blob"}));
+      });
+
+      Promise.all(requests).then(responses => {
+        responses.forEach(response => {
+          if (response.status === 200 || response.status === 0) {
+            // Pull data, grab file name, and add to ZIP
+            const blob = new Blob([response.data], {type: response.data.type});
+            const dAName = response.request.responseURL.split("/").pop();
+            zip.file(`${dAName}`, blob, {binary: true});
+          }
+        });
+        zip.generateAsync({type: "blob"})
+          .then(content => saveAs(content, `${filename(title)}.zip`));
+      });
+
+    }
+    else {
+      // No attachments listed in config, only ZIP data table
+      zip.generateAsync({type: "blob"})
+        .then(content => saveAs(content, `${filename(title)}.zip`));
+    }
   }
 
   onSave() {
@@ -281,6 +310,7 @@ class Options extends Component {
         let results;
         try {
           results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
+          if (typeof results === "object" && !(results instanceof Array)) results = results.data || [];
         }
         catch (e) {
           console.log("Error in Options Panel: ", e);

@@ -37,12 +37,14 @@ class Graphic extends Component {
     else if (typeof config.data === "string") {
       axios.get(config.data).then(resp => {
         config.data = dataFormat(resp.data);
+        if (typeof config.data === "object" && !(config.data instanceof Array)) config = Object.assign(config, config.data);
         if (!config.total) config.total = config.data.reduce((acc, d) => isNaN(d[config.value]) ? acc : acc + Number(d[config.value]), 0);
         this.setState({config});
       });
     }
     else {
       config.data = dataFormat(config.data);
+      if (typeof config.data === "object" && !(config.data instanceof Array)) config = Object.assign(config, config.data);
       if (!config.total) config.total = config.data.reduce((acc, d) => isNaN(d[config.value]) ? acc : acc + Number(d[config.value]), 0);
       this.setState({config});
     }

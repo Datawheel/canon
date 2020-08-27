@@ -26,6 +26,18 @@
   }
 }
 
+.cms-card-status-ok {
+  color: darkgreen;
+}
+
+.cms-card-status-warning {
+  color: #cc7000;
+}
+
+.cms-card-status-danger {
+  @mixin error-text;
+}
+
 .cms-console-warning {
   margin-top: 1px;
   margin-left: 5px;
