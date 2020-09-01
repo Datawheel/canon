@@ -7,9 +7,9 @@ let everDetect = false;
 module.exports = async function(config) {
 
   const {modules, name, paths} = config;
-  const {serverPath} = paths;
+  const {appPath, serverPath} = paths;
 
-  const moduleName = require(path.join(serverPath, "helpers/moduleName")),
+  const moduleName = require(path.join(serverPath, "helpers/moduleName")), 
         readFiles = require(path.join(serverPath, "helpers/readFiles")),
         title = require(path.join(serverPath, "helpers/title"));
 
@@ -17,9 +17,11 @@ module.exports = async function(config) {
   const dbUser = process.env.CANON_DB_USER;
   const dbHost = process.env.CANON_DB_HOST || "127.0.0.1";
   const dbPw = process.env.CANON_DB_PW || null;
+  const engine = process.env.CANON_DB_ENGINE || "postgres";
+  const sqlite = engine === "sqlite";
 
   const files = [];
-  if (dbName && dbUser) {
+  if (sqlite || dbName && dbUser) {
     for (let i = 0; i < modules.length; i++) {
       const folder = modules[i];
       const dbFolder = path.join(folder, "db/");
@@ -28,18 +30,28 @@ module.exports = async function(config) {
 
           title(`${everDetect ? "Re-m" : "M"}ounting Database Models`, "🗄️");
 
-          config.db = new Sequelize(dbName, dbUser, dbPw,
-            {
-              host: dbHost,
-              dialect: "postgres",
-              define: {timestamps: true},
-              logging: () => {},
-              operatorsAliases: Sequelize.Op
-            }
-          );
-
+          if (engine === "sqlite") {
+            const storage = path.join(appPath, "../sqlite/cms.sqlite");
+            config.db = new Sequelize({
+              dialect: "sqlite",
+              storage,
+              // logging: false
+            });
+          }
+          else {
+            config.db = new Sequelize(dbName, dbUser, dbPw,
+              {
+                host: dbHost,
+                dialect: "postgres",
+                define: {timestamps: true},
+                logging: () => {},
+                operatorsAliases: Sequelize.Op
+              }
+            );
+            shell.echo(`Database: ${dbUser}@${dbHost}`);
+          }
+         
           everDetect = true;
-          shell.echo(`Database: ${dbUser}@${dbHost}`);
 
         }
         files.push(dbFolder);

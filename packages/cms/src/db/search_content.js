@@ -1,5 +1,7 @@
 module.exports = function(sequelize, db) {
 
+  const keywordsType = process.env.CANON_DB_ENGINE === "sqlite" ? db.JSON : db.ARRAY(db.TEXT);
+
   const s = sequelize.define("search_content",
     {
       id: {
@@ -17,7 +19,7 @@ module.exports = function(sequelize, db) {
       },
       name: db.TEXT,
       attr: db.JSONB,
-      keywords: db.ARRAY(db.TEXT)
+      keywords: keywordsType
     },
     {
       tableName: "canon_cms_search_content",

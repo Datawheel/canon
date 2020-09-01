@@ -1,5 +1,7 @@
 module.exports = function(sequelize, db) {
 
+  const optionsType = process.env.CANON_DB_ENGINE === "sqlite" ? db.JSON : db.ARRAY(db.JSON);
+
   const s = sequelize.define("selector",
     {
       id: {
@@ -8,7 +10,7 @@ module.exports = function(sequelize, db) {
         autoIncrement: true
       },
       options: {
-        type: db.ARRAY(db.JSON),
+        type: optionsType,
         defaultValue: []
       },
       default: {

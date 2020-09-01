@@ -1,5 +1,7 @@
 module.exports = function(sequelize, db) {
 
+  const levelsType = process.env.CANON_DB_ENGINE === "sqlite" ? db.JSON : db.ARRAY(db.TEXT);
+
   const p = sequelize.define("profile_meta",
     {
       id: {
@@ -20,7 +22,7 @@ module.exports = function(sequelize, db) {
         defaultValue: ""
       },
       dimension: db.STRING,
-      levels: db.ARRAY(db.TEXT),
+      levels: levelsType,
       measure: db.STRING,
       ordering: db.INTEGER,
       cubeName: db.STRING
