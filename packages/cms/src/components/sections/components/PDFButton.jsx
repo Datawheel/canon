@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {hot} from "react-hot-loader/root";
+import {withNamespaces} from "react-i18next";
 
 import axios from "axios";
 import {saveAs} from "file-saver";
@@ -22,12 +23,12 @@ class PDFButton extends Component {
       const {router} = this.context;
       const {location} = router;
       const {pathname, query} = location;
-      const {filename} = this.props;
+      const {filename, pdfOptions} = this.props;
 
       const url = "/api/pdf";
       const queryString = Object.entries({...query, print: true}).map(([key, val]) => `${key}=${val}`).join("&");
       const path = `${pathname}?${queryString}`;
-      const payload = {path};
+      const payload = {path, pdfOptions};
       const config = {responseType: "arraybuffer", headers: {Accept: "application/pdf"}};
       this.setState({saving: true});
 
@@ -45,10 +46,13 @@ class PDFButton extends Component {
 
     const {
       className,
-      text
+      text,
+      t
     } = this.props;
 
     const {saving} = this.state;
+
+    const label = text || t("CMS.Profile.Download Page as PDF");
 
     return (
       <Button
@@ -58,7 +62,7 @@ class PDFButton extends Component {
         onClick={this.saveToPDF.bind(this)}
         rebuilding={saving}
       >
-        {text}
+        {label}
       </Button>
     );
   }
@@ -67,11 +71,11 @@ class PDFButton extends Component {
 PDFButton.defaultProps = {
   className: "",
   filename: "your-file-name",
-  text: "Download Page as PDF"
+  pdfOptions: {}
 };
 
 PDFButton.contextTypes = {
   router: PropTypes.object
 };
 
-export default hot(PDFButton);
+export default withNamespaces()(hot(PDFButton));
