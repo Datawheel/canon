@@ -1,5 +1,6 @@
 import axios from "axios";
 import {connect} from "react-redux";
+import {withNamespaces} from "react-i18next";
 import React, {Component, Fragment} from "react";
 import {hot} from "react-hot-loader/root";
 import {isAuthenticated} from "@datawheel/canon-core";
@@ -192,6 +193,7 @@ class ProfileRenderer extends Component {
       hideSubnav    // strip out the subnav
     } = this.props;
     const {print} = this.context;
+    const {t} = this.props;
 
     if (!this.state.profile) return null;
     if (this.state.profile.error) return <div>{this.state.profile.error}</div>;
@@ -245,7 +247,11 @@ class ProfileRenderer extends Component {
       const index = sections.length + 1;
       const groupingStubSection = {
         allowed: "always",
-        descriptions: [],
+        descriptions: [
+          {
+            description: `<p>${t("CMS.Profile.Data Appendix Description")}</p>`
+          }
+        ],
         icon: "",
         id: "printGroup",
         ordering: index,
@@ -256,7 +262,7 @@ class ProfileRenderer extends Component {
         slug: "data-appendix",
         stats: [],
         subtitles: [],
-        title: "<p>Data Appendix</p>",
+        title: `<p>${t("CMS.Profile.Data Appendix")}</p>`,
         type: "Grouping",
         visualizations: []
       };
@@ -395,4 +401,6 @@ const mapDispatchToProps = dispatch => ({
   isAuthenticated: () => dispatch(isAuthenticated())
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(hot(ProfileRenderer));
+export default withNamespaces()(
+  connect(mapStateToProps, mapDispatchToProps)(hot(ProfileRenderer))
+);
