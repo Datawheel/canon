@@ -410,7 +410,8 @@ module.exports = function(app) {
                 memberDimension: m.dimension,
                 memberHierarchy: r.metadata.hierarchy,
                 name: r.name,
-                ranking: r.confidence
+                ranking: r.confidence,
+                attr: r.attr ? r.attr : {}
               }))
               .slice(0, limit)
             );
