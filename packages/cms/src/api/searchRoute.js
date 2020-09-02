@@ -258,7 +258,8 @@ module.exports = function(app) {
           cube_name: row.cubeName
         },
         id: row.slug,
-        keywords: content && content.keywords ? content.keywords.join : ""
+        keywords: content && content.keywords ? content.keywords.join : "",
+        attr: content && content.attr ? content.attr : {}
       };
     };
 
