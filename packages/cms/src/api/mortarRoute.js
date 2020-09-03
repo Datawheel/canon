@@ -295,8 +295,10 @@ module.exports = function(app) {
     }
     const genObj = id ? {where: {id}} : {where: {profile_id: pid}};
     let generators = await db.generator.findAll(genObj).catch(catcher);
+    generators = generators
+      .map(g => g.toJSON())
+      .filter(g => !g.allowed || g.allowed === "always" || smallAttr[g.allowed]);
     if (id && generators.length === 0) return {};
-    generators = generators.map(g => g.toJSON());
 
     /** */
     function createGeneratorFetch(r, attr) {
@@ -384,8 +386,10 @@ module.exports = function(app) {
   const runMaterializers = async(req, variables, pid) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
     let materializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
+    materializers = materializers
+      .map(m => m.toJSON())
+      .filter(m => !m.allowed || m.allowed === "always" || variables[m.allowed]);
     if (materializers.length === 0) return variables;
-    materializers = materializers.map(m => m.toJSON());
 
     // The order of materializers matters because input to later materializers depends on output from earlier materializers
     materializers.sort((a, b) => a.ordering - b.ordering);
@@ -456,18 +460,22 @@ module.exports = function(app) {
       meta = meta.map(d => d.toJSON());
       meta.forEach(d => slugMap[d.slug] = d);
       const match = dims.map(d => d.slug).join();
+      let profiles = await db.profile.findAll();
+      profiles = profiles.map(d => d.toJSON());
+      const pidvisible = profiles.reduce((acc, d) => ({...acc, [d.id]: d.visible}), {});
+
       try {
         // Profile slugs are unique, so it is sufficient to use the first slug as a "profile finder"
-        const potentialPid = meta.find(m => m.slug === dims[0].slug && m.ordering === 0).profile_id;
+        const potentialPid = meta.find(m => m.slug === dims[0].slug && m.ordering === 0 && m.visible).profile_id;
         // However, still confirm that the second slug matches (if provided)
         if (dims[1] && dims[1].slug) {
           const potentialSecondSlugs = meta.filter(m => m.profile_id === potentialPid && m.ordering === 1).map(d => d.slug);
           if (potentialSecondSlugs.includes(dims[1].slug)) {
-            pid = potentialPid;
+            if (pidvisible[potentialPid]) pid = potentialPid;
           }
         }
         else {
-          pid = potentialPid;
+          if (pidvisible[potentialPid]) pid = potentialPid;
         }
       }
       catch (e) {

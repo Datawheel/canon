@@ -1,36 +1,35 @@
 module.exports = function(sequelize, db) {
 
-  const p = sequelize.define("profile_meta",
+  const p = sequelize.define("profile_content",
     {
       id: {
         type: db.INTEGER,
         primaryKey: true,
-        autoIncrement: true
-      },
-      profile_id: {
-        type: db.INTEGER,
         onDelete: "cascade",
         references: {
           model: "canon_cms_profile",
           key: "id"
         }
       },
-      slug: {
+      locale: {
         type: db.STRING,
+        primaryKey: true
+      },
+      title: {
+        type: db.STRING,
+        defaultValue: "New Profile"
+      },
+      subtitle: {
+        type: db.TEXT,
         defaultValue: ""
       },
-      dimension: db.STRING,
-      levels: db.ARRAY(db.TEXT),
-      measure: db.STRING,
-      ordering: db.INTEGER,
-      cubeName: db.STRING,
-      visible: {
-        type: db.BOOLEAN,
-        defaultValue: true
+      label: {
+        type: db.STRING,
+        defaultValue: ""
       }
     },
     {
-      tableName: "canon_cms_profile_meta",
+      tableName: "canon_cms_profile_content",
       freezeTableName: true,
       timestamps: false
     }

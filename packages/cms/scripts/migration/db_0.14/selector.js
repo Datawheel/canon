@@ -1,25 +1,20 @@
 module.exports = function(sequelize, db) {
 
-  const m = sequelize.define("materializer",
+  const s = sequelize.define("selector",
     {
       id: {
         type: db.INTEGER,
         primaryKey: true,
         autoIncrement: true
       },
-      name: {
+      options: {
+        type: db.ARRAY(db.JSON),
+        defaultValue: []
+      },
+      default: {
         type: db.TEXT,
         defaultValue: ""
-      },
-      description: {
-        type: db.TEXT,
-        defaultValue: ""
-      },
-      logic: {
-        type: db.TEXT,
-        defaultValue: "return {}"
-      },
-      ordering: db.INTEGER,
+      },          
       profile_id: {
         type: db.INTEGER,
         onDelete: "cascade",
@@ -28,18 +23,30 @@ module.exports = function(sequelize, db) {
           key: "id"
         }
       },
-      allowed: {
+      title: {
         type: db.STRING,
-        defaultValue: "always"
+        defaultValue: ""
+      },
+      name: {
+        type: db.STRING,
+        defaultValue: ""
+      },
+      type: {
+        type: db.STRING,
+        defaultValue: "single"
+      },
+      dynamic: {
+        type: db.TEXT,
+        defaultValue: ""
       }
-    },
+    }, 
     {
-      tableName: "canon_cms_materializer",
+      tableName: "canon_cms_selector",
       freezeTableName: true,
       timestamps: false
     }
   );
 
-  return m;
+  return s;
 
 };

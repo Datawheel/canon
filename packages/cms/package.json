@@ -13,6 +13,7 @@
     "canon-cms-migrate-0.9": "scripts/migration/canon-cms-migrate-0.9.js",
     "canon-cms-migrate-0.11": "scripts/migration/canon-cms-migrate-0.11.js",
     "canon-cms-migrate-0.12": "scripts/migration/canon-cms-migrate-0.12.js",
+    "canon-cms-migrate-0.13": "scripts/migration/canon-cms-migrate-0.13.js",
     "canon-cms-warmup": "scripts/warmup/index.js"
   },
   "scripts": {
@@ -29,7 +30,8 @@
     "canon-cms-migrate-0.8": "node scripts/migration/canon-cms-migrate-0.8.js",
     "canon-cms-migrate-0.9": "node scripts/migration/canon-cms-migrate-0.9.js",
     "canon-cms-migrate-0.11": "node scripts/migration/canon-cms-migrate-0.11.js",
-    "canon-cms-migrate-0.12": "node scripts/migration/canon-cms-migrate-0.12.js"
+    "canon-cms-migrate-0.12": "node scripts/migration/canon-cms-migrate-0.12.js",
+    "canon-cms-migrate-0.13": "node scripts/migration/canon-cms-migrate-0.13.js"
   },
   "dependencies": {
     "@blueprintjs/core": "^3.28.1",

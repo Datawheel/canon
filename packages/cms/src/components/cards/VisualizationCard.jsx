@@ -145,8 +145,14 @@ class VisualizationCard extends Component {
     // Create the config object to pass to the viz, but replace its es6 logic with transpiled es5
     const config = Object.assign({}, minData, {logic});
 
+    let allowed = true;
+    if (minDataState) {
+      allowed = !minDataState.allowed || minDataState.allowed === "always" || variables[minDataState.allowed];
+    }
+
     const cardProps = {
       type,
+      allowed,
       title: config && config.logic_simple && config.logic_simple.data
         ? `${
           config.logic_simple.type}${

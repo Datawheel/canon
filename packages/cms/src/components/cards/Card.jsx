@@ -22,6 +22,7 @@ export default class Card extends Component {
       children,        // main card content
       secondaryLocale, // two columns
       readOnly,        // when you can't edit the card
+      allowed,         // when the card is allowed
 
       reorderProps,    // show reorder button or not
 
@@ -102,7 +103,7 @@ export default class Card extends Component {
     }
 
     return (
-      <div className={`cms-card cms-${type}-card${ secondaryLocale ? " is-multilingual" : "" }${ readOnly ? " is-read-only" : "" }`} style={style}>
+      <div className={`cms-card cms-${type}-card${ secondaryLocale ? " is-multilingual" : "" }${ readOnly ? " is-read-only" : "" }${ !allowed ? " is-not-allowed" : ""}`} style={style}>
         {/* cover button */}
         {onEdit &&
           <button className="cms-card-cover-button" onClick={onEdit} key="eb">

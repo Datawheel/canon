@@ -302,10 +302,16 @@ class TextCard extends Component {
     });
     if (!title) title = "Click to Edit";
 
+    let allowed = true;
+    if (minDataState) {
+      allowed = !minDataState.allowed || minDataState.allowed === "always" || variables[minDataState.allowed];
+    }
+
     // define props for Card
     const cardProps = {
       type,
       title,
+      allowed,
       onEdit: this.openEditor.bind(this),
       onDelete: entityList.includes(type) ? false : this.maybeDelete.bind(this),
       // reorder

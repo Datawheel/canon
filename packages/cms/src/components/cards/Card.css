@@ -46,6 +46,20 @@
       cursor: auto;
     }
   }
+
+  &.is-not-allowed {
+    & * {
+      filter: grayscale(15%) opacity(85%);
+    }
+    &:before {
+      @mixin font-xxs;
+      color: var(--alert);
+      content: "Disabled for the selected preview member.";
+      display: block;
+      margin-bottom: var(--gutter-xs);
+    }
+  }
+
 }
 
 
