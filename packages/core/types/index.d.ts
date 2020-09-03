@@ -3,7 +3,7 @@ import sequelize from "sequelize";
 export as namespace Canon;
 
 interface Config {
-  db: (DatabaseParamsConfig | DatabaseConnectionConfig)[]
+  db: Array<DatabaseParamsConfig | DatabaseConnectionConfig>
 }
 
 interface DatabaseParamsConfig {
@@ -13,14 +13,18 @@ interface DatabaseParamsConfig {
   name: string;
   pass: string;
   user: string;
-  tables: (string | DatabaseModelFactory)[];
+  tables: Array<string | ExportedDatabaseModels | DatabaseModelFactory>;
   sequelizeOptions: sequelize.Options;
 }
 
 interface DatabaseConnectionConfig {
   connection: string;
-  tables: (string | DatabaseModelFactory)[];
+  tables: Array<string | ExportedDatabaseModels | DatabaseModelFactory>;
   sequelizeOptions: sequelize.Options;
+}
+
+interface ExportedDatabaseModels {
+  modelPaths: Record<string, string>;
 }
 
 interface DatabaseModelFactory {

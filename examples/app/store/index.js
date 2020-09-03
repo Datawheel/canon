@@ -1,5 +1,4 @@
 import {cmsReducer} from "@datawheel/canon-cms";
-import {createLogger} from "redux-logger";
 
 /** */
 export const initialState = {};
@@ -8,6 +7,7 @@ export const initialState = {};
 export const middleware = [];
 
 if (__DEV__ && !__SERVER__) {
+  const {createLogger} = require("redux-logger");
   const loggerMiddleware = createLogger({
     collapsed: (getState, action, logEntry) => !logEntry.error
   });
