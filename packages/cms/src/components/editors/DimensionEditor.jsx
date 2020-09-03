@@ -35,10 +35,10 @@ class DimensionEditor extends Component {
     const {cubeData} = this.props;
     if (!cubeData) {
       this.props.getCubeData();
-    } 
+    }
     else {
       this.populate.bind(this)();
-    } 
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -141,7 +141,7 @@ class DimensionEditor extends Component {
     }
     else {
       const payload = Object.assign({}, profileData, {profile_id: currentPid});
-      // If ordering was provided, this is a Variant 
+      // If ordering was provided, this is a Variant
       if (!isNaN(ordering)) payload.ordering = ordering;
       this.props.modifyDimension(payload);
       if (this.props.onComplete) this.props.onComplete();
@@ -195,7 +195,7 @@ class DimensionEditor extends Component {
         {profileData.dimension &&
           <div className="cms-field-container">
             <fieldset className="cms-fieldset">
-              <legend className="cms-fieldset-legend u-font-sm">Subdimensions:</legend>
+              <legend className="cms-fieldset-legend u-font-sm">Hierarchies:</legend>
               {levelList.map(level =>
                 <label className="cms-checkbox-label u-font-xs" key={level}>
                   <input
