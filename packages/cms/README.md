@@ -432,7 +432,7 @@ Profiles have a `Visibility` Dropdown in the Profile Editor panel that may be se
 
 #### Variant Visibility
 
-Individual profile variants can also be hidden, which will result in the same behavior as above. Importantly, *profile visibility always trumps variant visibility*. 
+Individual profile variants can also be hidden, which will result in the same behavior as above. Importantly, *profile visibility always trumps variant visibility*.
 
 #### A note on search
 
@@ -907,6 +907,7 @@ For upgrading to new versions, there are currently several migration scripts:
 6) `npx canon-cms-migrate-0.9` (for 0.9 CMS users, for upgrade to 0.11 ONLY)
 7) `npx canon-cms-migrate-0.11` (for 0.10 or 0.11 CMS users, for upgrade to 0.12 ONLY)
 8) `npx canon-cms-migrate-0.12` (for 0.12 CMS users)
+9) `npx canon-cms-migrate-0.13` (for 0.13 CMS users)
 
 **Note:** Canon CMS Version 0.10.0 did **NOT** require a database migration, so the `0.9` script will output a `0.11` database.
 
