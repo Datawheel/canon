@@ -44,7 +44,29 @@ Canon CMS is a package for `canon`. These instructions assume you have installed
 
 `npm i @datawheel/canon-cms`
 
-#### 2) Configure `canon` vars
+#### 2) Configure the database models in the `canon.js` file
+
+Canon CMS uses the `canon`-level user model to handle authentication and edit permissions, in addition to some other models to store the content. You must configure these modules manually on the application's `canon.js` file:
+
+```js
+module.exports = {
+  ...,
+  db: [{
+    connection: process.env.CANON_DB_CONNECTION_STRING,
+    tables: [
+      require("@datawheel/canon-core/models"),
+      require("@datawheel/canon-cms/models")
+    )
+  }]
+  ...,
+};
+```
+
+You can then set the connection parameters in the environment variables, using the keys you set in the code. Check the documentation for canon-core's DB configuration for more info on how the setup works.
+
+Please note Canon CMS currently only supports Postgres.
+
+#### 3) Configure `canon` vars
 
 There are a number of [canon-core environment variables](https://github.com/Datawheel/canon#additional-environment-variables) that `canon-cms` relies on. Ensure that the the following env vars are set.
 
@@ -59,14 +81,7 @@ export CANON_LANGUAGE_DEFAULT=en
 export CANON_LANGUAGES=pt,es,ru,et
 ```
 
-Canon CMS makes use of `canon`-level db credentials to store its content. Currently Canon CMS only supports Postgres.
-```sh
-export CANON_DB_USER=dbuser
-export CANON_DB_NAME=dbname
-export CANON_DB_HOST=dbhost
-```
-
-#### 3) Configure `canon-cms` vars
+#### 4) Configure `canon-cms` vars
 
 Canon CMS requires a `canon-cms` specific env var for the current location of your mondrian or tesseract installation.
 ```sh
@@ -75,16 +90,16 @@ export CANON_CMS_CUBES=https://tesseract-url.com/
 
 By default, the CMS will only be enabled on development environments. If you wish to enable the CMS on production, see the `CANON_CMS_ENABLE` in [Environment Variables](#environment-variables) below.
 
-In total, your env vars should now look like this:
+In summary, your env vars should now look like this:
 ```sh
 export CANON_API=http://localhost:3300
 export CANON_LANGUAGE_DEFAULT=en
 export CANON_LANGUAGES=pt,es,ru,et
-export CANON_DB_USER=dbuser
-export CANON_DB_NAME=dbname
-export CANON_DB_HOST=dbhost
+export CANON_DB_CONNECTION_STRING=postgresql://dbuser:dbpass@dbhost:dbport/dbname
 export CANON_CMS_CUBES=https://tesseract-url.com/
 ```
+
+Remember the `CANON_DB_CONNECTION_STRING` is up to you, depending on how did you configure the DB on the `canon.js` file.
 
 #### 4) Add the Builder Component to a route
 ```jsx
@@ -232,6 +247,7 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 |`CANON_CMS_MINIMUM_ROLE`|The minimum integer value for a Canon user `role` to access the CMS|`1`|
 |`CANON_CMS_LOGGING`|Enable verbose logging in console.|`false`|
 |`CANON_CMS_REQUESTS_PER_SECOND`|Sets the `requestsPerSecond` value in the [promise-throttle](https://www.npmjs.com/package/promise-throttle) library, used for rate-limiting Generator requests|20|
+|`CANON_CMS_GENERATOR_TIMEOUT`|The number of ms after which a generator request times out, defaults to 5s. Increase this if you are making heavy requests that exceed 5s|5000|
 |`CANON_CMS_DEEPSEARCH_API`|Server location of Deepsearch API|`undefined`|
 |`FLICKR_API_KEY`|Used to configure Flickr Authentication|`undefined`|
 |`GOOGLE_APPLICATION_CREDENTIALS`|Path to JSON token file for Cloud Storage|`undefined`|

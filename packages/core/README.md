@@ -14,6 +14,9 @@ Reusable React environment and components for creating visualization engines.
 * [Localization](#localization)
   * [Language Detection](#language-detection)
   * [Changing Languages](#changing-languages)
+* [Database models](#database-models)
+  * [Basic database setup](#basic-database-setup)
+  * [Custom Database Models](#custom-database-models)
 * [User Management](#user-management)
   * [Loading User Information](#loading-user-information)
   * [Privacy Policy and Terms of Service](#privacy-policy-and-terms-of-service)
@@ -28,7 +31,6 @@ Reusable React environment and components for creating visualization engines.
     * [LinkedIn](#linkedin)
     * [Twitter](#twitter)
 * [Custom API Routes](#custom-api-routes)
-* [Custom Database Models](#custom-database-models)
 * [Server-Side Caching](#server-side-caching)
 * [Opbeat Error Tracking](#opbeat-error-tracking)
 * [Additional Environment Variables](#additional-environment-variables)
@@ -57,12 +59,12 @@ All React components are stored in the `app/` directory, with the main entry com
 * `app/` - majority of the front-end site code
   * `components/` - components that are used by multiple pages
   * `pages/` - page-specific components (like the homepage and profiles)
-  * > `reducers/` - any redux reducers needed for the react-redux store (required to exist, but unused initially)
+  * `store/` - suggested to save all redux-related files here
+    * `index.js` - should export initial state, reducers and middleware for redux
   * `App.jsx` & `App.css` - the main parent component that all pages extend
   * `d3plus.js` - global d3plus visualization styles
   * `helmet.js` - default meta information for all pages to be displayed between the `<head>` tags
   * `routes.jsx` - hook ups for all of the page routes
-  * > `store.js` - default redux store (required to exist, but unused initially)
   * `style.yml` - global color and style variables
 * `static/` - static files used by the site like images and PDFs
 * `.eslintrc` - javascript style rules used for consistent coding
@@ -183,13 +185,32 @@ export default hot(Home);
 
 ## Redux Store
 
-Default values can be added to the Redux Store by creating a file located at `app/store.js`. This file should export an Object, whose values will be merged with the defaul store. This file can use either ES6 or node style exports, but if you import any other dependencies into that file you must use node's `require` syntax.
+Some Redux store parameters, especifically the store initial state, reducers, and middleware, can be configured by exporting values on the file `app/store/index.js`.
+
+This file should export three constants:
+
+* `initialState`: an object, whose values will be merged with the default store.
+* `middleware`: an array, containing the middlewares that should be applied to enhance the store. The order of execution is first to last, and the internal core middleware are always executed before these ones.
+* `reducers`, an object, which should have the same structure as the object you would pass to [the `combineReducers` function](https://redux.js.org/api/combinereducers).
+
+This file can use either ES6 or node style exports, but if you import any other dependencies into that file you must use node's `require` syntax.
 
 Here is an example:
 
 ```js
-export default {
+const {reducer: cmsReducer} = require("@datawheel/canon-cms");
+const {createLogger} = require("redux-logger");
+
+export const initialState = {
   countries: ["nausa", "sabra", "aschn"]
+};
+
+export const middleware = [
+  createLogger({...})
+];
+
+export const reducers = {
+  cms: cmsReducer
 };
 ```
 
@@ -301,16 +322,91 @@ window.location = "/?locale=es";
 
 ---
 
+## Database models
+
+Canon implements database connections using the sequelize package. Multiple sequelize models can be defined and loaded through the `canon.js` file at the root of the application, and even using different database connections.
+
+### Basic database setup
+
+A database is defined in the `canon.js` file through the `db` property. This property must be an array of connection detail objects. Inside that object you must define here how it will connect, optionally which other parameters do you want to pass to the sequelize instance, and the list of models that connection will handle:
+
+```js
+module.exports = {
+  // Each object inside this array is a new database connection
+  db: [{
+    // Define a connection string...
+    connection: "postgresql://username:p4ssw0rd@localhost:5432/database_name",
+    // ...or the following connection details
+    engine: "postgresql",
+    user: "username",
+    pass: "p4ssw0rd",
+    host: "localhost",
+    port: 5432,
+    name: "database_name",
+    // Optional sequelize options
+    sequelizeOptions: {...},
+    // The list of sequelize models (database tables) this connection will handle
+    tables: [
+      // You can reference and combine either of these kinds:
+      // - the function that generates the model (see next section)
+      require("./app/db/products.js"),
+      // - the path to the javascript file that contains that function
+      require.resolve("./app/db/sales.js"),
+      // - for official canon plugins, add "/models"
+      require("@datawheel/canon-core/models")
+    ]
+  }],
+  ...
+};
+```
+
+Note that referencing the path to the file instead of the function (second method) enables Canon to reload the models if the file is edited while the server is running on development mode. Otherwise you will have to stop and restart Canon to reload these models.
+
+To avoid storing passwords on your repository and get 12factor compliance, set the `connection` key or the connection details as environment variables:
+
+```js
+{
+  connection: process.env.CANON_DB_CONNECTION1,
+  ...
+}
+```
+
+```bash
+export CANON_DB_CONNECTION1="postgresql://username:p4ssw0rd@localhost:5432/database_name"
+```
+
+### Custom Database Models
+
+Custom database models should comply with this template:
+
+```js
+module.exports = function(sequelize, db) {
+
+  return sequelize.define("testTable",
+    {
+      id: {
+        type: db.INTEGER,
+        primaryKey: true
+      },
+      title: db.STRING,
+      favorite: {
+        type: db.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      }
+    }
+  );
+
+};
+```
+
+These functions are then passed to the [`sequelize.import`](https://sequelize.org/v4/class/lib/sequelize.js~Sequelize.html#instance-method-import) function. These models are then imported directly by nodejs and are not transpiled, so should be written without ES6 or JSX.
 
 ## User Management
 
 By setting the following environment variables:
 
 ```sh
-export CANON_DB_NAME="XXX"
-export CANON_DB_USER="XXX"
-export CANON_DB_HOST="XXX"
-export CANON_DB_PW="XXX"
 export CANON_LOGINS=true
 ```
 
@@ -648,35 +744,6 @@ module.exports = function(app) {
 
 };
 ```
-
----
-
-## Custom Database Models
-
-If you have custom database models that you would like to interact with in API routes, Canon will import any file in a `db/` folder and set up all the associations Sequelize requires. For example, a `db/testTable.js` would look like this:
-
-```js
-module.exports = function(sequelize, db) {
-
-  return sequelize.define("testTable",
-    {
-      id: {
-        type: db.INTEGER,
-        primaryKey: true
-      },
-      title: db.STRING,
-      favorite: {
-        type: db.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-      }
-    }
-  );
-
-};
-```
-
-*NOTE*: Custom database models are written using Node module syntax, not ES6/JSX.
 
 ---
 

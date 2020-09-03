@@ -1,12 +1,9 @@
 /* global __DEV__ */
 /* global __SERVER__ */
-/* global __LOGREDUX__ */
 
 import {combineReducers, createStore, applyMiddleware, compose} from "redux";
 import {routerMiddleware, routerReducer} from "react-router-redux";
 import thunk from "redux-thunk";
-import appReducers from "reducers";
-import {createLogger} from "redux-logger";
 
 import promiseMiddleware from "./middlewares/promiseMiddleware";
 
@@ -14,6 +11,8 @@ import auth from "./reducers/auth";
 import fetchData from "./reducers/fetchData";
 import loading from "./reducers/loading";
 import loadingProgress from "./reducers/loadingProgress";
+
+import {reducers as appReducers} from "$app/store";
 
 /**
     @param {Object} initialState initial state to bootstrap our stores with for server-side rendering
@@ -23,12 +22,9 @@ export default function storeConfig(initialState, history, reduxMiddleware = fal
 
   // Installs hooks that always keep react-router and redux store in sync
   const middleware = [thunk, promiseMiddleware, routerMiddleware(history)];
-  if (__DEV__ && !__SERVER__ && __LOGREDUX__) middleware.push(createLogger());
-
-  // Custom middleware
-  const appliedMiddleware = reduxMiddleware
-    ? reduxMiddleware(applyMiddleware, middleware)
-    : applyMiddleware(...middleware);
+  if (Array.isArray(reduxMiddleware)) {
+    middleware.push(...reduxMiddleware);
+  }
 
   const canonReducer = combineReducers(Object.assign({
     auth,
@@ -49,13 +45,15 @@ export default function storeConfig(initialState, history, reduxMiddleware = fal
       ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
       : compose;
 
-  const enhancers = composeEnhancers(appliedMiddleware);
+  // Custom middleware
+  const middlewareEnhancer = applyMiddleware(...middleware);
+  const enhancers = composeEnhancers(middlewareEnhancer);
   const store = createStore(canonReducer, initialState, enhancers);
 
   if (module.hot) {
     // Enable Webpack hot module replacement for reducers
-    module.hot.accept("reducers", () => {
-      const nextReducer = require("reducers");
+    module.hot.accept("$app/store", () => {
+      const nextReducer = require("$app/store");
       store.replaceReducer(nextReducer);
     });
   }
