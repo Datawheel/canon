@@ -16,8 +16,11 @@ import SectionGrouping from "./sections/components/SectionGrouping";
 import Subnav from "./sections/components/Subnav";
 import Mirror from "./Viz/Mirror";
 import isIE from "../utils/isIE.js";
+import mortarEval from "../utils/mortarEval";
 import hashCode from "../utils/hashCode.js";
 import deepClone from "../utils/deepClone.js";
+import prepareProfile from "../utils/prepareProfile";
+import funcifyFormatterByLocale from "../utils/funcifyFormatterByLocale";
 
 // User must define custom sections in app/cms/sections, and export them from an index.js in that folder.
 import * as CustomSections from "CustomSections";
@@ -42,7 +45,8 @@ class ProfileRenderer extends Component {
       selectors: {},
       modalSlug: null,
       loading: false,
-      setVarsLoading: false
+      setVarsLoading: false,
+      formatterFunctions: funcifyFormatterByLocale(props.formatters, props.locale)
     };
   }
 
@@ -78,17 +82,14 @@ class ProfileRenderer extends Component {
   }
 
   getChildContext() {
-    const {formatters, locale} = this.props;
+
+    const {locale} = this.props;
     const {print, router} = this.context;
-    const {profile, initialVariables} = this.state;
+    const {profile, initialVariables, formatterFunctions} = this.state;
     const {variables} = profile;
+
     return {
-      formatters: formatters.reduce((acc, d) => {
-        const f = Function("n", "libs", "locale", "formatters", d.logic);
-        const fName = d.name.replace(/^\w/g, chr => chr.toLowerCase());
-        acc[fName] = n => f(n, libs, locale, acc);
-        return acc;
-      }, {}),
+      formatters: formatterFunctions,
       router,
       onSelector: this.onSelector.bind(this),
       onOpenModal: this.onOpenModal.bind(this),
@@ -109,11 +110,11 @@ class ProfileRenderer extends Component {
 
   /**
    * Visualizations have the ability to "break out" and override a variable in the variables object.
-   * This requires a server round trip, because the user may have changed a variable that would affect
-   * the "allowed" status of a given section.
+   * This requires re-running materializers, because the user may have changed a variable
+   * that would affect the "allowed" status of a given section.
    */
   onSetVariables(newVariables, forceMats) {
-    const {profile, selectors, setVarsLoading} = this.state;
+    const {profile, selectors, setVarsLoading, formatterFunctions} = this.state;
     const {id, variables} = profile;
     const {locale, sectionID} = this.props;
     const {params} = this.context.router;
@@ -122,23 +123,24 @@ class ProfileRenderer extends Component {
     // loop by checking if the vars are in there already, only updating if they are not yet set.
     const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
     if (!setVarsLoading && !alreadySet) {
-      this.setState({setVarsLoading: true});
-      const payload = {variables: Object.assign({}, variables, newVariables)};
-      let url = `/api/profile?profile=${id}&locale=${locale}`;
-      if (Object.keys(selectors).length > 0) url += `&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
-      if (sectionID) url += `&section=${sectionID}`;
-      // If forceMats is true, this was called due to a user login. Run Materializers again.
-      if (forceMats) url += "&forceMats=true";
-      // Provide some uniqueness tokens so that the url for slug/id/role POSTs can be cached
-      url += `&tokenSlug=${params.slug}&tokenId=${params.id}`;
-      if (params.slug2 && params.id2) url += `&tokenSlug2=${params.slug2}&tokenId2=${params.id2}`;
-      const {user, _matStatus, _genStatus, ...variablesWithoutUser} = payload.variables; // eslint-disable-line
-      const hash = hashCode(JSON.stringify(variablesWithoutUser));
-      url += `&token=${hash}`;
-      axios.post(url, payload)
-        .then(resp => {
-          this.setState({profile: {neighbors: profile.neighbors, ...resp.data}, setVarsLoading: false});
-        });
+      // If forceMats is true, this function has been called by the componentDidMount, and we must run materializers
+      // so that variables like `isLoggedIn` can resolve to true.
+      if (forceMats) {
+        const combinedVariables = {...variables, ...newVariables};
+        const matVars = variables._rawProfile.allMaterializers.reduce((acc, m) => {
+          const evalResults = mortarEval("variables", acc, m.logic, formatterFunctions, locale);
+          if (typeof evalResults.vars !== "object") evalResults.vars = {};
+          return {...acc, ...evalResults.vars};
+        }, combinedVariables);
+        const newProfile = prepareProfile(variables._rawProfile, matVars, formatterFunctions, locale, selectors);
+        this.setState({profile: {...profile, ...newProfile}});
+      }
+      // If forceMats is not true, no phone-home is required. Using the locally stored _rawProfile and the now-combined
+      // old and new variables, you have all that you need to make the profile update.
+      else {
+        const newProfile = prepareProfile(variables._rawProfile, Object.assign({}, variables, newVariables), formatterFunctions, locale, selectors);
+        this.setState({profile: {...profile, ...newProfile}});
+      }
     }
   }
 
@@ -153,31 +155,16 @@ class ProfileRenderer extends Component {
   }
 
   onSelector(name, value) {
-    const {profile, selectors} = this.state;
-    const {id, variables} = profile;
-    const {locale, sectionID} = this.props;
-    const {router} = this.context;
-    const {params} = router;
+    const {profile, selectors, formatterFunctions} = this.state;
+    const {variables} = profile;
+    const {locale} = this.props;
 
     selectors[name] = value;
 
     this.updateQuery(selectors);
 
-    this.setState({loading: true, selectors});
-    const payload = {variables};
-    let url = `/api/profile?profile=${id}&locale=${locale}`;
-    if (Object.keys(selectors).length > 0) url += `&${Object.entries(selectors).map(([key, val]) => `${key}=${val}`).join("&")}`;
-    if (sectionID) url += `&section=${sectionID}`;
-    // Provide some uniqueness tokens so that the url for slug/id/role POSTs can be cached
-    url += `&tokenSlug=${params.slug}&tokenId=${params.id}`;
-    if (params.slug2 && params.id2) url += `&tokenSlug2=${params.slug2}&tokenId2=${params.id2}`;
-    const {user, _matStatus, _genStatus, ...variablesWithoutUser} = payload.variables; // eslint-disable-line
-    const hash = hashCode(JSON.stringify(variablesWithoutUser));
-    url += `&token=${hash}`;
-    axios.post(url, payload)
-      .then(resp => {
-        this.setState({profile: {neighbors: profile.neighbors, ...resp.data}, loading: false});
-      });
+    const newProfile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, selectors);
+    this.setState({selectors, profile: {...profile, ...newProfile}});
   }
 
   onTabSelect(id, index) {

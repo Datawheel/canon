@@ -16,7 +16,7 @@ const strSwap = (str, formatterFunctions, variables, selectors, combinedLabels, 
   // If the key is named logic, this is javascript. Transpile it for IE.
   if (isLogic) {
     try {
-      let code = buble.transform(str).code; 
+      let code = buble.transform(str, {objectAssign: "Object.assign"}).code; 
       if (code.startsWith("!")) code = code.slice(1);
       str = code;
     }

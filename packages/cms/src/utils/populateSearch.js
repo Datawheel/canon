@@ -92,6 +92,8 @@ const formatter = (members, data, dimension, level) => {
 
 const populateSearch = async(profileData, db, metaLookup = false) => {
 
+  const dbQuery = db.search.sequelize.query.bind(db.search.sequelize);
+
   const cubeName = profileData.cubeName;
   const measure = profileData.measure;
   const dimension = profileData.dimName || profileData.dimension;
@@ -183,7 +185,7 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
 
       if (verbose) console.log("Upserting search table...");
       // Capture the newly inserted rows for use later, their new contentIds will be needed to hook up language content
-      const [searchRows] = await db.query(searchQuery).catch(catcher);
+      const [searchRows] = await dbQuery(searchQuery).catch(catcher);
       if (verbose) console.log(`Upserted ${searchRows.length} rows.`);
 
       // Iterate over the members from the cube and store them in a hash keyed by id/dim/hier
@@ -227,7 +229,7 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
       contentQuery += `\nON CONFLICT (id, locale)\nDO UPDATE SET (${contentKeys.join(", ")}) = (${contentKeys.map(key => `EXCLUDED.${key}`).join(", ")})\nRETURNING *;`;
 
       if (verbose) console.log(`Upserting content table for ${locale}...`);
-      const [contentRows] = await db.query(contentQuery).catch(catcher);
+      const [contentRows] = await dbQuery(contentQuery).catch(catcher);
       if (verbose) console.log(`Upserted ${contentRows.length} content rows for locale: ${locale}.`);
     }
   }

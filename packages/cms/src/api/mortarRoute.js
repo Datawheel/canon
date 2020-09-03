@@ -2,14 +2,12 @@ const FUNC = require("../utils/FUNC"),
       PromiseThrottle = require("promise-throttle"),
       axios = require("axios"),
       collate = require("../utils/collate"),
-      deepClone = require("../utils/deepClone"),
       jwt = require("jsonwebtoken"),
       libs = require("../utils/libs"), // leave this! needed for the variable functions
       mortarEval = require("../utils/mortarEval"),
-      scaffoldDynamic = require("../utils/selectors/scaffoldDynamic"),
+      prepareProfile = require("../utils/prepareProfile"),
       sequelize = require("sequelize"),
       urlSwap = require("../utils/urlSwap"),
-      validateDynamic = require("../utils/selectors/validateDynamic"),
       varSwapRecursive = require("../utils/varSwapRecursive"),
       yn = require("yn");
 
@@ -25,6 +23,17 @@ const catcher = e => {
   if (verbose) console.error("Error in mortarRoute: ", e);
   return [];
 };
+
+axios.interceptors.request.use(d => {
+  d.meta = d.meta || {};
+  d.meta.requestStartedAt = new Date().getTime();
+  return d;
+});
+
+axios.interceptors.response.use(d => {
+  d.requestDuration = new Date().getTime() - d.config.meta.requestStartedAt;
+  return d;
+}, e => Promise.reject(e));
 
 const getConfig = () => {
   const config = {};
@@ -148,23 +157,6 @@ const formatters4eval = async(db, locale) => {
 };
 
 const sorter = (a, b) => a.ordering - b.ordering;
-const selectsorter = (a, b) => a.section_selector && b.section_selector ? a.section_selector.ordering - b.section_selector.ordering : 0;
-
-// Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. Eventually move it up to the query.
-const sortProfile = profile => {
-  profile.meta.sort(sorter);
-  if (profile.sections) {
-    profile.sections.sort(sorter);
-    profile.sections.forEach(section => {
-      if (section.subtitles) section.subtitles.sort(sorter);
-      if (section.selectors) section.selectors.sort(selectsorter);
-      if (section.stats) section.stats.sort(sorter);
-      if (section.descriptions) section.descriptions.sort(sorter);
-      if (section.visualizations) section.visualizations.sort(sorter);
-    });
-  }
-  return profile;
-};
 
 const sortStory = story => {
   ["descriptions", "footnotes", "authors", "storysections"].forEach(type => story[type].sort(sorter));
@@ -172,19 +164,6 @@ const sortStory = story => {
     ["descriptions", "stats", "subtitles", "visualizations"].forEach(type => storysection[type].sort(sorter));
   });
   return story;
-};
-
-/* Some of the section-level selectors are dynamic. This means that their "options" field isn't truly
- * populated, it's just a reference to a user-defined variable. Scaffold out the dynamic selectors
- * into "real ones" so that all the ensuing logic can treat them as if they were normal. */
-const fixSelector = (selector, dynamic) => {
-  if (validateDynamic(dynamic) === "valid") {
-    selector.options = scaffoldDynamic(dynamic);
-  }
-  else {
-    selector.options = [];
-  }
-  return selector;
 };
 
 /**
@@ -378,6 +357,7 @@ module.exports = function(app) {
     // Seed the return variables with the stripped-down attr object
     let returnVariables = {...smallAttr};
     const genStatus = {};
+    const durations = {};
     results.forEach((r, i) => {
       // For every API result, find ONLY the generators that depend on this data
       const requiredGenerators = generators.filter(g => g.api === requests[i]);
@@ -387,6 +367,7 @@ module.exports = function(app) {
         if (typeof evalResults.vars !== "object") evalResults.vars = {};
         // genStatus is used to track the status of each individual generator
         genStatus[g.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
+        durations[g.id] = r.requestDuration;
         // Fold the generated variables into the accumulating returnVariables
         return {...acc, ...evalResults.vars};
       }, returnVariables);
@@ -395,7 +376,7 @@ module.exports = function(app) {
     returnVariables._genStatus = genStatus;
     // Inject a special, hard-coded attr genstatus for the front-end
     returnVariables._genStatus.attributes = smallAttr;
-
+    returnVariables._genStatus.durations = durations;
     return returnVariables;
 
   };
@@ -501,7 +482,7 @@ module.exports = function(app) {
         return res.json({error: `Profile not found for slug: ${match}`, errorCode: 404});
       }
     }
-    
+
     // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
     // Replace that slug with the actual real id from the search table. To do this, however,
     // We need the meta from the profile so we can filter by cubename.
@@ -640,8 +621,8 @@ module.exports = function(app) {
         // Remove the leading self-referential element, and avoid collisions as to not recommend a member matched with itself
         const thisNeighborMembers = neighborsByDimSlug[thisSlug].slice(1).filter(d => d.id !== thatMember.id);
         const thatNeighborMembers = neighborsByDimSlug[thatSlug].slice(1).filter(d => d.id !== thisMember.id);
-        // A full set of 4 neighbors means that no neighbors were removed for being hidden or self-referential. In that 
-        // case, given neighbors 0123, 1 and 2 (the "middle" ones) are actually the "closest". Shift the 0th member off 
+        // A full set of 4 neighbors means that no neighbors were removed for being hidden or self-referential. In that
+        // case, given neighbors 0123, 1 and 2 (the "middle" ones) are actually the "closest". Shift the 0th member off
         // the list, so that the ensuing slice(0, 2) properly chooses the middle ones. In other cases just default to (0, 2).
         if (thisNeighborMembers.length === 4) thisNeighborMembers.shift();
         if (thatNeighborMembers.length === 4) thatNeighborMembers.shift();
@@ -684,7 +665,7 @@ module.exports = function(app) {
       if (verbose) console.log("\n\nFetching Variables for pid:", pid);
       const generatorVariables = await runGenerators(req, pid);
       variables = await runMaterializers(req, generatorVariables, pid);
-      
+
       delete variables._genStatus;
       delete variables._matStatus;
     }
@@ -693,17 +674,34 @@ module.exports = function(app) {
     // Given the completely built returnVariables and all the formatters (formatters are global)
     // Get the raw, unswapped, user-authored profile itself and all its dependencies and prepare
     // it to be formatted and regex replaced.
+    // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
+    // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
+    if (verbose) console.log("Variables Loaded, starting varSwap...");
     // See profileReq above to see the sequelize formatting for fetching the entire profile
     let profile;
     if (variables._rawProfile) {
-      profile = sortProfile(extractLocaleContent(deepClone(variables._rawProfile), locale, "profile"));
+      profile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, req.query);
     }
     else {
       const reqObj = Object.assign({}, profileReq, {where: {id: pid}});
       const rawProfile = await db.profile.findOne(reqObj).catch(catcher);
       if (rawProfile) {
         variables._rawProfile = rawProfile.toJSON();
-        profile = sortProfile(extractLocaleContent(deepClone(variables._rawProfile), locale, "profile"));
+        // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
+        // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
+        // which power the actual rendered dropdowns on the front-end profile page.
+        let allSelectors = await db.selector.findAll({where: {profile_id: pid}}).catch(catcher);
+        allSelectors = allSelectors.map(d => d.toJSON());
+        variables._rawProfile.allSelectors = allSelectors;
+        let allMaterializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
+        allMaterializers = allMaterializers.map(d => {
+          d = d.toJSON();
+          // make use of varswap for its buble transpiling, so the front end can run es5 code.
+          d = varSwapRecursive(d, formatterFunctions, variables);
+          return d;
+        }).sort((a, b) => a.ordering - b.ordering);
+        variables._rawProfile.allMaterializers = allMaterializers;
+        profile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, req.query);
       }
       else {
         if (verbose) console.error(`Profile not found for id: ${pid}`);
@@ -766,7 +764,6 @@ module.exports = function(app) {
     returnObject = Object.assign({}, returnObject, profile);
     returnObject.ids = dims.map(d => d.id).join();
     returnObject.dims = dims;
-    returnObject.variables = variables;
     // The provided ids may have images associated with them, and these images have metadata. Before we send
     // The object, we need to make a request to our /api/image endpoint to get any relevant image data.
     // Note! Images are strictly ordered to match your strictly ordered slug/id pairs

@@ -163,8 +163,8 @@ class Hero extends Component {
     const {name1, name2} = variables;
     if (title) {
       return title
-        .replace(name1, `<span class="cp-hero-heading-dimension" onClick=titleClick(0)>${name1}</span>`)
-        .replace(name2, `<span class="cp-hero-heading-dimension" onClick=titleClick(1)>${name2}</span>`);
+        .replace(name1, `<span class="cp-hero-heading-dimension" title=${name1} onClick=titleClick(0)>${name1}</span>`)
+        .replace(name2, `<span class="cp-hero-heading-dimension" title=${name2} onClick=titleClick(1)>${name2}</span>`);
     }
     else {
       return title;
