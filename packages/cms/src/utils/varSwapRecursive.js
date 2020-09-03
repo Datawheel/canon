@@ -48,7 +48,7 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
     selectors = obj.allSelectors.map(s => {
       const selector = {};
       // If the option provided in the query is one of the available options for this selector
-      const selections = query[s.name] ? query[s.name].split(",") : false;
+      const selections = query[s.name] !== undefined ? query[s.name].split(",") : false;
       let options = [];
       if (s.dynamic) {
         // Dynamic selectors don't actually have options, only a dynamic field that points to a variable.
@@ -62,7 +62,10 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
       else {
         options = s.options;
       }
-      if (selections && selections.every(sel => options.map(o => o.option).includes(sel))) {
+      // multi-selects can go down to zero selections, which is a state that has meaning and shouldn't be false-y.
+      // Make sure that this blank state is counted as a "real state" so it doesn't erroneously revert to the defaults
+      const isBlankMulti = selections.length === 1 && selections[0] === "";
+      if (selections && (selections.every(sel => options.map(o => o.option).includes(sel)) || isBlankMulti)) {
         // Save that option inside selector object and return it
         selector[s.name] = query[s.name];
         return selector;

@@ -5,11 +5,12 @@ import React from "react";
  * @param {*} store
  * @param {*} param1
  */
-export default function preRenderMiddleware(store, {components, params}) {
+export default function preRenderMiddleware(store, {components, params, location}) {
 
   const data = store.data || {},
         debug = process.env.NODE_ENV === "development",
-        dispatch = store.dispatch;
+        dispatch = store.dispatch,
+        query = location.query || {};
 
   /**
    * Finds any static Arrays on a Component and runs their associated actions.
@@ -28,7 +29,7 @@ export default function preRenderMiddleware(store, {components, params}) {
       }, [])
       .filter(need => need.key && need.key in data ? false : (data[need.key] = "loading", true))
       .map(need => {
-        const action = need(params, store.getState());
+        const action = need(params, store.getState(), query);
         if (debug && action.promise) {
           action.promise = action.promise.catch(err => {
             console.error(`\n\n 🛑  ${str.toUpperCase()} PROMISE ERROR\n`);

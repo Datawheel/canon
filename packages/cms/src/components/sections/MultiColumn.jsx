@@ -4,7 +4,7 @@ import "./MultiColumn.css";
 
 export default class MultiColumn extends Component {
   render() {
-    const {slug, title, heading, hideOptions, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {configOverride, slug, title, heading, hideOptions, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
 
     return (
       <div
@@ -25,6 +25,7 @@ export default class MultiColumn extends Component {
             <Viz
               section={this}
               config={visualization}
+              configOverride={configOverride}
               slug={slug}
               headingLevel={vizHeadingLevel}
               sectionTitle={title}

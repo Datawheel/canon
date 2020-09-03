@@ -1,4 +1,5 @@
 import React, {Component, Fragment} from "react";
+import PropTypes from "prop-types";
 import {hot} from "react-hot-loader/root";
 import {Icon} from "@blueprintjs/core";
 
@@ -129,6 +130,7 @@ class Subnav extends Component {
   }
 
   render() {
+    if (this.context.print) return null;
     const {children} = this.props;
     const {currSection, fixed, isOpen, sections} = this.state;
 
@@ -188,5 +190,9 @@ class Subnav extends Component {
     );
   }
 }
+
+Subnav.contextTypes = {
+  print: PropTypes.bool
+};
 
 export default hot(Subnav);

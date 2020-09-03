@@ -4,7 +4,7 @@ import "./Default.css";
 
 export default class Default extends Component {
   render() {
-    const {slug, heading, hideOptions, title, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {slug, heading, hideOptions, title, paragraphs, configOverride, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel} = this.props;
 
     return (
       <div
@@ -36,6 +36,7 @@ export default class Default extends Component {
                 sectionTitle={title}
                 slug={slug}
                 hideOptions={hideOptions}
+                configOverride={configOverride}
                 key={ii}
               />
             )}

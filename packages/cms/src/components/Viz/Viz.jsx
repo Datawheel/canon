@@ -102,8 +102,10 @@ class Viz extends Component {
 
     const vizConfig = Object.assign({}, {locale}, vizProps.config);
 
+    if (this.context.print) vizConfig.detectVisible = false;
+
     // whether to show the title and/or visualization options
-    const showHeader = (title && showTitle || !hideOptions) && type !== "Graphic" && type !== "HTML";
+    const showHeader = (title && showTitle || !hideOptions && !this.context.print) && type !== "Graphic" && type !== "HTML";
 
     return <SizeMe render={({size}) =>
       <div
@@ -169,15 +171,17 @@ Viz.childContextTypes = {
   d3plus: PropTypes.object,
   formatters: PropTypes.object,
   locale: PropTypes.string,
-  // Though onSetVariables and onOpenModal aren't explicitly passed down,
+  // Though onSetVariables, onOpenModal, and print aren't explicitly passed down,
   // they are required to be here because of the object spread in getChildContext.
   onSetVariables: PropTypes.func,
   onOpenModal: PropTypes.func,
+  print: PropTypes.bool,
   updateSource: PropTypes.func,
   variables: PropTypes.object
 };
 
 Viz.contextTypes = {
+  print: PropTypes.bool,
   d3plus: PropTypes.object,
   formatters: PropTypes.object,
   locale: PropTypes.string,

@@ -285,6 +285,9 @@ module.exports = function(app) {
       if (resp && resp.data && resp.data.data && resp.data.data.length > 0) {
         smallAttr.parents = resp.data.data;
       }
+      // If this request was made with a print flag, set the "showWhenPrinting" variable to false, so that sections that
+      // use it in their allowed section will be hidden in for PDF printing.
+      smallAttr.showWhenPrinting = req.query.print !== "true";
       // Fetch Custom Magic Generator
       const magicURL = `${ req.protocol }://${ req.headers.host }/api/cms/customAttributes/${pid}`;
       const magicResp = await axios.post(magicURL, {variables: smallAttr, locale}).catch(() => ({data: {}}));
@@ -487,7 +490,7 @@ module.exports = function(app) {
         return res.json({error: `Profile not found for slug: ${match}`, errorCode: 404});
       }
     }
-    
+
     // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
     // Replace that slug with the actual real id from the search table. To do this, however,
     // We need the meta from the profile so we can filter by cubename.
@@ -626,8 +629,8 @@ module.exports = function(app) {
         // Remove the leading self-referential element, and avoid collisions as to not recommend a member matched with itself
         const thisNeighborMembers = neighborsByDimSlug[thisSlug].slice(1).filter(d => d.id !== thatMember.id);
         const thatNeighborMembers = neighborsByDimSlug[thatSlug].slice(1).filter(d => d.id !== thisMember.id);
-        // A full set of 4 neighbors means that no neighbors were removed for being hidden or self-referential. In that 
-        // case, given neighbors 0123, 1 and 2 (the "middle" ones) are actually the "closest". Shift the 0th member off 
+        // A full set of 4 neighbors means that no neighbors were removed for being hidden or self-referential. In that
+        // case, given neighbors 0123, 1 and 2 (the "middle" ones) are actually the "closest". Shift the 0th member off
         // the list, so that the ensuing slice(0, 2) properly chooses the middle ones. In other cases just default to (0, 2).
         if (thisNeighborMembers.length === 4) thisNeighborMembers.shift();
         if (thatNeighborMembers.length === 4) thatNeighborMembers.shift();
@@ -670,7 +673,7 @@ module.exports = function(app) {
       if (verbose) console.log("\n\nFetching Variables for pid:", pid);
       const generatorVariables = await runGenerators(req, pid);
       variables = await runMaterializers(req, generatorVariables, pid);
-      
+
       delete variables._genStatus;
       delete variables._matStatus;
     }
@@ -702,7 +705,7 @@ module.exports = function(app) {
         allMaterializers = allMaterializers.map(d => {
           d = d.toJSON();
           // make use of varswap for its buble transpiling, so the front end can run es5 code.
-          d = varSwapRecursive(d, formatterFunctions, variables)
+          d = varSwapRecursive(d, formatterFunctions, variables);
           return d;
         }).sort((a, b) => a.ordering - b.ordering);
         variables._rawProfile.allMaterializers = allMaterializers;
@@ -713,6 +716,55 @@ module.exports = function(app) {
         return res.json({error: `Profile not found for id: ${pid}`, errorCode: 404});
       }
     }
+    // Given an object with completely built returnVariables, a hash array of formatter functions, and the profile itself
+    // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
+    // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
+    if (verbose) console.log("Variables Loaded, starting varSwap...");
+    // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
+    // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
+    // which power the actual rendered dropdowns on the front-end profile page.
+    const allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
+    profile.allSelectors = allSelectors.map(selector => selector.toJSON());
+    // Some of the section-level selectors are dynamic. This means that their "options" field isn't truly
+    // populated, it's just a reference to a user-defined variable. Scaffold out the dynamic selectors
+    // into "real ones" so that all the ensuing logic can treat them as if they were normal.
+    profile.sections.forEach(section => {
+      section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
+    });
+    // Before sending the profiles down to be varswapped, remember that some sections have groupings. If a grouping
+    // has been set to NOT be visible, then its "virtual children" should not be visible either. Copy the outer grouping's
+    // visible prop down to the child sections so they get hidden in the same manner.
+    let latestGrouping = {};
+    profile.sections.forEach(section => {
+      if (section.type === "Grouping") {
+        latestGrouping = section;
+      }
+      else {
+        // Get the visibility of the parent group
+        const parentGroupingAllowed = !latestGrouping.allowed || latestGrouping.allowed === "always" || variables[latestGrouping.allowed];
+        // If the parent group is invisible, copy its allowed setting down into this section.
+        if (!parentGroupingAllowed) {
+          section.allowed = latestGrouping.allowed;
+        }
+      }
+    });
+    profile = varSwapRecursive(profile, formatterFunctions, variables, req.query);
+    // If the user provided selectors in the query, then the user has changed a dropdown.
+    // This means that OTHER dropdowns on the page need to be set to match. To accomplish
+    // this, hijack the "default" property on any matching selector so the dropdowns "start"
+    // where we want them to.
+    profile.sections.forEach(section => {
+      section.selectors.forEach(selector => {
+        const {name, options} = selector;
+        const selections = req.query[name] !== undefined ? req.query[name].split(",") : false;
+        // If the user provided a selector in the query, AND if it's actually an option
+        // However, remember that a multi-select with a blank query param is valid
+        const isBlankMulti = selector.type === "multi" && selections.length === 1 && selections[0] === "";
+        if (selections && (selections.every(sel => options.map(o => o.option).includes(sel)) || isBlankMulti)) {
+          selector.default = req.query[name];
+        }
+      });
+    });
     // If the user provided a section ID in the query, that's all they want. Filter to return just that.
     if (sectionID) {
       profile.sections = profile.sections.filter(t => Number(t.id) === Number(sectionID) || t.slug === sectionID);
