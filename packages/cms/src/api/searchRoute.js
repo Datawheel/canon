@@ -273,6 +273,25 @@ module.exports = function(app) {
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
     let results = {};
 
+    // Convert a legacy-style search result into a scaffolded faked version of what the deepsearch API returns.
+    // This allows us to use the same collating code below, whether the results came from legacy or deepsearch.
+    const rowToResult = row => {
+      const content = row.content.find(c => c.locale === locale);
+      return {
+        name: content ? content.name : "",
+        confidence: row.zvalue,
+        metadata: {
+          id: row.id,
+          slug: row.slug,
+          hierarchy: row.hierarchy,
+          cube_name: row.cubeName
+        },
+        id: row.slug,
+        keywords: content && content.keywords ? content.keywords.join : "",
+        attr: content && content.attr ? content.attr : {}
+      };
+    };
+
     // If the user has provided no query, gather a sampling of top zvalue members for every possible profile
     if (!req.query.query || req.query.query === "") {
       results.origin = "legacy";
@@ -359,11 +378,22 @@ module.exports = function(app) {
         where.locale = locale;
         const contentRows = await db.search_content.findAll({where}).catch(catcher);
         searchWhere.contentId = Array.from(new Set(contentRows.map(r => r.id)));
-        // allDimCubes is a list of deduplicated profile_meta rows that are considered active (visible)
-        // to avoid returning search results from inactive (invisible) profiles, restrict the members
-        // to only return matching dimension/cube
-        searchWhere.dimension = allDimCubes.map(d => d.dimension);
-        searchWhere.cubeName = allDimCubes.map(d => d.cubeName);
+        // If the user has specified a profile by slug or id, restrict the search results to that profile's members
+        if (req.query.profile) {
+          // using "slug" here is not 100% correct, as profiles can be bilateral, and therefore have two slugs.
+          // However, for the more common unilateral case, allow "single-slug" lookup for convenience.
+          const metaWhere = !isNaN(req.query.profile) ? {profile_id: req.query.profile} : {slug: req.query.profile};
+          const thisMeta = await db.profile_meta.findOne({where: metaWhere});
+          if (thisMeta) {
+            searchWhere.cubeName = thisMeta.cubeName;
+            searchWhere.dimension = thisMeta.dimension;
+            searchWhere.hierarchy = thisMeta.levels;
+          }
+        }
+        // Also allow the user to directly limit searches by dimension and comma separated hierarchy (levels)
+        // Note that this can happen in conjunction with the req.query.profile limitation above, as overrides.
+        if (req.query.dimension) searchWhere.dimension = req.query.dimension.split(",");
+        if (req.query.hierarchy) searchWhere.hierarchy = req.query.hierarchy.split(",");
         let rows = await db.search.findAll({
           include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
           // when a limit is provided, it is for EACH dimension, but this initial rowsearch is for a flat member list.
@@ -417,7 +447,7 @@ module.exports = function(app) {
       const relevantResults = groupedMeta.reduce((acc, group, i) => {
         acc[i] = [];
         group.forEach(m => {
-          const theseResults = results.results[m.dimension] ? results.results[m.dimension].filter(d => d.metadata.cube_name === m.cubeName) : false;
+          const theseResults = results.results[m.dimension] ? results.results[m.dimension].filter(d => d.metadata.cube_name === m.cubeName && m.levels.includes(d.metadata.hierarchy)) : false;
           if (theseResults) {
             acc[i] = acc[i].concat(theseResults
               .map(r => ({
@@ -427,7 +457,8 @@ module.exports = function(app) {
                 memberDimension: m.dimension,
                 memberHierarchy: r.metadata.hierarchy,
                 name: r.name,
-                ranking: r.confidence
+                ranking: r.confidence,
+                attr: r.attr ? r.attr : {}
               }))
               .slice(0, limit)
             );

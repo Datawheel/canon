@@ -514,6 +514,9 @@ If you would prefer to build your own search component, the DeepSearch API is av
 |`query`|Query to search for|
 |`locale`|Language for results|
 |`limit`|Maximum number of results to return|
+|`profile`|Restrict results to a profile, must be an integer profile id or a profile slug (unary profiles only)|
+|`dimension`|Restrict results by dimension|
+|`hierarchy`|Restrict results by hierarchy (comma separated)|
 |`min_confidence`|Confidence threshold (Deepsearch Only)|
 
 Results will be returned in a response object that includes metadata on the results. Matching members separated by profile can be found in the `profiles` key of the response object. A single grouped list of all matching profiles can be found in the `grouped` key of the response object.
