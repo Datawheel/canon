@@ -9,10 +9,17 @@ module.exports = async function(config) {
   const watchingFiles = [];
 
   const connections = await Promise.all(
-    Array.from(userDBs, async db => {
+    Array.from(userDBs, async userDB => {
+      const db = {
+        engine: "postgresql",
+        host: "localhost",
+        port: 5432,
+        ...userDB
+      };
+
       const connectionUri = "connection" in db
         ? db.connection
-        : `${db.engine || "postgresql"}://${db.user}:${db.pass}@${db.host || "localhost"}:${db.port || 5432}/${db.name}`;
+        : `${db.engine}://${db.user}:${db.pass}@${db.host}:${db.port}/${db.name}`;
       const maskedConnectionUri = connectionUri.replace(/:\/\/(.+):(.+)@/, (_, user, pass) =>
         `://${user}:${pass.replace(/./g, "*")}@`
       );
@@ -39,6 +46,14 @@ module.exports = async function(config) {
         else if (typeof table === "function") {
           const model = table(sequelize, Sequelize);
           shell.echo(`  Model "${model.name}" hydrated`);
+        }
+        else if (typeof table === "object" && table.hasOwnProperty("modelPaths")) {
+          const paths = Object.values(table.modelPaths);
+          paths.forEach(path => {
+            const model = sequelize.import(path);
+            shell.echo(`  Model "${model.name}" hydrated`);
+          });
+          watchingFiles.push(...paths);
         }
       });
 
