@@ -13,15 +13,13 @@ import {I18nextProvider} from "react-i18next";
 import {Provider} from "react-redux";
 import {selectAll} from "d3-selection";
 import createRoutes from "$app/routes";
+import {middleware as reduxMiddleware} from "$app/store";
 import configureStore from "./storeConfig";
 import {LOADING_END, LOADING_START} from "./consts";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 
 const {basename} = window.__INITIAL_STATE__.location;
 const browserHistory = useRouterHistory(createHistory)({basename});
-
-import canonConfig from "$root/canon.js";
-const reduxMiddleware = canonConfig.reduxMiddleware || false;
 
 const store = configureStore(window.__INITIAL_STATE__, browserHistory, reduxMiddleware);
 const history = syncHistoryWithStore(browserHistory, store);

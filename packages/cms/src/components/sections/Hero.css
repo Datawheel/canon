@@ -59,6 +59,12 @@
   }
 }
 
+.cp-hero-pdf {
+  position: absolute;
+  top: calc(var(--nav-height) + 10px);
+  right: 10px;
+}
+
 .cp-hero-heading {
   color: var(--hero-heading-color);
   font-size: var(--hero-heading-size);
@@ -214,5 +220,11 @@
   padding: var(--gutter-md) var(--gutter-md) 0;
   & .cms-profilesearch {
     height: 75vh;
+  }
+}
+
+@media print {
+  .cp-hero-pdf {
+      display: none;
   }
 }

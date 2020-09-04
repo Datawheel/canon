@@ -5,6 +5,11 @@ import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
 import {Dialog} from "@blueprintjs/core";
 
+import {strip} from "d3plus-text";
+const filename = str => strip(str.replace(/<[^>]+>/g, ""))
+  .replace(/^\-/g, "")
+  .replace(/\-$/g, "");
+
 import stripHTML from "../../utils/formatters/stripHTML";
 import groupMeta from "../../utils/groupMeta";
 
@@ -14,6 +19,7 @@ import StatGroup from "../Viz/StatGroup";
 
 import Button from "../fields/Button";
 
+import PDFButton from "./components/PDFButton";
 import Parse from "./components/Parse";
 import ProfileSearch from "../fields/ProfileSearch";
 
@@ -220,6 +226,7 @@ class Hero extends Component {
     return (
       <header className="cp-section cp-hero">
         <div className="cp-section-inner cp-hero-inner">
+          <PDFButton className="cp-hero-pdf" filename={filename(profile.title)} />
           {/* caption */}
           <div className="cp-section-content cp-hero-caption">
             {heading}

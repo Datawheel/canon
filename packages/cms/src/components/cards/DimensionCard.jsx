@@ -47,10 +47,12 @@ class DimensionCard extends Component {
   render() {
     const {meta} = this.props;
     const {rebuilding, alertObj, isOpen} = this.state;
+    const allowed = meta.visible;
 
     // define props for Card
     const cardProps = {
       title: meta.dimension,
+      allowed,
       type: "dimension",
       onDelete: this.maybeDelete.bind(this),
       onRefresh: this.rebuildSearch.bind(this),

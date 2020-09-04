@@ -10,6 +10,8 @@ Content Management System for Canon sites.
 * [Environment Variables](#environment-variables)
 * [Sections](#sections)
 * [Custom Sections](#custom-sections)
+* [Custom Visualizations](#custom-visualizations)
+* [Hidden Profiles](#hidden-profiles)
 * [Search](#search)
 * [Advanced Generator Techniques](#advanced-generator-techniques)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
@@ -42,7 +44,29 @@ Canon CMS is a package for `canon`. These instructions assume you have installed
 
 `npm i @datawheel/canon-cms`
 
-#### 2) Configure `canon` vars
+#### 2) Configure the database models in the `canon.js` file
+
+Canon CMS uses the `canon`-level user model to handle authentication and edit permissions, in addition to some other models to store the content. You must configure these modules manually on the application's `canon.js` file:
+
+```js
+module.exports = {
+  ...,
+  db: [{
+    connection: process.env.CANON_DB_CONNECTION_STRING,
+    tables: [
+      require("@datawheel/canon-core/models"),
+      require("@datawheel/canon-cms/models")
+    )
+  }]
+  ...,
+};
+```
+
+You can then set the connection parameters in the environment variables, using the keys you set in the code. Check the documentation for canon-core's DB configuration for more info on how the setup works.
+
+Please note Canon CMS currently only supports Postgres.
+
+#### 3) Configure `canon` vars
 
 There are a number of [canon-core environment variables](https://github.com/Datawheel/canon#additional-environment-variables) that `canon-cms` relies on. Ensure that the the following env vars are set.
 
@@ -57,14 +81,7 @@ export CANON_LANGUAGE_DEFAULT=en
 export CANON_LANGUAGES=pt,es,ru,et
 ```
 
-Canon CMS makes use of `canon`-level db credentials to store its content. Currently Canon CMS only supports Postgres.
-```sh
-export CANON_DB_USER=dbuser
-export CANON_DB_NAME=dbname
-export CANON_DB_HOST=dbhost
-```
-
-#### 3) Configure `canon-cms` vars
+#### 4) Configure `canon-cms` vars
 
 Canon CMS requires a `canon-cms` specific env var for the current location of your mondrian or tesseract installation.
 ```sh
@@ -73,16 +90,16 @@ export CANON_CMS_CUBES=https://tesseract-url.com/
 
 By default, the CMS will only be enabled on development environments. If you wish to enable the CMS on production, see the `CANON_CMS_ENABLE` in [Environment Variables](#environment-variables) below.
 
-In total, your env vars should now look like this:
+In summary, your env vars should now look like this:
 ```sh
 export CANON_API=http://localhost:3300
 export CANON_LANGUAGE_DEFAULT=en
 export CANON_LANGUAGES=pt,es,ru,et
-export CANON_DB_USER=dbuser
-export CANON_DB_NAME=dbname
-export CANON_DB_HOST=dbhost
+export CANON_DB_CONNECTION_STRING=postgresql://dbuser:dbpass@dbhost:dbport/dbname
 export CANON_CMS_CUBES=https://tesseract-url.com/
 ```
+
+Remember the `CANON_DB_CONNECTION_STRING` is up to you, depending on how did you configure the DB on the `canon.js` file.
 
 #### 4) Add the Builder Component to a route
 ```jsx
@@ -407,6 +424,22 @@ export {default as CustomViz2} from "./CustomViz2.jsx";
 
 ---
 
+## Hidden Profiles
+
+#### Profile visibility
+
+Profiles have a `Visibility` Dropdown in the Profile Editor panel that may be set to `Hidden` for pre-production profiles. Hiding a Profile will result in all profile paths returning a 404, as well as all legacy search endpoints excluding it from results (Note: Deepsearch is not included in this behavior, it must access the `canon-cms` db directly to mirror this behavior).
+
+#### Variant Visibility
+
+Individual profile variants can also be hidden, which will result in the same behavior as above. Importantly, *profile visibility always trumps variant visibility*.
+
+#### A note on search
+
+The `/api/search` legacy search route will respect these hidden profiles and not return results from them. However, in some cases (such as the CMS), it is desirable for the search to ignore this restriction. Adding a `?cms=true` query param to the search endpoint will bypass the hidden profiles and show all members that match the query.
+
+---
+
 ## Search
 
 #### Legacy Search API (Dimensions only)
@@ -430,6 +463,7 @@ Arguments are provided by url paramaters:
 |`pslug`|If the cubeName is not known, you may provide the unique slug of the desired dimension to limit results to that profile|
 |`limit`|A number, passed through to SQL `LIMIT` to limit results|
 |`id`|Exact match `id` lookup. Keep in mind that a member `id` is not necessarily unique and may require a `dimension` specification|
+|`cms`|If set to true, bypasses all "Hiding" functionality (profile, variant, or member) and shows ALL matching results.
 
 Example query:
 
@@ -480,6 +514,9 @@ If you would prefer to build your own search component, the DeepSearch API is av
 |`query`|Query to search for|
 |`locale`|Language for results|
 |`limit`|Maximum number of results to return|
+|`profile`|Restrict results to a profile, must be an integer profile id or a profile slug (unary profiles only)|
+|`dimension`|Restrict results by dimension|
+|`hierarchy`|Restrict results by hierarchy (comma separated)|
 |`min_confidence`|Confidence threshold (Deepsearch Only)|
 
 Results will be returned in a response object that includes metadata on the results. Matching members separated by profile can be found in the `profiles` key of the response object. A single grouped list of all matching profiles can be found in the `grouped` key of the response object.
@@ -870,6 +907,7 @@ For upgrading to new versions, there are currently several migration scripts:
 6) `npx canon-cms-migrate-0.9` (for 0.9 CMS users, for upgrade to 0.11 ONLY)
 7) `npx canon-cms-migrate-0.11` (for 0.10 or 0.11 CMS users, for upgrade to 0.12 ONLY)
 8) `npx canon-cms-migrate-0.12` (for 0.12 CMS users)
+9) `npx canon-cms-migrate-0.13` (for 0.13 CMS users)
 
 **Note:** Canon CMS Version 0.10.0 did **NOT** require a database migration, so the `0.9` script will output a `0.11` database.
 

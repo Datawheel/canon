@@ -25,7 +25,11 @@ module.exports = function(sequelize, db) {
       levels: levelsType,
       measure: db.STRING,
       ordering: db.INTEGER,
-      cubeName: db.STRING
+      cubeName: db.STRING,
+      visible: {
+        type: db.BOOLEAN,
+        defaultValue: true
+      }
     },
     {
       tableName: "canon_cms_profile_meta",

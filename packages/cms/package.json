@@ -1,7 +1,7 @@
 {
   "name": "@datawheel/canon-cms",
   "description": "Content Management System for Canon sites.",
-  "version": "0.13.39",
+  "version": "0.14.1",
   "author": "James Mullen",
   "license": "MIT",
   "bin": {
@@ -13,6 +13,7 @@
     "canon-cms-migrate-0.9": "scripts/migration/canon-cms-migrate-0.9.js",
     "canon-cms-migrate-0.11": "scripts/migration/canon-cms-migrate-0.11.js",
     "canon-cms-migrate-0.12": "scripts/migration/canon-cms-migrate-0.12.js",
+    "canon-cms-migrate-0.13": "scripts/migration/canon-cms-migrate-0.13.js",
     "canon-cms-warmup": "scripts/warmup/index.js"
   },
   "scripts": {
@@ -29,7 +30,8 @@
     "canon-cms-migrate-0.8": "node scripts/migration/canon-cms-migrate-0.8.js",
     "canon-cms-migrate-0.9": "node scripts/migration/canon-cms-migrate-0.9.js",
     "canon-cms-migrate-0.11": "node scripts/migration/canon-cms-migrate-0.11.js",
-    "canon-cms-migrate-0.12": "node scripts/migration/canon-cms-migrate-0.12.js"
+    "canon-cms-migrate-0.12": "node scripts/migration/canon-cms-migrate-0.12.js",
+    "canon-cms-migrate-0.13": "node scripts/migration/canon-cms-migrate-0.13.js"
   },
   "dependencies": {
     "@blueprintjs/core": "^3.28.1",
@@ -69,6 +71,7 @@
     "localforage": "^1.7.2",
     "node-yaml": "^3.1.1",
     "promise-throttle": "^1.0.0",
+    "puppeteer": "^5.2.0",
     "react-ace": "^6.2.0",
     "react-clipboard.js": "^2.0.7",
     "react-sizeme": "^2.6.7",
@@ -78,11 +81,11 @@
     "sqlite3": "^5.0.0"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "workspace:^0.18.0",
+    "@datawheel/canon-core": "workspace:^0.19.0",
     "@datawheel/canon-logiclayer": "workspace:^0.4.0"
   },
   "peerDependencies": {
-    "@datawheel/canon-core": "^0.18.0"
+    "@datawheel/canon-core": "^0.19.1"
   },
   "repository": {
     "type": "git",

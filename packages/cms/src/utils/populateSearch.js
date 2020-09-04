@@ -94,6 +94,8 @@ const formatter = (members, data, dimension, level) => {
 
 const populateSearch = async(profileData, db, metaLookup = false) => {
 
+  const dbQuery = db.search.sequelize.query.bind(db.search.sequelize);
+
   const cubeName = profileData.cubeName;
   const measure = profileData.measure;
   const dimension = profileData.dimName || profileData.dimension;
@@ -217,7 +219,7 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
         searchQuery += `\nON CONFLICT ("id", "dimension", "hierarchy", "cubeName")\nDO UPDATE SET (${searchUpdateKeys.map(d => `"${d}"`).join(", ")}) = (${searchUpdateKeys.map(key => `EXCLUDED."${key}"`).join(", ")})\nRETURNING *;`;
 
         // Capture the newly inserted rows for use later, their new contentIds will be needed to hook up language content
-        const searchResp = await db.query(searchQuery).catch(catcher);
+        const searchResp = await dbQuery(searchQuery).catch(catcher);
         searchRows = searchResp[0];
       }
 
@@ -289,7 +291,7 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
         });
         contentQuery += `\nON CONFLICT (id, locale)\nDO UPDATE SET (${contentKeys.join(", ")}) = (${contentKeys.map(key => `EXCLUDED.${key}`).join(", ")})\nRETURNING *;`;
 
-        const contentResp = await db.query(contentQuery).catch(catcher);
+        const contentResp = await dbQuery(contentQuery).catch(catcher);
         contentRows = contentResp[0];
       }
 

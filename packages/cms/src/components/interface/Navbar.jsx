@@ -26,7 +26,8 @@ class Navbar extends Component {
       navOpen: false,
       outlineOpen: true,
       settingsOpen: false,
-      currEntity: null
+      currEntity: null,
+      currEntityHidden: false
     };
   }
 
@@ -206,7 +207,7 @@ class Navbar extends Component {
     const {currentPid, currentStoryPid, pathObj} = this.props.status;
     const currentTab = pathObj.tab;
 
-    let currEntity, currTree;
+    let currEntity, currEntityHidden, currTree;
     if (currentTab === "metadata") currEntity = "metadata"; // done
 
     // get entity title and sections
@@ -218,6 +219,7 @@ class Navbar extends Component {
         currEntity = this.makeTitleFromDimensions(currProfile);
         // sections
         currTree = currProfile.sections;
+        currEntityHidden = !currProfile.visible;
       }
     }
 
@@ -240,7 +242,8 @@ class Navbar extends Component {
         profileNavItems[i] = {
           title: this.makeTitleFromDimensions(profile),
           onClick: this.handleClick.bind(this, {profile: profile.id, tab: "profiles"}),
-          selected: currentTab === "profiles" && currentPid === profile.id
+          selected: currentTab === "profiles" && currentPid === profile.id,
+          icon: profile.visible ? undefined : "eye-off"
         };
       });
       profileNavItems.sort((a, b) => a.title.localeCompare(b.title));
@@ -288,7 +291,7 @@ class Navbar extends Component {
       {title: "Metadata"}
     ];
 
-    return {currEntity, currTree, navLinks};
+    return {currEntity, currTree, navLinks, currEntityHidden};
   }
 
   toggleEntitySettings() {
@@ -315,7 +318,7 @@ class Navbar extends Component {
     const {locales, localeDefault, localeSecondary, pathObj} = this.props.status;
     const currentTab = pathObj.tab;
     const {outlineOpen, navOpen, settingsOpen} = this.state;
-    const {currEntity, currTree, navLinks} = this.formatDisplay();
+    const {currEntity, currEntityHidden, currTree, navLinks} = this.formatDisplay();
 
     const showLocales = locales;
     const showAccount = auth.user;
@@ -343,7 +346,7 @@ class Navbar extends Component {
                 >
                   <Icon className="cms-navbar-title-button-icon" icon="caret-down" />
                   <span className="cms-navbar-title-button-text">
-                    {currEntity}{currentTab === "profiles" ? " profile" : ""}
+                    {currEntity}{currentTab === "profiles" ? ` profile${currEntityHidden ? " (hidden)" : ""}` : ""}
                   </span>
                 </button>
                 <button className="cms-navbar-entity-settings-button" onClick={() => this.toggleEntitySettings(currEntity)}>

@@ -350,6 +350,7 @@ class Options extends Component {
   });
 
   render() {
+    if (this.context.print) return null;
     const {backgroundColor, imageContext, imageFormat, imageProcessing, includeSlug, dialogOpen, results, focusOptions} = this.state;
     const {data, iconOnly, slug, t, transitionDuration} = this.props;
 
@@ -551,6 +552,7 @@ Options.defaultProps = {
   iconOnly: false
 };
 Options.contextTypes = {
+  print: PropTypes.bool,
   router: PropTypes.object
 };
 

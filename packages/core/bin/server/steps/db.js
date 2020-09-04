@@ -1,93 +1,102 @@
-const Sequelize = require("sequelize"),
-      path = require("path"),
-      shell = require("shelljs");
+const Sequelize = require("sequelize");
+const shell = require("shelljs");
 
-let everDetect = false;
+const getConfig = require("../../config");
 
 module.exports = async function(config) {
+  const {db: userDBs} = getConfig();
 
-  const {modules, name, paths} = config;
-  const {appPath, serverPath} = paths;
+  const watchingFiles = [];
 
-  const moduleName = require(path.join(serverPath, "helpers/moduleName")), 
-        readFiles = require(path.join(serverPath, "helpers/readFiles")),
-        title = require(path.join(serverPath, "helpers/title"));
+  const connections = await Promise.all(
+    Array.from(userDBs, async userDB => {
+      const db = {
+        engine: "postgresql",
+        host: "localhost",
+        port: 5432,
+        ...userDB
+      };
 
-  const dbName = process.env.CANON_DB_NAME;
-  const dbUser = process.env.CANON_DB_USER;
-  const dbHost = process.env.CANON_DB_HOST || "127.0.0.1";
-  const dbPw = process.env.CANON_DB_PW || null;
-  const engine = process.env.CANON_DB_ENGINE || "postgres";
-  const sqlite = engine === "sqlite";
+      const connectionUri = "connection" in db
+        ? db.connection
+        : `${db.engine}://${db.user}:${db.pass}@${db.host}:${db.port}/${db.name}`;
+      const maskedConnectionUri = connectionUri.replace(/:\/\/(.+):(.+)@/, (_, user, pass) =>
+        `://${user}:${pass.replace(/./g, "*")}@`
+      );
 
-  const files = [];
-  if (sqlite || dbName && dbUser) {
-    for (let i = 0; i < modules.length; i++) {
-      const folder = modules[i];
-      const dbFolder = path.join(folder, "db/");
-      if (shell.test("-d", dbFolder)) {
-        if (!files.length) {
-
-          title(`${everDetect ? "Re-m" : "M"}ounting Database Models`, "🗄️");
-
-          if (engine === "sqlite") {
-            const storage = path.join(appPath, "../sqlite/cms.sqlite");
-            config.db = new Sequelize({
-              dialect: "sqlite",
-              storage,
-              logging: false
-            });
-          }
-          else {
-            config.db = new Sequelize(dbName, dbUser, dbPw,
-              {
-                host: dbHost,
-                dialect: "postgres",
-                define: {timestamps: true},
-                logging: () => {},
-                operatorsAliases: Sequelize.Op
-              }
-            );
-            shell.echo(`Database: ${dbUser}@${dbHost}`);
-          }
-         
-          everDetect = true;
-
-        }
-        files.push(dbFolder);
-        const module = moduleName(dbFolder) || moduleName(name) || name;
-        const {db} = config;
-        readFiles(dbFolder)
-          .forEach(file => {
-            const model = db.import(file);
-            db[model.name] = model;
-            shell.echo(`${module}: ${model.name}`);
-          });
-      }
-    }
-    if (files.length) {
-      const {db} = config;
-      await db.sync()
-        .then(({models}) => {
-          const seeds = [];
-          Object.keys(models).forEach(async name => {
-            const model = models[name];
-            const count = await model.count();
-            const isEmpty = count === 0;
-            // Only populate a table with seed data if it is empty
-            if (model.seed && isEmpty) {
-              seeds.push(model.bulkCreate(model.seed));
-            }
-          });
-          return Promise.all(seeds);
-        })
-        .catch(() => {});
-      Object.keys(db).forEach(modelName => {
-        if ("associate" in db[modelName]) db[modelName].associate(db);
+      const sequelize = new Sequelize(connectionUri, {
+        define: {timestamps: true},
+        logging: () => {},
+        operatorsAliases: Sequelize.Op,
+        ...db.sequelizeOptions
       });
-    }
+
+      await sequelize.authenticate().catch(error => {
+        shell.echo(`\nDatabase: ${maskedConnectionUri}\n  Can't authenticate to database.`);
+        throw error;
+      });
+      shell.echo(`\nDatabase: ${maskedConnectionUri}\n  Connection successful.`);
+
+      Array.from(db.tables, table => {
+        if (typeof table === "string") {
+          const model = sequelize.import(table);
+          watchingFiles.push(table);
+          shell.echo(`  Model "${model.name}" hydrated`);
+        }
+        else if (typeof table === "function") {
+          const model = table(sequelize, Sequelize);
+          shell.echo(`  Model "${model.name}" hydrated`);
+        }
+        else if (typeof table === "object" && table.hasOwnProperty("modelPaths")) {
+          const paths = Object.values(table.modelPaths);
+          paths.forEach(path => {
+            const model = sequelize.import(path);
+            shell.echo(`  Model "${model.name}" hydrated`);
+          });
+          watchingFiles.push(...paths);
+        }
+      });
+
+      await sequelize.sync();
+      const models = Object.values(sequelize.models);
+
+      await Promise.all(
+        models.map(async model => {
+          if ("seed" in model) {
+            const count = await model.count();
+            if (count === 0) {
+              shell.echo(`  Seeding model "${model.name}"`);
+              await model.bulkCreate(model.seed);
+            }
+          }
+
+          if (typeof model.associate === "function") {
+            model.associate(sequelize.models);
+          }
+        })
+      );
+
+      return sequelize;
+    })
+  ).catch(err => {
+    shell.echo(`Problem hydrating database models:\n${err.stack}`);
+    process.exit(1);
+  });
+
+  const fakeDb = {_connections: [], _models: []};
+
+  for (const conn of connections) {
+    fakeDb._connections.push(conn);
+    fakeDb._models.push(...Object.values(conn.models));
+    Object.assign(fakeDb, conn.models);
   }
+  fakeDb.close = () => {
+    for (const conn of fakeDb._connections) {
+      conn.close();
+    }
+  };
 
-  return {files};
+  config.db = fakeDb;
 
+  return {files: watchingFiles};
 };

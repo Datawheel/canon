@@ -170,6 +170,9 @@ THEMING
 }
 
 /* nested / primary header */
+.rt-thead.-header {
+  background-color: var(--table-thead-bg-color);
+}
 .rt-thead.-header .rt-th {
   background-color: var(--table-thead-bg-color);
   border: 1px solid var(--table-thead-border-color);

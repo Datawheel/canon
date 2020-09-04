@@ -6,8 +6,9 @@ import {renderToString} from "react-dom/server";
 import {createMemoryHistory, match, RouterContext} from "react-router";
 import {I18nextProvider} from "react-i18next";
 import {Provider} from "react-redux";
-import createRoutes from "routes";
 import configureStore from "./storeConfig";
+import createRoutes from "$app/routes";
+import {initialState as appInitialState} from "$app/store";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 import pretty from "pretty";
 
@@ -89,7 +90,7 @@ const baseTag = process.env.CANON_BASE_URL === undefined ? ""
 /**
     Returns the default server logic for rendering a page.
 */
-export default function(defaultStore = {}, headerConfig, reduxMiddleware = false) {
+export default function(defaultStore = appInitialState, headerConfig, reduxMiddleware = false) {
 
   return function(req, res) {
 

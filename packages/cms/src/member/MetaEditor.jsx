@@ -140,11 +140,7 @@ class MetaEditor extends Component {
       multiline={true}
       onChange={this.changeCell.bind(this, cell, context, locale)}
       value={cell.value}
-      placeholder={`add ${
-        context === "attr" ? "hints"
-          : context === "meta" ? "description"
-            : context
-      }`}
+      placeholder={`add ${context}`}
       intent={isBrokenJSON ? "danger" : "none"}
       onConfirm={this.saveCell.bind(this, cell, context, locale)}
     />;
@@ -242,11 +238,7 @@ class MetaEditor extends Component {
   }
   renderColumn(col) {
     return Object.assign({}, {
-      Header: this.renderHeader(
-        col === "hierarchy" ? "subdimension"
-          : col === "zvalue" ? "z value"
-            : col
-      ),
+      Header: this.renderHeader(col),
       id: col,
       sortMethod: col === "id" ? this.numericSort.bind(this) : undefined,
       accessor: d => d[col],
@@ -264,7 +256,7 @@ class MetaEditor extends Component {
       if (possibleDimensions && possibleDimensions.map(d => d.ordering).every(d => d === 0)) {
         const relevantDimensions = possibleDimensions.filter(d => d.cubeName === member.cubeName);
         relevantDimensions.forEach(dimension => {
-          links.push(`/profile/${dimension.slug}/${member.id}`);  
+          links.push(`/profile/${dimension.slug}/${member.id}`);
         });
       }
     });
@@ -357,7 +349,7 @@ class MetaEditor extends Component {
 
           columnGroup.push({
             id: `${prop} (${localeDefault})`,
-            Header: this.renderHeader(`${localeSecondary ? `${localeDefault} ` : ""}${prop === "attr" ? "language hints" : prop}`),
+            Header: this.renderHeader(`${localeSecondary ? `${localeDefault} ` : ""}${prop}`),
             minWidth: this.columnWidths(prop),
             accessor: d => {
               const content = d.content.find(c => c.locale === localeDefault);
@@ -368,7 +360,7 @@ class MetaEditor extends Component {
           if (localeSecondary) {
             columnGroup.push({
               id: `${prop} (${localeSecondary})`,
-              Header: this.renderHeader(`${localeSecondary} ${prop === "attr" ? "language hints" : prop}`),
+              Header: this.renderHeader(`${localeSecondary} ${prop}`),
               minWidth: this.columnWidths(prop),
               accessor: d => {
                 const content = d.content.find(c => c.locale === localeSecondary);
@@ -626,7 +618,7 @@ class MetaEditor extends Component {
               />
 
               <Select
-                label={filterKey === "dimension" ? "Dimension" : "Subdimension"}
+                label={filterKey === "dimension" ? "Dimension" : "Hierarchy"}
                 inline
                 fontSize="xs"
                 namespace="cms"
@@ -638,7 +630,7 @@ class MetaEditor extends Component {
                   <optgroup key={dim} label={dim}>
                     {/* show the dimension as the first option in each group */}
                     <option key={`dimension_${dim}`} value={`dimension_${dim}`}>{dim}</option>
-                    {/* Show indented subdimensions */}
+                    {/* Show indented hierarchies */}
                     {dimensions[dim].map(hierarchy =>
                       !dimensions[dim].includes(dim) || dimensions[dim].length !== 1
                         ? <option key={`dimension_${dim}_hierarchy_${hierarchy}`} value={`dimension_${dim}_hierarchy_${hierarchy}`}>   {hierarchy}</option>

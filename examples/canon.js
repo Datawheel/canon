@@ -1,10 +1,9 @@
-/**
-  Simple test middleware function
-*/
-function exampleReduxMiddleware(canonMiddleware) {
-  return canonMiddleware;
-}
+const {modelPaths: coreModelPaths} = require("@datawheel/canon-core/models");
+const {modelPaths: cmsModelPaths} = require("@datawheel/canon-cms/models");
 
+const {env} = process;
+
+/** @type {import("@datawheel/canon-core").Config} */
 module.exports = {
   express: {
     bodyParser: {
@@ -19,9 +18,21 @@ module.exports = {
       }
     }
   },
-  reduxMiddleware(applyMiddleware, canonMiddleware) {
-    const message = "reduxMiddleware from canon.js";
-    console.log(message);
-    return applyMiddleware(...exampleReduxMiddleware(canonMiddleware));
-  }
+  db: [
+    {
+      connection: env.CANON_SERVER_DBCONNECTION ||
+        `postgresql://${env.CANON_DB_USER}:${env.CANON_DB_PASS}@${env.CANON_DB_HOST || "localhost"}:${env.CANON_DB_PORT || 5432}/${env.CANON_DB_NAME}`,
+      tables: [
+        coreModelPaths.users,
+        require("./db/testTable")
+      ]
+    },
+    {
+      host: env.CANON_DB_HOST || "localhost",
+      name: env.CANON_DB_NAME,
+      user: env.CANON_DB_USER,
+      pass: env.CANON_DB_PW,
+      tables: Object.values(cmsModelPaths)
+    }
+  ]
 };

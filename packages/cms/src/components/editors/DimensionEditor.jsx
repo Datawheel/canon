@@ -35,10 +35,10 @@ class DimensionEditor extends Component {
     const {cubeData} = this.props;
     if (!cubeData) {
       this.props.getCubeData();
-    } 
+    }
     else {
       this.populate.bind(this)();
-    } 
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -59,7 +59,8 @@ class DimensionEditor extends Component {
         dimension: selectedDimension ? selectedDimension.name : "",
         hierarchies: selectedDimension ? selectedDimension.hierarchies : "",
         levels: meta.levels,
-        measure: meta.measure
+        measure: meta.measure,
+        visible: meta.visible
       };
       const mode = "edit";
       this.setState({selectedDimension, profileData, mode});
@@ -95,7 +96,8 @@ class DimensionEditor extends Component {
     profileData.levels.forEach(level => {
       profileData.hierarchies.push(selectedDimension.hierarchies.find(h => h.level === level));
     });
-    this.setState({profileData});
+    const fieldsChanged = true;
+    this.setState({profileData, fieldsChanged});
   }
 
   removeLevel(level) {
@@ -105,12 +107,20 @@ class DimensionEditor extends Component {
     profileData.levels.forEach(level => {
       profileData.hierarchies.push(selectedDimension.hierarchies.find(h => h.level === level));
     });
-    this.setState({profileData});
+    const fieldsChanged = true;
+    this.setState({profileData, fieldsChanged});
   }
 
   toggleLevel(level, e) {
     const {checked} = e.target;
     checked ? this.addLevel.bind(this)(level) : this.removeLevel.bind(this)(level);
+  }
+
+  changeVisibility(e) {
+    const {profileData} = this.state;
+    profileData.visible = e.target.value;
+    const fieldsChanged = true;
+    this.setState({profileData, fieldsChanged});
   }
 
   saveProfile() {
@@ -131,7 +141,7 @@ class DimensionEditor extends Component {
     }
     else {
       const payload = Object.assign({}, profileData, {profile_id: currentPid});
-      // If ordering was provided, this is a Variant 
+      // If ordering was provided, this is a Variant
       if (!isNaN(ordering)) payload.ordering = ordering;
       this.props.modifyDimension(payload);
       if (this.props.onComplete) this.props.onComplete();
@@ -185,7 +195,7 @@ class DimensionEditor extends Component {
         {profileData.dimension &&
           <div className="cms-field-container">
             <fieldset className="cms-fieldset">
-              <legend className="cms-fieldset-legend u-font-sm">Subdimensions:</legend>
+              <legend className="cms-fieldset-legend u-font-sm">Hierarchies:</legend>
               {levelList.map(level =>
                 <label className="cms-checkbox-label u-font-xs" key={level}>
                   <input
@@ -212,6 +222,20 @@ class DimensionEditor extends Component {
             {measureOptions}
           </Select>
         }
+
+        {/* visibility select */}
+        <Select
+          label="Profile Visibility"
+          className="cms-profile-visible-selector"
+          namespace="cms"
+          fontSize="xs"
+          inline
+          value={profileData.visible}
+          onChange={this.changeVisibility.bind(this)}
+        >
+          <option key="true" value={true}>Visible</option>
+          <option key="false" value={false}>Hidden</option>
+        </Select>
 
         <div className="cms-field-container">
           <Button

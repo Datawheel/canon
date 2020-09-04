@@ -9,8 +9,11 @@ import "./Profile.css";
 
 class Profile extends Component {
   getChildContext() {
-    const {router, searchProps} = this.props;
+    const {router, searchProps, location} = this.props;
+    const {query} = location;
+    const print = query.print === "true";
     return {
+      print,
       router,
       searchProps
     };
@@ -54,6 +57,7 @@ Profile.need = [
 ];
 
 Profile.childContextTypes = {
+  print: PropTypes.bool,
   router: PropTypes.object,
   searchProps: PropTypes.object
 };

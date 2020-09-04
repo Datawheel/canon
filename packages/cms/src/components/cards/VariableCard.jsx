@@ -200,9 +200,10 @@ class VariableCard extends Component {
   }
 
   render() {
-    const {attr, readOnly, minData, type, showReorderButton, variables} = this.props;
+    const {attr, readOnly, minData, type, showReorderButton} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
     const {displayData, secondaryDisplayData, isOpen, alertObj, dupes, size, duration} = this.state;
+    const variables = this.props.variables[localeDefault] || {};
 
     let description = "";
     let showDesc = false;
@@ -213,10 +214,16 @@ class VariableCard extends Component {
       }
     }
 
+    let allowed = true;
+    if (minData) {
+      allowed = !minData.allowed || minData.allowed === "always" || variables[minData.allowed];
+    }
+
     // define initial/loading props for Card
     const cardProps = {
       type,
       readOnly, // currently only used for attributes card
+      allowed,
       localeSecondary,
       title: "•••" // placeholder
     };
