@@ -1,6 +1,7 @@
 const Client = require("@datawheel/olap-client").Client;
 const MondrianDataSource = require("@datawheel/olap-client").MondrianDataSource;
 const jwt = require("jsonwebtoken");
+const sequelize = require("sequelize");
 
 const d3Array = require("d3-array");
 const yn = require("yn");
@@ -16,6 +17,7 @@ LANGUAGES.sort(a => a === envLoc ? -1 : 1);
 
 const {OLAP_PROXY_SECRET, CANON_CMS_MINIMUM_ROLE} = process.env;
 const CANON_CMS_CUBES = process.env.CANON_CMS_CUBES || "localhost";
+const engine = process.env.CANON_DB_ENGINE || "postgres";
 
 /**
  * There is not a fully-featured way for olap-client to know the difference between a
@@ -137,7 +139,7 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
           return obj;
         }, {})).catch(catcher);
 
-      fullList = fullList.concat(formatter(members, data, dimension, level.name));
+      fullList = fullList.concat(formatter(members, data, dimension, level.name)).filter(d => d.id);
 
     }
 
@@ -175,15 +177,50 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
       // On conflict (update), do not attempt to change the slug
       const searchUpdateKeys = searchInsertKeys.filter(d => d !== "slug");
 
-      let searchQuery = `INSERT INTO canon_cms_search (${searchInsertKeys.map(d => `"${d}"`).join(", ")})\nVALUES `;
-      searchList.forEach((obj, i) => {
-        searchQuery += `${i ? "," : ""}\n(${searchInsertKeys.map(key => fixObjForPostgres(obj[key]))})`;
-      });
-      searchQuery += `\nON CONFLICT ("id", "dimension", "hierarchy", "cubeName")\nDO UPDATE SET (${searchUpdateKeys.map(d => `"${d}"`).join(", ")}) = (${searchUpdateKeys.map(key => `EXCLUDED."${key}"`).join(", ")})\nRETURNING *;`;
-
       if (verbose) console.log("Upserting search table...");
-      // Capture the newly inserted rows for use later, their new contentIds will be needed to hook up language content
-      const [searchRows] = await db.query(searchQuery).catch(catcher);
+      let searchRows = [];
+      
+      if (engine === "sqlite") {
+        // autoIncrement doens't work on non-primary id columns in sqlite. Handle it manually here.
+        const maxFetch = await db.search.findAll({where: {}, raw: true, attributes: [[sequelize.fn("max", sequelize.col("contentId")), "max"]]}).catch(catcher);
+        let contentId = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 1;
+        for (const member of searchList) {
+          const {id, dimension, hierarchy, cubeName} = member;
+          const where = {id, dimension, hierarchy, cubeName};
+          const obj = {
+            where,
+            defaults: searchInsertKeys.reduce((acc, d) => ({...acc, [d]: member[d]}), {})
+          };
+          obj.defaults.contentId = contentId;
+          const [row, created] = await db.search.findOrCreate(obj).catch(catcher);
+          if (created) {
+            if (row) {
+              searchRows.push(row.toJSON());
+              contentId++;
+            }
+          }
+          else {
+            const payload = searchUpdateKeys.reduce((acc, d) => ({...acc, [d]: member[d]}), {});
+            await db.search.update(payload, {where}).catch(catcher);
+            const fetch = await db.search.find({where}).catch(catcher);
+            if (fetch) {
+              searchRows.push(fetch.toJSON());
+            }
+          }
+        }
+      }
+      else {
+        let searchQuery = `INSERT INTO canon_cms_search (${searchInsertKeys.map(d => `"${d}"`).join(", ")})\nVALUES `;
+        searchList.forEach((obj, i) => {
+          searchQuery += `${i ? "," : ""}\n(${searchInsertKeys.map(key => fixObjForPostgres(obj[key]))})`;
+        });
+        searchQuery += `\nON CONFLICT ("id", "dimension", "hierarchy", "cubeName")\nDO UPDATE SET (${searchUpdateKeys.map(d => `"${d}"`).join(", ")}) = (${searchUpdateKeys.map(key => `EXCLUDED."${key}"`).join(", ")})\nRETURNING *;`;
+
+        // Capture the newly inserted rows for use later, their new contentIds will be needed to hook up language content
+        const searchResp = await db.query(searchQuery).catch(catcher);
+        searchRows = searchResp[0];
+      }
+
       if (verbose) console.log(`Upserted ${searchRows.length} rows.`);
 
       // Iterate over the members from the cube and store them in a hash keyed by id/dim/hier
@@ -220,14 +257,42 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
         if (!contentKeys.includes("keywords")) contentKeys.push("keywords");
       }
 
-      let contentQuery = `INSERT INTO canon_cms_search_content (${contentKeys.join(", ")})\nVALUES `;
-      contentList.forEach((obj, i) => {
-        contentQuery += `${i ? "," : ""}\n(${contentKeys.map(key => fixObjForPostgres(obj[key]))})`;
-      });
-      contentQuery += `\nON CONFLICT (id, locale)\nDO UPDATE SET (${contentKeys.join(", ")}) = (${contentKeys.map(key => `EXCLUDED.${key}`).join(", ")})\nRETURNING *;`;
-
       if (verbose) console.log(`Upserting content table for ${locale}...`);
-      const [contentRows] = await db.query(contentQuery).catch(catcher);
+      let contentRows = [];
+
+      if (engine === "sqlite") {
+        for (const member of contentList) {
+          const {id, locale} = member;
+          const where = {id, locale};
+          const obj = {
+            where,
+            defaults: contentKeys.reduce((acc, d) => ({...acc, [d]: member[d]}), {})
+          };
+          const [row, created] = await db.search_content.findOrCreate(obj).catch(catcher);
+          if (created) {
+            contentRows.push(row.toJSON());
+          }
+          else {
+            const payload = contentKeys.reduce((acc, d) => ({...acc, [d]: member[d]}), {});
+            await db.search_content.update(payload, {where}).catch(catcher);
+            const fetch = await db.search_content.find({where}).catch(catcher);
+            if (fetch) {
+              contentRows.push(fetch.toJSON());
+            }
+          }
+        }
+      }
+      else {
+        let contentQuery = `INSERT INTO canon_cms_search_content (${contentKeys.join(", ")})\nVALUES `;
+        contentList.forEach((obj, i) => {
+          contentQuery += `${i ? "," : ""}\n(${contentKeys.map(key => fixObjForPostgres(obj[key]))})`;
+        });
+        contentQuery += `\nON CONFLICT (id, locale)\nDO UPDATE SET (${contentKeys.join(", ")}) = (${contentKeys.map(key => `EXCLUDED.${key}`).join(", ")})\nRETURNING *;`;
+
+        const contentResp = await db.query(contentQuery).catch(catcher);
+        contentRows = contentResp[0];
+      }
+
       if (verbose) console.log(`Upserted ${contentRows.length} content rows for locale: ${locale}.`);
     }
   }

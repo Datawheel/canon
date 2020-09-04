@@ -35,7 +35,7 @@ module.exports = async function(config) {
             config.db = new Sequelize({
               dialect: "sqlite",
               storage,
-              // logging: false
+              logging: false
             });
           }
           else {

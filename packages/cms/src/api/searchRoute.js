@@ -10,6 +10,8 @@ const {
   OLAP_PROXY_SECRET
 } = process.env;
 
+const engine = process.env.CANON_DB_ENGINE || "postgres";
+
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 let Base58, flickr, sharp, storage;
 if (process.env.FLICKR_API_KEY) {
@@ -44,8 +46,22 @@ if (deepsearchAPI) deepsearchAPI = deepsearchAPI.replace(/\/$/, "");
 const f = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
 const cartesian = (a, b, ...c) => b ? cartesian(f(a, b), ...c) : a;
 
-
 let unaccentExtensionInstalled;
+
+/**
+ * Check only once per boot if the unaccent extention is installed (postgres), otherwise provide a warning.
+ * Install by running: "CREATE EXTENSION IF NOT EXISTS unaccent;";
+ */ 
+const activateUnaccent = async db => {
+  if (engine === "postgres" && typeof unaccentExtensionInstalled === "undefined") {
+    const [unaccentResult, unaccentMetadata] = await db.query("SELECT * FROM pg_extension WHERE extname = 'unaccent';"); //eslint-disable-line
+    unaccentExtensionInstalled = unaccentMetadata.rowCount >= 1;
+    if (!unaccentExtensionInstalled) {
+      console.log("WARNING: For better search results, Consider installing the 'unaccent' extension in Postgres by running: CREATE EXTENSION IF NOT EXISTS unaccent;");
+      console.log("Do not forget to restart the web application after installation.");
+    }
+  }
+}; 
 
 module.exports = function(app) {
 
@@ -294,17 +310,7 @@ module.exports = function(app) {
       }
       if (!deepsearchAPI || deepsearchAPI && !results) {
 
-        // Check just the first time if unaccent Extension is installed.
-        // If not launch a warning and use the fallback search.
-        // Install it running in the db: "CREATE EXTENSION IF NOT EXISTS unaccent;";
-        if (typeof unaccentExtensionInstalled === "undefined") {
-          const [unaccentResult, unaccentMetadata] = await db.query("SELECT * FROM pg_extension WHERE extname = 'unaccent';");
-          unaccentExtensionInstalled = unaccentMetadata.rowCount >= 1;
-          if (!unaccentExtensionInstalled) {
-            console.log("WARNING: For better search results, Consider installing the 'unaccent' extension in Postgres by running: CREATE EXTENSION IF NOT EXISTS unaccent;");
-            console.log("Do not forget to restart the web application after installation.");
-          }
-        }
+        await activateUnaccent(db).catch(catcher);
 
         results = {};
         const {query} = req.query;
@@ -504,17 +510,7 @@ module.exports = function(app) {
     }
     else {
 
-      // Check just the first time if unaccent Extension is installed.
-      // If not launch a warning and use the fallback search.
-      // Install it running in the db: "CREATE EXTENSION IF NOT EXISTS unaccent;";
-      if (typeof unaccentExtensionInstalled === "undefined") {
-        const [unaccentResult, unaccentMetadata] = await db.query("SELECT * FROM pg_extension WHERE extname = 'unaccent';");
-        unaccentExtensionInstalled = unaccentMetadata.rowCount >= 1;
-        if (!unaccentExtensionInstalled) {
-          console.log("WARNING: For better search results, Consider installing the 'unaccent' extension in Postgres by running: CREATE EXTENSION IF NOT EXISTS unaccent;");
-          console.log("Do not forget to restart the web application after installation.");
-        }
-      }
+      await activateUnaccent(db).catch(catcher);
 
       const searchWhere = {};
       if (q) {
