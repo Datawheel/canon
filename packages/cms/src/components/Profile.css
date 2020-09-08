@@ -70,7 +70,7 @@
     background: white;
     background-color: white;
   }
-  & img, & svg, & .cp-grouping-section, & .cp-section-inner {
+  & img, & svg, & .cp-grouping-section {
     page-break-inside: avoid;
   }
   & .cp-viz-container {
