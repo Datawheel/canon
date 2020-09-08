@@ -151,7 +151,7 @@ class Options extends Component {
   }
 
   onSave() {
-    const {title} = this.props;
+    const {mirrorSelector, title} = this.props;
     const {backgroundColor, imageContext, imageFormat} = this.state;
     this.setState({imageProcessing: true});
 
@@ -181,7 +181,7 @@ class Options extends Component {
         node = node.parentNode.cloneNode(true);
 
         // get the mirror, make it visible, and size it
-        const mirror = document.body.querySelector(".mirror");
+        const mirror = document.body.querySelector(mirrorSelector);
         mirror.classList.add("is-visible", `${imageContext}-context`);
         mirror.classList.remove("is-hidden");
         mirror.style.width = `${width}px`;
@@ -548,6 +548,7 @@ class Options extends Component {
 }
 
 Options.defaultProps = {
+  mirrorSelector: ".mirror",
   transitionDuration: 100,
   iconOnly: false
 };
