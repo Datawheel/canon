@@ -288,7 +288,8 @@ class Section extends Component {
             isModal ? " cp-modal-section" : ""
           }`}
           ref={this.section}
-          key={`section-${contents.id}`}
+          id={`cp-section-${contents.id}`}
+          key={`cp-section-${contents.id}`}
         >
           <Layout {...componentProps} />
         </section>
