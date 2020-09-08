@@ -265,7 +265,14 @@ class ProfileRenderer extends Component {
           subtitles: [],
           position: "default",
           type: "SingleColumn",
-          configOverride: {title: false, type: "Table", showPagination: false, minRows: 0}
+          configOverride: {
+            columns: arr => arr.filter(d => !d.includes("ID ") && !d.includes("Slug ")),
+            title: false,
+            type: "Table",
+            defaultPageSize: Number.MAX_VALUE,
+            showPagination: false,
+            minRows: 0
+          }
         }]);
       groupedSections.push([[groupingStubSection], ...printSections]);
     }
