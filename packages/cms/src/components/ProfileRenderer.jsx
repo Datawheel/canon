@@ -240,7 +240,7 @@ class ProfileRenderer extends Component {
           }
         ],
         icon: "",
-        id: "printGroup",
+        id: "data-appendix-group",
         ordering: index,
         position: "default",
         profile_id: 1,
@@ -257,7 +257,7 @@ class ProfileRenderer extends Component {
         .filter(d => d.visualizations.length > 0)
         .map(d => [{
           ...d,
-          id: `print-${d.id}`,
+          id: `data-appendix-${d.id}`,
           ordering: index,
           descriptions: [],
           selectors: [],
