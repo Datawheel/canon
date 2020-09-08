@@ -28,10 +28,8 @@ module.exports = {
       ]
     },
     {
-      host: env.CANON_DB_HOST || "localhost",
-      name: env.CANON_DB_NAME,
-      user: env.CANON_DB_USER,
-      pass: env.CANON_DB_PW,
+      connection: env.CANON_SERVER_SQLITE ||
+        `postgresql://${env.CANON_DB_USER}:${env.CANON_DB_PASS}@${env.CANON_DB_HOST || "localhost"}:${env.CANON_DB_PORT || 5432}/${env.CANON_DB_NAME}`,
       tables: Object.values(cmsModelPaths)
     }
   ]
