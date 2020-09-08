@@ -362,7 +362,7 @@ class Options extends Component {
     const node = this.getNode();
     const svgAvailable = node && select(node).select(".d3plus-viz").size() > 0;
 
-    const columns = results && results[0] ? Object.keys(results[0]).filter(d => d.indexOf("ID ") === -1 && d.indexOf("Slug ") === -1) : [];
+    const columns = results && results[0] ? Object.keys(results[0]).filter(d => !d.includes("ID ") && !d.includes("Slug ")) : [];
 
     const dataURLs = typeof data === "string"
       ? [data] : Array.isArray(data)

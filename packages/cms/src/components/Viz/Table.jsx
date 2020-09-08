@@ -164,13 +164,10 @@ class Table extends Component {
     const {d3plus, print} = this.context;
     config.data = data;
 
-    let columns = [];
-    if (config.columns) {
-      columns = Array.isArray(config.columns) ? config.columns : [config.columns];
-    }
-    else {
-      columns = data.length ? Object.keys(data[0]) : [];
-    }
+    let columns = data.length ? Object.keys(data[0]) : [];
+    if (Array.isArray(config.columns)) columns = config.columns;
+    else if (typeof config.columns === "string") columns = [config.columns];
+    else if (typeof config.columns === "function") columns = config.columns(columns);
 
     const tableStructure = columns.map(col => {
       // if the current column is a string alone, render the column
@@ -213,7 +210,7 @@ class Table extends Component {
             className={`cp-table ${loading ? "cp-table-loading" : ""}`}
             columns={tableStructure}
           />
-          : console.log("Error: array with undefined returned in Table `columns` prop")
+          : null
         }
         {loading && <div className="cp-loading" dangerouslySetInnerHTML={{__html: config.loadingHTML || d3plus.loadingHTML}} />}
       </div>
