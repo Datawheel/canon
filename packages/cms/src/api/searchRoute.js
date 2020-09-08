@@ -370,13 +370,14 @@ module.exports = function(app) {
 
           }
           else {
+            const like = engine === "postgres" ? sequelize.Op.iLike : sequelize.Op.like;
             // Where by name: Use simple ilike query if unaccent extension doesn't exists.
-            orArray.push({name: {[sequelize.Op.iLike]: `%${term}%`}});
+            orArray.push({name: {[like]: `%${term}%`}});
           }
         });
 
         // Where by keywords: Add simple overlap to look into keywords if unaccent extension doesn't exists.
-        if (!unaccentExtensionInstalled) {
+        if (engine === "postgres" && !unaccentExtensionInstalled) {
           orArray.push({keywords: {[sequelize.Op.overlap]: [query]}});
         }
 
@@ -581,11 +582,16 @@ module.exports = function(app) {
         }
         // Use regular ilike search if unaccent is not installed.
         else {
-          where[sequelize.Op.or] = [
-            {name: {[sequelize.Op.iLike]: `%${q}%`}},
-            {keywords: {[sequelize.Op.overlap]: [q]}}
-            // Todo - search attr and imagecontent for query
-          ];
+          if (engine === "postgres") {
+            where[sequelize.Op.or] = [
+              {name: {[sequelize.Op.iLike]: `%${q}%`}},
+              {keywords: {[sequelize.Op.overlap]: [q]}}
+              // Todo - search attr and imagecontent for query
+            ];
+          }
+          else {
+            where.name = {[sequelize.Op.like]: `%${q}%`};
+          }
         }
 
         if (locale !== "all") where.locale = locale;

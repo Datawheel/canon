@@ -570,9 +570,13 @@ module.exports = function(app) {
         if (!original || !other) return res.json([]);
         const originalTarget = other.ordering;
         const otherTarget = original.ordering;
-        const newOriginal = await db[ref].update({ordering: originalTarget}, {where: {id}, returning: true, plain: true}).catch(catcher);
-        const newOther = await db[ref].update({ordering: otherTarget}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher);
-        return res.json([newOriginal[1], newOther[1]]);
+        // Update Original
+        await db[ref].update({ordering: originalTarget}, {where: {id}}).catch(catcher);
+        const newOriginal = await db[ref].findOne({where: {id}}).catch(catcher);
+        // Update Other
+        await db[ref].update({ordering: otherTarget}, {where: {id: other.id}}).catch(catcher);
+        const newOther = await db[ref].findOne({where: {id: other.id}}).catch(catcher);
+        return res.json([newOriginal, newOther]);
       });
     });
   });
