@@ -331,7 +331,7 @@ module.exports = function(app) {
     // Inject cms_search-level slugs into the payload to help with making front-end links
     for (let i = 0; i < requests.length; i++) {
       try {
-        const thisURL = requests[i];
+        const thisURL = urlSwap(requests[i], {...req.params, ...cache, ...smallAttr, ...canonVars, locale});
         const thisResult = results[i].data && results[i].data.data ? results[i].data.data : [];
         const paramObject = Object.fromEntries(new URLSearchParams(thisURL));
         if (paramObject.slugs && thisResult.length > 0) {
