@@ -77,7 +77,8 @@ const rowToResult = (row, locale) => {
       cube_name: row.cubeName
     },
     id: row.slug,
-    keywords: content && content.keywords ? content.keywords.join : ""
+    keywords: content && content.keywords ? content.keywords.join : "",
+    attr: content && content.attr ? content.attr : {}
   };
 };
 
@@ -272,25 +273,6 @@ module.exports = function(app) {
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
     let results = {};
-
-    // Convert a legacy-style search result into a scaffolded faked version of what the deepsearch API returns.
-    // This allows us to use the same collating code below, whether the results came from legacy or deepsearch.
-    const rowToResult = row => {
-      const content = row.content.find(c => c.locale === locale);
-      return {
-        name: content ? content.name : "",
-        confidence: row.zvalue,
-        metadata: {
-          id: row.id,
-          slug: row.slug,
-          hierarchy: row.hierarchy,
-          cube_name: row.cubeName
-        },
-        id: row.slug,
-        keywords: content && content.keywords ? content.keywords.join : "",
-        attr: content && content.attr ? content.attr : {}
-      };
-    };
 
     // If the user has provided no query, gather a sampling of top zvalue members for every possible profile
     if (!req.query.query || req.query.query === "") {

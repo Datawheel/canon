@@ -716,55 +716,6 @@ module.exports = function(app) {
         return res.json({error: `Profile not found for id: ${pid}`, errorCode: 404});
       }
     }
-    // Given an object with completely built returnVariables, a hash array of formatter functions, and the profile itself
-    // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
-    // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
-    if (verbose) console.log("Variables Loaded, starting varSwap...");
-    // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
-    // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
-    // which power the actual rendered dropdowns on the front-end profile page.
-    const allSelectors = await db.selector.findAll({where: {profile_id: profile.id}}).catch(catcher);
-    profile.allSelectors = allSelectors.map(selector => selector.toJSON());
-    // Some of the section-level selectors are dynamic. This means that their "options" field isn't truly
-    // populated, it's just a reference to a user-defined variable. Scaffold out the dynamic selectors
-    // into "real ones" so that all the ensuing logic can treat them as if they were normal.
-    profile.sections.forEach(section => {
-      section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
-    });
-    // Before sending the profiles down to be varswapped, remember that some sections have groupings. If a grouping
-    // has been set to NOT be visible, then its "virtual children" should not be visible either. Copy the outer grouping's
-    // visible prop down to the child sections so they get hidden in the same manner.
-    let latestGrouping = {};
-    profile.sections.forEach(section => {
-      if (section.type === "Grouping") {
-        latestGrouping = section;
-      }
-      else {
-        // Get the visibility of the parent group
-        const parentGroupingAllowed = !latestGrouping.allowed || latestGrouping.allowed === "always" || variables[latestGrouping.allowed];
-        // If the parent group is invisible, copy its allowed setting down into this section.
-        if (!parentGroupingAllowed) {
-          section.allowed = latestGrouping.allowed;
-        }
-      }
-    });
-    profile = varSwapRecursive(profile, formatterFunctions, variables, req.query);
-    // If the user provided selectors in the query, then the user has changed a dropdown.
-    // This means that OTHER dropdowns on the page need to be set to match. To accomplish
-    // this, hijack the "default" property on any matching selector so the dropdowns "start"
-    // where we want them to.
-    profile.sections.forEach(section => {
-      section.selectors.forEach(selector => {
-        const {name, options} = selector;
-        const selections = req.query[name] !== undefined ? req.query[name].split(",") : false;
-        // If the user provided a selector in the query, AND if it's actually an option
-        // However, remember that a multi-select with a blank query param is valid
-        const isBlankMulti = selector.type === "multi" && selections.length === 1 && selections[0] === "";
-        if (selections && (selections.every(sel => options.map(o => o.option).includes(sel)) || isBlankMulti)) {
-          selector.default = req.query[name];
-        }
-      });
-    });
     // If the user provided a section ID in the query, that's all they want. Filter to return just that.
     if (sectionID) {
       profile.sections = profile.sections.filter(t => Number(t.id) === Number(sectionID) || t.slug === sectionID);
