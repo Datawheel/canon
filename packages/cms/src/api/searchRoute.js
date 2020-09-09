@@ -52,9 +52,9 @@ let unaccentExtensionInstalled;
  * Check only once per boot if the unaccent extention is installed (postgres), otherwise provide a warning.
  * Install by running: "CREATE EXTENSION IF NOT EXISTS unaccent;";
  */ 
-const activateUnaccent = async db => {
+const activateUnaccent = async dbQuery => {
   if (engine === "postgres" && typeof unaccentExtensionInstalled === "undefined") {
-    const [unaccentResult, unaccentMetadata] = await db.query("SELECT * FROM pg_extension WHERE extname = 'unaccent';"); //eslint-disable-line
+    const [unaccentResult, unaccentMetadata] = await dbQuery("SELECT * FROM pg_extension WHERE extname = 'unaccent';"); //eslint-disable-line
     unaccentExtensionInstalled = unaccentMetadata.rowCount >= 1;
     if (!unaccentExtensionInstalled) {
       console.log("WARNING: For better search results, Consider installing the 'unaccent' extension in Postgres by running: CREATE EXTENSION IF NOT EXISTS unaccent;");
@@ -93,8 +93,21 @@ const rowToResult = (row, locale) => {
       cube_name: row.cubeName
     },
     id: row.slug,
-    keywords: content && content.keywords ? content.keywords.join : ""
+    keywords: content && content.keywords ? content.keywords.join : "",
+    attr: content && content.attr ? content.attr : {}
   };
+};
+
+// https://stackoverflow.com/questions/16282083/how-to-ignore-accent-in-sqlite-query-android
+const globify = name => {
+  if (!name || typeof name !== "string") return name;
+  return name.toLowerCase()
+    .replace(/[aáàäâã]/g, "[aáàäâã]")
+    .replace(/[eéèëê]/g, "[eéèëê]")
+    .replace(/[iíìî]/g, "[iíìî]")
+    .replace(/[oóòöôõ]/g, "[oóòöôõ]")
+    .replace(/[uúùüû]/g, "[uúùüû]")
+    .replace(/[nñ]/g, "[nñ]");
 };
 
 module.exports = function(app) {
@@ -289,25 +302,6 @@ module.exports = function(app) {
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
     let results = {};
 
-    // Convert a legacy-style search result into a scaffolded faked version of what the deepsearch API returns.
-    // This allows us to use the same collating code below, whether the results came from legacy or deepsearch.
-    const rowToResult = row => {
-      const content = row.content.find(c => c.locale === locale);
-      return {
-        name: content ? content.name : "",
-        confidence: row.zvalue,
-        metadata: {
-          id: row.id,
-          slug: row.slug,
-          hierarchy: row.hierarchy,
-          cube_name: row.cubeName
-        },
-        id: row.slug,
-        keywords: content && content.keywords ? content.keywords.join : "",
-        attr: content && content.attr ? content.attr : {}
-      };
-    };
-
     // If the user has provided no query, gather a sampling of top zvalue members for every possible profile
     if (!req.query.query || req.query.query === "") {
       results.origin = "legacy";
@@ -341,7 +335,7 @@ module.exports = function(app) {
       }
       if (!deepsearchAPI || deepsearchAPI && !results) {
 
-        await activateUnaccent(db).catch(catcher);
+        await activateUnaccent(dbQuery).catch(catcher);
 
         results = {};
         const {query} = req.query;
@@ -561,7 +555,7 @@ module.exports = function(app) {
     }
     else {
 
-      await activateUnaccent(db).catch(catcher);
+      await activateUnaccent(dbQuery).catch(catcher);
 
       const searchWhere = {};
       if (q) {
@@ -590,7 +584,9 @@ module.exports = function(app) {
             ];
           }
           else {
-            where.name = {[sequelize.Op.like]: `%${q}%`};
+            where.id = {
+              [sequelize.Op.in]: [sequelize.literal(`SELECT id FROM canon_cms_search_content WHERE lower("name") GLOB "*${globify(q)}*"`)]
+            };
           }
         }
 
