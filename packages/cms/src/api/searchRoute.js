@@ -1,4 +1,5 @@
 const sequelize = require("sequelize");
+const {QueryTypes} = sequelize;
 const yn = require("yn");
 const d3Array = require("d3-array");
 const jwt = require("jsonwebtoken");
@@ -584,9 +585,12 @@ module.exports = function(app) {
             ];
           }
           else {
-            where.id = {
-              [sequelize.Op.in]: [sequelize.literal(`SELECT id FROM canon_cms_search_content WHERE lower("name") GLOB "*${globify(q)}*"`)]
+            const config = {
+              replacements: [`*${globify(q)}*`],
+              type: QueryTypes.SELECT
             };
+            const ids = await dbQuery("SELECT id FROM canon_cms_search_content WHERE lower(\"name\") GLOB ?", config).catch(catcher);
+            where.id = ids.map(d => d.id);
           }
         }
 
