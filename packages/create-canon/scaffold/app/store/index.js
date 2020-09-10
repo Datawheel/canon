@@ -16,7 +16,7 @@ if (__DEV__ && !__SERVER__) {
   // You can apply any of these recipes freely
   // https://www.npmjs.com/package/redux-logger#recipes
   const loggerMiddleware = createLogger({
-    collapsed: (getState, action, logEntry) => !logEntry?.error
+    collapsed: (getState, action, logEntry) => !logEntry || !logEntry.error
   });
   middleware.push(loggerMiddleware);
 }
