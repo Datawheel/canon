@@ -111,6 +111,28 @@ const globify = name => {
     .replace(/[nñ]/g, "[nñ]");
 };
 
+const sqliteIdsByQuery = async (dbQuery, query) => {
+  const config = {
+    replacements: [`*${globify(query)}*`],
+    type: QueryTypes.SELECT
+  };
+  const ids = await dbQuery("SELECT id FROM canon_cms_search_content WHERE lower(\"name\") GLOB ?", config).catch(catcher);
+  const krows = await dbQuery("SELECT id, keywords FROM canon_cms_search_content WHERE keywords NOT NULL", {type: QueryTypes.SELECT}).catch(catcher);
+  let kwids = [];
+  // SQLite does not have an array type, and therefore can't use the overlap/includes function of psql.
+  // Keywords are used sparingly, so for feature parity, do some js-level finding here. Not ideal, but it works.
+  try {
+    kwids = krows.reduce((acc, krow) => JSON.parse(krow.keywords).find(d => d.includes(query)) ? acc.concat(krow.id) : acc, []);  
+  }
+  catch (e) {
+    if (verbose) console.error(`Error parsing keywords in profileSearch for query: ${query}`);
+  }
+  let returnids = ids.map(d => d.id);
+  if (kwids.length > 0) returnids = returnids.concat(kwids);
+  return returnids;
+}
+
+
 module.exports = function(app) {
 
   const {db} = app.settings;
@@ -344,7 +366,7 @@ module.exports = function(app) {
         const searchWhere = {};
         const terms = query.split(" ");
         const orArray = [];
-        terms.forEach(term => {
+        for (const term of terms) {
 
           // Use unaccent extension from postgres if exists.
           if (unaccentExtensionInstalled) {
@@ -365,18 +387,21 @@ module.exports = function(app) {
 
           }
           else {
-            const like = engine === "postgres" ? sequelize.Op.iLike : sequelize.Op.like;
-            // Where by name: Use simple ilike query if unaccent extension doesn't exists.
-            orArray.push({name: {[like]: `%${term}%`}});
+            if (engine === "postgres") {
+              orArray.push({name: {[sequelize.Op.iLike]: `%${term}%`}});
+            }
+            else {
+              where.id = await sqliteIdsByQuery(dbQuery, term).catch(catcher);
+            }
           }
-        });
+        };
 
         // Where by keywords: Add simple overlap to look into keywords if unaccent extension doesn't exists.
         if (engine === "postgres" && !unaccentExtensionInstalled) {
           orArray.push({keywords: {[sequelize.Op.overlap]: [query]}});
         }
 
-        where[sequelize.Op.or] = orArray;
+        if (orArray.length > 0) where[sequelize.Op.or] = orArray;
         where.locale = locale;
         const contentRows = await db.search_content.findAll({where}).catch(catcher);
         searchWhere.contentId = Array.from(new Set(contentRows.map(r => r.id)));
@@ -585,12 +610,7 @@ module.exports = function(app) {
             ];
           }
           else {
-            const config = {
-              replacements: [`*${globify(q)}*`],
-              type: QueryTypes.SELECT
-            };
-            const ids = await dbQuery("SELECT id FROM canon_cms_search_content WHERE lower(\"name\") GLOB ?", config).catch(catcher);
-            where.id = ids.map(d => d.id);
+            where.id = await sqliteIdsByQuery(dbQuery, q).catch(catcher);
           }
         }
 
