@@ -13,6 +13,7 @@ Content Management System for Canon sites.
 * [Custom Visualizations](#custom-visualizations)
 * [Hidden Profiles](#hidden-profiles)
 * [Search](#search)
+* [PDF Printing](#pdf-printing)
 * [Advanced Generator Techniques](#advanced-generator-techniques)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
 * [Advanced Selector Techniques](#advanced-selector-techniques)
@@ -520,6 +521,51 @@ If you would prefer to build your own search component, the DeepSearch API is av
 |`min_confidence`|Confidence threshold (Deepsearch Only)|
 
 Results will be returned in a response object that includes metadata on the results. Matching members separated by profile can be found in the `profiles` key of the response object. A single grouped list of all matching profiles can be found in the `grouped` key of the response object.
+
+---
+
+## PDF Printing
+
+ALl CMS profiles will contain a "Download as PDF" button in their hero section, which allows users to download the entire page as 1 long PDF file.
+
+#### Deployment
+
+The PDF Printing in the CMS utilizes the Puppeteer library to handle the heavy lifting of generating the PDFs on the server (it is a headless browser). Most issues deploying to a production server can be solved by their [troubleshooting support doc](https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#chrome-headless-doesnt-launch-on-unix), but for most cases the following steps will have to be done on a new server:
+
+##### Install UNIX dependencies (Debian/Ubuntu)
+
+```sh
+sudo apt-get ca-certificates fonts-liberation libappindicator3-1 libasound2 libatk-bridge2.0-0 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 lsb-release wget xdg-utils
+```
+
+##### Install UNIX dependencies (CentOS)
+
+```sh
+sudo yum update
+```
+
+```sh
+sudo yum install alsa-lib.x86_64 atk.x86_64 cups-libs.x86_64 gtk3.x86_64 ipa-gothic-fonts libXcomposite.x86_64 libXcursor.x86_64 libXdamage.x86_64 libXext.x86_64 libXi.x86_64 libXrandr.x86_64 libXScrnSaver.x86_64 libXtst.x86_64 pango.x86_64 xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-fonts-cyrillic xorg-x11-fonts-misc xorg-x11-fonts-Type1 xorg-x11-utils
+```
+
+```sh
+sudo yum update nss -y
+```
+
+
+#### React Component
+
+The CMS package exports a `<PDFButton />` component that can theoretically be placed on any page. This button handles all of the round-trip logic for generating a PDF of the current page, so implementation should be drop-in. Here are the available props and their defaults:
+
+```jsx
+import {PDFButton} from "@datawheel/canon-cms";
+...
+<PDFButton
+  className="" // a custom class attribute for the button itself
+  filename="your-file-name" // the name of the resulting PDF file downloaded
+  pdfOptions={{}} // additional options to pass the puppeteer.pdf function (custom headers, footers, sizing, etc)
+/>
+```
 
 ---
 
