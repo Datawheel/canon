@@ -147,7 +147,7 @@ export CANON_CONST_STORAGE_BUCKET=your_bucketname
 
 #### 2) Create and Download a JSON Token
 
-Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create a JSON token with "Storage -> Storage Object Admin" permissions.
+Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create a JSON token with "Cloud Storage -> Storage Admin" permissions.
 
 Save the JSON token to disk and set its permissions to `644`.
 ```sh
