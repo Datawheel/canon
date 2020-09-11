@@ -104,7 +104,7 @@ class MetaEditor extends Component {
         else if (context === "keywords") {
           const content = row.content.find(c => c.locale === locale);
           if (content) {
-            content.keywords = value.replace(/\"/g, "").replace(/,\s/g, ",");
+            content.keywords = value.replace(/\"/g, "").replace(/,\s/g, ",").replace(/\s,/g, ",");
           }
           return row;
         }
