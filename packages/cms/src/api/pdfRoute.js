@@ -1,5 +1,9 @@
 const puppeteer = require("puppeteer");
 const {assign} = require("d3plus-common");
+const {
+  CANON_CMS_HTACCESS_USER,
+  CANON_CMS_HTACCESS_PW
+} = process.env;
 
 const style = `
 <style>
@@ -60,6 +64,9 @@ const generate = async(path, userOptions = {}) => {
 
   const page = await browser.newPage();
 
+  if (CANON_CMS_HTACCESS_USER && CANON_CMS_HTACCESS_PW) {
+    await page.authenticate({username: CANON_CMS_HTACCESS_USER, password: CANON_CMS_HTACCESS_PW});
+  }
   await page.goto(path, {waitUntil: "networkidle2"});
   const pdf = await page.pdf(assign({width, height}, defaultOptions, userOptions));
 
