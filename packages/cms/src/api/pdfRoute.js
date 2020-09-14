@@ -53,6 +53,9 @@ const generate = async(path, userOptions = {}, viewportOptions = {}) => {
   const height = Math.round(width / 8.5 * 11);
 
   const browser = await puppeteer.launch({
+    args: [
+      `--window-size=${width},${height}`
+    ],
     defaultViewport: assign({width, height}, viewportOptions),
     headless: true
   });
