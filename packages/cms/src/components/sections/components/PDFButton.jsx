@@ -23,12 +23,12 @@ class PDFButton extends Component {
       const {router} = this.context;
       const {location} = router;
       const {pathname, query} = location;
-      const {filename, pdfOptions} = this.props;
+      const {filename, pdfOptions, viewportOptions} = this.props;
 
       const url = "/api/pdf";
       const queryString = Object.entries({...query, print: true}).map(([key, val]) => `${key}=${val}`).join("&");
       const path = `${pathname}?${queryString}`;
-      const payload = {path, pdfOptions};
+      const payload = {path, pdfOptions, viewportOptions};
       const config = {responseType: "arraybuffer", headers: {Accept: "application/pdf"}};
       this.setState({saving: true});
 

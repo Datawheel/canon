@@ -47,18 +47,13 @@ ${style}
   printBackground: true
 };
 
-const generate = async(path, userOptions = {}) => {
+const generate = async(path, userOptions = {}, viewportOptions = {}) => {
 
   const width = 1200;
   const height = Math.round(width / 8.5 * 11);
 
   const browser = await puppeteer.launch({
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      `--window-size=${width},${height}`
-    ],
-    defaultViewport: null,
+    defaultViewport: assign({width, height}, viewportOptions),
     headless: true
   });
 
