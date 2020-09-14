@@ -78,7 +78,7 @@ module.exports = function(app) {
   app.post("/api/pdf", async(req, res) => {
     res.connection.setTimeout(1000 * 60 * 5);
     const path = `${req.protocol}://${req.headers.host}/${req.body.path}`;
-    const pdf = await generate(path, req.body.pdfOptions);
+    const pdf = await generate(path, req.body.pdfOptions, req.body.viewportOptions);
     res.set({"Content-Type": "application/pdf", "Content-Length": pdf.length});
     return res.send(pdf);
   });
