@@ -554,6 +554,14 @@ sudo yum install alsa-lib.x86_64 atk.x86_64 cups-libs.x86_64 gtk3.x86_64 ipa-got
 sudo yum update nss -y
 ```
 
+##### Enable namespaces (CentOS)
+
+Chromium requires a sandboxed namespace in which to run its headless browser. Note that the following statement may require you to be the root user, in which case you should `sudo su` before executing.
+
+```sh
+echo 10000 > /proc/sys/user/max_user_namespaces
+```
+
 
 #### React Component
 
