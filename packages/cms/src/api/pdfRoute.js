@@ -57,7 +57,8 @@ const generate = async(path, userOptions = {}, viewportOptions = {}) => {
       `--window-size=${width},${height}`
     ],
     defaultViewport: assign({width, height}, viewportOptions),
-    headless: true
+    headless: true,
+    ignoreHTTPSErrors: true
   });
 
   const page = await browser.newPage();
