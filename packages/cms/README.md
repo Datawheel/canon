@@ -57,7 +57,7 @@ module.exports = {
     tables: [
       require("@datawheel/canon-core/models"),
       require("@datawheel/canon-cms/models")
-    )
+    ]
   }]
   ...,
 };
@@ -86,7 +86,7 @@ export CANON_LANGUAGES=pt,es,ru,et
 
 Canon CMS requires a `canon-cms` specific env var for the current location of your mondrian or tesseract installation.
 ```sh
-export CANON_CMS_CUBES=https://tesseract-url.com/
+export CANON_CMS_CUBES=https://tesseract-url.com/tesseract
 ```
 
 By default, the CMS will only be enabled on development environments. If you wish to enable the CMS on production, see the `CANON_CMS_ENABLE` in [Environment Variables](#environment-variables) below.
@@ -97,7 +97,7 @@ export CANON_API=http://localhost:3300
 export CANON_LANGUAGE_DEFAULT=en
 export CANON_LANGUAGES=pt,es,ru,et
 export CANON_DB_CONNECTION_STRING=postgresql://dbuser:dbpass@dbhost:dbport/dbname
-export CANON_CMS_CUBES=https://tesseract-url.com/
+export CANON_CMS_CUBES=https://tesseract-url.com/tesseract
 ```
 
 Remember the `CANON_DB_CONNECTION_STRING` is up to you, depending on how did you configure the DB on the `canon.js` file.
@@ -113,12 +113,14 @@ import {Builder} from "@datawheel/canon-cms";
 
 #### 5) Configure Redux
 
-The CMS state state is managed from the site-wide redux state. In `app/reducers/index.js`, import the reducer function and assign it to the `cms` key:
+The CMS state state is managed from the site-wide redux state. In `app/store/index.js`, import the reducer function and assign it to the `cms` key:
 
 ```js
 import {cmsReducer} from "@datawheel/canon-cms";
 
-export default {
+(...)
+
+export const reducers = {
   cms: cmsReducer
 };
 ```
