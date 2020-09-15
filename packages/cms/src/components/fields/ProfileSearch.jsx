@@ -318,7 +318,7 @@ class ProfileSearch extends Component {
                             <li key={`r-${j}`} className="cms-profilesearch-list-item">
                               <Link to={linkify(router, result, locale)} className="cms-profilesearch-list-item-link">
                                 {result.map(d => formatTitle(d.name)).join(joiner)}
-                                <div className="cms-profilesearch-list-item-sub u-font-xs">{result.map(subtitleFormat).join(joiner)}</div>
+                                <div className="cms-profilesearch-list-item-sub u-font-xs">{result.map(d => t(subtitleFormat(d))).join(joiner)}</div>
                               </Link>
                             </li>
                           )}
