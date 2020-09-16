@@ -351,9 +351,13 @@ module.exports = function(app) {
           }
         });
 
-        // Where by keywords: Add simple overlap to look into keywords if unaccent extension doesn't exists.
+        // Keywords are stored as an array but arrays can't use LIKE. cast to varchar and search.
         if (!unaccentExtensionInstalled) {
-          orArray.push({keywords: {[sequelize.Op.overlap]: [query]}});
+          orArray.push(
+            sequelize.where(
+              sequelize.cast(sequelize.col("keywords"), "varchar"),
+              {[sequelize.Op.iLike]: `%${query}%`}))
+          ;
         }
 
         where[sequelize.Op.or] = orArray;
@@ -569,7 +573,9 @@ module.exports = function(app) {
         else {
           where[sequelize.Op.or] = [
             {name: {[sequelize.Op.iLike]: `%${q}%`}},
-            {keywords: {[sequelize.Op.overlap]: [q]}}
+            sequelize.where(
+              sequelize.cast(sequelize.col("keywords"), "varchar"),
+              {[sequelize.Op.iLike]: `%${q}%`})
             // Todo - search attr and imagecontent for query
           ];
         }
