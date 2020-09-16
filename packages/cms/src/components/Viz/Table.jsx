@@ -5,6 +5,8 @@ import {withNamespaces} from "react-i18next";
 import abbreviate from "../../utils/formatters/abbreviate";
 import stripHTML from "../../utils/formatters/stripHTML";
 import {max, min, sum} from "d3-array";
+import {withSize} from "react-sizeme";
+import {scaleLinear} from "d3-scale";
 
 import {Icon} from "@blueprintjs/core";
 import ReactTable from "react-table";
@@ -135,10 +137,14 @@ class Table extends Component {
     const minWidth = min([200, max([padding * 2, columnWidth])]);
 
     return Object.assign({}, {
-      Header: <button className="cp-table-header-button">
-        {title} <span className="u-visually-hidden">, sort by column</span>
-        <Icon className="cp-table-header-icon" icon="caret-down" />
-      </button>,
+      Header: print
+        ? <button className="cp-table-header-button">
+          {title}
+        </button>
+        : <button className="cp-table-header-button">
+          {title} <span className="u-visually-hidden">, sort by column</span>
+          <Icon className="cp-table-header-icon" icon="caret-down" />
+        </button>,
       id: col,
       accessor: d => d[col],
       minWidth,
@@ -153,17 +159,15 @@ class Table extends Component {
   render() {
 
     const {data, loading} = this.state;
-    const {minRowsForPagination, t} = this.props;
+    const {minRowsForPagination, size, t} = this.props;
     const config = {...this.props.config};
-    const {d3plus} = this.context;
+    const {d3plus, print} = this.context;
     config.data = data;
 
-    // check that we have a valid columns object
-    const columns = config.columns &&
-      // it it's array, use it as-is; otherwise, make it an array
-      Array.isArray(config.columns) ? config.columns : [config.columns] ||
-      // otherwise, make an array from all available columns
-      Object.keys(data.length ? data[0] : {});
+    let columns = data.length ? Object.keys(data[0]) : [];
+    if (Array.isArray(config.columns)) columns = config.columns;
+    else if (typeof config.columns === "string") columns = [config.columns];
+    else if (typeof config.columns === "function") columns = config.columns(columns);
 
     const tableStructure = columns.map(col => {
       // if the current column is a string alone, render the column
@@ -176,10 +180,24 @@ class Table extends Component {
       else return {};
     }).filter(Boolean); // handle malformed tables
 
+    if (print && typeof window !== "undefined") {
+      const totalWidth = sum(tableStructure, d => d.minWidth);
+      const widthScale = scaleLinear()
+        .domain([0, totalWidth])
+        .range([0, size.width - 6]);
+      tableStructure
+        .forEach(col => {
+          col.maxWidth = undefined;
+          col.minWidth = widthScale(col.minWidth);
+        });
+    }
+
     return (
       <div className="cp-table-wrapper" ref={this.viz}>
         {tableStructure.length
           ? <ReactTable
+            resizable={!print}
+            sortable={!print}
             loadingText={t("CMS.Table.Loading")}
             nextText={t("CMS.Table.Next")}
             noDataText={t("CMS.Table.No rows found")}
@@ -192,7 +210,7 @@ class Table extends Component {
             className={`cp-table ${loading ? "cp-table-loading" : ""}`}
             columns={tableStructure}
           />
-          : console.log("Error: array with undefined returned in Table `columns` prop")
+          : null
         }
         {loading && <div className="cp-loading" dangerouslySetInnerHTML={{__html: config.loadingHTML || d3plus.loadingHTML}} />}
       </div>
@@ -201,11 +219,12 @@ class Table extends Component {
 }
 
 Table.contextTypes = {
-  d3plus: PropTypes.object
+  d3plus: PropTypes.object,
+  print: PropTypes.bool
 };
 
 Table.defaultProps = {
   minRowsForPagination: 15
 };
 
-export default withNamespaces()(Table);
+export default withNamespaces()(withSize()(Table));

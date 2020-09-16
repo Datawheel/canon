@@ -10,7 +10,10 @@ Content Management System for Canon sites.
 * [Environment Variables](#environment-variables)
 * [Sections](#sections)
 * [Custom Sections](#custom-sections)
+* [Custom Visualizations](#custom-visualizations)
+* [Hidden Profiles](#hidden-profiles)
 * [Search](#search)
+* [PDF Printing](#pdf-printing)
 * [Advanced Generator Techniques](#advanced-generator-techniques)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
 * [Advanced Selector Techniques](#advanced-selector-techniques)
@@ -42,7 +45,29 @@ Canon CMS is a package for `canon`. These instructions assume you have installed
 
 `npm i @datawheel/canon-cms`
 
-#### 2) Configure `canon` vars
+#### 2) Configure the database models in the `canon.js` file
+
+Canon CMS uses the `canon`-level user model to handle authentication and edit permissions, in addition to some other models to store the content. You must configure these modules manually on the application's `canon.js` file:
+
+```js
+module.exports = {
+  ...,
+  db: [{
+    connection: process.env.CANON_DB_CONNECTION_STRING,
+    tables: [
+      require("@datawheel/canon-core/models"),
+      require("@datawheel/canon-cms/models")
+    ]
+  }]
+  ...,
+};
+```
+
+You can then set the connection parameters in the environment variables, using the keys you set in the code. Check the documentation for canon-core's DB configuration for more info on how the setup works.
+
+Please note Canon CMS currently only supports Postgres.
+
+#### 3) Configure `canon` vars
 
 There are a number of [canon-core environment variables](https://github.com/Datawheel/canon#additional-environment-variables) that `canon-cms` relies on. Ensure that the the following env vars are set.
 
@@ -57,32 +82,25 @@ export CANON_LANGUAGE_DEFAULT=en
 export CANON_LANGUAGES=pt,es,ru,et
 ```
 
-Canon CMS makes use of `canon`-level db credentials to store its content. Currently Canon CMS only supports Postgres.
-```sh
-export CANON_DB_USER=dbuser
-export CANON_DB_NAME=dbname
-export CANON_DB_HOST=dbhost
-```
-
-#### 3) Configure `canon-cms` vars
+#### 4) Configure `canon-cms` vars
 
 Canon CMS requires a `canon-cms` specific env var for the current location of your mondrian or tesseract installation.
 ```sh
-export CANON_CMS_CUBES=https://tesseract-url.com/
+export CANON_CMS_CUBES=https://tesseract-url.com/tesseract
 ```
 
 By default, the CMS will only be enabled on development environments. If you wish to enable the CMS on production, see the `CANON_CMS_ENABLE` in [Environment Variables](#environment-variables) below.
 
-In total, your env vars should now look like this:
+In summary, your env vars should now look like this:
 ```sh
 export CANON_API=http://localhost:3300
 export CANON_LANGUAGE_DEFAULT=en
 export CANON_LANGUAGES=pt,es,ru,et
-export CANON_DB_USER=dbuser
-export CANON_DB_NAME=dbname
-export CANON_DB_HOST=dbhost
-export CANON_CMS_CUBES=https://tesseract-url.com/
+export CANON_DB_CONNECTION_STRING=postgresql://dbuser:dbpass@dbhost:dbport/dbname
+export CANON_CMS_CUBES=https://tesseract-url.com/tesseract
 ```
+
+Remember the `CANON_DB_CONNECTION_STRING` is up to you, depending on how did you configure the DB on the `canon.js` file.
 
 #### 4) Add the Builder Component to a route
 ```jsx
@@ -95,12 +113,14 @@ import {Builder} from "@datawheel/canon-cms";
 
 #### 5) Configure Redux
 
-The CMS state state is managed from the site-wide redux state. In `app/reducers/index.js`, import the reducer function and assign it to the `cms` key:
+The CMS state state is managed from the site-wide redux state. In `app/store/index.js`, import the reducer function and assign it to the `cms` key:
 
 ```js
 import {cmsReducer} from "@datawheel/canon-cms";
 
-export default {
+(...)
+
+export const reducers = {
   cms: cmsReducer
 };
 ```
@@ -129,7 +149,7 @@ export CANON_CONST_STORAGE_BUCKET=your_bucketname
 
 #### 2) Create and Download a JSON Token
 
-Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create a JSON token with "Storage -> Storage Object Admin" permissions.
+Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create a JSON token with "Cloud Storage -> Storage Admin" permissions.
 
 Save the JSON token to disk and set its permissions to `644`.
 ```sh
@@ -230,7 +250,10 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 |`CANON_CMS_MINIMUM_ROLE`|The minimum integer value for a Canon user `role` to access the CMS|`1`|
 |`CANON_CMS_LOGGING`|Enable verbose logging in console.|`false`|
 |`CANON_CMS_REQUESTS_PER_SECOND`|Sets the `requestsPerSecond` value in the [promise-throttle](https://www.npmjs.com/package/promise-throttle) library, used for rate-limiting Generator requests|20|
+|`CANON_CMS_GENERATOR_TIMEOUT`|The number of ms after which a generator request times out, defaults to 5s. Increase this if you are making heavy requests that exceed 5s|5000|
 |`CANON_CMS_DEEPSEARCH_API`|Server location of Deepsearch API|`undefined`|
+|`CANON_CMS_HTACCESS_USER`|Authentication user for PDF generation on .htaccess protected pages|`undefined`|
+|`CANON_CMS_HTACCESS_PW`|Authentication password for PDF generation on .htaccess protected pages|`undefined`|
 |`FLICKR_API_KEY`|Used to configure Flickr Authentication|`undefined`|
 |`GOOGLE_APPLICATION_CREDENTIALS`|Path to JSON token file for Cloud Storage|`undefined`|
 |`CANON_CONST_STORAGE_BUCKET`|Name of Google Cloud Storage Bucket|`undefined`|
@@ -406,6 +429,22 @@ export {default as CustomViz2} from "./CustomViz2.jsx";
 
 ---
 
+## Hidden Profiles
+
+#### Profile visibility
+
+Profiles have a `Visibility` Dropdown in the Profile Editor panel that may be set to `Hidden` for pre-production profiles. Hiding a Profile will result in all profile paths returning a 404, as well as all legacy search endpoints excluding it from results (Note: Deepsearch is not included in this behavior, it must access the `canon-cms` db directly to mirror this behavior).
+
+#### Variant Visibility
+
+Individual profile variants can also be hidden, which will result in the same behavior as above. Importantly, *profile visibility always trumps variant visibility*.
+
+#### A note on search
+
+The `/api/search` legacy search route will respect these hidden profiles and not return results from them. However, in some cases (such as the CMS), it is desirable for the search to ignore this restriction. Adding a `?cms=true` query param to the search endpoint will bypass the hidden profiles and show all members that match the query.
+
+---
+
 ## Search
 
 #### Legacy Search API (Dimensions only)
@@ -429,6 +468,7 @@ Arguments are provided by url paramaters:
 |`pslug`|If the cubeName is not known, you may provide the unique slug of the desired dimension to limit results to that profile|
 |`limit`|A number, passed through to SQL `LIMIT` to limit results|
 |`id`|Exact match `id` lookup. Keep in mind that a member `id` is not necessarily unique and may require a `dimension` specification|
+|`cms`|If set to true, bypasses all "Hiding" functionality (profile, variant, or member) and shows ALL matching results.
 
 Example query:
 
@@ -479,9 +519,65 @@ If you would prefer to build your own search component, the DeepSearch API is av
 |`query`|Query to search for|
 |`locale`|Language for results|
 |`limit`|Maximum number of results to return|
+|`profile`|Restrict results to a profile, must be an integer profile id or a profile slug (unary profiles only)|
+|`dimension`|Restrict results by dimension|
+|`hierarchy`|Restrict results by hierarchy (comma separated)|
 |`min_confidence`|Confidence threshold (Deepsearch Only)|
 
 Results will be returned in a response object that includes metadata on the results. Matching members separated by profile can be found in the `profiles` key of the response object. A single grouped list of all matching profiles can be found in the `grouped` key of the response object.
+
+---
+
+## PDF Printing
+
+ALl CMS profiles will contain a "Download as PDF" button in their hero section, which allows users to download the entire page as 1 long PDF file.
+
+#### Deployment
+
+The PDF Printing in the CMS utilizes the Puppeteer library to handle the heavy lifting of generating the PDFs on the server (it is a headless browser). Most issues deploying to a production server can be solved by their [troubleshooting support doc](https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#chrome-headless-doesnt-launch-on-unix), but for most cases the following steps will have to be done on a new server:
+
+##### Install UNIX dependencies (Debian/Ubuntu)
+
+```sh
+sudo apt-get ca-certificates fonts-liberation libappindicator3-1 libasound2 libatk-bridge2.0-0 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 lsb-release wget xdg-utils
+```
+
+##### Install UNIX dependencies (CentOS)
+
+```sh
+sudo yum update
+```
+
+```sh
+sudo yum install alsa-lib.x86_64 atk.x86_64 cups-libs.x86_64 gtk3.x86_64 ipa-gothic-fonts libXcomposite.x86_64 libXcursor.x86_64 libXdamage.x86_64 libXext.x86_64 libXi.x86_64 libXrandr.x86_64 libXScrnSaver.x86_64 libXtst.x86_64 pango.x86_64 xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-fonts-cyrillic xorg-x11-fonts-misc xorg-x11-fonts-Type1 xorg-x11-utils
+```
+
+```sh
+sudo yum update nss -y
+```
+
+##### Enable namespaces (CentOS)
+
+Chromium requires a sandboxed namespace in which to run its headless browser. Note that the following statement may require you to be the root user, in which case you should `sudo su` before executing.
+
+```sh
+echo 10000 > /proc/sys/user/max_user_namespaces
+```
+
+
+#### React Component
+
+The CMS package exports a `<PDFButton />` component that can theoretically be placed on any page. This button handles all of the round-trip logic for generating a PDF of the current page, so implementation should be drop-in. Here are the available props and their defaults:
+
+```jsx
+import {PDFButton} from "@datawheel/canon-cms";
+...
+<PDFButton
+  className="" // a custom class attribute for the button itself
+  filename="your-file-name" // the name of the resulting PDF file downloaded
+  pdfOptions={{}} // additional options to pass the puppeteer.pdf function (custom headers, footers, sizing, etc)
+/>
+```
 
 ---
 
@@ -869,6 +965,7 @@ For upgrading to new versions, there are currently several migration scripts:
 6) `npx canon-cms-migrate-0.9` (for 0.9 CMS users, for upgrade to 0.11 ONLY)
 7) `npx canon-cms-migrate-0.11` (for 0.10 or 0.11 CMS users, for upgrade to 0.12 ONLY)
 8) `npx canon-cms-migrate-0.12` (for 0.12 CMS users)
+9) `npx canon-cms-migrate-0.13` (for 0.13 CMS users)
 
 **Note:** Canon CMS Version 0.10.0 did **NOT** require a database migration, so the `0.9` script will output a `0.11` database.
 

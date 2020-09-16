@@ -44,12 +44,48 @@ if (deepsearchAPI) deepsearchAPI = deepsearchAPI.replace(/\/$/, "");
 const f = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
 const cartesian = (a, b, ...c) => b ? cartesian(f(a, b), ...c) : a;
 
-
 let unaccentExtensionInstalled;
+
+// The visibility or invisibility of certain profiles or variants determines which "dimension cube pairs" should be considered valid.
+// When making a query into canon_cms_search, use the de-duplicated, valid, and visible dim/cubes from this array to restrict the results.
+const fetchDimCubes = async db => {
+  let meta = await db.profile_meta.findAll().catch(catcher);
+  meta = meta.map(d => d.toJSON());
+  let allProfiles = await db.profile.findAll().catch(catcher);
+  allProfiles = allProfiles.map(d => d.toJSON());
+  const profileVisibilityHash = allProfiles.reduce((acc, d) => ({...acc, [d.id]: d.visible}), {});
+  const allDimCubes = [];
+  meta.forEach(m => {
+    // Only register this variant as visible if both itself and its parent profile are visible.
+    const visible = profileVisibilityHash[m.profile_id] && m.visible;
+    if (visible && !allDimCubes.find(d => d.dimension === m.dimension && d.cubeName === m.cubeName)) allDimCubes.push(m);
+  });
+  return allDimCubes;
+};
+
+// Convert a legacy-style search result into a scaffolded faked version of what the deepsearch API returns.
+// This allows us to use the same collating code below, whether the results came from legacy or deepsearch.
+const rowToResult = (row, locale) => {
+  const content = row.content.find(c => c.locale === locale);
+  return {
+    name: content ? content.name : "",
+    confidence: row.zvalue,
+    metadata: {
+      id: row.id,
+      slug: row.slug,
+      hierarchy: row.hierarchy,
+      cube_name: row.cubeName
+    },
+    id: row.slug,
+    keywords: content && content.keywords ? content.keywords.join : "",
+    attr: content && content.attr ? content.attr : {}
+  };
+};
 
 module.exports = function(app) {
 
   const {db} = app.settings;
+  const dbQuery = db.search.sequelize.query.bind(db.search.sequelize);
 
   app.get("/api/isImageEnabled", async(req, res) => res.json(Boolean(flickr)));
 
@@ -232,34 +268,11 @@ module.exports = function(app) {
 
   const profileSearch = async(req, res) => {
 
-    let meta = await db.profile_meta.findAll().catch(catcher);
-    meta = meta.map(d => d.toJSON());
-    const allDimCubes = [];
-    meta.forEach(m => {
-      if (!allDimCubes.find(d => d.dimension === m.dimension && d.cubeName === m.cubeName)) allDimCubes.push(m);
-    });
+    const allDimCubes = await fetchDimCubes(db).catch(catcher);
 
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
     let results = {};
-
-    // Convert a legacy-style search result into a scaffolded faked version of what the deepsearch API returns.
-    // This allows us to use the same collating code below, whether the results came from legacy or deepsearch.
-    const rowToResult = row => {
-      const content = row.content.find(c => c.locale === locale);
-      return {
-        name: content ? content.name : "",
-        confidence: row.zvalue,
-        metadata: {
-          id: row.id,
-          slug: row.slug,
-          hierarchy: row.hierarchy,
-          cube_name: row.cubeName
-        },
-        id: row.slug,
-        keywords: content && content.keywords ? content.keywords.join : ""
-      };
-    };
 
     // If the user has provided no query, gather a sampling of top zvalue members for every possible profile
     if (!req.query.query || req.query.query === "") {
@@ -276,7 +289,7 @@ module.exports = function(app) {
         rows = rows.filter(d => !d.content.map(c => c.attr).some(a => a && a.show === false));
         rows.forEach(row => {
           if (!results.results[row.dimension]) results.results[row.dimension] = [];
-          results.results[row.dimension].push(rowToResult(row));
+          results.results[row.dimension].push(rowToResult(row, locale));
         });
       }
     }
@@ -298,7 +311,7 @@ module.exports = function(app) {
         // If not launch a warning and use the fallback search.
         // Install it running in the db: "CREATE EXTENSION IF NOT EXISTS unaccent;";
         if (typeof unaccentExtensionInstalled === "undefined") {
-          const [unaccentResult, unaccentMetadata] = await db.query("SELECT * FROM pg_extension WHERE extname = 'unaccent';");
+          const [unaccentResult, unaccentMetadata] = await dbQuery("SELECT * FROM pg_extension WHERE extname = 'unaccent';");
           unaccentExtensionInstalled = unaccentMetadata.rowCount >= 1;
           if (!unaccentExtensionInstalled) {
             console.log("WARNING: For better search results, Consider installing the 'unaccent' extension in Postgres by running: CREATE EXTENSION IF NOT EXISTS unaccent;");
@@ -347,6 +360,22 @@ module.exports = function(app) {
         where.locale = locale;
         const contentRows = await db.search_content.findAll({where}).catch(catcher);
         searchWhere.contentId = Array.from(new Set(contentRows.map(r => r.id)));
+        // If the user has specified a profile by slug or id, restrict the search results to that profile's members
+        if (req.query.profile) {
+          // using "slug" here is not 100% correct, as profiles can be bilateral, and therefore have two slugs.
+          // However, for the more common unilateral case, allow "single-slug" lookup for convenience.
+          const metaWhere = !isNaN(req.query.profile) ? {profile_id: req.query.profile} : {slug: req.query.profile};
+          const thisMeta = await db.profile_meta.findOne({where: metaWhere});
+          if (thisMeta) {
+            searchWhere.cubeName = thisMeta.cubeName;
+            searchWhere.dimension = thisMeta.dimension;
+            searchWhere.hierarchy = thisMeta.levels;
+          }
+        }
+        // Also allow the user to directly limit searches by dimension and comma separated hierarchy (levels)
+        // Note that this can happen in conjunction with the req.query.profile limitation above, as overrides.
+        if (req.query.dimension) searchWhere.dimension = req.query.dimension.split(",");
+        if (req.query.hierarchy) searchWhere.hierarchy = req.query.hierarchy.split(",");
         let rows = await db.search.findAll({
           include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
           // when a limit is provided, it is for EACH dimension, but this initial rowsearch is for a flat member list.
@@ -362,7 +391,7 @@ module.exports = function(app) {
         rows = rows.filter(d => !d.content.map(c => c.attr).some(a => a && a.show === false));
         rows.forEach(row => {
           if (!results.results[row.dimension]) results.results[row.dimension] = [];
-          results.results[row.dimension].push(rowToResult(row));
+          results.results[row.dimension].push(rowToResult(row, locale));
         });
       }
     }
@@ -378,8 +407,10 @@ module.exports = function(app) {
       }
     });
 
+    let meta = await db.profile_meta.findAll().catch(catcher);
+    meta = meta.map(d => d.toJSON());
     const relevantPids = [...new Set(meta.filter(p => dimCubes.includes(`${p.dimension}/${p.cubeName}`)).map(d => d.profile_id))];
-    let profiles = await db.profile.findAll({where: {id: relevantPids}, include: {association: "meta"}}).catch(catcher);
+    let profiles = await db.profile.findAll({where: {id: relevantPids, visible: true}, include: {association: "meta"}}).catch(catcher);
     profiles = profiles.map(d => d.toJSON());
 
     // When searching for half a bilateral profile, what should be put in the other half?
@@ -398,7 +429,7 @@ module.exports = function(app) {
       const relevantResults = groupedMeta.reduce((acc, group, i) => {
         acc[i] = [];
         group.forEach(m => {
-          const theseResults = results.results[m.dimension] ? results.results[m.dimension].filter(d => d.metadata.cube_name === m.cubeName) : false;
+          const theseResults = results.results[m.dimension] ? results.results[m.dimension].filter(d => d.metadata.cube_name === m.cubeName && m.levels.includes(d.metadata.hierarchy)) : false;
           if (theseResults) {
             acc[i] = acc[i].concat(theseResults
               .map(r => ({
@@ -408,7 +439,8 @@ module.exports = function(app) {
                 memberDimension: m.dimension,
                 memberHierarchy: r.metadata.hierarchy,
                 name: r.name,
-                ranking: r.confidence
+                ranking: r.confidence,
+                attr: r.attr ? r.attr : {}
               }))
               .slice(0, limit)
             );
@@ -508,7 +540,7 @@ module.exports = function(app) {
       // If not launch a warning and use the fallback search.
       // Install it running in the db: "CREATE EXTENSION IF NOT EXISTS unaccent;";
       if (typeof unaccentExtensionInstalled === "undefined") {
-        const [unaccentResult, unaccentMetadata] = await db.query("SELECT * FROM pg_extension WHERE extname = 'unaccent';");
+        const [unaccentResult, unaccentMetadata] = await dbQuery("SELECT * FROM pg_extension WHERE extname = 'unaccent';");
         unaccentExtensionInstalled = unaccentMetadata.rowCount >= 1;
         if (!unaccentExtensionInstalled) {
           console.log("WARNING: For better search results, Consider installing the 'unaccent' extension in Postgres by running: CREATE EXTENSION IF NOT EXISTS unaccent;");
@@ -525,12 +557,11 @@ module.exports = function(app) {
             // For name
             sequelize.where(
               sequelize.fn("unaccent", sequelize.col("name")),
-              {[sequelize.Op.iLike]: sequelize.fn("concat", "%", sequelize.fn("unaccent", q), "%")})
-              ,
+              {[sequelize.Op.iLike]: sequelize.fn("concat", "%", sequelize.fn("unaccent", q), "%")}),
             // For keywords
-              sequelize.where(
-                sequelize.fn("unaccent", sequelize.fn("array_to_string", sequelize.col("keywords"), " ", "")),
-                {[sequelize.Op.iLike]: sequelize.fn("concat", "%", sequelize.fn("unaccent", q), "%")})
+            sequelize.where(
+              sequelize.fn("unaccent", sequelize.fn("array_to_string", sequelize.col("keywords"), " ", "")),
+              {[sequelize.Op.iLike]: sequelize.fn("concat", "%", sequelize.fn("unaccent", q), "%")})
           ];
 
         }
@@ -543,12 +574,18 @@ module.exports = function(app) {
           ];
         }
 
-        if (locale !== 'all'){
-          where.locale = locale;
-        }
+        if (locale !== "all") where.locale = locale;
 
         rows = await db.search_content.findAll({where}).catch(catcher);
         searchWhere.contentId = Array.from(new Set(rows.map(r => r.id)));
+      }
+      if (!cms) {
+        const allDimCubes = await fetchDimCubes(db).catch(catcher);
+        // allDimCubes is a list of deduplicated profile_meta rows that are considered active (visible)
+        // to avoid returning search results from inactive (invisible) profiles, restrict the members
+        // to only return matching dimension/cube
+        searchWhere.dimension = allDimCubes.map(d => d.dimension);
+        searchWhere.cubeName = allDimCubes.map(d => d.cubeName);
       }
       if (dimension) searchWhere.dimension = dimension.split(",");
       // In sequelize, the IN statement is implicit (hierarchy: ['Division', 'State'])

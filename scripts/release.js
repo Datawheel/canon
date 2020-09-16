@@ -4,6 +4,7 @@
  * Run `node release.js <folder name>`
  */
 
+const path = require("path");
 const {Octokit} = require("@octokit/rest");
 const shell = require("shelljs");
 const execAsync = require("./execAsync");
@@ -20,7 +21,8 @@ module.exports = cliRelease(target);
  * @param {string} folder
  */
 async function cliRelease(folder) {
-  process.chdir(`packages/${folder}`);
+  const cwd = path.join("packages", folder);
+  process.chdir(cwd);
 
   const packageManifest = shell.cat("./package.json").toString();
   const {name, version} = JSON.parse(packageManifest);
@@ -30,19 +32,25 @@ async function cliRelease(folder) {
   minor = minor.slice(0, minor.length - 1).join(".");
 
   try {
-    const stdout = await execAsync("git log --pretty=format:'* %s (%h)' `git describe --tags --abbrev=0`...HEAD");
-    const body = stdout.length ? stdout : `${name}@${version}`;
+    // get list of commits since last release
+    const lastTag = await execAsync("git describe --tags --abbrev=0", {silent: true});
+    const commitList = await execAsync(`git log --pretty=format:"* %s (%h)" ${lastTag.trim()}...HEAD`);
+    const body = commitList.length ? commitList : `${name}@${version}`;
 
+    // publish to npm
     await execAsync("npm publish --access public ./");
     shell.echo("published to npm");
 
+    // commit the version bump
     await execAsync("git add --all");
-    await execAsync(`git commit -m \"compiles ${name}@${version}\"`);
+    await execAsync(`git commit -m "compiles ${name}@${version}"`);
     shell.echo("git commit");
 
+    // create git tag
     await execAsync(`git tag ${name}@${version}`);
     shell.echo("git tag");
 
+    // push to origin
     await execAsync("git push origin --follow-tags");
     shell.echo("git push");
 
@@ -50,6 +58,7 @@ async function cliRelease(folder) {
       auth: `token ${token}`
     });
 
+    // put the release on github
     await octokit.repos.createRelease({
       owner: "datawheel",
       repo: "canon",
@@ -71,6 +80,6 @@ async function cliRelease(folder) {
   }
   catch (e) {
     shell.echo(e);
-    shell.exit(1);
+    shell.exit(e.exitCode || 1);
   }
 }

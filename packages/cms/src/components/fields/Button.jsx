@@ -44,7 +44,7 @@ export default class Button extends Component {
       >
         {/* left icon (default) */}
         {icon && iconPosition === "left" &&
-          <Icon className={`${namespace}-button-icon`} icon={icon} />
+          <Icon className={`${namespace}-button-icon`} icon={rebuilding ? "refresh" : icon} htmlTitle="" />
         }
 
         {/* button text */}
@@ -56,7 +56,7 @@ export default class Button extends Component {
 
         {/* right icon */}
         {icon && iconPosition === "right" &&
-          <Icon className={`${namespace}-button-icon`} icon={icon} htmlTitle="" />
+          <Icon className={`${namespace}-button-icon`} icon={rebuilding ? "refresh" : icon} htmlTitle="" />
         }
       </button>
     );

@@ -1,14 +1,15 @@
 {
   "name": "@datawheel/create-canon",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A script to create a new canon-core instance.",
   "bin": "index.js",
   "keywords": [
-    "datawheel",
-    "canon",
     "boilerplate",
+    "datawheel-canon",
     "react",
-    "react app"
+    "react app",
+    "react boilerplate",
+    "ssr"
   ],
   "author": "Dave Landry <dave@datawheel.us>",
   "contributors": [
@@ -20,6 +21,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/datawheel/canon.git"
+    "url": "https://github.com/Datawheel/canon.git",
+    "directory": "packages/create-canon"
+  },
+  "bugs": {
+    "url": "https://github.com/datawheel/canon/issues"
   }
 }

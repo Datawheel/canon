@@ -285,6 +285,9 @@ module.exports = function(app) {
       if (resp && resp.data && resp.data.data && resp.data.data.length > 0) {
         smallAttr.parents = resp.data.data;
       }
+      // If this request was made with a print flag, set the "showWhenPrinting" variable to false, so that sections that
+      // use it in their allowed section will be hidden in for PDF printing.
+      smallAttr.showWhenPrinting = req.query.print !== "true";
       // Fetch Custom Magic Generator
       const magicURL = `${ req.protocol }://${ req.headers.host }/api/cms/customAttributes/${pid}`;
       const magicResp = await axios.post(magicURL, {variables: smallAttr, locale}).catch(() => ({data: {}}));
@@ -295,8 +298,10 @@ module.exports = function(app) {
     }
     const genObj = id ? {where: {id}} : {where: {profile_id: pid}};
     let generators = await db.generator.findAll(genObj).catch(catcher);
+    generators = generators
+      .map(g => g.toJSON())
+      .filter(g => !g.allowed || g.allowed === "always" || smallAttr[g.allowed]);
     if (id && generators.length === 0) return {};
-    generators = generators.map(g => g.toJSON());
 
     /** */
     function createGeneratorFetch(r, attr) {
@@ -384,8 +389,10 @@ module.exports = function(app) {
   const runMaterializers = async(req, variables, pid) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
     let materializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
+    materializers = materializers
+      .map(m => m.toJSON())
+      .filter(m => !m.allowed || m.allowed === "always" || variables[m.allowed]);
     if (materializers.length === 0) return variables;
-    materializers = materializers.map(m => m.toJSON());
 
     // The order of materializers matters because input to later materializers depends on output from earlier materializers
     materializers.sort((a, b) => a.ordering - b.ordering);
@@ -456,18 +463,22 @@ module.exports = function(app) {
       meta = meta.map(d => d.toJSON());
       meta.forEach(d => slugMap[d.slug] = d);
       const match = dims.map(d => d.slug).join();
+      let profiles = await db.profile.findAll();
+      profiles = profiles.map(d => d.toJSON());
+      const pidvisible = profiles.reduce((acc, d) => ({...acc, [d.id]: d.visible}), {});
+
       try {
         // Profile slugs are unique, so it is sufficient to use the first slug as a "profile finder"
-        const potentialPid = meta.find(m => m.slug === dims[0].slug && m.ordering === 0).profile_id;
+        const potentialPid = meta.find(m => m.slug === dims[0].slug && m.ordering === 0 && m.visible).profile_id;
         // However, still confirm that the second slug matches (if provided)
         if (dims[1] && dims[1].slug) {
           const potentialSecondSlugs = meta.filter(m => m.profile_id === potentialPid && m.ordering === 1).map(d => d.slug);
           if (potentialSecondSlugs.includes(dims[1].slug)) {
-            pid = potentialPid;
+            if (pidvisible[potentialPid]) pid = potentialPid;
           }
         }
         else {
-          pid = potentialPid;
+          if (pidvisible[potentialPid]) pid = potentialPid;
         }
       }
       catch (e) {
@@ -479,7 +490,7 @@ module.exports = function(app) {
         return res.json({error: `Profile not found for slug: ${match}`, errorCode: 404});
       }
     }
-    
+
     // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
     // Replace that slug with the actual real id from the search table. To do this, however,
     // We need the meta from the profile so we can filter by cubename.
@@ -618,8 +629,8 @@ module.exports = function(app) {
         // Remove the leading self-referential element, and avoid collisions as to not recommend a member matched with itself
         const thisNeighborMembers = neighborsByDimSlug[thisSlug].slice(1).filter(d => d.id !== thatMember.id);
         const thatNeighborMembers = neighborsByDimSlug[thatSlug].slice(1).filter(d => d.id !== thisMember.id);
-        // A full set of 4 neighbors means that no neighbors were removed for being hidden or self-referential. In that 
-        // case, given neighbors 0123, 1 and 2 (the "middle" ones) are actually the "closest". Shift the 0th member off 
+        // A full set of 4 neighbors means that no neighbors were removed for being hidden or self-referential. In that
+        // case, given neighbors 0123, 1 and 2 (the "middle" ones) are actually the "closest". Shift the 0th member off
         // the list, so that the ensuing slice(0, 2) properly chooses the middle ones. In other cases just default to (0, 2).
         if (thisNeighborMembers.length === 4) thisNeighborMembers.shift();
         if (thatNeighborMembers.length === 4) thatNeighborMembers.shift();
@@ -662,7 +673,7 @@ module.exports = function(app) {
       if (verbose) console.log("\n\nFetching Variables for pid:", pid);
       const generatorVariables = await runGenerators(req, pid);
       variables = await runMaterializers(req, generatorVariables, pid);
-      
+
       delete variables._genStatus;
       delete variables._matStatus;
     }
@@ -694,7 +705,7 @@ module.exports = function(app) {
         allMaterializers = allMaterializers.map(d => {
           d = d.toJSON();
           // make use of varswap for its buble transpiling, so the front end can run es5 code.
-          d = varSwapRecursive(d, formatterFunctions, variables)
+          d = varSwapRecursive(d, formatterFunctions, variables);
           return d;
         }).sort((a, b) => a.ordering - b.ordering);
         variables._rawProfile.allMaterializers = allMaterializers;

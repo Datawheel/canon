@@ -1,5 +1,6 @@
 import axios from "axios";
 import {connect} from "react-redux";
+import {withNamespaces} from "react-i18next";
 import React, {Component, Fragment} from "react";
 import {hot} from "react-hot-loader/root";
 import {isAuthenticated} from "@datawheel/canon-core";
@@ -17,7 +18,6 @@ import Mirror from "./Viz/Mirror";
 import isIE from "../utils/isIE.js";
 import mortarEval from "../utils/mortarEval";
 import hashCode from "../utils/hashCode.js";
-
 import deepClone from "../utils/deepClone.js";
 import prepareProfile from "../utils/prepareProfile";
 import funcifyFormatterByLocale from "../utils/funcifyFormatterByLocale";
@@ -82,18 +82,22 @@ class ProfileRenderer extends Component {
   }
 
   getChildContext() {
+
     const {locale} = this.props;
-    const {router} = this.context;
+    const {print, router} = this.context;
     const {profile, initialVariables, formatterFunctions} = this.state;
     const {variables} = profile;
+
     return {
       formatters: formatterFunctions,
       router,
       onSelector: this.onSelector.bind(this),
       onOpenModal: this.onOpenModal.bind(this),
+      onTabSelect: this.onTabSelect.bind(this),
       variables,
       initialVariables,
-      locale
+      locale,
+      print
     };
   }
 
@@ -106,7 +110,7 @@ class ProfileRenderer extends Component {
 
   /**
    * Visualizations have the ability to "break out" and override a variable in the variables object.
-   * This requires re-running materializers, because the user may have changed a variable 
+   * This requires re-running materializers, because the user may have changed a variable
    * that would affect the "allowed" status of a given section.
    */
   onSetVariables(newVariables, forceMats) {
@@ -131,7 +135,7 @@ class ProfileRenderer extends Component {
         const newProfile = prepareProfile(variables._rawProfile, matVars, formatterFunctions, locale, selectors);
         this.setState({profile: {...profile, ...newProfile}});
       }
-      // If forceMats is not true, no phone-home is required. Using the locally stored _rawProfile and the now-combined 
+      // If forceMats is not true, no phone-home is required. Using the locally stored _rawProfile and the now-combined
       // old and new variables, you have all that you need to make the profile update.
       else {
         const newProfile = prepareProfile(variables._rawProfile, Object.assign({}, variables, newVariables), formatterFunctions, locale, selectors);
@@ -140,16 +144,31 @@ class ProfileRenderer extends Component {
     }
   }
 
+  updateQuery(obj) {
+    const {router} = this.context;
+    const {location} = router;
+    const {basename, pathname, query} = location;
+    const newQuery = {...query, ...obj};
+    const queryString = Object.entries(newQuery).map(([key, val]) => `${key}=${val}`).join("&");
+    const newPath = `${basename}${pathname}?${queryString}`;
+    if (queryString) router.replace(newPath);
+  }
+
   onSelector(name, value) {
     const {profile, selectors, formatterFunctions} = this.state;
     const {variables} = profile;
     const {locale} = this.props;
 
-    if (value instanceof Array && !value.length) delete selectors[name];
-    else selectors[name] = value;
+    selectors[name] = value;
+
+    this.updateQuery(selectors);
 
     const newProfile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, selectors);
     this.setState({selectors, profile: {...profile, ...newProfile}});
+  }
+
+  onTabSelect(id, index) {
+    this.updateQuery({[`tabsection-${id}`]: index});
   }
 
   render() {
@@ -160,6 +179,8 @@ class ProfileRenderer extends Component {
       hideHero,     // strip out the hero section
       hideSubnav    // strip out the subnav
     } = this.props;
+    const {print} = this.context;
+    const {t} = this.props;
 
     if (!this.state.profile) return null;
     if (this.state.profile.error) return <div>{this.state.profile.error}</div>;
@@ -209,6 +230,53 @@ class ProfileRenderer extends Component {
       }, []);
     }
 
+    if (print) {
+      const index = sections.length + 1;
+      const groupingStubSection = {
+        allowed: "always",
+        descriptions: [
+          {
+            description: `<p>${t("CMS.Profile.Data Appendix Description")}</p>`
+          }
+        ],
+        icon: "",
+        id: "data-appendix-group",
+        ordering: index,
+        position: "default",
+        profile_id: 1,
+        selectors: [],
+        short: "",
+        slug: "data-appendix",
+        stats: [],
+        subtitles: [],
+        title: `<p>${t("CMS.Profile.Data Appendix")}</p>`,
+        type: "Grouping",
+        visualizations: []
+      };
+      const printSections = sections
+        .filter(d => d.visualizations.length > 0)
+        .map(d => [{
+          ...d,
+          id: `data-appendix-${d.id}`,
+          ordering: index,
+          descriptions: [],
+          selectors: [],
+          stats: [],
+          subtitles: [],
+          position: "default",
+          type: "SingleColumn",
+          configOverride: {
+            columns: arr => arr.filter(d => !d.includes("ID ") && !d.includes("Slug ")),
+            title: false,
+            type: "Table",
+            defaultPageSize: Number.MAX_VALUE,
+            showPagination: false,
+            minRows: 0
+          }
+        }]);
+      groupedSections.push([[groupingStubSection], ...printSections]);
+    }
+
     const modalSection = modalSlug ? profile.sections.find(s => s.slug === modalSlug) : null;
 
     // To prevent a "loading flicker" when users call setVariables, normal Sections don't show a "Loading"
@@ -226,7 +294,7 @@ class ProfileRenderer extends Component {
 
     return (
       <Fragment>
-        <div className="cp">
+        <div className={`cp${print ? " cp-print" : ""}`}>
 
           {!hideHero && <Hero key="cp-hero" profile={profile} contents={heroSection || null} {...hideElements} />}
 
@@ -268,7 +336,7 @@ class ProfileRenderer extends Component {
                 )}
               </div>
             )}
-            {!hideHero && relatedProfiles && relatedProfiles.length > 0 &&
+            {!hideHero && !print && relatedProfiles && relatedProfiles.length > 0 &&
               <Related profiles={relatedProfiles} />
             }
           </main>
@@ -303,7 +371,8 @@ class ProfileRenderer extends Component {
 }
 
 ProfileRenderer.contextTypes = {
-  router: PropTypes.object
+  router: PropTypes.object,
+  print: PropTypes.bool
 };
 
 ProfileRenderer.childContextTypes = {
@@ -313,7 +382,9 @@ ProfileRenderer.childContextTypes = {
   variables: PropTypes.object,
   initialVariables: PropTypes.object,
   onSelector: PropTypes.func,
-  onOpenModal: PropTypes.func
+  onOpenModal: PropTypes.func,
+  onTabSelect: PropTypes.func,
+  print: PropTypes.bool
 };
 
 const mapStateToProps = state => ({
@@ -324,4 +395,6 @@ const mapDispatchToProps = dispatch => ({
   isAuthenticated: () => dispatch(isAuthenticated())
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(hot(ProfileRenderer));
+export default withNamespaces()(
+  connect(mapStateToProps, mapDispatchToProps)(hot(ProfileRenderer))
+);

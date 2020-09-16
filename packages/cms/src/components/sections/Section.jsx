@@ -164,6 +164,7 @@ class Section extends Component {
   render() {
     const {contents, sources, isStickyIE, height, showReset} = this.state;
     const {headingLevel, hideAnchor, hideOptions, isModal, loading, t} = this.props;
+    const {configOverride} = contents;
 
     // remap old section names
     const layout = contents.type;
@@ -272,7 +273,8 @@ class Section extends Component {
       vizHeadingLevel: `h${parseInt(headingLevel.replace("h", ""), 10) + 1}`,
       hideOptions,
       loading,
-      contents
+      contents,
+      configOverride
     };
 
     return (
@@ -286,7 +288,8 @@ class Section extends Component {
             isModal ? " cp-modal-section" : ""
           }`}
           ref={this.section}
-          key={`section-${contents.id}`}
+          id={`cp-section-${contents.id}`}
+          key={`cp-section-${contents.id}`}
         >
           <Layout {...componentProps} />
         </section>
