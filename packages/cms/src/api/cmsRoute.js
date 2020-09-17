@@ -6,6 +6,7 @@ const fs = require("fs");
 const Op = sequelize.Op;
 
 const populateSearch = require("../utils/populateSearch");
+const translate = require("../utils/translate");
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
@@ -342,6 +343,7 @@ module.exports = function(app) {
   });
 
   app.get("/api/cms/tree", async(req, res) => {
+    translate();
     let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     profiles.forEach(profile => {
