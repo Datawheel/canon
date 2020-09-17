@@ -1,22 +1,44 @@
 #! /usr/bin/env node
 
+/* Imports */
 const axios = require("axios");
-const Sequelize = require("sequelize");
-const loadModels = require("./loadModels");
-const varSwap = require("../../src/utils/varSwap");
 const FUNC = require("../../src/utils/FUNC");
-const stripHTML = require("../../src/utils/formatters/stripHTML");
+const getopts = require("getopts");
+const loadModels = require("./loadModels");
+const Sequelize = require("sequelize");
+const {Translate} = require("@google-cloud/translate").v2;
+const varSwap = require("../../src/utils/varSwap");
 
+/* DB */
 const name = process.env.CANON_DB_NAME;
 const user = process.env.CANON_DB_USER;
 const pw = process.env.CANON_DB_PW;
 const host = process.env.CANON_DB_HOST;
- 
-const {Translate} = require("@google-cloud/translate").v2;
-
-const db = new Sequelize(name, user, pw, {host, dialect: "postgres", define: {timestamps: true}, logging: () => {}});
+const db = new Sequelize(name, user, pw, {host, dialect: "postgres", operatorsAliases: false, define: {timestamps: true}, logging: () => {}});
 
 const translate = new Translate();
+
+const helpText = `Canon CMS / Translation Script
+Usage: npx canon-cms-translate <command> [args]
+
+For language codes, see https://cloud.google.com/translate/docs/languages
+
+Commands:
+    help    Shows this information.
+    run     Runs a translation operation
+            - Required: target, profile
+            - Optional: source, member
+
+    If command is not set, "run" will be executed.
+
+Arguments:
+    -h, --help      Shows this information.
+    -m, --member    The slug of the sample member to use during translation (optional)
+    -p, --profile   The integer id for the the profile to translate
+                    Use "all" to translate entire cms (be careful, this can be $ expensive)
+    -s, --source    The source language to use for translation (optional, defaults to CANON_LANGUAGE_DEFAULT)
+    -t, --target    The target language for translation. 
+`;
 
 const source = "en";
 const target = "es";
@@ -80,21 +102,46 @@ async function translateRow(row, vsConfig) {
 }
 
 /** */
-async function translateText() {
+async function translateText(options) {
+  const {
+    member,
+    profile,
+    source,
+    target
+  } = options;
   console.log("Initializing Models...");
-  await loadModels(db, "../../src/db");    
+  await loadModels(db, "../../src/db").catch(e => console.log(e));
   console.log("Models loaded.");
   // Fetch Relevant Profile
-  const profile = await db.profile.findOne({where: {id: pid}, include: [{association: "meta"}]}).catch(() => {});
-  // Find Top Member by zvalue
-  console.log(`Finding sample member from profile ${profile.id}...`); 
-  const {dimension, cubeName, slug} = profile.meta[0];
-  const members = await db.search.findAll({
-    order: [["zvalue", "DESC NULLS LAST"]], limit: 2, include: [{association: "content"}],
-    where: {dimension, cubeName}
-  });
-  const topid = members[1].id;  
-  console.log(`Found member: ${topid}.`); 
+  console.log(`Fetching Profile ${profile}...`);
+  const profiles = await db.profile.findAll({where: profile === "all" ? {} : {id: profile}, include: [{association: "meta"}]}).catch(() => {});
+  if (profiles.length === 0) {
+    console.error("No matching profiles found.");
+    process.exit(0);
+  }
+  for (const [index, thisProfile] of profiles.entries()) {
+    console.log(`Processing profile ${thisProfile.id}... (${index + 1}/${profiles.length})`);
+    if (member) {
+      console.log(`Fetching member ${member}...`);
+    }
+    else {
+      // Find Top Member by zvalue
+      console.log(`Fetching sample member from profile ${thisProfile.id}...`); 
+    }
+    const {dimension, cubeName, slug} = thisProfile.meta[0];
+    const members = await db.search.findAll({
+      order: [["zvalue", "DESC NULLS LAST"]], limit: 2, include: [{association: "content"}],
+      where: member ? {dimension, cubeName, slug: member} : {dimension, cubeName}
+    });
+    if (members.length === 0) {
+      console.error("No matching members found.");
+      process.exit(0);
+    }
+    const topid = members[1].id;
+    console.log(`Found member: ${topid} (${members[1].slug}).`);
+  }
+  return;
+  
   // Fetch variables for varSwap
   const url = `http://localhost:3300/api/profile?slug1=${slug}&id1=${topid}&locale=${source}`;
   console.log(`Fetching variables for ${topid}...`);
@@ -125,11 +172,37 @@ async function translateText() {
     }
   }
   console.log("done");
+  process.exit(0);
 }
 
-translateText();
+const options = getopts(process.argv.slice(2), {
+  alias: {
+    help: "h",
+    member: "m",
+    profile: "p",
+    source: "s",
+    target: "t"
+  },
+  default: {
+    source: process.env.CANON_LANGUAGE_DEFAULT
+  }
+});
 
-return;
+const action = options._[0] || "run";
+
+if (options.help) {
+  console.log(helpText);
+  process.exit(0);
+}
+
+if (action === "run") {
+  if (!options.target || !options.profile) {
+    console.log("Please specify a target language and profile");
+  }
+  else {
+    translateText(options);
+  }
+}
 
 
 
