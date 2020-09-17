@@ -14,11 +14,22 @@ class RichTextEditor extends Component {
       fields: null,
       isDirty: false
     };
+    this.editors = {};
   }
 
   componentDidMount() {
     const {data, fields} = this.props;
     this.setState({data, fields});
+  }
+
+  componentDidUpdate(prevProps) {
+    const ft1 = prevProps.forceTranslate;
+    const ft2 = this.props.forceTranslate;
+    if (!isNaN(ft1) && !isNaN(ft2) && ft1 !== ft2) {
+      Object.values(this.editors).forEach(editor => {
+        editor.reload();
+      });
+    } 
   }
 
   handleEditor(field, t) {
@@ -62,6 +73,7 @@ class RichTextEditor extends Component {
               defaultValue={thisLocale[f] || ""}
               onChange={this.handleEditor.bind(this, f)}
               showToolbar={this.props.status.showToolbar}
+              ref={c => this.editors[f] = c}
             />
           </div>
         )}

@@ -7,6 +7,7 @@ import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
+import translate from "../../utils/translate";
 
 import {Intent, Switch, Alignment} from "@blueprintjs/core";
 
@@ -34,7 +35,8 @@ class TextCard extends Component {
       initialData: null,
       alertObj: false,
       isDirty: false,
-      customAllowed: false
+      customAllowed: false,
+      ft: 0
     };
   }
 
@@ -208,6 +210,44 @@ class TextCard extends Component {
     this.props.updateEntity(type, payload);
   }
 
+  maybeTranslate() {
+    const prettyType = this.prettifyType(this.props.type);
+    const alertObj = {
+      callback: this.translate.bind(this),
+      title: `Translate ${prettyType}?`,
+      description: "This will overwrite the current translations, and costs $",
+      confirm: `Translate ${prettyType}`
+    };
+    this.setState({alertObj});
+  }
+
+  async translate() {
+    const {minData} = this.state;
+    const Toast = this.context.toast.current;
+    const {localeDefault, localeSecondary} = this.props.status;
+    const source = minData.content.find(c => c.locale === localeDefault);
+    if (source) {
+      const {id, locale, ...content} = source;  //eslint-disable-line
+      const alertObj = {
+        title: "Translating..."
+      };
+      this.setState({alertObj});
+      const vsConfig = {
+        //variables: this.props.variables[localeDefault],
+        //formatterFunctions: this.props.resources.formatterFunctions[localeDefault]
+      };
+      console.log(vsConfig);
+      // const translated = await translate(content, localeDefault, localeSecondary);
+      const translated = {};
+      minData.content = minData.content.map(d => d.locale === localeSecondary ? {...d, ...translated} : d);
+      this.setState({alertObj: false, minData, ft: this.state.ft + 1});
+    }
+    else {
+      Toast.show({icon: "error", intent: Intent.DANGER, message: "Translation Error!", timeout: 3000});
+      this.setState({alertObj: false});
+    }
+  }
+
   maybeDelete() {
     const prettyType = this.prettifyType(this.props.type);
     const alertObj = {
@@ -264,7 +304,7 @@ class TextCard extends Component {
   }
 
   render() {
-    const {alertObj, primaryDisplayData, secondaryDisplayData, isOpen} = this.state;
+    const {alertObj, primaryDisplayData, secondaryDisplayData, isOpen, ft} = this.state;
     const {minData} = this.props;
     const {fields: richFields, hideAllowed, plainFields, type, showReorderButton} = this.props;
     const {localeDefault, localeSecondary, showToolbar} = this.props.status;
@@ -332,6 +372,7 @@ class TextCard extends Component {
       usePortal: false,
       onDelete: entityList.includes(type) ? false : this.maybeDelete.bind(this),
       onSave: this.save.bind(this),
+      onTranslate: this.maybeTranslate.bind(this),
       portalProps: {namespace: "cms"}
     };
 
@@ -418,7 +459,7 @@ class TextCard extends Component {
                   <PlainTextEditor locale={localeSecondary} fields={plainFields} key="p2" {...editorProps} />
                 }
                 {richFields &&
-                  <RichTextEditor locale={localeSecondary} fields={richFieldsSorted} key="r2" {...editorProps} />
+                  <RichTextEditor locale={localeSecondary} fields={richFieldsSorted} key="r2" forceTranslate={ft} {...editorProps} />
                 }
               </div>
             }

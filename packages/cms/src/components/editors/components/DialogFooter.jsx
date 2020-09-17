@@ -8,11 +8,25 @@ import "./DialogFooter.css";
 class DialogFooter extends Component {
 
   render() {
-    const {children, onDelete, onSave} = this.props;
+    const {children, onDelete, onSave, onTranslate} = this.props;
 
     return (
       <div className="cms-dialog-footer">
         {children}
+
+        {onTranslate &&
+          <Button
+            className="cms-dialog-footer-button cms-dialog-footer-translate-button"
+            onClick={onTranslate}
+            namespace="cms"
+            fontSize="xs"
+            icon="translate"
+            iconPosition="left"
+            key="t"
+          >
+            Translate
+          </Button>
+        }
 
         {onDelete &&
           <Button
