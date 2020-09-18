@@ -221,7 +221,7 @@ class TextCard extends Component {
     this.setState({alertObj});
   }
 
-  async translate() {
+  translate() {
     const {minData} = this.state;
     const Toast = this.context.toast.current;
     const {localeDefault, localeSecondary} = this.props.status;
@@ -233,14 +233,13 @@ class TextCard extends Component {
       };
       this.setState({alertObj});
       const vsConfig = {
-        //variables: this.props.variables[localeDefault],
-        //formatterFunctions: this.props.resources.formatterFunctions[localeDefault]
+        variables: this.props.variables[localeDefault],
+        formatterFunctions: this.props.resources.formatterFunctions[localeDefault]
       };
-      console.log(vsConfig);
-      // const translated = await translate(content, localeDefault, localeSecondary);
-      const translated = {};
-      minData.content = minData.content.map(d => d.locale === localeSecondary ? {...d, ...translated} : d);
-      this.setState({alertObj: false, minData, ft: this.state.ft + 1});
+      translate(content, localeDefault, localeSecondary, vsConfig).then(translated => {
+        minData.content = minData.content.map(d => d.locale === localeSecondary ? {...d, ...translated} : d);
+        this.setState({alertObj: false, minData, ft: this.state.ft + 1});
+      });
     }
     else {
       Toast.show({icon: "error", intent: Intent.DANGER, message: "Translation Error!", timeout: 3000});

@@ -2,6 +2,8 @@ const varSwap = require("./varSwap");
 const {Translate} = require("@google-cloud/translate").v2;
 const translate = new Translate();
 
+// const translate = d => d;
+
 const spanify = (s, vsConfig) => {
   if (!s.length) return s;
   const {variables, formatterFunctions} = vsConfig;
@@ -15,8 +17,8 @@ const varify = s => {
   return s.replace(/\<canonspan id=\"([A-z0-9]*\{\{[^\}]+\}\})\" class\=\"variable\"\>.*?\<\/canonspan\>/g, "$1");
 };
 
-// Translation wrapper for cmsRoute
-module.exports = async(obj, source, target, vsConfig) => {
+/** */
+async function doTranslate(obj, source, target, vsConfig) {
   const keys = Object.keys(obj);  
   const translated = {};
   for (const key of keys) {
@@ -33,4 +35,6 @@ module.exports = async(obj, source, target, vsConfig) => {
     }
   }
   return translated;
-};
+}
+
+module.exports = doTranslate;
