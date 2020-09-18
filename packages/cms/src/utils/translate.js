@@ -1,8 +1,7 @@
+const axios = require("axios");
 const varSwap = require("./varSwap");
-const {Translate} = require("@google-cloud/translate").v2;
-const translate = new Translate();
 
-// const translate = d => d;
+const TRANSLATE_API = "/api/translate";
 
 const spanify = (s, vsConfig) => {
   if (!s.length) return s;
@@ -19,14 +18,15 @@ const varify = s => {
 
 /** */
 async function doTranslate(obj, source, target, vsConfig) {
-  const keys = Object.keys(obj);  
+  const keys = Object.keys(obj);
   const translated = {};
   for (const key of keys) {
     if (obj[key]) {
       const text = spanify(obj[key], vsConfig);
-      const resp = await translate.translate(text, target);
-      if (resp && resp[0]) {
-        translated[key] = varify(resp[0]);
+      const payload = {text, target};
+      const resp = await axios.post(TRANSLATE_API, payload);
+      if (resp && resp.data) {
+        translated[key] = varify(resp.data);
       }
       else translated[key] = obj[key];
     }

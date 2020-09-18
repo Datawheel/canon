@@ -15,21 +15,30 @@ class RichTextEditor extends Component {
       isDirty: false
     };
     this.editors = {};
+
+    /** Note 1: This component receives props and (incorrectly) copies them into state without cloning. This means that when
+     * handleEditor is firing, updates to state occur directly on props. Even though this is a React anti-pattern, it allows
+     * the parent TextCard to, on save, have the object it passed down represent the current RTE state of the object, without a callback.
+     * Thus, when TextCard uses "this.state.minData" for saving, it is an object that has been updated by *this* component
+     * Note 2: The embedded Draftjs editor here is uncontrolled, meaning its default value is set, and then unmanaged thereafter. 
+     * The handleEditor callback is not linked to the state of Draftjs - draftjs is managing its own state - but handleEditor is necessary
+     * so that the actual object gets updated, so when save is pressed (see above) the object has been updated by the text window.
+     * Note 3: This leads to the problem: How can TextCard, upon receiving a translation from an axios call, inject it into a DraftWrapper?
+     * ComponentDidUpdate is firing _every_ time because (see note 1) we are editing the props directly. There is no way to tell the difference
+     * between a draftjs keystroke making a handleEditor "prop loop" and TextCard forcing a new prop in from scratch. To address this, expose a 
+     * reload method that reaches into the draftjs ref and forces a reload from props. TODO: improve this.
+     */
+
+    this.reload = () => {
+      Object.values(this.editors).forEach(editor => {
+        editor.reload();
+      });
+    };
   }
 
   componentDidMount() {
     const {data, fields} = this.props;
     this.setState({data, fields});
-  }
-
-  componentDidUpdate(prevProps) {
-    const ft1 = prevProps.forceTranslate;
-    const ft2 = this.props.forceTranslate;
-    if (!isNaN(ft1) && !isNaN(ft2) && ft1 !== ft2) {
-      Object.values(this.editors).forEach(editor => {
-        editor.reload();
-      });
-    } 
   }
 
   handleEditor(field, t) {
@@ -62,11 +71,12 @@ class RichTextEditor extends Component {
       <div className="cms-rich-text-editor">
         {fields.map(f =>
           <div className="cms-field-container" key={f}>
-            <label htmlFor={f}>
+            <label key="l"htmlFor={f}>
               {formatFieldName(f, contentType.replace("story_", "").replace("section_", ""))}
             </label>
             <DraftWrapper
               id={f}
+              key="dw"
               selectors={selectors}
               formatters={formatters}
               variables={variables}
@@ -98,4 +108,4 @@ const mapStateToProps = state => ({
   selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []
 });
 
-export default connect(mapStateToProps)(RichTextEditor);
+export default connect(mapStateToProps, null, null, {withRef: true})(RichTextEditor);

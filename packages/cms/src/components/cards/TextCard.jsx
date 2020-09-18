@@ -35,8 +35,7 @@ class TextCard extends Component {
       initialData: null,
       alertObj: false,
       isDirty: false,
-      customAllowed: false,
-      ft: 0
+      customAllowed: false
     };
   }
 
@@ -238,7 +237,11 @@ class TextCard extends Component {
       };
       translate(content, localeDefault, localeSecondary, vsConfig).then(translated => {
         minData.content = minData.content.map(d => d.locale === localeSecondary ? {...d, ...translated} : d);
-        this.setState({alertObj: false, minData, ft: this.state.ft + 1});
+        this.setState({alertObj: false, minData});
+        this.editor.wrappedInstance.reload();
+      }).catch(() => {
+        Toast.show({icon: "error", intent: Intent.DANGER, message: "Translation Error!", timeout: 3000});  
+        this.setState({alertObj: false});
       });
     }
     else {
@@ -303,7 +306,7 @@ class TextCard extends Component {
   }
 
   render() {
-    const {alertObj, primaryDisplayData, secondaryDisplayData, isOpen, ft} = this.state;
+    const {alertObj, primaryDisplayData, secondaryDisplayData, isOpen} = this.state;
     const {minData} = this.props;
     const {fields: richFields, hideAllowed, plainFields, type, showReorderButton} = this.props;
     const {localeDefault, localeSecondary, showToolbar} = this.props.status;
@@ -458,7 +461,7 @@ class TextCard extends Component {
                   <PlainTextEditor locale={localeSecondary} fields={plainFields} key="p2" {...editorProps} />
                 }
                 {richFields &&
-                  <RichTextEditor locale={localeSecondary} fields={richFieldsSorted} key="r2" forceTranslate={ft} {...editorProps} />
+                  <RichTextEditor locale={localeSecondary} fields={richFieldsSorted} key="r2" ref={c => this.editor = c} {...editorProps} />
                 }
               </div>
             }
