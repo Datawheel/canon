@@ -750,6 +750,16 @@ module.exports = function(app) {
     });
   });
 
+  /* TRANSLATIONS */
+  /** Translations are provided by the Google API and require an authentication key. They are handled client-side for 
+   * card-by-card translations (allowing for in-place editing) but can be batch-translated here.
+   */
+  app.post("/api/cms/section/translate", (req, res) => {
+    const {id, variables, source, target} = req.body;
+    console.log("got ", id, variables, source, target);
+    return res.json({id, variables, source, target});
+  });
+
   /* DELETES */
   /**
    * To streamline deletes, this list contains objects with two properties. "elements" refers to the tables to be modified,

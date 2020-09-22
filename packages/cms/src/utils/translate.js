@@ -17,7 +17,8 @@ const varify = s => {
 };
 
 /** */
-async function doTranslate(obj, source, target, vsConfig) {
+async function translate(obj, source, target, vsConfig) {
+  if (!obj) return obj;
   const keys = Object.keys(obj);
   const translated = {};
   for (const key of keys) {
@@ -37,4 +38,4 @@ async function doTranslate(obj, source, target, vsConfig) {
   return translated;
 }
 
-module.exports = doTranslate;
+module.exports = translate;

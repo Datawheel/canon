@@ -62,6 +62,17 @@ export function duplicateProfile(id) {
 }
 
 /** */
+export function translateSection(id, variables, source, target) { 
+  return function(dispatch, getStore) {
+    return axios.post(`${getStore().env.CANON_API}/api/cms/section/translate`, {id, variables, source, target})
+      .then(({data}) => {
+        console.log("got back with", data);
+        // dispatch({type: "SECTION_TRANSLATE", data});
+      });
+  };
+}
+
+/** */
 export function duplicateSection(id, pid) { 
   return function(dispatch, getStore) {
     return axios.post(`${getStore().env.CANON_API}/api/cms/section/duplicate`, {id, pid})
