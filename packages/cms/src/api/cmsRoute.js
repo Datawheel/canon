@@ -289,6 +289,32 @@ const duplicateSection = async(db, oldSection, pid, selectorLookup) => {
   return newSection.id;
 };
 
+const translateSection = async(db, config, req) => {
+  const {id, variables, source, target} = config;
+  const formatterFunctions = await formatters4eval(db, source);
+  // This helper function is given the content Array and a db ref, runs the translation, and upserts in place.
+  const upsertTranslation = async(contentArray, ref) => {
+    const defCon = contentArray.find(c => c.locale === source);
+    if (defCon) {
+      const {id, locale, ...content} = defCon; //eslint-disable-line
+      const translated = await translateContent(content, source, target, {variables, formatterFunctions}, req);
+      const newContent = {id, locale: target, ...translated};
+      await ref.upsert(newContent, {where: {id, locale: target}}).catch(catcher);
+    }
+  };
+  // Fetch the full section by the provided id, including content
+  const reqObj = Object.assign({}, sectionReqFull, {where: {id}});
+  let section = await db.section.findOne(reqObj);
+  section = section.toJSON();
+  // Crawl through the object and translate each of its individual content rows, then update it in place
+  await upsertTranslation(section.content, db.section_content);
+  for (const entityRef of ["subtitle", "description", "stat"]) {
+    for (const entity of section[`${entityRef}s`]) {
+      await upsertTranslation(entity.content, db[`section_${entityRef}_content`]);
+    }
+  }
+};
+
 const pruneSearch = async(cubeName, dimension, levels, db) => {
   const currentMeta = await db.profile_meta.findAll().catch(catcher);
   const dimensionCubePairs = currentMeta.reduce((acc, d) => acc.concat(`${d.dimension}-${d.cubeName}`), []);
@@ -756,20 +782,9 @@ module.exports = function(app) {
    */
   app.post("/api/cms/section/translate", async(req, res) => {
     const {id, variables, source, target} = req.body;
-    const formatterFunctions = await formatters4eval(db, source);
-    // Fetch the full section by the provided id, including content
-    const reqObj = Object.assign({}, sectionReqFull, {where: {id}});
-    let section = await db.section.findOne(reqObj);
-    section = section.toJSON();
-    // Crawl through the object and translate each of its individual content rows, then update it in place
-    const defCon = section.content.find(c => c.locale === source);
-    if (defCon) {
-      const {id, locale, ...content} = defCon; //eslint-disable-line
-      const translated = await translateContent(content, source, target, {variables, formatterFunctions}, req);
-      const newContent = {id, locale: target, ...translated};
-      await db.section_content.upsert(newContent, {where: {id, locale: target}}).catch(catcher);
-    }
-    return res.json({id, variables, source, target});
+    const config = {id, variables, source, target};
+    await translateSection(db, config, req);
+    return res.json(config);
   });
 
   /* DELETES */
