@@ -72,6 +72,9 @@ export default (status = {}, action) => {
     // Updating sections could mean the title was updated. Bump a "diffcounter" that the Navbar tree can listen for to jigger a render
     case "SECTION_UPDATE": 
       return Object.assign({}, status, {dialogOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "section", ...success}});
+    // Section-wide translations update a ton of content in one go. This requires a massive TextCard-wide "jigger" to update their content
+    case "SECTION_TRANSLATE": 
+      return Object.assign({}, status, {translateCounter: action.translateCounter});
     // When the user adds a new dimension, set a status that we are waiting for members to finish populating
     case "STORYSECTION_UPDATE": 
       return Object.assign({}, status, {dialogOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "storysection", ...success}});

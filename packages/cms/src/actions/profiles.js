@@ -64,10 +64,10 @@ export function duplicateProfile(id) {
 /** */
 export function translateSection(id, variables, source, target) { 
   return function(dispatch, getStore) {
+    const translateCounter = getStore().cms.status.translateCounter + 1;
     return axios.post(`${getStore().env.CANON_API}/api/cms/section/translate`, {id, variables, source, target})
       .then(({data}) => {
-        console.log("got back with", data);
-        // dispatch({type: "SECTION_TRANSLATE", data});
+        dispatch({type: "SECTION_TRANSLATE", data, translateCounter});
       });
   };
 }

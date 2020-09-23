@@ -50,11 +50,12 @@ class TextCard extends Component {
     const {type} = this.props;
     const idChanged = prevProps.minData.id !== this.props.minData.id;
     const variablesChanged = prevProps.status.diffCounter !== this.props.status.diffCounter;
+    const translationChanged = prevProps.status.translateCounter !== this.props.status.translateCounter;
     const selectorsChanged = JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors);
     const queryChanged = JSON.stringify(this.props.status.query) !== JSON.stringify(prevProps.status.query);
     const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
 
-    if (idChanged) {
+    if (idChanged || translationChanged) {
       this.setState({minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
     }
 

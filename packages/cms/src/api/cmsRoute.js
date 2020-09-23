@@ -784,7 +784,12 @@ module.exports = function(app) {
     const {id, variables, source, target} = req.body;
     const config = {id, variables, source, target};
     await translateSection(db, config, req);
-    return res.json(config);
+    const newReqObj = Object.assign({}, sectionReqFull, {where: {id}});
+    let newSection = await db.section.findOne(newReqObj).catch(catcher);
+    newSection = newSection.toJSON();
+    newSection = sortSection(db, newSection);
+    newSection.types = getSectionTypes();
+    return res.json(newSection);
   });
 
   /* DELETES */

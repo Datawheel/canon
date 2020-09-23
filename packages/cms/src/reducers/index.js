@@ -14,6 +14,7 @@ import variables from "./variables.js";
 const initialState = {
   status: {
     diffCounter: 0,
+    translateCounter: 0,
     previews: null,
     query: {},
     pathObj: {}
