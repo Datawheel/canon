@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {hot} from "react-hot-loader/root";
-import {Icon} from "@blueprintjs/core";
+import {Icon, Intent} from "@blueprintjs/core";
 
 import Button from "../fields/Button";
 import ButtonGroup from "../fields/ButtonGroup";
@@ -34,6 +34,14 @@ class Header extends Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    const translationFinished = prevProps.status.translateCounter !== this.props.status.translateCounter;
+    if (translationFinished) {
+      const Toast = this.context.toast.current;
+      Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Translation Complete!", timeout: 2500});
+    }
+  }
+
   maybeTranslateSection() {
     const {pathObj} = this.props.status;
     if (pathObj.tab === "profiles") {
@@ -58,6 +66,8 @@ class Header extends Component {
     const variables = this.props.variables && this.props.variables[localeDefault] ? this.props.variables[localeDefault] : {};
     if (localeSecondary) {
       if (type === "section") {
+        const Toast = this.context.toast.current;
+        Toast.show({icon: "translate", intent: Intent.WARNING, message: "Translating section...", timeout: 1000});
         this.props.translateSection(id, variables, localeDefault, localeSecondary);
       }
     }
@@ -339,7 +349,8 @@ class Header extends Component {
 }
 
 Header.contextTypes = {
-  router: PropTypes.object
+  router: PropTypes.object,
+  toast: PropTypes.object
 };
 
 const mapStateToProps = state => ({

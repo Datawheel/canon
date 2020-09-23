@@ -18,7 +18,7 @@ module.exports = function(app) {
 
   app.post("/api/translatetest", async(req, res) => {
     const {text, target} = req.body; 
-    return res.json(`Would translate 5 ${target} ----> ${text}`);
+    return res.json(`Would translate 6 ${target} ----> ${text}`);
   });
   
 };
