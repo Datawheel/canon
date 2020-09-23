@@ -7,6 +7,7 @@ const Op = sequelize.Op;
 
 const populateSearch = require("../utils/populateSearch");
 const translate = require("../utils/translate");
+const formatters4eval = require("../utils/formatters4eval");
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
@@ -343,7 +344,6 @@ module.exports = function(app) {
   });
 
   app.get("/api/cms/tree", async(req, res) => {
-    translate();
     let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     profiles.forEach(profile => {
@@ -754,9 +754,21 @@ module.exports = function(app) {
   /** Translations are provided by the Google API and require an authentication key. They are handled client-side for 
    * card-by-card translations (allowing for in-place editing) but can be batch-translated here.
    */
-  app.post("/api/cms/section/translate", (req, res) => {
+  app.post("/api/cms/section/translate", async(req, res) => {
     const {id, variables, source, target} = req.body;
-    console.log("got ", id, variables, source, target);
+    const formatterFunctions = await formatters4eval(db, source);
+    // Fetch the full section by the provided id, including content
+    const reqObj = Object.assign({}, sectionReqFull, {where: {id}});
+    let section = await db.section.findOne(reqObj);
+    section = section.toJSON();
+    // Crawl through the object and translate each of its individual content rows, then update it in place
+    const defCon = section.content.find(c => c.locale === source);
+    if (defCon) {
+      const {id, locale, ...content} = defCon; //eslint-disable-line
+      const translated = await translate(content, source, target, {variables, formatterFunctions}, req);
+      const newContent = {id, locale: target, ...translated};
+      await db.section_content.upsert(newContent, {where: {id, locale: target}}).catch(catcher);
+    }
     return res.json({id, variables, source, target});
   });
 
