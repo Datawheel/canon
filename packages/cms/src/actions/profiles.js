@@ -62,6 +62,17 @@ export function duplicateProfile(id) {
 }
 
 /** */
+export function translateProfile(id, variables, source, target) { 
+  return function(dispatch, getStore) {
+    const translateCounter = getStore().cms.status.translateCounter + 1;
+    return axios.post(`${getStore().env.CANON_API}/api/cms/profile/translate`, {id, variables, source, target})
+      .then(({data}) => {
+        dispatch({type: "PROFILE_TRANSLATE", data, translateCounter});
+      });
+  };
+}
+
+/** */
 export function translateSection(id, variables, source, target) { 
   return function(dispatch, getStore) {
     const translateCounter = getStore().cms.status.translateCounter + 1;

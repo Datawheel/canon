@@ -19,6 +19,8 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {justCreated: {type: "profile", id: action.data.id}});
     case "PROFILE_DUPLICATE": 
       return Object.assign({}, status, {justCreated: {type: "profile", id: action.data.id}});
+    case "PROFILE_TRANSLATE": 
+      return Object.assign({}, status, {translateCounter: action.translateCounter});
     case "SECTION_NEW": 
       return Object.assign({}, status, {justCreated: {type: "section", id: action.data.id, profile_id: action.data.profile_id}});
     case "SECTION_DUPLICATE": 

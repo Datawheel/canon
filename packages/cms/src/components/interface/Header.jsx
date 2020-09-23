@@ -8,7 +8,7 @@ import ButtonGroup from "../fields/ButtonGroup";
 import Select from "../fields/Select";
 import Alert from "../interface/Alert";
 
-import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection, translateSection, fetchSectionPreview} from "../../actions/profiles";
+import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection, translateSection, translateProfile, fetchSectionPreview} from "../../actions/profiles";
 import {deleteStory} from "../../actions/stories";
 import {setStatus} from "../../actions/status";
 
@@ -42,7 +42,7 @@ class Header extends Component {
     }
   }
 
-  maybeTranslateSection() {
+  maybeTranslate() {
     const {pathObj} = this.props.status;
     if (pathObj.tab === "profiles") {
       const type = pathObj.section ? "section" : pathObj.profile ? "profile" : null;
@@ -65,6 +65,11 @@ class Header extends Component {
     const {localeDefault, localeSecondary} = this.props.status;
     const variables = this.props.variables && this.props.variables[localeDefault] ? this.props.variables[localeDefault] : {};
     if (localeSecondary) {
+      if (type === "profile") {
+        const Toast = this.context.toast.current;
+        Toast.show({icon: "translate", intent: Intent.WARNING, message: "Translating profile...", timeout: 1000});
+        this.props.translateProfile(id, variables, localeDefault, localeSecondary);
+      }
       if (type === "section") {
         const Toast = this.context.toast.current;
         Toast.show({icon: "translate", intent: Intent.WARNING, message: "Translating section...", timeout: 1000});
@@ -207,7 +212,7 @@ class Header extends Component {
 
     const showDuplicateButton = pathObj.tab === "profiles";
     const showPreviewButton = pathObj.section;
-    const showTranslateButton = pathObj.section && localeSecondary;
+    const showTranslateButton = (pathObj.profile || pathObj.section) && localeSecondary;
 
     const showButtons = showDuplicateButton || showDeleteButton || showPreviewButton;
 
@@ -244,7 +249,7 @@ class Header extends Component {
                 {showTranslateButton &&
                   <Button
                     className="cms-header-actions-button cms-header-translate-button"
-                    onClick={this.maybeTranslateSection.bind(this)}
+                    onClick={this.maybeTranslate.bind(this)}
                     icon="translate"
                     key="t1"
                     {...buttonProps}
@@ -366,6 +371,7 @@ const mapDispatchToProps = dispatch => ({
   duplicateProfile: id => dispatch(duplicateProfile(id)),
   duplicateSection: (id, pid) => dispatch(duplicateSection(id, pid)),
   translateSection: (id, variables, source, target) => dispatch(translateSection(id, variables, source, target)),
+  translateProfile: (id, variables, source, target) => dispatch(translateProfile(id, variables, source, target)),
   fetchSectionPreview: (id, locale) => dispatch(fetchSectionPreview(id, locale)),
   deleteStory: id => dispatch(deleteStory(id)),
   setStatus: status => dispatch(setStatus(status))

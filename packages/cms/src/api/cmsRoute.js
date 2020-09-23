@@ -289,28 +289,35 @@ const duplicateSection = async(db, oldSection, pid, selectorLookup) => {
   return newSection.id;
 };
 
-const translateSection = async(db, config, req) => {
-  const {id, variables, source, target} = config;
-  const formatterFunctions = await formatters4eval(db, source);
-  // This helper function is given the content Array and a db ref, runs the translation, and upserts in place.
-  const upsertTranslation = async(contentArray, ref) => {
-    const defCon = contentArray.find(c => c.locale === source);
-    if (defCon) {
-      const {id, locale, ...content} = defCon; //eslint-disable-line
-      const translated = await translateContent(content, source, target, {variables, formatterFunctions}, req);
-      const newContent = {id, locale: target, ...translated};
-      await ref.upsert(newContent, {where: {id, locale: target}}).catch(catcher);
-    }
-  };
+/**
+ * - contentArray of a cms entity
+ * - db ref to process the upsert 
+ * - config object with source, target, and variables
+ * - req, to pass through to translateContent, so the API can path with origin/host
+ * It updates the translation in-place, so has no return value.
+ */
+const upsertTranslation = async(contentArray, db, ref, config, req) => {
+  const {source, target, variables} = config;
+  const defCon = contentArray.find(c => c.locale === source);
+  if (defCon) {
+    const formatterFunctions = await formatters4eval(db, source);
+    const {id, locale, ...content} = defCon; //eslint-disable-line
+    const translated = await translateContent(content, source, target, {variables, formatterFunctions}, req);
+    const newContent = {id, locale: target, ...translated};
+    await db[ref].upsert(newContent, {where: {id, locale: target}}).catch(catcher);
+  }
+};
+
+const translateSection = async(sid, config, db, req) => {
   // Fetch the full section by the provided id, including content
-  const reqObj = Object.assign({}, sectionReqFull, {where: {id}});
+  const reqObj = Object.assign({}, sectionReqFull, {where: {id: sid}});
   let section = await db.section.findOne(reqObj);
   section = section.toJSON();
   // Crawl through the object and translate each of its individual content rows, then update it in place
-  await upsertTranslation(section.content, db.section_content);
+  await upsertTranslation(section.content, db, "section_content", config, req);
   for (const entityRef of ["subtitle", "description", "stat"]) {
     for (const entity of section[`${entityRef}s`]) {
-      await upsertTranslation(entity.content, db[`section_${entityRef}_content`]);
+      await upsertTranslation(entity.content, db, `section_${entityRef}_content`, config, req);
     }
   }
 };
@@ -781,15 +788,39 @@ module.exports = function(app) {
    * card-by-card translations (allowing for in-place editing) but can be batch-translated here.
    */
   app.post("/api/cms/section/translate", async(req, res) => {
-    const {id, variables, source, target} = req.body;
-    const config = {id, variables, source, target};
-    await translateSection(db, config, req);
-    const newReqObj = Object.assign({}, sectionReqFull, {where: {id}});
+    const sid = req.body.id;
+    const {variables, source, target} = req.body;
+    const config = {variables, source, target};
+    await translateSection(sid, config, db, req);
+    const newReqObj = Object.assign({}, sectionReqFull, {where: {id: sid}});
     let newSection = await db.section.findOne(newReqObj).catch(catcher);
     newSection = newSection.toJSON();
     newSection = sortSection(db, newSection);
     newSection.types = getSectionTypes();
     return res.json(newSection);
+  });
+
+  app.post("/api/cms/profile/translate", async(req, res) => {
+    const pid = req.body.id;
+    const {variables, source, target} = req.body;
+    const config = {variables, source, target};
+    const reqObj = Object.assign({}, profileReqFull, {where: {id: pid}});
+    let profile = await db.profile.findOne(reqObj).catch(catcher);
+    profile = profile.toJSON();
+    await upsertTranslation(profile.content, db, "profile_content", config, req);
+    for (const section of profile.sections) {
+      const sid = section.id;
+      await translateSection(sid, config, db, req);
+    }
+    let newProfile = await db.profile.findOne(reqObj).catch(catcher);
+    newProfile = sortProfile(db, newProfile.toJSON());
+    const sectionTypes = getSectionTypes();
+    newProfile.sections = newProfile.sections.map(section => {
+      section = sortSection(db, section);
+      section.types = sectionTypes;
+      return section;
+    });
+    return res.json(newProfile);
   });
 
   /* DELETES */

@@ -37,6 +37,8 @@ export default (profiles = [], action) => {
       return action.data.profiles;
     case "PROFILE_UPDATE":
       return profiles.map(p => p.id === action.data.id ? Object.assign({}, p, {...action.data}) : p);
+    case "PROFILE_TRANSLATE": 
+      return profiles.map(p => p.id === action.data.id ? Object.assign({}, p, {...action.data}) : p);
     case "PROFILE_SWAP":
       return profiles
         .map(p => {
