@@ -15,5 +15,10 @@ module.exports = function(app) {
     const resp = await translate.translate(text, target).catch(catcher);
     return resp && resp[0] ? res.json(resp[0]) : res.json("");
   });
+
+  app.post("/api/translatetest", async(req, res) => {
+    const {text, target} = req.body; 
+    return res.json(`Would translate to ${target} ----> ${text}`);
+  });
   
 };

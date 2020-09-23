@@ -3,7 +3,7 @@ const varSwap = require("./varSwap");
 const yn = require("yn");
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 
-const TRANSLATE_API = "/api/translate";
+const TRANSLATE_API = "/api/translatetest";
 
 const catcher = e => {
   if (verbose) console.log(`Error in content transation: ${e}`);
@@ -24,7 +24,7 @@ const varify = s => {
 };
 
 /** */
-async function translate(obj, source, target, vsConfig, req = false) {
+async function translateContent(obj, source, target, vsConfig, req = false) {
   if (!obj) return obj;
   // req is for server-side requests, client side is fine to use the relative path
   const api = req ? `${req.protocol}://${req.headers.host}${TRANSLATE_API}` : TRANSLATE_API;
@@ -47,4 +47,4 @@ async function translate(obj, source, target, vsConfig, req = false) {
   return translated;
 }
 
-module.exports = translate;
+module.exports = translateContent;

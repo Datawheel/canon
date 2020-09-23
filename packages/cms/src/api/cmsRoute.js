@@ -6,7 +6,7 @@ const fs = require("fs");
 const Op = sequelize.Op;
 
 const populateSearch = require("../utils/populateSearch");
-const translate = require("../utils/translate");
+const translateContent = require("../utils/translateContent");
 const formatters4eval = require("../utils/formatters4eval");
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
@@ -765,7 +765,7 @@ module.exports = function(app) {
     const defCon = section.content.find(c => c.locale === source);
     if (defCon) {
       const {id, locale, ...content} = defCon; //eslint-disable-line
-      const translated = await translate(content, source, target, {variables, formatterFunctions}, req);
+      const translated = await translateContent(content, source, target, {variables, formatterFunctions}, req);
       const newContent = {id, locale: target, ...translated};
       await db.section_content.upsert(newContent, {where: {id, locale: target}}).catch(catcher);
     }

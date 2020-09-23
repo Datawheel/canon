@@ -7,7 +7,7 @@ import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
-import translate from "../../utils/translate";
+import translateContent from "../../utils/translateContent";
 
 import {Intent, Switch, Alignment} from "@blueprintjs/core";
 
@@ -235,7 +235,7 @@ class TextCard extends Component {
         variables: this.props.variables[localeDefault],
         formatterFunctions: this.props.resources.formatterFunctions[localeDefault]
       };
-      translate(content, localeDefault, localeSecondary, vsConfig).then(translated => {
+      translateContent(content, localeDefault, localeSecondary, vsConfig).then(translated => {
         minData.content = minData.content.map(d => d.locale === localeSecondary ? {...d, ...translated} : d);
         this.setState({alertObj: false, minData});
         this.editor.wrappedInstance.reload();
@@ -385,30 +385,6 @@ class TextCard extends Component {
     };
 
     const richFieldsSorted = richFields ? richFields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b)) : null;
-
-    let selectProps = {};
-    const showVars = Object.keys(variables).length > 0 && !hideAllowed;
-
-    if (showVars) {
-      selectProps = {
-        label: "Visible",
-        value: minDataState.allowed || "always",
-        onChange: this.chooseVariable.bind(this),
-        namespace: "cms",
-        inline: true,
-        children: [<option key="always" value="always">Always</option>]
-          .concat(Object.keys(variables)
-            .filter(key => !key.startsWith("_"))
-            .sort((a, b) => a.localeCompare(b))
-            .map(key => {
-              const value = variables[key];
-              const type = typeof value;
-              const label = !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`;
-              return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
-            })
-          )
-      };
-    }
 
     return (
       <Card {...cardProps}>
