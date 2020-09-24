@@ -38,6 +38,7 @@ async function translateContent(obj, source, target, vsConfig, req = false) {
       if (resp && resp.data) {
         translated[key] = varify(resp.data);
       }
+      // todo: return error code to user here
       else translated[key] = obj[key];
     }
     else {
