@@ -1,5 +1,5 @@
 const axios = require("axios");
-const varSwap = require("./varSwap");
+const varSwap = require("../varSwap");
 const yn = require("yn");
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 

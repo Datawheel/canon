@@ -7,7 +7,7 @@ import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
-import translateContent from "../../utils/translateContent";
+import translateContent from "../../utils/translation/translateContent";
 
 import {Intent, Switch, Alignment} from "@blueprintjs/core";
 
@@ -228,10 +228,7 @@ class TextCard extends Component {
     const source = minData.content.find(c => c.locale === localeDefault);
     if (source) {
       const {id, locale, ...content} = source;  //eslint-disable-line
-      const alertObj = {
-        title: "Translating..."
-      };
-      this.setState({alertObj});
+      Toast.show({icon: "translate", intent: Intent.WARNING, message: "Translating...", timeout: 1000});  
       const vsConfig = {
         variables: this.props.variables[localeDefault],
         formatterFunctions: this.props.resources.formatterFunctions[localeDefault]
@@ -239,6 +236,7 @@ class TextCard extends Component {
       translateContent(content, localeDefault, localeSecondary, vsConfig).then(translated => {
         minData.content = minData.content.map(d => d.locale === localeSecondary ? {...d, ...translated} : d);
         this.setState({alertObj: false, minData});
+        Toast.show({icon: "translate", intent: Intent.SUCCESS, message: "Translation Complete!", timeout: 1000});  
         this.editor.wrappedInstance.reload();
       }).catch(() => {
         Toast.show({icon: "error", intent: Intent.DANGER, message: "Translation Error!", timeout: 3000});  
