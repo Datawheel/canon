@@ -10,8 +10,6 @@ const catcher = e => {
   return false;
 };
 
-// sourceObj, formatterFunctions, variables, query = {}, selectors = [], combinedLabels = {}
-
 /** 
  * To help translations, varswap in the currently selected member so the context makes sense
  * but preserve the original variable so it can be changed back. For example:

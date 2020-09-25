@@ -3,7 +3,7 @@ const translate = new Translate();
 const yn = require("yn");
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 // const {isAuthenticated} = require("../utils/api");
-const isAuthenticated = (req, res, next) => next();  // REMOVE THIS
+const isAuthenticated = (req, res, next) => next();  // For Testing Only!!
   
 const catcher = e => {
   if (verbose) console.error("Error in translation: ", e);
@@ -27,7 +27,7 @@ module.exports = function(app) {
 
     app.post("/api/translatetest", isAuthenticated, async(req, res) => {
       const {text, source, target} = req.body; 
-      return res.json(`Would translate 10 from ${source} to ${target} ----> ${text}`);
+      return res.json(`Would translate from ${source} to ${target} ----> ${text}`);
     });
   }
   

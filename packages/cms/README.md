@@ -866,11 +866,11 @@ export GOOGLE_APPLICATION_CREDENTIALS="/path/to/token.json"
 Once set up, translation buttons will appear on each TextCard, Section Header, and Profile Header, but *only when a second language is selected*. This second language must be selected and represents the target language for the translation.
 
 Remember a few key points for translations:
-- Translations cost money: $20 per 1,000,000 characters. For reference, this is about $4 per entire-OEC-site-translation per language. Be careful not to overuse it, especially with profile-wide translations.
+- Translations cost [money](https://cloud.google.com/translate/pricing): $20 per 1,000,000 characters. For reference, this is about $4 per entire-OEC-site-translation per language. Be careful not to overuse it, especially with profile-wide translations.
 - Translating **paves all content in the target language and replaces it**. There is currently no smart detection of whether secondary language content has been updated since the last ingest - it is a one-way blast.
 - Translations currently only cover text content (subtitles, paragraphs, stats). They do not cover visualizations, formatters, or language-specific variables. The translation API should be considered a *starting point* for the SEO-optimized prose of the page.
 
-### CLI interface
+### Command Line Tool
 
 tbd
 
