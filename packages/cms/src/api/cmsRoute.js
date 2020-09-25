@@ -7,7 +7,7 @@ const Op = sequelize.Op;
 
 const populateSearch = require("../utils/populateSearch");
 const {profileReqFull, storyReqFull, sectionReqFull, storysectionReqFull, cmsTables, contentTables, parentOrderingTables} = require("../utils/sequelize/models");
-const {upsertTranslation, translateSection} = require("../utils/translation/translationUtils");
+const {upsertTranslation, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
@@ -648,8 +648,14 @@ module.exports = function(app) {
   app.post("/api/cms/section/translate", async(req, res) => {
     const sid = req.body.id;
     const {variables, source, target} = req.body;
-    const config = {variables, source, target};
-    await translateSection(sid, config, db, req);
+    const reqObj = Object.assign({}, sectionReqFull, {where: {id: sid}});
+    let section = await db.section.findOne(reqObj);
+    section = section.toJSON();
+    const helpers = await fetchUpsertHelpers(db, section.profile_id, source);
+    const {formatterFunctions, allSelectors} = helpers;
+    const config = {variables, source, target, formatterFunctions, allSelectors};
+    await translateSection(section, config, db, req);
+    // Fetch and return updated section
     const newReqObj = Object.assign({}, sectionReqFull, {where: {id: sid}});
     let newSection = await db.section.findOne(newReqObj).catch(catcher);
     newSection = newSection.toJSON();
@@ -661,14 +667,15 @@ module.exports = function(app) {
   app.post("/api/cms/profile/translate", async(req, res) => {
     const pid = req.body.id;
     const {variables, source, target} = req.body;
-    const config = {variables, source, target};
+    const helpers = await fetchUpsertHelpers(db, pid, source).catch(catcher);
+    const {formatterFunctions, allSelectors} = helpers;
+    const config = {variables, source, target, formatterFunctions, allSelectors};
     const reqObj = Object.assign({}, profileReqFull, {where: {id: pid}});
     let profile = await db.profile.findOne(reqObj).catch(catcher);
     profile = profile.toJSON();
     await upsertTranslation(profile.content, db, "profile_content", config, req);
     for (const section of profile.sections) {
-      const sid = section.id;
-      await translateSection(sid, config, db, req);
+      await translateSection(section, config, db, req);
     }
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());

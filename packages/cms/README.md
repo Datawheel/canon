@@ -17,6 +17,7 @@ Content Management System for Canon sites.
 * [Advanced Generator Techniques](#advanced-generator-techniques)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
 * [Advanced Selector Techniques](#advanced-selector-techniques)
+* [Automatic Translations](#automatic-translations)
 * [Authentication](#authentication)
 * [Profile Caching](#profile-caching)
 * [Frequently Asked Questions](#frequently-asked-questions)
@@ -827,6 +828,18 @@ Advanced users may have used the following syntax to achieve "labels" on the fro
 On a first pass, a selector swap will change `selector1` to its selected value (say `year2018`), which leaves `{{year2018}}` behind. A second variable swap pass would then change it to `2018`, for use in a human-readable paragraph.
 
 In dynamic selectors, as mentioned above, `year2018` will not exist as such. Therefore, a step has been added BETWEEN the selector swap and the variable swap, which will use user-defined `labels` as a temporary variable lookup. This behavior allows users to continue to use the `{{[[selector1]]}}` format they are used to, and can trust that it will turn `year2018` into `2018`, even though `year2018` is not in the variables object.
+
+---
+
+## Automatic Translations
+
+If your CMS is configured with more than one language, you can use the Google Translate API to automatically fill in the target language. 
+
+### Enabling Translations
+
+#### Option 1 - Add Translate permissions to an existing token
+
+If you have already followed the steps for [Enabling Image Support](#enabling-image-support), then you will already have a JSON token and a `GOOGLE_APPLICATION_CREDENTIALS` environment variable that points to it. 
 
 ---
 

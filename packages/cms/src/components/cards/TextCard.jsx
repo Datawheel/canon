@@ -229,11 +229,14 @@ class TextCard extends Component {
     if (source) {
       const {id, locale, ...content} = source;  //eslint-disable-line
       Toast.show({icon: "translate", intent: Intent.WARNING, message: "Translating...", timeout: 1000});  
-      const vsConfig = {
+      const config = {
+        source: localeDefault,
+        target: localeSecondary,
         variables: this.props.variables[localeDefault],
-        formatterFunctions: this.props.resources.formatterFunctions[localeDefault]
+        formatterFunctions: this.props.resources.formatterFunctions[localeDefault],
+        allSelectors: this.props.selectors
       };
-      translateContent(content, localeDefault, localeSecondary, vsConfig).then(translated => {
+      translateContent(content, config).then(translated => {
         minData.content = minData.content.map(d => d.locale === localeSecondary ? {...d, ...translated} : d);
         this.setState({alertObj: false, minData});
         Toast.show({icon: "translate", intent: Intent.SUCCESS, message: "Translation Complete!", timeout: 1000});  
