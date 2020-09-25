@@ -17,15 +17,13 @@ module.exports = function(app) {
   if (enableTranslation) {
     app.post("/api/translate", isAuthenticated, async(req, res) => {
       const {text, target} = req.body; 
-      console.log("sending", text);
       const resp = await translate.translate(text, target).catch(catcher);
-      console.log("got", resp[0]);
       return resp && resp[0] ? res.json(resp[0]) : res.json("");
     });
 
     app.post("/api/translatetest", isAuthenticated, async(req, res) => {
       const {text, target} = req.body; 
-      return res.json(`Would translate 9 ${target} ----> ${text}`);
+      return res.json(`Would translate 10 ${target} ----> ${text}`);
     });
   }
   

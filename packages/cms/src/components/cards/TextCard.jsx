@@ -376,7 +376,7 @@ class TextCard extends Component {
       usePortal: false,
       onDelete: entityList.includes(type) ? false : this.maybeDelete.bind(this),
       onSave: this.save.bind(this),
-      onTranslate: this.maybeTranslate.bind(this),
+      onTranslate: localeSecondary ? this.maybeTranslate.bind(this) : false,
       portalProps: {namespace: "cms"}
     };
 

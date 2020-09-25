@@ -17,9 +17,9 @@ const catcher = e => {
  * but preserve the original variable so it can be changed back. For example:
  * Welcome to {{nameOfCountry}} ====> Welcome to <c id="{{nameOfCountry}}" class="v">China</c>
  */
-const spanify = (s, vsConfig) => {
+const spanify = (s, config) => {
   if (!s.length) return s;
-  const {formatterFunctions, variables, allSelectors} = vsConfig;
+  const {formatterFunctions, variables, allSelectors} = config;
   const vs = d => {
     try {
       // varSwapRecursive expects an object, so make an object with a "text" field. It also needs
@@ -45,22 +45,27 @@ const spanify = (s, vsConfig) => {
  */
 const varify = s => {
   if (!s.length) return s;
-  return s.replace(/\<c id=\"([A-z0-9]*(\{\{|\[\[)[\[\]\{\}A-z0-9\-]+(\}|\]))\" class\=\"v\"\>.*?\<\/c\>/g, " $1");
+  return s
+    // Replace the <c> spans with the {{vars}}. The translation API swallows a leading space, so add it back in.
+    .replace(/\<c id=\"([A-z0-9]*(\{\{|\[\[)[\[\]\{\}A-z0-9\-]+(\}|\]))\" class\=\"v\"\>.*?\<\/c\>/g, " $1")
+    // The translation API also ADDS a space after {{vars}} and before punctuation. Remove those.
+    .replace(/(\}\}|\]\])(\s+)([\,\.\!])/g, "$1$3");
 };
 
 // Empty text fields in draftjs appear as p brackets - do not translate these.
 const isEmpty = s => s === "<p><br></p>";
 
 /** */
-async function translateContent(obj, source, target, vsConfig, req = false) {
+async function translateContent(obj, config, req = false) {
   if (!obj) return obj;
+  const {target} = config;
   // req is for server-side requests, client side is fine to use the relative path
   const api = req ? `${req.protocol}://${req.headers.host}${TRANSLATE_API}` : TRANSLATE_API;
   const keys = Object.keys(obj);
   const translated = {};
   for (const key of keys) {
     if (obj[key] && !isEmpty(obj[key])) {
-      const text = spanify(obj[key], vsConfig);
+      const text = spanify(obj[key], config);
       const payload = {text, target};
       const resp = await axios.post(api, payload).catch(catcher);
       if (resp && resp.data) {
