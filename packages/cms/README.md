@@ -835,11 +835,35 @@ In dynamic selectors, as mentioned above, `year2018` will not exist as such. The
 
 If your CMS is configured with more than one language, you can use the Google Translate API to automatically fill in the target language. 
 
-### Enabling Translations
+### Enabling Translation API
+
+Enable the Translation API for your cloud project [here](https://console.cloud.google.com/apis/api/translate.googleapis.com/overview).
+
+### Authentication
 
 #### Option 1 - Add Translate permissions to an existing token
 
-If you have already followed the steps for [Enabling Image Support](#enabling-image-support), then you will already have a JSON token and a `GOOGLE_APPLICATION_CREDENTIALS` environment variable that points to it. 
+If you have already followed the steps for [Enabling Image Support](#enabling-image-support), then you will already have a JSON token and a `GOOGLE_APPLICATION_CREDENTIALS` environment variable that points to it. Locate the service account associated with the token [here](https://console.cloud.google.com/iam-admin/iam), and add the "Cloud Translation -> Cloud Translation API User" Role to the service account.
+
+#### Option 2 - Create an authentication token with Translate Permissions
+
+Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create an authentication token and give it "Cloud Translation -> Cloud Translation API User" permissions. Then follow the steps in the [Enabling Image Support](#enabling-image-support) section of this document to reference that JSON token in your `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
+
+**Warning!!**. Separate tokens for translation and image hosting is not currently supported. If you want both, you must follow Option 1 above.
+
+#### Usage
+
+Once set up, translation buttons will appear on each TextCard, Section Header, and Profile Header, but *only when a second language is selected*. This second language must be selected and represents the target language for the translation.
+
+Remember a few key points for translations:
+- Translations cost money: $20 per 1,000,000 characters. For reference, this is about $4 per entire-OEC-site-translation per language. Be careful not to overuse it, especially with profile-wide translations.
+- Translating **paves all content in the target language and replaces it**. There is currently no smart detection of whether secondary language content has been updated since the last ingest - it is a one-way blast.
+- Translations currently only cover text content (subtitles, paragraphs, stats). They do not cover visualizations, formatters, or language-specific variables. The translation API should be considered a *starting point* for the SEO-optimized prose of the page.
+
+#### CLI interface
+
+tbd
+
 
 ---
 

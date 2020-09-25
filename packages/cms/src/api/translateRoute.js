@@ -16,14 +16,18 @@ module.exports = function(app) {
 
   if (enableTranslation) {
     app.post("/api/translate", isAuthenticated, async(req, res) => {
-      const {text, target} = req.body; 
-      const resp = await translate.translate(text, target).catch(catcher);
+      const {text, source, target} = req.body;
+      const options = {
+        from: source,
+        to: target
+      };
+      const resp = await translate.translate(text, options).catch(catcher);
       return resp && resp[0] ? res.json(resp[0]) : res.json("");
     });
 
     app.post("/api/translatetest", isAuthenticated, async(req, res) => {
-      const {text, target} = req.body; 
-      return res.json(`Would translate 10 ${target} ----> ${text}`);
+      const {text, source, target} = req.body; 
+      return res.json(`Would translate 10 from ${source} to ${target} ----> ${text}`);
     });
   }
   

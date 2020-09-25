@@ -58,7 +58,7 @@ const isEmpty = s => s === "<p><br></p>";
 /** */
 async function translateContent(obj, config, req = false) {
   if (!obj) return obj;
-  const {target} = config;
+  const {source, target} = config;
   // req is for server-side requests, client side is fine to use the relative path
   const api = req ? `${req.protocol}://${req.headers.host}${TRANSLATE_API}` : TRANSLATE_API;
   const keys = Object.keys(obj);
@@ -66,7 +66,7 @@ async function translateContent(obj, config, req = false) {
   for (const key of keys) {
     if (obj[key] && !isEmpty(obj[key])) {
       const text = spanify(obj[key], config);
-      const payload = {text, target};
+      const payload = {text, source, target};
       const resp = await axios.post(api, payload).catch(catcher);
       if (resp && resp.data) {
         translated[key] = varify(resp.data);
