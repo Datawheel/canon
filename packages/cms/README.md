@@ -833,7 +833,7 @@ In dynamic selectors, as mentioned above, `year2018` will not exist as such. The
 
 ## Automatic Translations
 
-If your CMS is configured with more than one language, you can use the Google Translate API to automatically fill in the target language. 
+If your CMS is configured with more than one language (using `CANON_LANGUAGES` and `CANON_LANGUAGE_DEFAULT`), you can use the Google Translate API to automatically fill in the target language. For security reasons, the CMS must make use of `CANON_LOGINS` and be accessed by a logged-in user in order for translations to be enabled.
 
 ### Enabling Translation API
 
@@ -847,11 +847,21 @@ If you have already followed the steps for [Enabling Image Support](#enabling-im
 
 #### Option 2 - Create an authentication token with Translate Permissions
 
-Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create an authentication token and give it "Cloud Translation -> Cloud Translation API User" permissions. Then follow the steps in the [Enabling Image Support](#enabling-image-support) section of this document to reference that JSON token in your `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
+Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create an authentication token and give it "Cloud Translation -> Cloud Translation API User" permissions. 
 
-**Warning!!**. Separate tokens for translation and image hosting is not currently supported. If you want both, you must follow Option 1 above.
+Save the JSON token to disk and set its permissions to `644`.
+```sh
+chmod 644 /path/to/token.json
+```
 
-#### Usage
+Configure the `GOOGLE_APPLICATION_CREDENTIALS` env var to the token's path.
+```sh
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/token.json"
+```
+
+**Warning!!** Separate tokens for translation and image hosting is not currently supported. If you want both, you must follow Option 1 above.
+
+### Usage
 
 Once set up, translation buttons will appear on each TextCard, Section Header, and Profile Header, but *only when a second language is selected*. This second language must be selected and represents the target language for the translation.
 
@@ -860,9 +870,13 @@ Remember a few key points for translations:
 - Translating **paves all content in the target language and replaces it**. There is currently no smart detection of whether secondary language content has been updated since the last ingest - it is a one-way blast.
 - Translations currently only cover text content (subtitles, paragraphs, stats). They do not cover visualizations, formatters, or language-specific variables. The translation API should be considered a *starting point* for the SEO-optimized prose of the page.
 
-#### CLI interface
+### CLI interface
 
 tbd
+
+### Notes
+
+Similar to the CMS itself, translation should not be enabled on the production server. As such, the translation endpoint route itself will **not be registered** unless `NODE_ENV=development` or `CANON_CMS_ENABLE=true` (or both). Additionally, the translation route is placed behind the canon `isAuthenticated` middleware, so users must be logged in for translation to work.
 
 
 ---
