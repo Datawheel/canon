@@ -835,6 +835,8 @@ In dynamic selectors, as mentioned above, `year2018` will not exist as such. The
 
 If your CMS is configured with more than one language (using `CANON_LANGUAGES` and `CANON_LANGUAGE_DEFAULT`), you can use the Google Translate API to automatically fill in the target language. For security reasons, the CMS must make use of `CANON_LOGINS` and be accessed by a logged-in user in order for translations to be enabled.
 
+🔥 **General Warning** 🔥 The translation script is a profile-wide, or even installation-wide, massive in-place update. It mercilessly paves almost all of the written content of the target language, so remember to be **100% sure** of your configurations and target language. And as always, **make a backup first**.
+
 ### Enabling Translation API
 
 Enable the Translation API for your cloud project [here](https://console.cloud.google.com/apis/api/translate.googleapis.com/overview).
@@ -872,7 +874,35 @@ Remember a few key points for translations:
 
 ### Command Line Tool
 
-tbd
+```sh
+Usage: npx canon-cms-translate <command> [args]
+
+For language codes, see https://cloud.google.com/translate/docs/languages
+
+*** Remember, the CMS server must be running! ***
+
+Commands:
+    help    Shows this information.
+    run     Runs a translation operation
+            - Required: target, profile
+            - Optional: source, member
+
+    If command is not set, "run" will be executed.
+
+Arguments:
+    -b, --base      The root url on which to run translations
+    -h, --help      Shows this information.
+    -m, --member    The slug of the sample member to use during translation (optional, ignored when profile=all)
+    -p, --profile   The integer id for the the profile to translate
+                    Use "all" to translate entire cms (be careful, this can be $ expensive)
+    -s, --source    The source language to use for translation (optional, defaults to CANON_LANGUAGE_DEFAULT)
+    -t, --target    The target language for translation. 
+```
+
+Example usage:
+```
+npx canon-cms-translate -b http://localhost:3300 -p 1 -t es
+```
 
 ### Notes
 

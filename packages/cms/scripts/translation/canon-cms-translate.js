@@ -38,8 +38,6 @@ Arguments:
     -t, --target    The target language for translation. 
 `;
 
-const catcher = e => console.log("error: ", e);
-
 /** */
 async function translateText(options) {
   const {
@@ -49,6 +47,10 @@ async function translateText(options) {
     source,
     target
   } = options;
+  if (target === process.env.CANON_LANGUAGE_DEFAULT) {
+    console.log("You have set your target language to your language default. This is almost definitely incorrect. Exiting...");
+    process.exit(0);
+  }
   console.log("Initializing Models...");
   await loadModels(db, "../../src/db").catch(e => {
     console.log("Failed to load models, exiting...");
