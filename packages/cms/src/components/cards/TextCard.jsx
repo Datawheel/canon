@@ -257,7 +257,7 @@ class TextCard extends Component {
     }
     // Show a warning if there is no remote content to send in the first place.
     else {
-      Toast.show({icon: "error", intent: Intent.WARNING, message: "Translation Error, no default content", timeout: 5000});
+      Toast.show({icon: "error", intent: Intent.DANGER, message: "Translation Error, no default content", timeout: 5000});
       this.setState({alertObj: false});
     }
   }

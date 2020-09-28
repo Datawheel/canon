@@ -2,8 +2,8 @@ const {Translate} = require("@google-cloud/translate").v2;
 const translate = new Translate();
 const yn = require("yn");
 const verbose = yn(process.env.CANON_CMS_LOGGING);
-// const {isAuthenticated} = require("../utils/api");
-const isAuthenticated = (req, res, next) => next();  // For Testing Only!!
+const {isAuthenticated} = require("../utils/api");
+// const isAuthenticated = (req, res, next) => next();  // Bypass login, for Testing Only!!
 
 const enableTranslation = process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
 
