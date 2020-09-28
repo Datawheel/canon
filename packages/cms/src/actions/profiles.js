@@ -64,10 +64,18 @@ export function duplicateProfile(id) {
 /** */
 export function translateProfile(id, variables, source, target) { 
   return function(dispatch, getStore) {
-    const translateCounter = getStore().cms.status.translateCounter + 1;
+    const translationCounter = getStore().cms.status.translationCounter + 1;
+    dispatch({type: "TRANSLATE_START"});
     return axios.post(`${getStore().env.CANON_API}/api/cms/profile/translate`, {id, variables, source, target})
       .then(({data}) => {
-        dispatch({type: "PROFILE_TRANSLATE", data, translateCounter});
+        if (data.error) {
+          dispatch({type: "TRANSLATE_ERROR", error: data.error, translationCounter});
+        }
+        else {
+          dispatch({type: "PROFILE_TRANSLATE", data, translationCounter});
+        }
+      }).catch(e => {
+        dispatch({type: "TRANSLATE_ERROR", error: e.message, translationCounter});
       });
   };
 }
@@ -75,10 +83,18 @@ export function translateProfile(id, variables, source, target) {
 /** */
 export function translateSection(id, variables, source, target) { 
   return function(dispatch, getStore) {
-    const translateCounter = getStore().cms.status.translateCounter + 1;
+    const translationCounter = getStore().cms.status.translationCounter + 1;
+    dispatch({type: "TRANSLATE_START"});
     return axios.post(`${getStore().env.CANON_API}/api/cms/section/translate`, {id, variables, source, target})
       .then(({data}) => {
-        dispatch({type: "SECTION_TRANSLATE", data, translateCounter});
+        if (data.error) {
+          dispatch({type: "TRANSLATE_ERROR", error: data.error, translationCounter});
+        }
+        else {
+          dispatch({type: "SECTION_TRANSLATE", data, translationCounter});
+        }
+      }).catch(e => {
+        dispatch({type: "TRANSLATE_ERROR", error: e.message, translationCounter});
       });
   };
 }

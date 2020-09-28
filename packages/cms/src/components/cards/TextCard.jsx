@@ -50,7 +50,7 @@ class TextCard extends Component {
     const {type} = this.props;
     const idChanged = prevProps.minData.id !== this.props.minData.id;
     const variablesChanged = prevProps.status.diffCounter !== this.props.status.diffCounter;
-    const translationChanged = prevProps.status.translateCounter !== this.props.status.translateCounter;
+    const translationChanged = prevProps.status.translationCounter !== this.props.status.translationCounter;
     const selectorsChanged = JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors);
     const queryChanged = JSON.stringify(this.props.status.query) !== JSON.stringify(prevProps.status.query);
     const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
@@ -236,18 +236,28 @@ class TextCard extends Component {
         formatterFunctions: this.props.resources.formatterFunctions[localeDefault],
         allSelectors: this.props.selectors
       };
-      translateContent(content, config).then(translated => {
-        minData.content = minData.content.map(d => d.locale === localeSecondary ? {...d, ...translated} : d);
-        this.setState({alertObj: false, minData});
-        Toast.show({icon: "translate", intent: Intent.SUCCESS, message: "Translation Complete!", timeout: 1000});  
-        this.editor.wrappedInstance.reload();
-      }).catch(() => {
-        Toast.show({icon: "error", intent: Intent.DANGER, message: "Translation Error!", timeout: 3000});  
+      translateContent(content, config).then(resp => {
+        // Bubble up any remote errors
+        if (resp.error) {
+          Toast.show({icon: "error", intent: Intent.DANGER, message: `Translation Error: ${resp.error}`, timeout: 5000});  
+          this.setState({alertObj: false});
+        }
+        // If there were no remote errors, spread the content into the object
+        else {
+          minData.content = minData.content.map(d => d.locale === localeSecondary ? {...d, ...resp.translated} : d);
+          this.setState({alertObj: false, minData});
+          Toast.show({icon: "translate", intent: Intent.SUCCESS, message: "Translation Complete!", timeout: 1000});  
+          this.editor.wrappedInstance.reload();
+        }
+        // catch non-remote errors here
+      }).catch(e => {
+        Toast.show({icon: "error", intent: Intent.DANGER, message: `Translation Error: ${e}`, timeout: 5000});  
         this.setState({alertObj: false});
       });
     }
+    // Show a warning if there is no remote content to send in the first place.
     else {
-      Toast.show({icon: "error", intent: Intent.DANGER, message: "Translation Error!", timeout: 3000});
+      Toast.show({icon: "error", intent: Intent.WARNING, message: "Translation Error, no default content", timeout: 5000});
       this.setState({alertObj: false});
     }
   }

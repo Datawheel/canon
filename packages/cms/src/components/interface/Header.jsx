@@ -35,10 +35,16 @@ class Header extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const translationFinished = prevProps.status.translateCounter !== this.props.status.translateCounter;
+    const translationFinished = prevProps.status.translationCounter !== this.props.status.translationCounter;
     if (translationFinished) {
+      const {translationError} = this.props.status;
       const Toast = this.context.toast.current;
-      Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Translation Complete!", timeout: 2500});
+      if (translationError) {
+        Toast.show({icon: "error", intent: Intent.DANGER, message: `Translation Failed: ${translationError}`, timeout: 5000});
+      }
+      else {
+        Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Translation Complete!", timeout: 2500});
+      }
     }
   }
 

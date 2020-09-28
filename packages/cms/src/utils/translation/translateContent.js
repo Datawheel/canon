@@ -5,11 +5,6 @@ const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 const TRANSLATE_API = "/api/translate";
 
-const catcher = e => {
-  if (verbose) console.error(`Error in content transation: ${e}`);
-  return false;
-};
-
 /** 
  * To help translations, varswap in the currently selected member so the context makes sense
  * but preserve the original variable so it can be changed back. For example:
@@ -61,22 +56,41 @@ async function translateContent(obj, config, req = false) {
   const api = req ? `${req.protocol}://${req.headers.host}${TRANSLATE_API}` : TRANSLATE_API;
   const keys = Object.keys(obj);
   const translated = {};
+  let error = false;
   for (const key of keys) {
     if (obj[key] && !isEmpty(obj[key])) {
       const text = spanify(obj[key], config);
       const payload = {text, source, target};
-      const resp = await axios.post(api, payload).catch(catcher);
-      if (resp && resp.data) {
-        translated[key] = varify(resp.data);
+      const resp = await axios.post(api, payload).catch(e => {
+        if (!error) error = `translateContent: ${e.message}`;
+        return false;
+      });
+      // if the catch returned false, don't mutate the key
+      if (!resp) {
+        translated[key] = obj[key];
       }
-      // todo: return error code to user here
-      else translated[key] = obj[key];
+      else {
+        // if the translation worked, turn it back into text
+        if (resp && resp.data && !resp.data.error) {
+          translated[key] = varify(resp.data.translated);  
+        }
+        // If for some reason the remote translation failed, bubble up 
+        // the remote error and don't mutate the key
+        else {
+          if (!error) error = resp.data.error;
+          translated[key] = obj[key];
+        }
+      }
     }
+    // do not mutate keys that are null or are empty
     else {
       translated[key] = obj[key];
     }
   }
-  return translated;
+  return {
+    error, 
+    translated
+  };
 }
 
 module.exports = translateContent;

@@ -4,11 +4,6 @@ const yn = require("yn");
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 // const {isAuthenticated} = require("../utils/api");
 const isAuthenticated = (req, res, next) => next();  // For Testing Only!!
-  
-const catcher = e => {
-  if (verbose) console.error("Error in translation: ", e);
-  return false;
-};
 
 const enableTranslation = process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
 
@@ -17,17 +12,29 @@ module.exports = function(app) {
   if (enableTranslation) {
     app.post("/api/translate", isAuthenticated, async(req, res) => {
       const {text, source, target} = req.body;
+      let error = false;
       const options = {
         from: source,
         to: target
       };
-      const resp = await translate.translate(text, options).catch(catcher);
-      return resp && resp[0] ? res.json(resp[0]) : res.json("");
+      const resp = await translate.translate(text, options).catch(e => {
+        if (verbose) console.error("Error in translation: ", e);
+        if (!error) error = `translateRoute: ${e.message}`;
+        return false;
+      });
+      const translated = resp && resp[0] ? resp[0] : text;
+      return res.json({
+        error,
+        translated
+      });
     });
 
     app.post("/api/translatetest", isAuthenticated, async(req, res) => {
       const {text, source, target} = req.body; 
-      return res.json(`Would translate from ${source} to ${target} ----> ${text}`);
+      return res.json({
+        error: false,
+        translated: `Would translate from ${source} to ${target} ----> ${text}`
+      });
     });
   }
   

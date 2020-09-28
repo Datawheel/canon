@@ -20,7 +20,11 @@ export default (status = {}, action) => {
     case "PROFILE_DUPLICATE": 
       return Object.assign({}, status, {justCreated: {type: "profile", id: action.data.id}});
     case "PROFILE_TRANSLATE": 
-      return Object.assign({}, status, {translateCounter: action.translateCounter});
+      return Object.assign({}, status, {translationCounter: action.translationCounter});
+    case "TRANSLATE_START":
+      return Object.assign({}, status, {translationError: false});
+    case "TRANSLATE_ERROR": 
+      return Object.assign({}, status, {translationCounter: action.translationCounter, translationError: action.error});
     case "SECTION_NEW": 
       return Object.assign({}, status, {justCreated: {type: "section", id: action.data.id, profile_id: action.data.profile_id}});
     case "SECTION_DUPLICATE": 
@@ -76,7 +80,7 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {dialogOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "section", ...success}});
     // Section-wide translations update a ton of content in one go. This requires a massive TextCard-wide "jigger" to update their content
     case "SECTION_TRANSLATE": 
-      return Object.assign({}, status, {translateCounter: action.translateCounter});
+      return Object.assign({}, status, {translationCounter: action.translationCounter});
     // When the user adds a new dimension, set a status that we are waiting for members to finish populating
     case "STORYSECTION_UPDATE": 
       return Object.assign({}, status, {dialogOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "storysection", ...success}});

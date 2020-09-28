@@ -654,7 +654,8 @@ module.exports = function(app) {
     const helpers = await fetchUpsertHelpers(db, section.profile_id, source);
     const {formatterFunctions, allSelectors} = helpers;
     const config = {variables, source, target, formatterFunctions, allSelectors};
-    await translateSection(section, config, db, req);
+    const error = await translateSection(section, config, db, req);
+    if (error) return res.json({error});
     // Fetch and return updated section
     const newReqObj = Object.assign({}, sectionReqFull, {where: {id: sid}});
     let newSection = await db.section.findOne(newReqObj).catch(catcher);
@@ -673,7 +674,8 @@ module.exports = function(app) {
     const reqObj = Object.assign({}, profileReqFull, {where: {id: pid}});
     let profile = await db.profile.findOne(reqObj).catch(catcher);
     profile = profile.toJSON();
-    await upsertTranslation(profile.content, db, "profile_content", config, req);
+    const error = await upsertTranslation(profile.content, db, "profile_content", config, req);
+    if (error) return res.json({error});
     for (const section of profile.sections) {
       await translateSection(section, config, db, req);
     }
