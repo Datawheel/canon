@@ -3,7 +3,7 @@ const varSwapRecursive = require("../varSwapRecursive");
 const yn = require("yn");
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 
-const TRANSLATE_API = "/api/translate";
+const TRANSLATE_API = "/api/translatetest";
 
 /** 
  * To help translations, varswap in the currently selected member so the context makes sense
@@ -49,35 +49,42 @@ const varify = s => {
 const isEmpty = s => s === "<p><br></p>";
 
 /** */
-async function translateContent(obj, config, req = false) {
+async function translateContent(obj, config, translationFunction) {
   if (!obj) return obj;
   const {source, target} = config;
-  // req is for server-side requests, client side is fine to use the relative path
-  const api = req ? `${req.protocol}://${req.headers.host}${TRANSLATE_API}` : TRANSLATE_API;
   const keys = Object.keys(obj);
   const translated = {};
   let error = false;
   for (const key of keys) {
     if (obj[key] && !isEmpty(obj[key])) {
       const text = spanify(obj[key], config);
-      const payload = {text, source, target};
-      const resp = await axios.post(api, payload).catch(e => {
-        if (!error) error = `translateContent: ${e.message}`;
-        return false;
-      });
+      let resp;
+      if (translationFunction) {
+        resp = await translationFunction(text, source, target).catch(e => {
+          if (!error) error = `translateContent: ${e.message}`;
+          return false;
+        });
+      }
+      else {
+        const payload = {text, source, target};
+        resp = await axios.post(TRANSLATE_API, payload).then(d => d.data).catch(e => {
+          if (!error) error = `translateContent: ${e.message}`;
+          return false;
+        });
+      }
       // if the catch returned false, don't mutate the key
       if (!resp) {
         translated[key] = obj[key];
       }
       else {
         // if the translation worked, turn it back into text
-        if (resp && resp.data && !resp.data.error) {
-          translated[key] = varify(resp.data.translated);  
+        if (resp && !resp.error) {
+          translated[key] = varify(resp.translated);  
         }
         // If for some reason the remote translation failed, bubble up 
         // the remote error and don't mutate the key
         else {
-          if (!error) error = resp.data.error;
+          if (!error) error = resp.error;
           translated[key] = obj[key];
         }
       }

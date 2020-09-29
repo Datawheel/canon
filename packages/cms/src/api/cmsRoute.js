@@ -7,7 +7,8 @@ const Op = sequelize.Op;
 
 const populateSearch = require("../utils/populateSearch");
 const {profileReqFull, storyReqFull, sectionReqFull, storysectionReqFull, cmsTables, contentTables, parentOrderingTables} = require("../utils/sequelize/models");
-const {upsertTranslation, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
+const {translateProfile, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
+const translateText = require("../utils/translation/translateText");
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
@@ -654,7 +655,7 @@ module.exports = function(app) {
     const helpers = await fetchUpsertHelpers(db, section.profile_id, source);
     const {formatterFunctions, allSelectors} = helpers;
     const config = {variables, source, target, formatterFunctions, allSelectors};
-    const error = await translateSection(section, config, db, req);
+    const error = await translateSection(db, section, config, translateText);
     if (error) return res.json({error});
     // Fetch and return updated section
     const newReqObj = Object.assign({}, sectionReqFull, {where: {id: sid}});
@@ -668,17 +669,10 @@ module.exports = function(app) {
   app.post("/api/cms/profile/translate", async(req, res) => {
     const pid = req.body.id;
     const {variables, source, target} = req.body;
-    const helpers = await fetchUpsertHelpers(db, pid, source).catch(catcher);
-    const {formatterFunctions, allSelectors} = helpers;
-    const config = {variables, source, target, formatterFunctions, allSelectors};
-    const reqObj = Object.assign({}, profileReqFull, {where: {id: pid}});
-    let profile = await db.profile.findOne(reqObj).catch(catcher);
-    profile = profile.toJSON();
-    const error = await upsertTranslation(profile.content, db, "profile_content", config, req);
+    const config = {variables, source, target};
+    const error = await translateProfile(db, pid, config, translateText);
     if (error) return res.json({error});
-    for (const section of profile.sections) {
-      await translateSection(section, config, db, req);
-    }
+    const reqObj = Object.assign({}, profileReqFull, {where: {id: pid}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());
     const sectionTypes = getSectionTypes();

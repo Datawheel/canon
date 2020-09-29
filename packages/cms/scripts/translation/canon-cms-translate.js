@@ -5,6 +5,8 @@ const axios = require("axios");
 const getopts = require("getopts");
 const loadModels = require("./loadModels");
 const Sequelize = require("sequelize");
+const translateProfile = require("../../src/utils/translation/translateProfile");
+const translateText = require("../../src/utils/translation/translateText");
 
 /* DB */
 const name = process.env.CANON_DB_NAME;
@@ -39,7 +41,7 @@ Arguments:
 `;
 
 /** */
-async function translateText(options) {
+async function doTranslate(options) {
   const {
     base,
     member,
@@ -97,6 +99,18 @@ async function translateText(options) {
     if (!fullProfile) continue;
     console.log("Variables retrieved.");
     const {variables} = fullProfile;  
+    const pid = thisProfile.id;
+    const config = {variables, source, target};
+    const fake = async(text, source, target) => ({error: false, translated: `${text} from ${source} to ${target}!`});
+    const response = await translateProfile(db, pid, config, fake).catch(e => {
+      console.log(`Translation Failed: ${e}`);
+      return false;
+    });
+    if (response) {
+      console.log(`Translation of profile ${thisProfile.id} from ${source} to ${target} complete.`);
+    }
+
+    /*
     const payload = {
       id: thisProfile.id,
       variables,
@@ -112,6 +126,7 @@ async function translateText(options) {
     if (response) {
       console.log(`Translation of profile ${thisProfile.id} from ${source} to ${target} complete.`);
     }
+    */
   }
   console.log(`Translated ${profiles.length} profile(s).`);
   process.exit(0);
@@ -143,6 +158,6 @@ if (action === "run") {
     console.log("Missing parameters! (try --help)");
   }
   else {
-    translateText(options);
+    doTranslate(options);
   }
 }
