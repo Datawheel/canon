@@ -1,6 +1,6 @@
 const yn = require("yn");
-// const {isAuthenticated} = require("../utils/api");
-const isAuthenticated = (req, res, next) => next();  // Bypass login, for Testing Only!!
+const {isAuthenticated} = require("../utils/api");
+// const isAuthenticated = (req, res, next) => next();  // Bypass login, for Testing Only!!
 const translateText = require("../utils/translation/translateText");
 
 const enableTranslation = process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
