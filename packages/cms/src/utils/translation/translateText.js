@@ -3,7 +3,10 @@ const translate = new Translate();
 const yn = require("yn");
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 
-/** */
+/** 
+ * The most basic wrapper for the google translate library. Used by /api/translate,
+ * and also directly invoked by translateUtils.
+ */
 async function translateText(text, source, target) {
   let error = false;
   const options = {

@@ -642,7 +642,7 @@ module.exports = function(app) {
   });
 
   /* TRANSLATIONS */
-  /** Translations are provided by the Google API and require an authentication key. They are handled client-side for 
+  /** Translations are provided by the Google API and require an authentication key. They are requested client-side for 
    * card-by-card translations (allowing for in-place editing) but can be batch-translated here.
    */
   app.post("/api/cms/section/translate", async(req, res) => {

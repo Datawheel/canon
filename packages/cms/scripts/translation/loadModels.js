@@ -3,7 +3,7 @@ const path = require("path");
 
 const catcher = e => console.log("error: ", e);
 
-const loadModels = (db, modelPath, clear) => {
+const loadModels = (db, modelPath) => {
   const folder = path.join(__dirname, modelPath);
   fs.readdirSync(folder)
     .filter(file => file && file.indexOf(".") !== 0)
@@ -15,12 +15,7 @@ const loadModels = (db, modelPath, clear) => {
   Object.keys(db).forEach(modelName => {
     if ("associate" in db[modelName]) db[modelName].associate(db);
   });
-  if (clear) {
-    return db.sync({force: true}).catch(catcher);
-  }
-  else {
-    return db.sync().catch(catcher);
-  }
+  return db.sync().catch(catcher);
 };
 
 module.exports = loadModels;

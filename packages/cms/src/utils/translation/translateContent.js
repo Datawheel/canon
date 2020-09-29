@@ -48,7 +48,16 @@ const varify = s => {
 // Empty text fields in draftjs appear as p brackets - do not translate these.
 const isEmpty = s => s === "<p><br></p>";
 
-/** */
+/**
+ * Given a content object, translate all its keys. Google Translate API only works serverside,
+ * but this function needs to be called client side (by textcard, for ad-hoc translations)
+ * Therefore, give the server the ability to pass in a reference to the translationFunction,
+ * but when that function is not provided, assume this is a client-side (or any other) request,
+ * and use the TRANSLATE_API (which will ultimately invoke the same translationFunction)
+ *
+ * For future reference, the reason this is done this way is because webpack won't even compile
+ * when the translate API is included client-side, so it can't be used here except by reference
+ */
 async function translateContent(obj, config, translationFunction) {
   if (!obj) return obj;
   const {source, target} = config;
@@ -56,7 +65,7 @@ async function translateContent(obj, config, translationFunction) {
   const translated = {};
   let error = false;
   for (const key of keys) {
-    if (obj[key] && !isEmpty(obj[key])) {
+    if (obj[key] && typeof obj[key] === "string" && !isEmpty(obj[key])) {
       const text = spanify(obj[key], config);
       let resp;
       if (translationFunction) {
