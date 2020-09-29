@@ -18,7 +18,7 @@ module.exports = function(app) {
       const {text, source, target} = req.body; 
       return res.json({
         error: false,
-        translated: `Would translate 2 from ${source} to ${target} ----> ${text}`
+        translated: `Would translate from ${source} to ${target} ----> ${text}`
       });
     });
   }

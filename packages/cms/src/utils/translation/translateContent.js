@@ -3,7 +3,7 @@ const varSwapRecursive = require("../varSwapRecursive");
 const yn = require("yn");
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 
-const TRANSLATE_API = "/api/translatetest";
+const TRANSLATE_API = "/api/translate";
 
 /** 
  * To help translations, varswap in the currently selected member so the context makes sense

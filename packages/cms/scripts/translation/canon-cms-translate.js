@@ -5,8 +5,7 @@ const axios = require("axios");
 const getopts = require("getopts");
 const loadModels = require("./loadModels");
 const Sequelize = require("sequelize");
-const translateProfile = require("../../src/utils/translation/translateProfile");
-const translateText = require("../../src/utils/translation/translateText");
+const {translateProfile} = require("../../src/utils/translation/translationUtils");
 
 /* DB */
 const name = process.env.CANON_DB_NAME;
@@ -101,32 +100,13 @@ async function doTranslate(options) {
     const {variables} = fullProfile;  
     const pid = thisProfile.id;
     const config = {variables, source, target};
-    const fake = async(text, source, target) => ({error: false, translated: `${text} from ${source} to ${target}!`});
-    const response = await translateProfile(db, pid, config, fake).catch(e => {
+    const response = await translateProfile(db, pid, config).catch(e => {
       console.log(`Translation Failed: ${e}`);
       return false;
     });
     if (response) {
       console.log(`Translation of profile ${thisProfile.id} from ${source} to ${target} complete.`);
     }
-
-    /*
-    const payload = {
-      id: thisProfile.id,
-      variables,
-      source,
-      target
-    };
-    const translateURL = `${baseapi}/api/cms/profile/translate`;
-    console.log("Running translation...");
-    const response = await axios.post(translateURL, payload).catch(e => {
-      console.log(`Translation Failed: ${e}`);
-      return false;
-    });
-    if (response) {
-      console.log(`Translation of profile ${thisProfile.id} from ${source} to ${target} complete.`);
-    }
-    */
   }
   console.log(`Translated ${profiles.length} profile(s).`);
   process.exit(0);

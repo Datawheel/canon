@@ -8,7 +8,6 @@ const Op = sequelize.Op;
 const populateSearch = require("../utils/populateSearch");
 const {profileReqFull, storyReqFull, sectionReqFull, storysectionReqFull, cmsTables, contentTables, parentOrderingTables} = require("../utils/sequelize/models");
 const {translateProfile, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
-const translateText = require("../utils/translation/translateText");
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
@@ -655,9 +654,9 @@ module.exports = function(app) {
     const helpers = await fetchUpsertHelpers(db, section.profile_id, source);
     const {formatterFunctions, allSelectors} = helpers;
     const config = {variables, source, target, formatterFunctions, allSelectors};
-    const error = await translateSection(db, section, config, translateText);
+    const error = await translateSection(db, section, config);
     if (error) return res.json({error});
-    // Fetch and return updated section
+    // If there were no errors, fetch and return updated section
     const newReqObj = Object.assign({}, sectionReqFull, {where: {id: sid}});
     let newSection = await db.section.findOne(newReqObj).catch(catcher);
     newSection = newSection.toJSON();
@@ -670,8 +669,9 @@ module.exports = function(app) {
     const pid = req.body.id;
     const {variables, source, target} = req.body;
     const config = {variables, source, target};
-    const error = await translateProfile(db, pid, config, translateText);
+    const error = await translateProfile(db, pid, config);
     if (error) return res.json({error});
+    // If there were no errors, fetch and return updated profile
     const reqObj = Object.assign({}, profileReqFull, {where: {id: pid}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());

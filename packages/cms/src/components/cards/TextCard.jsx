@@ -236,6 +236,7 @@ class TextCard extends Component {
         formatterFunctions: this.props.resources.formatterFunctions[localeDefault],
         allSelectors: this.props.selectors
       };
+      // translateContent calls /api/translate for server-side translation
       translateContent(content, config).then(resp => {
         // Bubble up any remote errors
         if (resp.error) {
