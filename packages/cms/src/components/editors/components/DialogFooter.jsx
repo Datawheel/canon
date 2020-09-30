@@ -51,7 +51,7 @@ class DialogFooter extends Component {
           iconPosition="left"
           key="s"
         >
-          Save & close
+          Save &amp; close
         </Button>
       </div>
     );
