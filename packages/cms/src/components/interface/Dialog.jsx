@@ -44,6 +44,7 @@ class Dialog extends Component {
       isOpen,
       fullWidth,      // take up the entire width of the screen
       onClose,        // close the dialog
+      onTranslate,    // callback function passed to DialogFooter.jsx
       onDelete,       // callback function passed to DialogFooter.jsx
       onSave,         // callback function passed to DialogFooter.jsx
       headerControls, // additional controls rendered in the header
@@ -96,7 +97,7 @@ class Dialog extends Component {
 
             {/* footer buttons */}
             {showFooter &&
-              <DialogFooter onSave={onSave} onDelete={onDelete} key="f">
+              <DialogFooter onSave={onSave} onDelete={onDelete} onTranslate={onTranslate} key="f">
                 {footerControls}
               </DialogFooter>
             }

@@ -1,14 +1,14 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {hot} from "react-hot-loader/root";
-import {Icon} from "@blueprintjs/core";
+import {Icon, Intent} from "@blueprintjs/core";
 
 import Button from "../fields/Button";
 import ButtonGroup from "../fields/ButtonGroup";
 import Select from "../fields/Select";
 import Alert from "../interface/Alert";
 
-import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection, fetchSectionPreview} from "../../actions/profiles";
+import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection, translateSection, translateProfile, fetchSectionPreview} from "../../actions/profiles";
 import {deleteStory} from "../../actions/stories";
 import {setStatus} from "../../actions/status";
 
@@ -29,8 +29,60 @@ class Header extends Component {
     super(props);
     this.state = {
       itemToDelete: null,
-      itemToDuplicate: null
+      itemToDuplicate: null,
+      itemToTranslate: null
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    const translationFinished = prevProps.status.translationCounter !== this.props.status.translationCounter;
+    if (translationFinished) {
+      const {translationError} = this.props.status;
+      const Toast = this.context.toast.current;
+      if (translationError) {
+        Toast.show({icon: "error", intent: Intent.DANGER, message: `Translation Failed: ${translationError}`, timeout: 5000});
+      }
+      else {
+        Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Translation Complete!", timeout: 2500});
+      }
+    }
+  }
+
+  maybeTranslate() {
+    const {pathObj} = this.props.status;
+    if (pathObj.tab === "profiles") {
+      const type = pathObj.section ? "section" : pathObj.profile ? "profile" : null;
+      const id = pathObj.section ? Number(pathObj.section) : pathObj.profile ? Number(pathObj.profile) : null;
+      if (type && id) {
+        this.setState({itemToTranslate: {type, id}});
+      }
+    }
+    else if (pathObj.tab === "stories") {
+      const type = pathObj.storysection ? "storysection" : pathObj.story ? "story" : null;
+      const id = pathObj.storysection ? Number(pathObj.storysection) : pathObj.story ? Number(pathObj.story) : null;
+      if (type && id) {
+        this.setState({itemToTranslate: {type, id}});
+      }
+    }
+  }
+
+  translate(itemToTranslate) {
+    const {id, type} = itemToTranslate;
+    const {localeDefault, localeSecondary} = this.props.status;
+    const variables = this.props.variables && this.props.variables[localeDefault] ? this.props.variables[localeDefault] : {};
+    if (localeSecondary) {
+      if (type === "profile") {
+        const Toast = this.context.toast.current;
+        Toast.show({icon: "translate", intent: Intent.WARNING, message: "Translating profile...", timeout: 1000});
+        this.props.translateProfile(id, variables, localeDefault, localeSecondary);
+      }
+      if (type === "section") {
+        const Toast = this.context.toast.current;
+        Toast.show({icon: "translate", intent: Intent.WARNING, message: "Translating section...", timeout: 1000});
+        this.props.translateSection(id, variables, localeDefault, localeSecondary);
+      }
+    }
+    this.setState({itemToTranslate: null});
   }
 
   maybeDuplicate() {
@@ -100,8 +152,8 @@ class Header extends Component {
 
   render() {
     const {dimensions, profiles, stories} = this.props;
-    const {currentPid, currentStoryPid, pathObj, localeDefault} = this.props.status;
-    const {itemToDelete, itemToDuplicate, profileTarget} = this.state;
+    const {currentPid, currentStoryPid, pathObj, localeDefault, localeSecondary} = this.props.status;
+    const {itemToDelete, itemToDuplicate, itemToTranslate, profileTarget} = this.state;
     const {router} = this.context;
 
     let domain = this.props;
@@ -166,6 +218,7 @@ class Header extends Component {
 
     const showDuplicateButton = pathObj.tab === "profiles";
     const showPreviewButton = pathObj.section;
+    const showTranslateButton = (pathObj.profile || pathObj.section) && localeSecondary;
 
     const showButtons = showDuplicateButton || showDeleteButton || showPreviewButton;
 
@@ -198,6 +251,18 @@ class Header extends Component {
           {showButtons
             ? <div className="cms-header-actions-container" key="ac">
               <ButtonGroup className="cms-header-actions-button-group">
+                {/* translate entity */}
+                {showTranslateButton &&
+                  <Button
+                    className="cms-header-actions-button cms-header-translate-button"
+                    onClick={this.maybeTranslate.bind(this)}
+                    icon="translate"
+                    key="t1"
+                    {...buttonProps}
+                  >
+                    Translate <span className="u-visually-hidden">section</span>
+                  </Button>
+                }
                 {/* preview entity */}
                 {showPreviewButton &&
                   <Button
@@ -279,17 +344,29 @@ class Header extends Component {
           onCancel={() => this.setState({itemToDelete: null})}
           description="This action cannot be undone."
         />
+        {/* translate alert */}
+        <Alert
+          title={`Translate ${itemToTranslate ? itemToTranslate.type : ""}? This will overwrite ALL current translations, and costs $`}
+          isOpen={itemToTranslate}
+          cancelButtonText="Cancel"
+          confirmButtonText={`Translate ${itemToTranslate ? itemToTranslate.type : ""}`}
+          onConfirm={() => this.translate.bind(this)(itemToTranslate)}
+          onCancel={() => this.setState({itemToTranslate: null})}
+          description="This action cannot be undone."
+        />
       </Fragment>
     );
   }
 }
 
 Header.contextTypes = {
-  router: PropTypes.object
+  router: PropTypes.object,
+  toast: PropTypes.object
 };
 
 const mapStateToProps = state => ({
   status: state.cms.status,
+  variables: state.cms.variables,
   profiles: state.cms.profiles,
   stories: state.cms.stories
 });
@@ -299,6 +376,8 @@ const mapDispatchToProps = dispatch => ({
   deleteProfile: id => dispatch(deleteProfile(id)),
   duplicateProfile: id => dispatch(duplicateProfile(id)),
   duplicateSection: (id, pid) => dispatch(duplicateSection(id, pid)),
+  translateSection: (id, variables, source, target) => dispatch(translateSection(id, variables, source, target)),
+  translateProfile: (id, variables, source, target) => dispatch(translateProfile(id, variables, source, target)),
   fetchSectionPreview: (id, locale) => dispatch(fetchSectionPreview(id, locale)),
   deleteStory: id => dispatch(deleteStory(id)),
   setStatus: status => dispatch(setStatus(status))

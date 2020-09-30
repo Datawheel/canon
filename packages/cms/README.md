@@ -17,6 +17,7 @@ Content Management System for Canon sites.
 * [Advanced Generator Techniques](#advanced-generator-techniques)
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
 * [Advanced Selector Techniques](#advanced-selector-techniques)
+* [Automatic Translations](#automatic-translations)
 * [Authentication](#authentication)
 * [Profile Caching](#profile-caching)
 * [Frequently Asked Questions](#frequently-asked-questions)
@@ -827,6 +828,86 @@ Advanced users may have used the following syntax to achieve "labels" on the fro
 On a first pass, a selector swap will change `selector1` to its selected value (say `year2018`), which leaves `{{year2018}}` behind. A second variable swap pass would then change it to `2018`, for use in a human-readable paragraph.
 
 In dynamic selectors, as mentioned above, `year2018` will not exist as such. Therefore, a step has been added BETWEEN the selector swap and the variable swap, which will use user-defined `labels` as a temporary variable lookup. This behavior allows users to continue to use the `{{[[selector1]]}}` format they are used to, and can trust that it will turn `year2018` into `2018`, even though `year2018` is not in the variables object.
+
+---
+
+## Automatic Translations
+
+If your CMS is configured with more than one language (using `CANON_LANGUAGES` and `CANON_LANGUAGE_DEFAULT`), you can use the Google Translate API to automatically fill in the target language. For security reasons, the CMS must make use of `CANON_LOGINS` and be accessed by a logged-in user in order for translations to be enabled.
+
+🔥 **General Warning** 🔥 The translation script is a profile-wide, or even installation-wide, massive in-place update. It mercilessly paves almost all of the written content of the target language, so remember to be **100% sure** of your configurations and target language. And as always, **make a backup first**.
+
+### Enabling Translation API
+
+Enable the Translation API for your cloud project [here](https://console.cloud.google.com/apis/api/translate.googleapis.com/overview).
+
+### Authentication
+
+#### Option 1 - Add Translate permissions to an existing token
+
+If you have already followed the steps for [Enabling Image Support](#enabling-image-support), then you will already have a JSON token and a `GOOGLE_APPLICATION_CREDENTIALS` environment variable that points to it. Locate the service account associated with the token [here](https://console.cloud.google.com/iam-admin/iam), and add the "Cloud Translation -> Cloud Translation API User" Role to the service account.
+
+#### Option 2 - Create an authentication token with Translate Permissions
+
+Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create an authentication token and give it "Cloud Translation -> Cloud Translation API User" permissions. 
+
+Save the JSON token to disk and set its permissions to `644`.
+```sh
+chmod 644 /path/to/token.json
+```
+
+Configure the `GOOGLE_APPLICATION_CREDENTIALS` env var to the token's path.
+```sh
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/token.json"
+```
+
+**Warning!!** Separate tokens for translation and image hosting is not currently supported. If you want both, you must follow Option 1 above.
+
+### Usage
+
+Once set up, translation buttons will appear on each TextCard, Section Header, and Profile Header, but *only when a second language is selected*. This second language must be selected and represents the target language for the translation.
+
+Remember a few key points for translations:
+- Translations cost [money](https://cloud.google.com/translate/pricing): $20 per 1,000,000 characters. For reference, this is about $4 per entire-OEC-site-translation per language. Be careful not to overuse it, especially with profile-wide translations.
+- Translating **paves all content in the target language and replaces it**. There is currently no smart detection of whether secondary language content has been updated since the last ingest - it is a one-way blast.
+- Translations currently only cover text content (subtitles, paragraphs, stats). They do not cover visualizations, formatters, or language-specific variables. The translation API should be considered a *starting point* for the SEO-optimized prose of the page.
+
+### Command Line Tool
+
+```sh
+Usage: npx canon-cms-translate <command> [args]
+
+For language codes, see https://cloud.google.com/translate/docs/languages
+
+*** Remember, the CMS server must be running! ***
+
+Commands:
+    help    Shows this information.
+    run     Runs a translation operation
+            - Required: target, profile
+            - Optional: source, member
+
+    If command is not set, "run" will be executed.
+
+Arguments:
+    -b, --base      The root url on which to run translations
+    -h, --help      Shows this information.
+    -m, --member    The slug of the sample member to use during translation (optional, ignored when profile=all)
+    -p, --profile   The integer id for the the profile to translate
+                    Use "all" to translate entire cms (be careful, this can be $ expensive)
+    -s, --source    The source language to use for translation (optional, defaults to CANON_LANGUAGE_DEFAULT)
+    -t, --target    The target language for translation. 
+```
+
+Example usage:
+```
+npx canon-cms-translate -b http://localhost:3300 -p 1 -t es
+```
+
+### Notes
+
+Similar to the CMS itself, translation should not be enabled on the production server. As such, the translation endpoint route itself will **not be registered** unless `NODE_ENV=development` or `CANON_CMS_ENABLE=true` (or both). Additionally, the translation route is placed behind the canon `isAuthenticated` middleware, so users must be logged in for translation to work.
+
 
 ---
 

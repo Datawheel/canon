@@ -1,9 +1,9 @@
-const FUNC = require("../utils/FUNC"),
-      PromiseThrottle = require("promise-throttle"),
+const PromiseThrottle = require("promise-throttle"),
       axios = require("axios"),
       collate = require("../utils/collate"),
+      formatters4eval = require("../utils/formatters4eval"),
       jwt = require("jsonwebtoken"),
-      libs = require("../utils/libs"), // leave this! needed for the variable functions
+      libs = require("../utils/libs"), /*leave this! needed for the variable functions.*/ //eslint-disable-line 
       mortarEval = require("../utils/mortarEval"),
       prepareProfile = require("../utils/prepareProfile"),
       sequelize = require("sequelize"),
@@ -129,31 +129,6 @@ const storyReq = {
       ]
     }
   ]
-};
-
-const formatters4eval = async(db, locale) => {
-
-  const formatters = await db.formatter.findAll().catch(catcher);
-
-  return formatters.reduce((acc, f) => {
-
-    const name = f.name === f.name.toUpperCase()
-      ? f.name.toLowerCase()
-      : f.name.replace(/^\w/g, chr => chr.toLowerCase());
-
-    // Formatters may be malformed. Wrap in a try/catch to avoid js crashes.
-    try {
-      acc[name] = FUNC.parse({logic: f.logic, vars: ["n"]}, acc, locale);
-    }
-    catch (e) {
-      console.error(`Server-side Malformed Formatter encountered: ${name}`);
-      console.error(`Error message: ${e.message}`);
-      acc[name] = FUNC.parse({logic: "return \"N/A\";", vars: ["n"]}, acc, locale);
-    }
-
-    return acc;
-
-  }, {});
 };
 
 const sorter = (a, b) => a.ordering - b.ordering;

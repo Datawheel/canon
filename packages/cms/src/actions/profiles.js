@@ -62,6 +62,44 @@ export function duplicateProfile(id) {
 }
 
 /** */
+export function translateProfile(id, variables, source, target) { 
+  return function(dispatch, getStore) {
+    const translationCounter = getStore().cms.status.translationCounter + 1;
+    dispatch({type: "TRANSLATE_START"});
+    return axios.post(`${getStore().env.CANON_API}/api/cms/profile/translate`, {id, variables, source, target})
+      .then(({data}) => {
+        if (data.error) {
+          dispatch({type: "TRANSLATE_ERROR", error: data.error, translationCounter});
+        }
+        else {
+          dispatch({type: "PROFILE_TRANSLATE", data, translationCounter});
+        }
+      }).catch(e => {
+        dispatch({type: "TRANSLATE_ERROR", error: e.message, translationCounter});
+      });
+  };
+}
+
+/** */
+export function translateSection(id, variables, source, target) { 
+  return function(dispatch, getStore) {
+    const translationCounter = getStore().cms.status.translationCounter + 1;
+    dispatch({type: "TRANSLATE_START"});
+    return axios.post(`${getStore().env.CANON_API}/api/cms/section/translate`, {id, variables, source, target})
+      .then(({data}) => {
+        if (data.error) {
+          dispatch({type: "TRANSLATE_ERROR", error: data.error, translationCounter});
+        }
+        else {
+          dispatch({type: "SECTION_TRANSLATE", data, translationCounter});
+        }
+      }).catch(e => {
+        dispatch({type: "TRANSLATE_ERROR", error: e.message, translationCounter});
+      });
+  };
+}
+
+/** */
 export function duplicateSection(id, pid) { 
   return function(dispatch, getStore) {
     return axios.post(`${getStore().env.CANON_API}/api/cms/section/duplicate`, {id, pid})

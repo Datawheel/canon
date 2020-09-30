@@ -142,6 +142,15 @@ class DraftWrapper extends Component {
       }
       return "not-handled";
     };
+
+    this.reload = () => {
+      if (this.props.defaultValue && this.props.defaultValue !== "") {
+        let editorState = EditorState.createEmpty();
+        const blocks = convertFromHTML(this.props.defaultValue);
+        editorState = EditorState.createWithContent(ContentState.createFromBlockArray(blocks.contentBlocks, blocks.entityMap));
+        this.setState({editorState});
+      }
+    };
   }
 
   render() {

@@ -37,6 +37,8 @@ export default (profiles = [], action) => {
       return action.data.profiles;
     case "PROFILE_UPDATE":
       return profiles.map(p => p.id === action.data.id ? Object.assign({}, p, {...action.data}) : p);
+    case "PROFILE_TRANSLATE": 
+      return profiles.map(p => p.id === action.data.id ? Object.assign({}, p, {...action.data}) : p);
     case "PROFILE_SWAP":
       return profiles
         .map(p => {
@@ -116,6 +118,8 @@ export default (profiles = [], action) => {
         .concat([action.data])
         .sort(sorter)}) : p);
     case "SECTION_UPDATE":
+      return profiles.map(p => Object.assign({}, p, {sections: p.sections.map(s => s.id === action.data.id ? Object.assign({}, s, {...action.data}) : s)}));
+    case "SECTION_TRANSLATE":
       return profiles.map(p => Object.assign({}, p, {sections: p.sections.map(s => s.id === action.data.id ? Object.assign({}, s, {...action.data}) : s)}));
     case "SECTION_DELETE":
       return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {sections: action.data.sections}) : p);

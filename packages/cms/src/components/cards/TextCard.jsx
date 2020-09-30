@@ -7,6 +7,7 @@ import deepClone from "../../utils/deepClone";
 import stripHTML from "../../utils/formatters/stripHTML";
 import formatFieldName from "../../utils/formatters/formatFieldName";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
+import translateContent from "../../utils/translation/translateContent";
 
 import {Intent, Switch, Alignment} from "@blueprintjs/core";
 
@@ -49,11 +50,12 @@ class TextCard extends Component {
     const {type} = this.props;
     const idChanged = prevProps.minData.id !== this.props.minData.id;
     const variablesChanged = prevProps.status.diffCounter !== this.props.status.diffCounter;
+    const translationChanged = prevProps.status.translationCounter !== this.props.status.translationCounter;
     const selectorsChanged = JSON.stringify(this.props.selectors) !== JSON.stringify(prevProps.selectors);
     const queryChanged = JSON.stringify(this.props.status.query) !== JSON.stringify(prevProps.status.query);
     const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
 
-    if (idChanged) {
+    if (idChanged || translationChanged) {
       this.setState({minData: deepClone(this.props.minData)}, this.formatDisplay.bind(this));
     }
 
@@ -208,6 +210,59 @@ class TextCard extends Component {
     this.props.updateEntity(type, payload);
   }
 
+  maybeTranslate() {
+    const prettyType = this.prettifyType(this.props.type);
+    const alertObj = {
+      callback: this.translate.bind(this),
+      title: `Translate ${prettyType}?`,
+      description: "This will overwrite the current translations, and costs $",
+      confirm: `Translate ${prettyType}`
+    };
+    this.setState({alertObj});
+  }
+
+  translate() {
+    const {minData} = this.state;
+    const Toast = this.context.toast.current;
+    const {localeDefault, localeSecondary} = this.props.status;
+    const source = minData.content.find(c => c.locale === localeDefault);
+    if (source) {
+      const {id, locale, ...content} = source;  //eslint-disable-line
+      Toast.show({icon: "translate", intent: Intent.WARNING, message: "Translating...", timeout: 1000});  
+      const config = {
+        source: localeDefault,
+        target: localeSecondary,
+        variables: this.props.variables[localeDefault],
+        formatterFunctions: this.props.resources.formatterFunctions[localeDefault],
+        allSelectors: this.props.selectors
+      };
+      // translateContent calls /api/translate for server-side translation
+      translateContent(content, config).then(resp => {
+        // Bubble up any remote errors
+        if (resp.error) {
+          Toast.show({icon: "error", intent: Intent.DANGER, message: `Translation Error: ${resp.error}`, timeout: 5000});  
+          this.setState({alertObj: false});
+        }
+        // If there were no remote errors, spread the content into the object
+        else {
+          minData.content = minData.content.map(d => d.locale === localeSecondary ? {...d, ...resp.translated} : d);
+          this.setState({alertObj: false, minData});
+          Toast.show({icon: "translate", intent: Intent.SUCCESS, message: "Translation Complete!", timeout: 1000});  
+          this.editor.wrappedInstance.reload();
+        }
+        // catch non-remote errors here
+      }).catch(e => {
+        Toast.show({icon: "error", intent: Intent.DANGER, message: `Translation Error: ${e}`, timeout: 5000});  
+        this.setState({alertObj: false});
+      });
+    }
+    // Show a warning if there is no remote content to send in the first place.
+    else {
+      Toast.show({icon: "error", intent: Intent.DANGER, message: "Translation Error, no default content", timeout: 5000});
+      this.setState({alertObj: false});
+    }
+  }
+
   maybeDelete() {
     const prettyType = this.prettifyType(this.props.type);
     const alertObj = {
@@ -332,6 +387,7 @@ class TextCard extends Component {
       usePortal: false,
       onDelete: entityList.includes(type) ? false : this.maybeDelete.bind(this),
       onSave: this.save.bind(this),
+      onTranslate: localeSecondary ? this.maybeTranslate.bind(this) : false,
       portalProps: {namespace: "cms"}
     };
 
@@ -342,30 +398,6 @@ class TextCard extends Component {
     };
 
     const richFieldsSorted = richFields ? richFields.sort((a, b) => displaySort.indexOf(a) - displaySort.indexOf(b)) : null;
-
-    let selectProps = {};
-    const showVars = Object.keys(variables).length > 0 && !hideAllowed;
-
-    if (showVars) {
-      selectProps = {
-        label: "Visible",
-        value: minDataState.allowed || "always",
-        onChange: this.chooseVariable.bind(this),
-        namespace: "cms",
-        inline: true,
-        children: [<option key="always" value="always">Always</option>]
-          .concat(Object.keys(variables)
-            .filter(key => !key.startsWith("_"))
-            .sort((a, b) => a.localeCompare(b))
-            .map(key => {
-              const value = variables[key];
-              const type = typeof value;
-              const label = !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`;
-              return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
-            })
-          )
-      };
-    }
 
     return (
       <Card {...cardProps}>
@@ -418,7 +450,7 @@ class TextCard extends Component {
                   <PlainTextEditor locale={localeSecondary} fields={plainFields} key="p2" {...editorProps} />
                 }
                 {richFields &&
-                  <RichTextEditor locale={localeSecondary} fields={richFieldsSorted} key="r2" {...editorProps} />
+                  <RichTextEditor locale={localeSecondary} fields={richFieldsSorted} key="r2" ref={c => this.editor = c} {...editorProps} />
                 }
               </div>
             }
