@@ -18,9 +18,7 @@ module.exports = {
   name: "server",
   mode: "development",
   context: path.join(__dirname, "../src"),
-  entry: {
-    server: "./server"
-  },
+  entry: "./server",
   target: "node",
   output: {
     path: assetsPath,
@@ -47,11 +45,13 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new WebpackBar({color: "#CB9F2C", name: "server"}),
-    new FriendlyErrorsWebpackPlugin({clearConsole: false}),
+    new webpack.optimize.LimitChunkCountPlugin({maxChunks: 1}),
     new MiniCssExtractPlugin({
-      filename: "styles.css"
+      filename: "styles.css",
+      ignoreOrder: true
     }),
+    new WebpackBar({color: "#7ab536", name: "server"}),
+    new FriendlyErrorsWebpackPlugin({clearConsole: false}),
     new HardSourceWebpackPlugin({
       cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
       environmentHash: {
@@ -59,7 +59,7 @@ module.exports = {
         directories: [],
         files: ["package-lock.json", "yarn.lock", "app/style.yml", ".env", ".envrc"]
       },
-      info: {level: "error"}
+      info: {mode: "test", level: "error"}
     }),
     new HardSourceWebpackPlugin.ExcludeModulePlugin([
       {test: /mini-css-extract-plugin[\\/]dist[\\/]loader/}
@@ -69,6 +69,6 @@ module.exports = {
       .reduce((d, k) => {
         d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
         return d;
-      }, {__DEV__: true, __SERVER__: true, __TIMESTAMP__: new Date().getTime()}))
+      }, {__DEV__: true, __SERVER__: true}))
   ]
 };

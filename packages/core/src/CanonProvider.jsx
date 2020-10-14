@@ -8,9 +8,6 @@ import Helmet from "react-helmet";
 import urllite from "urllite";
 import {Portal, Toaster} from "@blueprintjs/core";
 
-import "@blueprintjs/core/lib/css/blueprint.css";
-import "@blueprintjs/icons/lib/css/blueprint-icons.css";
-
 /**
 blueprint tooltip IE fix; check that the window exists and that we're in IE first
 related issue: https://github.com/DataScienceSquad/open-compass/issues/247
@@ -219,9 +216,7 @@ CanonProvider.defaultProps = {
   data: {}
 };
 
-CanonProvider = connect(state => ({
+export default connect(state => ({
   data: state.data,
   loading: state.loading
 }))(CanonProvider);
-
-export default CanonProvider;

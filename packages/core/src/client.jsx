@@ -5,6 +5,7 @@ setConfig({logLevel: "error", showReactDomPatchNotification: false});
 
 import React from "react";
 import {hydrate} from "react-dom";
+import {loadableReady} from "@loadable/component";
 import {createHistory} from "history";
 import {applyRouterMiddleware, Router, RouterContext, useRouterHistory} from "react-router";
 import {syncHistoryWithStore} from "react-router-redux";
@@ -83,8 +84,10 @@ function renderMiddleware() {
   return {
     renderRouterContext: (child, props) => {
 
+      const {location} = props;
       const needs = props.components.filter(comp => comp && (comp.need || comp.preneed || comp.postneed));
-      const {action, hash, pathname, query, search, state} = props.location;
+      const chunks = props.components.filter(comp => comp && comp.preload && comp.load);
+      const {action, hash, pathname, query, search, state} = location;
 
       /** */
       function postRender() {
@@ -107,17 +110,31 @@ function renderMiddleware() {
 
       if (action !== "REPLACE" || !Object.keys(query).length) {
         selectAll(".d3plus-tooltip").remove();
-        if (window.__SSR__ || state === "HASH" || !needs.length) {
+        if (window.__SSR__ || state === "HASH" || !needs.length && !chunks.length) {
           postRender();
           window.__SSR__ = false;
         }
         else {
           store.dispatch({type: LOADING_START});
           document.body.scrollTop = document.documentElement.scrollTop = 0;
-          preRenderMiddleware(store, props)
-            .then(() => {
-              store.dispatch({type: LOADING_END});
-              postRender();
+
+          // detects components wrapped in @loadable/component,
+          // and forces the load in order to detect needs
+          const preloadComponents = props.components
+            .map(comp => comp && comp.preload && comp.load ? comp.load() : false);
+
+          Promise.all(preloadComponents)
+            .then(comps => comps.map((loaded, i) => {
+              const rawComp = props.components[i];
+              return loaded ? rawComp.resolveComponent(loaded) : rawComp;
+            }))
+            .then(components => {
+              const newProps = Object.assign({}, props, {components});
+              preRenderMiddleware(store, newProps)
+                .then(() => {
+                  store.dispatch({type: LOADING_END});
+                  postRender();
+                });
             });
         }
       }
@@ -147,12 +164,17 @@ function createElement(Component, props) {
 
 }
 
-hydrate(
-  <I18nextProvider i18n={i18n}>
-    <Provider store={store}>
-      <Router createElement={createElement} history={history} render={applyRouterMiddleware(renderMiddleware())}>
-        {routes}
-      </Router>
-    </Provider>
-  </I18nextProvider>,
-  document.getElementById("React-Container"));
+loadableReady(() => {
+  const root = document.getElementById("React-Container");
+
+  hydrate(
+    <I18nextProvider i18n={i18n}>
+      <Provider store={store}>
+        <Router createElement={createElement} history={history} render={applyRouterMiddleware(renderMiddleware())}>
+          {routes}
+        </Router>
+      </Provider>
+    </I18nextProvider>,
+    root);
+
+});
