@@ -349,6 +349,7 @@ class VariableEditor extends Component {
           {/* visibility */}
           {["generator", "materializer", "visualization"].includes(type) &&
             <VisibleSelector
+              type="generator"
               hideCustom={["generator", "materializer"].includes(type)}
               variables={["generator"].includes(type) ? magicVariables : variables}
               value={data.allowed !== undefined ? data.allowed : "always"}

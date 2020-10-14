@@ -12,6 +12,7 @@ import TextButtonGroup from "../components/fields/TextButtonGroup";
 
 import Deck from "../components/interface/Deck";
 import Dialog from "../components/interface/Dialog";
+import VisibleSelector from "../components/interface/VisibleSelector";
 import PreviewHeader from "../components/interface/PreviewHeader";
 import SelectorUsage from "../components/interface/SelectorUsage";
 
@@ -193,16 +194,13 @@ class SectionEditor extends Component {
             />
 
             {/* visibility select */}
-            <Select
-              label="Visible"
-              namespace="cms"
-              fontSize="xs"
-              inline
-              value={minDataState.allowed || "always"}
+            <VisibleSelector
+              type="section"
+              variables={variables[localeDefault] || {}}
+              value={minDataState.allowed}
               onChange={this.changeField.bind(this, "allowed", true)}
-            >
-              {varOptions}
-            </Select>
+              hideCustom={true}
+            />
 
             {/* icon select */}
             <Select
