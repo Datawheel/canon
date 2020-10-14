@@ -383,6 +383,14 @@ config: {
 
 🔥**Pro tip**: Multiple graphic visualizations will be automatically grouped together into a grid — but only in the [default](default-layout) and [grouping](grouping-layout) section layouts.
 
+#### Using `allowed`
+
+Nearly every entity in the CMS, sections, paragraphs, selectors, vizes, even generators, has access to a concept known as `allowed` (sometimes labeled `Visibility`).
+
+This value is a variable from your list of variables whose truthiness determines whether to show (in the case of text) or execute (in the case of a generator) this entity. 
+
+This can be used to hide sections dynamically, list only certain select options for given members, or only run generators for certain members. 
+
 ---
 
 ## Custom Sections
