@@ -31,6 +31,22 @@
   }
 }
 
+.cms-visible-selector-group {
+  display: flex;
+}
+
+.cms-visible-icon {
+  padding-left: 10px;
+  padding-top: 10px;
+  filter: drop-shadow(4px 4px .25rem rgba(0, 0, 0, .3));
+}
+
+.cms-visible-popover {
+  opacity: 1;
+  width: 350px;
+  padding: 15px;
+}
+
 .cms-visible-selector-fieldset .cms-visible-selector-checkbox-label {
   display: block !important;
   margin-top: -0.5em;
