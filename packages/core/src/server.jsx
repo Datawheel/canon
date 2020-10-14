@@ -1,8 +1,7 @@
-/* global __TIMESTAMP__ */
-
 import React from "react";
 import Helmet from "react-helmet";
 import {renderToString} from "react-dom/server";
+import {ChunkExtractor} from "@loadable/server";
 import {createMemoryHistory, match, RouterContext} from "react-router";
 import {I18nextProvider} from "react-i18next";
 import {Provider} from "react-redux";
@@ -15,6 +14,11 @@ import pretty from "pretty";
 import CanonProvider from "./CanonProvider";
 
 import serialize from "serialize-javascript";
+
+import path from "path";
+const appDir = process.cwd();
+const statsFile = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets/loadable-stats.json");
+const production = process.env.NODE_ENV === "production";
 
 const tagManagerHead = process.env.CANON_GOOGLE_TAG_MANAGER === undefined ? ""
   : `
@@ -121,40 +125,85 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
       if (err) res.status(500).json(err);
       else if (redirect) res.redirect(302, `${redirect.basename}${redirect.pathname}${redirect.hash}${redirect.search}`);
       else if (props) {
-        // This method waits for all render component
-        // promises to resolve before returning to browser
-        preRenderMiddleware(store, props)
-          .then(() => {
-            const initialState = store.getState();
-            const componentHTML = renderToString(
-              <I18nextProvider i18n={req.i18n}>
-                <Provider store={store}>
-                  <CanonProvider helmet={headerConfig} locale={locale}>
-                    <RouterContext {...props} />
-                  </CanonProvider>
-                </Provider>
-              </I18nextProvider>
-            );
 
-            const header = Helmet.rewind();
-            const htmlAttrs = header.htmlAttributes.toString().replace(" amp", "");
+        // detects components wrapped in @loadable/component,
+        // and forces the load in order to detect needs
+        const preloadComponents = props.components
+          .map(comp => comp && comp.preload && comp.load ? comp.load() : false);
 
-            const defaultAttrs = headerConfig.htmlAttributes ? Object.keys(headerConfig.htmlAttributes)
-              .map(key => {
-                const val = headerConfig.htmlAttributes[key];
-                return ` ${key}${val ? `="${val}"` : ""}`;
-              })
-              .join("") : "";
+        Promise.all(preloadComponents)
+          .then(comps => comps.map((loaded, i) => {
+            const rawComp = props.components[i];
+            return loaded ? rawComp.resolveComponent(loaded) : rawComp;
+          }))
+          .then(components => {
 
-            let status = 200;
-            for (const key in initialState.data) {
-              if ({}.hasOwnProperty.call(initialState.data, key)) {
-                const error = initialState.data[key] ? initialState.data[key].error : null;
-                if (error && typeof error === "number" && error > status) status = error;
-              }
-            }
+            const newProps = Object.assign({}, props, {components});
 
-            res.status(status).send(`<!doctype html>
+            // This method waits for all render component
+            // promises to resolve before returning to browser
+            preRenderMiddleware(store, newProps)
+              .then(() => {
+
+                const header = Helmet.rewind();
+                const htmlAttrs = header.htmlAttributes.toString().replace(" amp", "");
+
+                const defaultAttrs = headerConfig.htmlAttributes ? Object.keys(headerConfig.htmlAttributes)
+                  .map(key => {
+                    const val = headerConfig.htmlAttributes[key];
+                    return ` ${key}${val ? `="${val}"` : ""}`;
+                  })
+                  .join("") : "";
+
+                let status = 200;
+                const initialState = store.getState();
+                for (const key in initialState.data) {
+                  if ({}.hasOwnProperty.call(initialState.data, key)) {
+                    const error = initialState.data[key] ? initialState.data[key].error : null;
+                    if (error && typeof error === "number" && error > status) status = error;
+                  }
+                }
+
+                let jsx =
+                  <I18nextProvider i18n={req.i18n}>
+                    <Provider store={store}>
+                      <CanonProvider helmet={headerConfig} locale={locale}>
+                        <RouterContext {...newProps} />
+                      </CanonProvider>
+                    </Provider>
+                  </I18nextProvider>;
+
+                let scriptTags = "<script type=\"text/javascript\" charset=\"utf-8\" src=\"/assets/client.js\"></script>",
+                    styleTags = "<link rel=\"stylesheet\" type=\"text/css\" href=\"/assets/styles.css\">";
+
+                if (production) {
+
+                  const extractor = new ChunkExtractor({
+                    statsFile,
+                    entrypoints: ["client"]
+                  });
+
+                  jsx = extractor.collectChunks(jsx);
+
+                  scriptTags = extractor
+                    .getScriptTags()
+                    .replace("script><script", "script>\n<script")
+                    .replace(/\n/g, "\n    ");
+
+                  styleTags = extractor
+                    .getStyleTags()
+                    .replace(/\n/g, "\n    ");
+
+                }
+
+                if (process.env.CANON_BASE_URL) {
+                  scriptTags = scriptTags.replace(/\/assets\//g, "assets/");
+                  styleTags = styleTags.replace(/\/assets\//g, "assets/");
+                }
+
+                const componentHTML = renderToString(jsx);
+
+                res.status(status).send(`<!doctype html>
 <html dir="${ rtl ? "rtl" : "ltr" }" ${htmlAttrs}${defaultAttrs}>
   <head>
     ${tagManagerHead}${pixelScript}${baseTag}
@@ -164,8 +213,8 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
 
     ${ pretty(header.link.toString()).replace(/\n/g, "\n    ") }
 
-    <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/normalize.css'>
-    <link rel='stylesheet' type='text/css' href='${ process.env.CANON_BASE_URL ? "" : "/" }assets/styles.css?v${__TIMESTAMP__}'>
+    ${styleTags}
+
     ${hotjarScript}
   </head>
   <body>
@@ -179,14 +228,18 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
       window.__INITIAL_STATE__ = ${ serialize(initialState, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
     </script>
     ${analtyicsScript}
-    <script type="text/javascript" charset="utf-8" src="${ process.env.CANON_BASE_URL ? "" : "/" }assets/app.js?v${__TIMESTAMP__}"></script>
+
+    ${scriptTags}
 
   </body>
 </html>`);
-          })
-          .catch(err => {
-            res.status(500).send({error: err.toString(), stackTrace: err.stack.toString()});
+              })
+              .catch(err => {
+                res.status(500).send({error: err.toString(), stackTrace: err.stack.toString()});
+              });
+
           });
+
       }
       else res.sendStatus(404);
 

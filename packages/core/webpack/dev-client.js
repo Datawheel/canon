@@ -1,4 +1,5 @@
 const HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
+      WebpackBar = require("webpackbar"),
       appDir = process.cwd(),
       path = require("path"),
       webpack = require("webpack"),
@@ -21,7 +22,12 @@ module.exports = {
   mode: "development",
   context: path.join(__dirname, "../src"),
   entry: {
-    app: [
+    client: [
+      "normalize.css/normalize.css",
+      "@blueprintjs/core/lib/css/blueprint.css",
+      "@blueprintjs/icons/lib/css/blueprint-icons.css",
+      "core-js/modules/es6.promise",
+      "core-js/modules/es6.array.iterator",
       "@babel/polyfill",
       "react-hot-loader/patch",
       "webpack-hot-middleware/client",
@@ -34,7 +40,7 @@ module.exports = {
     publicPath
   },
   module: {
-    rules: commonLoaders({build: "client"})
+    rules: commonLoaders({extract: false})
   },
   resolve: {
     alias: {
@@ -52,11 +58,7 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new webpack.ProgressPlugin({
-      activeModules: false,
-      entries: false,
-      modules: true
-    }),
+    new WebpackBar({color: "#f8c855", name: "client"}),
     new HardSourceWebpackPlugin({
       cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
       environmentHash: {
@@ -64,7 +66,7 @@ module.exports = {
         directories: [],
         files: ["package-lock.json", "yarn.lock", "app/style.yml", ".env", ".envrc"]
       },
-      info: {level: "error"}
+      info: {mode: "test", level: "error"}
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin(Object.keys(process.env)

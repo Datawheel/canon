@@ -1,7 +1,5 @@
 /* External Libraries */
-const cssnano = require("cssnano"),
-      fs = require("fs"),
-      path = require("path"),
+const path = require("path"),
       shell = require("shelljs");
 
 /* Environment Variables */
@@ -62,17 +60,6 @@ async function start() {
     secretToken: opbeatToken
   }) : false;
   shell.echo(`Opbeat: ${opbeat ? "Enabled" : "Disabled"}`);
-
-  /* Normalize.css */
-  const normalizePath = require.resolve("normalize.css/normalize.css");
-  const postcssOpts = {from: normalizePath};
-  const cssnanoOpts = {preset: "default"};
-  const normalizeCSS = fs.readFileSync(normalizePath);
-  const cssnanoResult = await cssnano.process(normalizeCSS, postcssOpts, cssnanoOpts);
-  fs.writeFile(path.join(staticPath, "assets/normalize.css"), cssnanoResult.css, err => {
-    if (err) throw err;
-    shell.echo("Normalize.css minified & saved.");
-  });
 
   /* define some globally used internal variables */
   const config = {

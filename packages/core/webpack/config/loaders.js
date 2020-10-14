@@ -7,19 +7,21 @@ const postCSSPath = require.resolve("./postcss");
 delete require.cache[postCSSPath];
 const postCSS = require(postCSSPath);
 
+const production = process.env.NODE_ENV === "production";
+
 const cssLoaders = [
   {
     loader: "css-loader",
     options: {
       modules: "global",
-      sourceMap: process.env.NODE_ENV === "development"
+      sourceMap: !production
     }
   },
   {
     loader: "postcss-loader",
     options: {
       plugins: postCSS,
-      sourceMap: process.env.NODE_ENV === "development"
+      sourceMap: !production
     }
   }
 ];
@@ -27,7 +29,6 @@ const cssLoaders = [
 module.exports = props => {
 
   props = Object.assign({
-    build: "server",
     extract: false
   }, props);
 
@@ -70,7 +71,12 @@ module.exports = props => {
 
   ];
 
-  if (process.env.NODE_ENV === "development") {
+  if (production) {
+    babelPlugins.push(
+      require.resolve("@loadable/babel-plugin") // detects functional import() statements for code-splitting
+    );
+  }
+  else {
     babelPlugins.push(
       require.resolve("react-hot-loader/babel"),
       require.resolve("@babel/plugin-transform-react-inline-elements")
@@ -126,7 +132,9 @@ module.exports = props => {
     },
     {
       test: /\.(scss|sass|css)$/i,
-      use: !props.extract ? ["iso-morphic-style-loader"].concat(cssLoaders) : [MiniCssExtractPlugin.loader].concat(cssLoaders)
+      use: !props.extract
+        ? ["iso-morphic-style-loader"].concat(cssLoaders)
+        : [MiniCssExtractPlugin.loader].concat(cssLoaders)
     }
   ];
 };
