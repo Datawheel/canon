@@ -17,28 +17,51 @@ export default function preRenderMiddleware(store, {components, params, location
    * @param {*} str name of static Array
    */
   function parseComponents(str) {
+
+    /** */
+    function needListFlattening(arr, component) {
+      (component[str] || []).forEach(n => {
+        if (n.WrappedComponent) n = n.WrappedComponent;
+        if (React.Component.isPrototypeOf(n)) arr = arr.concat(n[str] || []);
+        else if (typeof n === "function") arr.push(n);
+      });
+      return arr;
+    }
+
+    /** */
+    function needListFiltering(need) {
+      return need.key && need.key in data ? false : (data[need.key] = "loading", true);
+    }
+
+    /** */
+    function needListDispatching(need) {
+      const action = need(params, store.getState(), query);
+      if (typeof action.then === "function") {
+        return action.then(module => {
+          const needs = []
+            .concat(module.default || [])
+            .filter(Boolean)
+            .reduce(needListFlattening, [])
+            .filter(needListFiltering)
+            .map(needListDispatching);
+          return Promise.all(needs);
+        });
+      }
+      if (debug && action.promise) {
+        action.promise = action.promise.catch(err => {
+          console.error(`\n\n 🛑  ${str.toUpperCase()} PROMISE ERROR\n`);
+          if (action.description) console.error(`${action.description}\n`);
+          console.error(err.stack);
+        });
+      }
+      return dispatch(action);
+    }
+
     return components
       .filter(Boolean)
-      .reduce((arr, component) => {
-        (component[str] || []).forEach(n => {
-          if (n.WrappedComponent) n = n.WrappedComponent;
-          if (React.Component.isPrototypeOf(n)) arr = arr.concat(n[str] || []);
-          else if (typeof n === "function") arr.push(n);
-        });
-        return arr;
-      }, [])
-      .filter(need => need.key && need.key in data ? false : (data[need.key] = "loading", true))
-      .map(need => {
-        const action = need(params, store.getState(), query);
-        if (debug && action.promise) {
-          action.promise = action.promise.catch(err => {
-            console.error(`\n\n 🛑  ${str.toUpperCase()} PROMISE ERROR\n`);
-            if (action.description) console.error(`${action.description}\n`);
-            console.error(err.stack);
-          });
-        }
-        return dispatch(action);
-      });
+      .reduce(needListFlattening, [])
+      .filter(needListFiltering)
+      .map(needListDispatching);
   }
 
   return Promise.all(parseComponents("preneed"))
