@@ -20,5 +20,6 @@ import * as consts from "./consts";
 export {consts};
 
 // Helpers
+export {default as chunkify} from "./helpers/chunkify";
 export {default as cubeFold} from "./helpers/cubeFold";
 export {decodeChars, encodeChars} from "./helpers/fixChars";
