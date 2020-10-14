@@ -40,6 +40,13 @@ module.exports = function(config) {
   shell.echo(`Port: ${CANON_PORT}`);
 
   const router = express();
+
+  if (NODE_ENV === "production") {
+    router.use(gzip());
+    const FRAMEGUARD = yn(process.env.CANON_HELMET_FRAMEGUARD);
+    router.use(helmet({frameguard: FRAMEGUARD === null ? false : FRAMEGUARD}));
+  }
+
   router.set("trust proxy", "loopback");
   router.use(cookieParser());
 
@@ -172,12 +179,6 @@ module.exports = function(config) {
     router.use(config.webpackDevMiddleware);
     router.use(config.webpackHotMiddleware);
 
-  }
-
-  if (NODE_ENV === "production") {
-    router.use(gzip());
-    const FRAMEGUARD = yn(process.env.CANON_HELMET_FRAMEGUARD);
-    router.use(helmet({frameguard: FRAMEGUARD === null ? false : FRAMEGUARD}));
   }
 
   const reduxMiddleware = canonConfig.reduxMiddleware || false;
