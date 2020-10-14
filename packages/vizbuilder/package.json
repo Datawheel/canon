@@ -1,5 +1,6 @@
 {
   "name": "@datawheel/canon-vizbuilder",
+  "sideEffects": ["*.css"],
   "description": "A visualization explorer for OLAP cube servers.",
   "version": "0.4.1",
   "main": "./src/index.js",
