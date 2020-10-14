@@ -437,7 +437,7 @@ import {Canon, isAuthenticated} from "@datawheel/canon-core";
 
 class App extends Component {
 
-  componentWillMount() {
+componentDidMount() {
     this.props.isAuthenticated();
   }
 
