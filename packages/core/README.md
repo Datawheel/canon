@@ -9,6 +9,7 @@ Reusable React environment and components for creating visualization engines.
 * [Header/Meta Information](#header-meta-information)
 * [Page Routing](#page-routing)
   * [Window Location](#window-location)
+  * [Code Splitting](#code-splitting)
 * [Hot Module Reloading](#hot-module-reloading)
 * [Redux Store](#redux-store)
 * [Localization](#localization)
@@ -164,6 +165,44 @@ There are 3 preferred ways (each with their use cases) to determine the current 
 1. **redux `state.location`** - for server-side rendering, like if you need the current page in a `render` function when a component mounts. This object is created manually on the server-side to mimic `window.location`, but _does NOT get updated on subsequent react-router page views_.
 2. **`this.props.router.location`** - every top-level component that is connected to a route in `routes.jsx` has access to the main react-router instance, which should be relied on to always contain the currently viewed page.
 3. **`this.context.router.location`** - the current react-router instance is also passed down to every component via context.
+
+### Code Splitting
+
+Code splitting will separate specific JavaScript files and packages from the main app bundle, and be loaded on demand when needed. Canon-core exports a `chunkify` function that imports a file or module as a chunk, changing this:
+
+```js
+import Docs from "./pages/Docs.jsx";
+```
+
+To this:
+
+```js
+import {chunkify} from "@datawheel/canon-core";
+const Docs = chunkify(import("./pages/Docs.jsx"));
+```
+
+Webpack will identify anything imported using the `import()` function as a separate chunk, and bundle it separately. Splitting out large components that are only used on a single route can be very beneficial for initial page load time. For example, the `Builder` and `Profile` components exported from canon-cms are automatically split out into separate chunks.
+
+The `chunkify` function accepts an optional 2nd argument, which is used to identify named imports. For example, this code:
+
+```js
+import {Glossary} from "./pages/About.jsx";
+```
+
+Would be chunked out like this:
+
+```js
+import {chunkify} from "@datawheel/canon-core";
+const Glossary = chunkify(import("./pages/About.jsx"), "Glossary");
+```
+
+Additionally, it's possibly to group chunks of code together using the `webpackChunkName` magic comment that Webpack recognizes. The following code will group all 3 of these components into a chunk named `"about"`:
+
+```js
+const About = chunkify(import(/* webpackChunkName: "about" */ "./pages/docs/About.jsx"));
+const Background = chunkify(import(/* webpackChunkName: "about" */ "./pages/docs/Background.jsx"));
+const Glossary = chunkify(import(/* webpackChunkName: "about" */ "./pages/docs/Glossary.jsx"));
+```
 
 ---
 
