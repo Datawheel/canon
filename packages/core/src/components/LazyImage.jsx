@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import "intersection-observer";
 import Observer from "@researchgate/react-intersection-observer";
 
@@ -7,8 +7,7 @@ class LazyImage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      intersected: false,
-      key: Math.random()
+      intersected: false
     };
     this.handleIntersection = this.handleIntersection.bind(this);
   }
@@ -21,7 +20,7 @@ class LazyImage extends Component {
 
   render() {
     const {imageProps, observerProps, backgroundImage, children} = this.props;
-    const {intersected, key} = this.state;
+    const {intersected} = this.state;
 
     const wrapperStyle = {};
 
@@ -30,9 +29,9 @@ class LazyImage extends Component {
     }
 
     return (
-      <Observer key={`o${key}`} {...observerProps} onChange={this.handleIntersection}>
-        <div key={`d${key}`} className={`canon-lazy-image-wrapper ${imageProps.className}`} style={wrapperStyle}>
-          {backgroundImage && <>{children}</> }
+      <Observer {...observerProps} onChange={this.handleIntersection}>
+        <div className={`canon-lazy-image-wrapper ${imageProps.className}`} style={wrapperStyle}>
+          {backgroundImage && <Fragment>{children}</Fragment> }
           {!backgroundImage && <img className={`canon-lazy-image-img ${imageProps.className}-img`} src={intersected ? imageProps.src : "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="} alt={imageProps.alt} />}
           <noscript>
             <img className={`canon-lazy-image-img ${imageProps.className}-img`} src={imageProps.src} alt={imageProps.alt} />
