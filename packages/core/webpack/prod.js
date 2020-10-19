@@ -14,6 +14,7 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
 const assetsPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets");
 const publicPath = "/assets/";
 const appPath = path.join(appDir, "app");
+const timestamp = new Date().getTime();
 
 const resolve = {
   alias: {
@@ -54,8 +55,8 @@ module.exports = [
     },
     output: {
       path: assetsPath,
-      filename: "client-[chunkhash:8].js",
-      chunkFilename: "client-[name]-[chunkhash:8].js",
+      filename: "client.js",
+      chunkFilename: "client-[name].js",
       publicPath
     },
     module: {
@@ -79,8 +80,8 @@ module.exports = [
     plugins: [
       new LoadablePlugin(),
       new MiniCssExtractPlugin({
-        filename: "client-[chunkhash:8].css",
-        chunkFilename: "client-[name]-[chunkhash:8].css",
+        filename: "client.css",
+        chunkFilename: "client-[name].css",
         ignoreOrder: false
       }),
       new WebpackBar({color: "#f8c855", name: "client"}),
@@ -90,7 +91,7 @@ module.exports = [
         .reduce((d, k) => {
           d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
           return d;
-        }, {__DEV__: false, __SERVER__: false})),
+        }, {__DEV__: false, __SERVER__: false, __TIMESTAMP__: timestamp})),
       new InlineEnviromentVariablesPlugin({NODE_ENV: "production"}),
       new BundleAnalyzerPlugin({
         analyzerMode: "static",
@@ -134,7 +135,7 @@ module.exports = [
         .reduce((d, k) => {
           d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
           return d;
-        }, {__DEV__: false, __SERVER__: true})),
+        }, {__DEV__: false, __SERVER__: true, __TIMESTAMP__: timestamp})),
       new InlineEnviromentVariablesPlugin({NODE_ENV: "production"}),
       new BundleAnalyzerPlugin({
         analyzerMode: "static",
