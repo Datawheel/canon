@@ -1,3 +1,5 @@
+/* global __TIMESTAMP__ */
+
 import React from "react";
 import Helmet from "react-helmet";
 import {renderToString} from "react-dom/server";
@@ -188,10 +190,12 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                   scriptTags = extractor
                     .getScriptTags()
                     .replace("script><script", "script>\n<script")
+                    .replace(/\.js/g, `.js?v${__TIMESTAMP__}`)
                     .replace(/\n/g, "\n    ");
 
                   styleTags = extractor
                     .getStyleTags()
+                    .replace(/\.css/g, `.css?v${__TIMESTAMP__}`)
                     .replace(/\n/g, "\n    ");
 
                 }
