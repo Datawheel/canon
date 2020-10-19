@@ -224,8 +224,8 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
     <script>
       window.__SSR__ = true;
       window.__APP_NAME__ = "${ req.i18n.options.defaultNS }";
-      window.__HELMET_DEFAULT__ = ${ serialize(headerConfig, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
-      window.__INITIAL_STATE__ = ${ serialize(initialState, {isJSON: true, space: 2}).replace(/\n/g, "\n      ") };
+      window.__HELMET_DEFAULT__ = JSON.parse('${serialize(headerConfig).replace(/\'/g, "\\'")}');
+      window.__INITIAL_STATE__ = JSON.parse('${serialize(initialState).replace(/\'/g, "\\'")}');
     </script>
     ${analtyicsScript}
 
