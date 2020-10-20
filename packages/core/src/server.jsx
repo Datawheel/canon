@@ -15,7 +15,7 @@ import pretty from "pretty";
 
 import CanonProvider from "./CanonProvider";
 
-import serialize from "serialize-javascript";
+import jsesc from "jsesc";
 
 import path from "path";
 const appDir = process.cwd();
@@ -207,6 +207,8 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
 
                 const componentHTML = renderToString(jsx);
 
+                const serialize = obj => `JSON.parse('${jsesc(JSON.stringify(obj))}')`;
+
                 res.status(status).send(`<!doctype html>
 <html dir="${ rtl ? "rtl" : "ltr" }" ${htmlAttrs}${defaultAttrs}>
   <head>
@@ -228,8 +230,8 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
     <script>
       window.__SSR__ = true;
       window.__APP_NAME__ = "${ req.i18n.options.defaultNS }";
-      window.__HELMET_DEFAULT__ = JSON.parse('${serialize(headerConfig).replace(/\'/g, "\\'")}');
-      window.__INITIAL_STATE__ = JSON.parse('${serialize(initialState).replace(/\'/g, "\\'")}');
+      window.__HELMET_DEFAULT__ = ${serialize(headerConfig, {json: true})};
+      window.__INITIAL_STATE__ = ${serialize(initialState, {json: true})};
     </script>
     ${analtyicsScript}
 
