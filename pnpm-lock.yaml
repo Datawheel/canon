@@ -195,6 +195,7 @@ importers:
       intersection-observer: 0.11.0
       iso-morphic-style-loader: 2.0.1
       js-yaml: 3.14.0
+      jsesc: 3.0.1
       lost: 8.3.1
       mailgun-js: 0.13.1
       mini-css-extract-plugin: 0.12.0_webpack@4.44.2
@@ -240,7 +241,6 @@ importers:
       redux-logger: 3.0.6
       redux-thunk: 2.3.0
       sequelize: 4.44.4
-      serialize-javascript: 1.9.1
       shelljs: 0.8.4
       terser-webpack-plugin: 4.2.3_webpack@4.44.2
       url-loader: 2.3.0_file-loader@4.3.0+webpack@4.44.2
@@ -318,6 +318,7 @@ importers:
       intersection-observer: ^0.11.0
       iso-morphic-style-loader: ^2.0.1
       js-yaml: ^3.10.0
+      jsesc: ^3.0.1
       lost: ^8.2.0
       mailgun-js: ^0.13.1
       mini-css-extract-plugin: ^0.12.0
@@ -363,7 +364,6 @@ importers:
       redux-logger: ^3.0.6
       redux-thunk: ^2.0.1
       sequelize: ^4.13.10
-      serialize-javascript: ^1.4.0
       shelljs: ^0.8.3
       terser-webpack-plugin: ^4.2.3
       url-loader: ^2.1.0
@@ -7679,6 +7679,13 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-OYu7XEzjkCQ3C5Ps3QIZsQfNpqoJyZZA99wd9aWd05NCtC5pWOkShK2mkL6HXQR6/Cy2lbNdPlZBpuQHXE63gA==
+  /jsesc/3.0.1:
+    dev: false
+    engines:
+      node: '>=6'
+    hasBin: true
+    resolution:
+      integrity: sha512-w+MMxnByppM4jwskitZotEtvtO3a2C7WOz31NxJToGisHuysCAQQU7umb/pA/6soPFe8LGjXFEFbuPuLEPm7Ag==
   /json-bigint/1.0.0:
     dependencies:
       bignumber.js: 9.0.1
@@ -11439,10 +11446,6 @@ packages:
       node: '>=4.0.0'
     resolution:
       integrity: sha512-nkHmYkbwQK7uwpgW9VBalCBnQqQ8mslTdgcBthtJLORuPvAYRPlfkXZMVUU9TLLJt9CX+/y0MYg0DpcP6ywsEQ==
-  /serialize-javascript/1.9.1:
-    dev: false
-    resolution:
-      integrity: sha512-0Vb/54WJ6k5v8sSWN09S0ora+Hnr+cX40r9F170nT+mSkaxltoE/7R3OrIdBSUv1OoiobH1QoWQbCnAO+e8J1A==
   /serialize-javascript/4.0.0:
     dependencies:
       randombytes: 2.1.0
