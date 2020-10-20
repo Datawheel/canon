@@ -1,6 +1,8 @@
 {
   "name": "@datawheel/canon-core",
-  "sideEffects": ["*.css"],
+  "sideEffects": [
+    "*.css"
+  ],
   "version": "0.19.2",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "./src/index.js",
@@ -92,6 +94,7 @@
     "intersection-observer": "^0.11.0",
     "iso-morphic-style-loader": "^2.0.1",
     "js-yaml": "^3.10.0",
+    "jsesc": "^3.0.1",
     "lost": "^8.2.0",
     "mailgun-js": "^0.13.1",
     "mini-css-extract-plugin": "^0.12.0",
@@ -137,7 +140,6 @@
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.0.1",
     "sequelize": "^4.13.10",
-    "serialize-javascript": "^1.4.0",
     "shelljs": "^0.8.3",
     "terser-webpack-plugin": "^4.2.3",
     "url-loader": "^2.1.0",
