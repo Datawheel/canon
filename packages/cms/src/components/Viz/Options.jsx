@@ -129,18 +129,19 @@ class Options extends Component {
         requests.push(axios.get(url, {responseType: "blob"}));
       });
 
-      Promise.all(requests).then(responses => {
-        responses.forEach(response => {
-          if (response.status === 200 || response.status === 0) {
-            // Pull data, grab file name, and add to ZIP
-            const blob = new Blob([response.data], {type: response.data.type});
-            const dAName = response.request.responseURL.split("/").pop();
-            zip.file(`${dAName}`, blob, {binary: true});
-          }
-        });
-        zip.generateAsync({type: "blob"})
-          .then(content => saveAs(content, `${filename(title)}.zip`));
-      });
+      Promise.all(requests)
+        .then(responses => {
+          responses.forEach(response => {
+            if (response.status === 200 || response.status === 0) {
+              // Pull data, grab file name, and add to ZIP
+              const blob = new Blob([response.data], {type: response.data.type});
+              const dAName = response.config.url.split("/").pop();
+              zip.file(`${dAName}`, blob, {binary: true});
+            }
+          });
+          return zip.generateAsync({type: "blob"});
+        })
+        .then(content => saveAs(content, `${filename(title)}.zip`));
 
     }
     else {
