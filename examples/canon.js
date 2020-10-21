@@ -1,4 +1,4 @@
-const {modelPaths: coreModelPaths} = require("@datawheel/canon-core/models");
+// const {modelPaths: coreModelPaths} = require("@datawheel/canon-core/models");
 const {modelPaths: cmsModelPaths} = require("@datawheel/canon-cms/models");
 
 const {env} = process;
@@ -19,14 +19,14 @@ module.exports = {
     }
   },
   db: [
-    {
-      connection: env.CANON_SERVER_DBCONNECTION ||
-        `postgresql://${env.CANON_DB_USER}:${env.CANON_DB_PASS}@${env.CANON_DB_HOST || "localhost"}:${env.CANON_DB_PORT || 5432}/${env.CANON_DB_NAME}`,
-      tables: [
-        coreModelPaths.users,
-        require("./db/testTable")
-      ]
-    },
+    // {
+    //   connection: env.CANON_SERVER_DBCONNECTION ||
+    //     `postgresql://${env.CANON_DB_USER}:${env.CANON_DB_PASS}@${env.CANON_DB_HOST || "localhost"}:${env.CANON_DB_PORT || 5432}/${env.CANON_DB_NAME}`,
+    //   tables: [
+    //     coreModelPaths.users,
+    //     require("./db/testTable")
+    //   ]
+    // },
     {
       host: env.CANON_DB_HOST || "localhost",
       name: env.CANON_DB_NAME,
