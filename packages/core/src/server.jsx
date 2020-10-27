@@ -230,8 +230,8 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
     <script>
       window.__SSR__ = true;
       window.__APP_NAME__ = "${ req.i18n.options.defaultNS }";
-      window.__HELMET_DEFAULT__ = ${serialize(headerConfig, {json: true})};
-      window.__INITIAL_STATE__ = ${serialize(initialState, {json: true})};
+      window.__HELMET_DEFAULT__ = ${serialize(headerConfig)};
+      window.__INITIAL_STATE__ = ${serialize(initialState)};
     </script>
     ${analtyicsScript}
 
