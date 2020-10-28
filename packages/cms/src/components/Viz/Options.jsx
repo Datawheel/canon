@@ -179,7 +179,7 @@ class Options extends Component {
         const height = node.offsetHeight + 120;
 
         // make a copy of the node so we're not editing the original
-        node = node.parentNode.cloneNode(true);
+        node = node.cloneNode(true);
 
         // get the mirror, make it visible, and size it
         const mirror = document.body.querySelector(mirrorSelector);
