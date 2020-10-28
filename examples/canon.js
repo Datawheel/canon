@@ -1,6 +1,3 @@
-// const {modelPaths: coreModelPaths} = require("@datawheel/canon-core/models");
-const {modelPaths: cmsModelPaths} = require("@datawheel/canon-cms/models");
-
 const {env} = process;
 
 /** @type {import("@datawheel/canon-core").Config} */
@@ -32,7 +29,10 @@ module.exports = {
       name: env.CANON_DB_NAME,
       user: env.CANON_DB_USER,
       pass: env.CANON_DB_PW,
-      tables: Object.values(cmsModelPaths)
+      tables: [
+        require("@datawheel/canon-cms/models"),
+        require("@datawheel/canon-core/models")
+      ]
     }
   ]
 };
