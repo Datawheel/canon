@@ -12,7 +12,7 @@ const extractProfiles = router => {
       const bLength = bPairs ? bPairs.length : 0;
       return bLength - aLength;
     });
-    profiles = [];  
+    profiles = [];
     // for each route in routes.jsx
     routes.forEach(route => {
       // turn its id/slug pattern into an array like ["/:slug/", ":id/", ":slug2/", ":id2"]
@@ -49,11 +49,11 @@ module.exports = (router, profile, locale = "en") => {
           .replace(reId, p.memberSlug ? p.memberSlug : p.id)
           .replace(/\:(lang|language|locale|lng)/g, locale);
       });
-      return link;  
+      return link;
     }
     else return "#";
   }
   else {
     return "#";
-  }  
+  }
 };

@@ -5,6 +5,8 @@ import {fetchData} from "@datawheel/canon-core";
 import PropTypes from "prop-types";
 import ProfileRenderer from "./ProfileRenderer";
 import {NonIdealState} from "@blueprintjs/core";
+import {Redirect} from "react-router";
+import linkify from "../utils/linkify";
 import "./Profile.css";
 
 class Profile extends Component {
@@ -20,10 +22,14 @@ class Profile extends Component {
   }
 
   render() {
-    const {profile, formatters, locale} = this.props;
+    const {profile, formatters, locale, router} = this.props;
 
     if (profile.error) {
       const {error, errorCode} = profile;
+      if (errorCode === 301) {
+        const link = linkify(router, profile.redirectData, locale);
+        return <Redirect to={link} />;
+      }
       const errorMessages = {
         404: "Page Not Found"
       };

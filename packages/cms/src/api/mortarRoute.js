@@ -3,7 +3,7 @@ const PromiseThrottle = require("promise-throttle"),
       collate = require("../utils/collate"),
       formatters4eval = require("../utils/formatters4eval"),
       jwt = require("jsonwebtoken"),
-      libs = require("../utils/libs"), /*leave this! needed for the variable functions.*/ //eslint-disable-line 
+      libs = require("../utils/libs"), /*leave this! needed for the variable functions.*/ //eslint-disable-line
       mortarEval = require("../utils/mortarEval"),
       prepareProfile = require("../utils/prepareProfile"),
       sequelize = require("sequelize"),
@@ -469,14 +469,23 @@ module.exports = function(app) {
     // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
     // Replace that slug with the actual real id from the search table. To do this, however,
     // We need the meta from the profile so we can filter by cubename.
+    let idCount = 0;
     for (let i = 0; i < dims.length; i++) {
       const dim = dims[i];
       const meta = await db.profile_meta.findOne({where: {slug: dim.slug}});
       if (meta && meta.cubeName) {
         const attribute = await db.search.findOne({where: {slug: dim.id, cubeName: meta.cubeName}}).catch(catcher);
-        if (attribute && attribute.id) dim.id = attribute.id;
+        if (attribute && attribute.id) {
+          dim.id = attribute.id;
+        }
+        else {
+          idCount++;
+        }
       }
     }
+    // To support redirects, track whether any of the provided ids were raw ids like 0400025US. Later in the code, once the
+    // profile routing has been confirmed, return a redirect to the slug version if any raw ids were used.
+    const usedIDs = idCount > 0;
 
     let returnObject = {};
     let variables = {};
@@ -497,6 +506,7 @@ module.exports = function(app) {
       // Before we hit the variables endpoint, confirm that all provided ids exist.
       // If they do exist, query and load their neighbors into the payload
       const neighborsByDimSlug = {};
+      const foundMembers = [];
       for (const dim of dims) {
         const thisMeta = slugMap[dim.slug];
         if (thisMeta) {
@@ -513,6 +523,7 @@ module.exports = function(app) {
             // Prime the top result of the neighbors with this member itself. This will be
             // needed later if we need to build bilateral profiles
             searchrow = searchrow.toJSON();
+            foundMembers.push(searchrow);
             const defCon = searchrow.content.find(c => c.locale === envLoc);
             searchrow.name = defCon && defCon.name ? defCon.name : searchrow.slug;
             neighborsByDimSlug[dim.slug] = [searchrow];
@@ -574,6 +585,17 @@ module.exports = function(app) {
           if (verbose) console.error(`Member not found for id: ${dim.id}`);
           return res.json({error: `Member not found for id: ${dim.id}`, errorCode: 404});
         }
+      }
+      // If IDs were used, send back a 301 redirect to the client, with information on how to route the request (slugs)
+      if (usedIDs) {
+        const originalDims = collate(req.query);
+        const error = `Page request was made using ids [${originalDims.map(d => d.id).join()}]. Redirecting.`;
+        if (verbose) console.log(error);
+        const redirectData = dims.reduce((acc, d, i) => acc.concat({
+          slug: d.slug,
+          memberSlug: foundMembers[i].slug
+        }), []);
+        return res.json({error, errorCode: 301, redirectData});
       }
       // todo - catch for no neighbors ?
       returnObject.neighbors = [];
