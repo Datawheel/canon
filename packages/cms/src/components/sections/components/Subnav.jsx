@@ -164,7 +164,7 @@ class Subnav extends Component {
                   }
                   {section.short && stripHTML(section.short) ? stripHTML(section.short) : stripHTML(section.title)}
                 </AnchorLink>
-                { section.children.length
+                { section.children && section.children.length
                   ? <ul className={`cp-subnav-group-list ${isOpen ? "is-open" : "is-closed"}`}>
                     { section.children.map(child =>
                       <li key={child.id} className="cp-subnav-group-item">
