@@ -3,7 +3,7 @@
 import React from "react";
 import Helmet from "react-helmet";
 import {renderToString} from "react-dom/server";
-import {ChunkExtractor} from "@loadable/server";
+import {ChunkExtractor, ChunkExtractorManager} from "@loadable/server";
 import {createMemoryHistory, match, RouterContext} from "react-router";
 import {I18nextProvider} from "react-i18next";
 import {Provider} from "react-redux";
@@ -166,16 +166,10 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                   }
                 }
 
-                let jsx =
-                  <I18nextProvider i18n={req.i18n}>
-                    <Provider store={store}>
-                      <CanonProvider helmet={headerConfig} locale={locale}>
-                        <RouterContext {...newProps} />
-                      </CanonProvider>
-                    </Provider>
-                  </I18nextProvider>;
+                let jsx;
 
-                let scriptTags = "<script type=\"text/javascript\" charset=\"utf-8\" src=\"/assets/client.js\"></script>",
+                let componentHTML,
+                    scriptTags = "<script type=\"text/javascript\" charset=\"utf-8\" src=\"/assets/client.js\"></script>",
                     styleTags = "<link rel=\"stylesheet\" type=\"text/css\" href=\"/assets/styles.css\">";
 
                 if (production) {
@@ -185,27 +179,49 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                     entrypoints: ["client"]
                   });
 
-                  jsx = extractor.collectChunks(jsx);
+                  jsx =
+                    <I18nextProvider i18n={req.i18n}>
+                      <Provider store={store}>
+                        <CanonProvider helmet={headerConfig} locale={locale}>
+                          <ChunkExtractorManager extractor={extractor}>
+                            <RouterContext {...newProps} />
+                          </ChunkExtractorManager>
+                        </CanonProvider>
+                      </Provider>
+                    </I18nextProvider>;
+                  // jsx = extractor.collectChunks(jsx);
+                  componentHTML = renderToString(jsx);
 
                   scriptTags = extractor
                     .getScriptTags()
-                    .replace("script><script", "script>\n<script")
                     .replace(/\.js/g, `.js?v${__TIMESTAMP__}`)
+                    .replace("script><script", "script>\n<script")
                     .replace(/\n/g, "\n    ");
 
                   styleTags = extractor
                     .getStyleTags()
                     .replace(/\.css/g, `.css?v${__TIMESTAMP__}`)
-                    .replace(/\n/g, "\n    ");
+                    .split("\n")
+                    .sort((a, b) => a.includes("normalize") ? -1 : a.includes("canon") && !b.includes("normalize") ? -1 : 1)
+                    .join("\n    ");
 
+                }
+                else {
+                  jsx =
+                    <I18nextProvider i18n={req.i18n}>
+                      <Provider store={store}>
+                        <CanonProvider helmet={headerConfig} locale={locale}>
+                          <RouterContext {...newProps} />
+                        </CanonProvider>
+                      </Provider>
+                    </I18nextProvider>;
+                  componentHTML = renderToString(jsx);
                 }
 
                 if (process.env.CANON_BASE_URL) {
                   scriptTags = scriptTags.replace(/\/assets\//g, "assets/");
                   styleTags = styleTags.replace(/\/assets\//g, "assets/");
                 }
-
-                const componentHTML = renderToString(jsx);
 
                 const serialize = obj => `JSON.parse('${jsesc(JSON.stringify(obj))}')`;
 

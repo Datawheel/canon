@@ -178,7 +178,7 @@ To this:
 
 ```js
 import {chunkify} from "@datawheel/canon-core";
-const Docs = chunkify(() => import("./pages/Docs.jsx"));
+const Docs = chunkify(/* #__LOADABLE__ */ () => import("./pages/Docs.jsx"));
 ```
 
 Webpack will identify anything imported using the `import()` function as a separate chunk, and bundle it separately. Splitting out large components that are only used on a single route can be very beneficial for initial page load time. For example, the `Builder` and `Profile` components exported from canon-cms are automatically split out into separate chunks.
@@ -193,15 +193,15 @@ Would be chunked out like this:
 
 ```js
 import {chunkify} from "@datawheel/canon-core";
-const Glossary = chunkify(() => import("./pages/About.jsx"), "Glossary");
+const Glossary = chunkify(/* #__LOADABLE__ */ () => import("./pages/About.jsx"), "Glossary");
 ```
 
 Additionally, it's possibly to group chunks of code together using the `webpackChunkName` magic comment that Webpack recognizes. The following code will group all 3 of these components into a chunk named `"about"`:
 
 ```js
-const About = chunkify(() => import(/* webpackChunkName: "about" */ "./pages/docs/About.jsx"));
-const Background = chunkify(() => import(/* webpackChunkName: "about" */ "./pages/docs/Background.jsx"));
-const Glossary = chunkify(() => import(/* webpackChunkName: "about" */ "./pages/docs/Glossary.jsx"));
+const About = chunkify(/* #__LOADABLE__ */ () => import(/* webpackChunkName: "about" */ "./pages/docs/About.jsx"));
+const Background = chunkify(/* #__LOADABLE__ */ () => import(/* webpackChunkName: "about" */ "./pages/docs/Background.jsx"));
+const Glossary = chunkify(/* #__LOADABLE__ */ () => import(/* webpackChunkName: "about" */ "./pages/docs/Glossary.jsx"));
 ```
 
 ---

@@ -23,9 +23,6 @@ module.exports = {
   context: path.join(__dirname, "../src"),
   entry: {
     client: [
-      "normalize.css/normalize.css",
-      "@blueprintjs/core/lib/css/blueprint.css",
-      "@blueprintjs/icons/lib/css/blueprint-icons.css",
       "core-js/modules/es6.promise",
       "core-js/modules/es6.array.iterator",
       "@babel/polyfill",
@@ -58,6 +55,10 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
+    new webpack.NormalModuleReplacementPlugin(
+      /node_modules\/@datawheel\/.*\.(css|scss|sass)$/,
+      path.resolve(__dirname, "config/empty.css")
+    ),
     new WebpackBar({color: "#f8c855", name: "client"}),
     new HardSourceWebpackPlugin({
       cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
