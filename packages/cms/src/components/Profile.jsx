@@ -27,8 +27,10 @@ class Profile extends Component {
     if (profile.error) {
       const {error, errorCode} = profile;
       if (errorCode === 301) {
-        const link = linkify(router, profile.redirectData, locale);
-        return <Redirect to={link} />;
+        // console.log("got", profile);
+        return <div>no</div>;
+        // const link = linkify(router, profile.redirectData, locale);
+        // return <Redirect to={link} />;
       }
       const errorMessages = {
         404: "Page Not Found"

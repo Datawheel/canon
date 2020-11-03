@@ -147,6 +147,23 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
             preRenderMiddleware(store, newProps)
               .then(() => {
 
+                // Needs may return a special canonRedirect key. If they do so, process a redirect, using the variables provided
+                // in those objects as variables to substitute in the routes.
+                const redirects = Object.values(store.getState().data).filter(d => d.canonRedirect);
+                if (redirects.length > 0) {
+                  const variables = redirects.reduce((acc, d) => ({...acc, ...d.canonRedirect}), {});
+                  // Fold in any variables given by the canonRedirect key, but fall back on given params (for unprovided keys, like :lang)
+                  const params = {...props.params, ...variables};
+                  // Not sure if this is a reliable way to get which route this is.
+                  let route = props.routes[1].path;
+                  Object.keys(params).forEach(key => {
+                    const re = new RegExp(`:${key}`);
+                    // todo: handle (:parens) here
+                    route = route.replace(re, params[key]);
+                  });
+                  res.redirect(route);
+                }
+
                 const header = Helmet.rewind();
                 const htmlAttrs = header.htmlAttributes.toString().replace(" amp", "");
 

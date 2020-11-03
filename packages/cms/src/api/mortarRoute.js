@@ -591,11 +591,16 @@ module.exports = function(app) {
         const originalDims = collate(req.query);
         const error = `Page request was made using ids [${originalDims.map(d => d.id).join()}]. Redirecting.`;
         if (verbose) console.log(error);
-        const redirectData = dims.reduce((acc, d, i) => acc.concat({
-          slug: d.slug,
-          memberSlug: foundMembers[i].slug
-        }), []);
-        return res.json({error, errorCode: 301, redirectData});
+        const canonRedirect = dims.reduce((acc, d, i) => {
+          if (i === 0) {
+            acc.slug = d.slug;
+            acc.id = foundMembers[i].slug;
+          }
+          acc[`slug${i + 1}`] = d.slug;
+          acc[`id${i + 1}`] = foundMembers[i].slug;
+          return acc;
+        }, {});
+        return res.json({error, errorCode: 301, canonRedirect});
       }
       // todo - catch for no neighbors ?
       returnObject.neighbors = [];
