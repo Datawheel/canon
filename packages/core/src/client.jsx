@@ -164,17 +164,14 @@ function createElement(Component, props) {
 
 }
 
-loadableReady(() => {
-  const root = document.getElementById("React-Container");
+const root = document.getElementById("React-Container");
 
-  hydrate(
-    <I18nextProvider i18n={i18n}>
-      <Provider store={store}>
-        <Router createElement={createElement} history={history} render={applyRouterMiddleware(renderMiddleware())}>
-          {routes}
-        </Router>
-      </Provider>
-    </I18nextProvider>,
-    root);
-
-});
+hydrate(
+  <I18nextProvider i18n={i18n}>
+    <Provider store={store}>
+      <Router createElement={createElement} history={history} render={applyRouterMiddleware(renderMiddleware())}>
+        {routes}
+      </Router>
+    </Provider>
+  </I18nextProvider>,
+  root);

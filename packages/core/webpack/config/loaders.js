@@ -131,7 +131,8 @@ module.exports = props => {
       loader: "yml-loader"
     },
     {
-      test: /\.(scss|sass|css)$/i,
+      test: /\.(scss|sass|css)$/,
+      // exclude: props.extract ? undefined : [path.join(rootDir, "node_modules/@datawheel")],
       use: !props.extract
         ? ["iso-morphic-style-loader"].concat(cssLoaders)
         : [MiniCssExtractPlugin.loader].concat(cssLoaders)

@@ -51,7 +51,7 @@ module.exports = [
     },
     performance: {
       maxEntrypointSize: Infinity,
-      maxAssetSize: 512000
+      maxAssetSize: 1024 * 1000 * 2 // 2mb
     },
     output: {
       path: assetsPath,
@@ -71,9 +71,11 @@ module.exports = [
       splitChunks: {
         chunks: "all",
         cacheGroups: {
-          blueprint: {test: /node_modules\/@blueprintjs/, name: "blueprint", enforce: true},
-          d3plus: {test: /node_modules\/d3\-|d3plus\-/, name: "d3plus", enforce: true},
-          react: {test: /node_modules\/(react).*/, name: "react", enforce: true}
+          blueprint: {test: /node_modules\/(@blueprintjs).*/, name: "blueprint", enforce: true},
+          d3plus: {test: /node_modules\/(d3\-|d3plus\-).*/, name: "d3plus", enforce: true},
+          normalize: {test: /node_modules\/(normalize).*/, name: "normalize", enforce: true},
+          react: {test: /node_modules\/(react).*/, name: "react", enforce: true},
+          canon: {test: /(@datawheel\/canon-|app\/cms\/|packages\/(cms|core|vizbuilder)\/src\/).*\.(scss|sass|css)$/, name: "canon", enforce: true, priority: 1}
         }
       }
     },
@@ -82,7 +84,7 @@ module.exports = [
       new MiniCssExtractPlugin({
         filename: "client.css",
         chunkFilename: "client-[name].css",
-        ignoreOrder: false
+        ignoreOrder: true
       }),
       new WebpackBar({color: "#f8c855", name: "client"}),
       new FriendlyErrorsWebpackPlugin({clearConsole: false}),

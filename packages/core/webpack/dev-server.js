@@ -18,7 +18,17 @@ module.exports = {
   name: "server",
   mode: "development",
   context: path.join(__dirname, "../src"),
-  entry: "./server",
+  entry: {
+    server: [
+      "normalize.css/normalize.css",
+      "@blueprintjs/core/lib/css/blueprint.css",
+      "@blueprintjs/icons/lib/css/blueprint-icons.css",
+      "core-js/modules/es6.promise",
+      "core-js/modules/es6.array.iterator",
+      "@babel/polyfill",
+      "./server"
+    ]
+  },
   target: "node",
   output: {
     path: assetsPath,
@@ -45,6 +55,10 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
+    new webpack.NormalModuleReplacementPlugin(
+      /\/app\/.*\.(css|scss|sass)$/,
+      path.resolve(__dirname, "config/empty.css")
+    ),
     new webpack.optimize.LimitChunkCountPlugin({maxChunks: 1}),
     new MiniCssExtractPlugin({
       filename: "styles.css",
