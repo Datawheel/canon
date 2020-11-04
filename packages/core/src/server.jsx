@@ -158,7 +158,7 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                   const params = {...props.params, ...variables};
                   // Not sure if this is a reliable way to get which route this is.
                   let route = props.routes[1].path;
-                  Object.keys(params).forEach(key => {
+                  Object.keys(params).sort(a => (/\d/).test(a) ? -1 : 1).forEach(key => {
                     if (route.includes(`(/:${key})`)) {
                       route = route.replace(`(/:${key})`, params[key] ? `/${params[key]}` : "");
                     }
