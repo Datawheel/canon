@@ -150,18 +150,23 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                 // Needs may return a special canonRedirect key. If they do so, process a redirect, using the variables provided
                 // in those objects as variables to substitute in the routes.
                 const redirects = Object.values(store.getState().data).filter(d => d.canonRedirect);
-                if (redirects.length > 0) {
+                if (!req.query.redirect && redirects.length > 0) {
+                  // If any needs provided redirect keys, combine them into one object.
                   const variables = redirects.reduce((acc, d) => ({...acc, ...d.canonRedirect}), {});
-                  // Fold in any variables given by the canonRedirect key, but fall back on given params (for unprovided keys, like :lang)
+                  // Use variables given by the canonRedirect key, but fall back on given params (to cover for unprovided keys, like :lang)
                   const params = {...props.params, ...variables};
                   // Not sure if this is a reliable way to get which route this is.
                   let route = props.routes[1].path;
                   Object.keys(params).forEach(key => {
-                    const re = new RegExp(`:${key}`);
-                    // todo: handle (:parens) here
-                    route = route.replace(re, params[key]);
+                    if (route.includes(`(/:${key})`)) {
+                      route = route.replace(`(/:${key})`, params[key] ? `/${params[key]}` : "");
+                    }
+                    else if (route.includes(`:${key}`)) {
+                      route = route.replace(`:${key}`, params[key]);
+                    }
                   });
-                  res.redirect(route);
+                  // Pass a ?redirect flag, to avoid a redirect loop
+                  return res.redirect(301, `${route}?redirect=true`);
                 }
 
                 const header = Helmet.rewind();
@@ -226,7 +231,7 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
 
                 const serialize = obj => `JSON.parse('${jsesc(JSON.stringify(obj))}')`;
 
-                res.status(status).send(`<!doctype html>
+                return res.status(status).send(`<!doctype html>
 <html dir="${ rtl ? "rtl" : "ltr" }" ${htmlAttrs}${defaultAttrs}>
   <head>
     ${tagManagerHead}${pixelScript}${baseTag}
