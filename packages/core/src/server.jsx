@@ -150,6 +150,7 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                 // Needs may return a special canonRedirect key. If they do so, process a redirect, using the variables provided
                 // in those objects as variables to substitute in the routes.
                 const redirects = Object.values(store.getState().data).filter(d => d.canonRedirect);
+                // If the query contains ?redirect=true, a redirect has already occurred. To avoid redirect loops, ensure this value is unset
                 if (!req.query.redirect && redirects.length > 0) {
                   // If any needs provided redirect keys, combine them into one object.
                   const variables = redirects.reduce((acc, d) => ({...acc, ...d.canonRedirect}), {});
