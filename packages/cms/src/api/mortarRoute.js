@@ -3,7 +3,7 @@ const PromiseThrottle = require("promise-throttle"),
       collate = require("../utils/collate"),
       formatters4eval = require("../utils/formatters4eval"),
       jwt = require("jsonwebtoken"),
-      libs = require("../utils/libs"), /*leave this! needed for the variable functions.*/ //eslint-disable-line 
+      libs = require("../utils/libs"), /*leave this! needed for the variable functions.*/ //eslint-disable-line
       mortarEval = require("../utils/mortarEval"),
       prepareProfile = require("../utils/prepareProfile"),
       sequelize = require("sequelize"),
@@ -320,7 +320,9 @@ module.exports = function(app) {
             const dimension = pair.includes(":") ? pair.split(":")[0] : pair;
             const idPattern = pair.includes(":") ? pair.split(":")[1] : pair;
             const ids = thisResult.map(d => String(d[`${idPattern} ID`] || d[idPattern]));
-            const members = await db.search.findAll({where: {dimension, id: ids}}).catch(catcher);
+            const where = {dimension, id: ids};
+            if (paramObject.cube) where.cubeName = paramObject.cube;
+            const members = await db.search.findAll({where}).catch(catcher);
             const slugMap = members.reduce((acc, d) => ({...acc, [d.id]: d.slug}), {});
             results[i].data.data = results[i].data.data.map(d => ({...d, [`${idPattern} Slug`]: slugMap[d[`${idPattern} ID`] || d[idPattern]]}));
           }
