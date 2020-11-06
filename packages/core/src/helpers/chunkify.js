@@ -1,4 +1,3 @@
-import Loading from "$app/components/Loading";
 import loadable from "@loadable/component";
 
 /**
@@ -7,7 +6,7 @@ import loadable from "@loadable/component";
  */
 export default (statement, name = "default") => {
   const resolveComponent = components => components[name];
-  const lazy = loadable(statement, {fallback: <Loading />, resolveComponent});
+  const lazy = loadable(statement, {resolveComponent});
   lazy.resolveComponent = resolveComponent;
   return lazy;
 };
