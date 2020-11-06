@@ -307,15 +307,17 @@ module.exports = function(app) {
     const requests = Array.from(new Set(generators.map(g => g.api)));
     const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, url, smallAttr)));
     const results = await Promise.all(fetches).catch(catcher);
-
     // Inject cms_search-level slugs into the payload to help with making front-end links
     for (let i = 0; i < requests.length; i++) {
       try {
         const thisURL = requests[i];
         const thisResult = results[i].data && results[i].data.data ? results[i].data.data : [];
-        const paramObject = Object.fromEntries(new URLSearchParams(thisURL));
+        const url = new URL(thisURL);
+        const paramObject = Object.fromEntries(new URLSearchParams(url.search));
         if (paramObject.slugs && thisResult.length > 0) {
-          const pairs = paramObject.slugs.split(",");
+          // slugs may include <vars> from magic generators (e.g., &slugs=Exporter:<hierarchy>). Run them through urlswap to sub in vars.
+          const slugs = urlSwap(paramObject.slugs, {...req.params, ...cache, ...smallAttr, ...canonVars, locale});
+          const pairs = slugs.split(",");
           for (const pair of pairs) {
             const dimension = pair.includes(":") ? pair.split(":")[0] : pair;
             const idPattern = pair.includes(":") ? pair.split(":")[1] : pair;
