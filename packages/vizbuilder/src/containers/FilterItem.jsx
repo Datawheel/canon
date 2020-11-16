@@ -23,6 +23,7 @@ import {selectFilterMap, selectMeasureListForCube} from "../store/query/selector
  * @typedef OwnState
  * @property {boolean} isOpen
  * @property {string} [nextMeasure]
+ * @property {string} [nextMeasureUnit]
  * @property {string} [nextOperator]
  * @property {string} [nextInputtedValue]
  */
@@ -47,6 +48,7 @@ class FilterItemControl extends Component {
     isOpen: true,
     nextInputtedValue: this.props.filter.inputtedValue,
     nextMeasure: this.props.filter.measure,
+    nextMeasureUnit: this.props.filter.measureUnit,
     nextOperator: this.props.filter.operator
   };
 
@@ -61,6 +63,7 @@ class FilterItemControl extends Component {
       isOpen: true,
       nextInputtedValue: filter.inputtedValue,
       nextMeasure: filter.measure,
+      nextMeasureUnit: filter.measureUnit,
       nextOperator: filter.operator
     });
   };
@@ -70,13 +73,14 @@ class FilterItemControl extends Component {
       isOpen: false,
       nextInputtedValue: undefined,
       nextMeasure: undefined,
+      nextMeasureUnit: undefined,
       nextOperator: undefined
     });
 
   updateHandler = () => {
     const props = this.props;
-    const {nextInputtedValue: inputtedValue, nextMeasure, nextOperator} = this.state;
-    const multiplier = props.multipliers[nextMeasure] || 1;
+    const {nextInputtedValue: inputtedValue, nextMeasure, nextMeasureUnit, nextOperator} = this.state;
+    const multiplier = props.multipliers[nextMeasureUnit] || 1;
     const interpretedValue = Number.parseFloat(`${inputtedValue}`) / multiplier;
     !isNaN(interpretedValue) &&
       props.onUpdate(
@@ -85,13 +89,15 @@ class FilterItemControl extends Component {
           interpretedValue,
           key: props.identifier,
           measure: nextMeasure,
+          measureUnit: nextMeasureUnit,
           operator: nextOperator
         })
       );
     this.resetHandler();
   };
 
-  setMeasureHandler = ({name: nextMeasure}) => this.setState({nextMeasure});
+  /** @type {(msr: MeasureItem) => void} */
+  setMeasureHandler = msr => this.setState({nextMeasure: msr.name, nextMeasureUnit: msr.unit});
 
   setOperatorHandler = event => this.setState({nextOperator: event.target.value});
 
@@ -136,9 +142,10 @@ class FilterItemControl extends Component {
     const {
       nextInputtedValue: inputtedValue,
       nextMeasure: measure,
+      nextMeasureUnit: measureUnit,
       nextOperator: operator
     } = state;
-    const multiplier = props.multipliers[measure] || 1;
+    const multiplier = props.multipliers[measureUnit] || 1;
     const interpretedValue = Number.parseFloat(`${inputtedValue}`) / multiplier;
 
     const selectedMeasure = measure
@@ -205,13 +212,13 @@ function mapState(state, props) {
 /** @type {import("react-redux").MapDispatchToPropsFunction<DispatchProps, OwnProps>} */
 function mapDispatch(dispatch) {
   return {
-    onDelete(groupItem) {
-      dispatch(doFilterDelete(groupItem));
+    onDelete(filterItem) {
+      dispatch(doFilterDelete(filterItem));
       dispatch(doRunQueryCore());
     },
 
-    onUpdate(groupItem) {
-      dispatch(doFilterUpdate(groupItem));
+    onUpdate(filterItem) {
+      dispatch(doFilterUpdate(filterItem));
       dispatch(doRunQueryCore());
     }
   };
