@@ -106,8 +106,8 @@ class FilterItemControl extends Component {
   renderClosed() {
     const {props} = this;
     const {t} = props;
-    const {interpretedValue, measure, operator} = props.filter;
-    const formatter = props.formatters[measure] || props.formatters.identity;
+    const {interpretedValue, measure, measureUnit, operator} = props.filter;
+    const formatter = props.formatters[measureUnit] || props.formatters.identity;
 
     return (
       <fieldset className="filter-item">

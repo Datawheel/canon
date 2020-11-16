@@ -117,8 +117,8 @@ export interface VizbuilderProps {
   permalinkKeywords?: Partial<PermalinkKeywordMap>;
 
   /**
-   * A function to select the default measure to use in case it belongs to a table.
-   * The function receives an array ob cubes, and must return one of them.
+   * A function to select the default measure to use, in case it belongs to a table.
+   * The function receives an array of cubes, and must return one of them.
    */
   tableLogic?: (cubes: CubeItem[]) => CubeItem;
 

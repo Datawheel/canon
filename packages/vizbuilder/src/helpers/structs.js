@@ -273,5 +273,6 @@ export const structFilter = params => ({
   interpretedValue: params.interpretedValue || params.value || 0,
   key: params.key || Math.random().toString(16).slice(2),
   measure: params.measure || params.name,
+  measureUnit: params.measureUnit || params.unit || params.units_of_measurement,
   operator: params.operator || Comparison.EQ
 });

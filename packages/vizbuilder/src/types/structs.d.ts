@@ -51,6 +51,7 @@ interface FilterItem {
   interpretedValue: number;
   key: string;
   measure: string;
+  measureUnit: string;
   operator: Comparison;
 }
 
