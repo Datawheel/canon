@@ -24,13 +24,13 @@ import {
  */
 
 /** @type {React.FC<import("react-i18next").WithNamespaces & OwnProps & StateProps>} */
-const Ranking = function Ranking({chart, formatters, measure, t, timeLevel, timePeriod}) {
+const Ranking = ({chart, formatters, measure, t, timeLevel, timePeriod}) => {
   if (!chart || !timePeriod || !timeLevel || !measure || chart.data.length === 0) {
     return null;
   }
 
   const measureName = measure.name;
-  const formatter = formatters[measureName] || formatAbbreviate;
+  const formatter = formatters[measure.unit] || formatters.default;
   const {data, params} = chart;
   const timeLevelName = timeLevel.name;
 

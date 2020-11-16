@@ -32,7 +32,7 @@ export function tooltipGenerator(chart, {formatters, t}) {
   const sourceName = source ? source.name : "";
   const uciName = uci ? uci.name : "";
 
-  const formatter = formatters[measureName] || formatters.default;
+  const formatter = formatters[measure.unit] || formatters.default;
 
   const shouldShow = areMetaMeasuresZero(chart.data, {
     collectionName,
@@ -80,7 +80,7 @@ export function tooltipGenerator(chart, {formatters, t}) {
     filters.forEach(filter => {
       if (isValidFilter(filter)) {
         const filterName = filter.measure;
-        const formatter = formatters[filterName] || formatters.default;
+        const formatter = formatters[filter.measureUnit] || formatters.default;
         tbody.push([filterName, d => `${formatter(d[filterName])}`]);
       }
     });

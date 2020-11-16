@@ -5,6 +5,7 @@ import {permalinkToState} from "../helpers/permalink";
 import {sortNumericsOrStrings} from "../helpers/sort";
 import {structFilter, structGroup} from "../helpers/structs";
 import {fullNameToLevelLike} from "../helpers/transform";
+import {isValidFilter} from "../helpers/validation";
 import {
   selectCubeList,
   selectCubeMap,
@@ -145,8 +146,11 @@ export default {
 
         const filters = permalinkQuery.filters.map(item => {
           const [measure, operator, value] = item.split("|");
-          return structFilter({measure, operator, value: parseFloat(value)});
-        });
+          const measureItem = measureList.find(item => item.name === measure);
+          return measureItem
+            ? structFilter({...measureItem, operator, value: parseFloat(value)})
+            : undefined;
+        }).filter(isValidFilter);
 
         dispatch(
           doQueryInyect({

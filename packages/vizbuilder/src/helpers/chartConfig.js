@@ -35,7 +35,7 @@ export default function createChartConfig(chart, uiParams) {
   const measureName = measure.name;
   const getMeasureValue = d => d[measureName];
 
-  const formatter = formatters[measureName] || formatters.default;
+  const formatter = formatters[measure.unit] || formatters.default;
   const isEnlarged = uiParams.activeChart === chart.key || isUniqueChart;
 
   const config = assign(
@@ -122,7 +122,7 @@ const makeConfig = {
         x: measureName,
         xConfig: {
           title: measureName,
-          tickFormat: formatters[measureName] || formatters.default
+          tickFormat: formatters[measure.unit] || formatters.default
         },
         y: levelName,
         yConfig: {
@@ -183,7 +183,7 @@ const makeConfig = {
         y: measureName,
         yConfig: {
           title: measureName,
-          tickFormat: formatters[measureName] || formatters.default
+          tickFormat: formatters[measure.unit] || formatters.default
         },
         stacked: true,
         groupBy: [levelName]
@@ -238,7 +238,7 @@ const makeConfig = {
         colorScale: measureName,
         colorScaleConfig: {
           axisConfig: {
-            tickFormat: formatters[measureName] || formatters.default
+            tickFormat: formatters[measure.unit] || formatters.default
           },
           scale: "jenks"
         },
@@ -296,7 +296,7 @@ const makeConfig = {
         yConfig: {
           scale: "linear",
           title: measureName,
-          tickFormat: formatters[measureName] || formatters.default
+          tickFormat: formatters[measure.unit] || formatters.default
         }
       },
       userConfig

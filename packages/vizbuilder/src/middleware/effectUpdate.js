@@ -37,7 +37,7 @@ export default {
   [CORE_CREATE_FILTER]: ({dispatch, getState}) => {
     const state = getState();
     const measures = selectMeasureListForCube(state);
-    const filter = structFilter({measure: measures[0].name});
+    const filter = structFilter(measures[0]);
     dispatch(doFilterUpdate(filter));
   },
 
