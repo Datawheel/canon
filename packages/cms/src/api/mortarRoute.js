@@ -310,13 +310,17 @@ module.exports = function(app) {
     // Inject cms_search-level slugs into the payload to help with making front-end links
     for (let i = 0; i < requests.length; i++) {
       try {
-        const thisURL = requests[i];
+        // slugs may include <vars> from magic generators (e.g., &slugs=Exporter:<hierarchy>). Run them through urlswap to sub in vars.
+        const origin = `${ req.protocol }://${ req.headers.host }`;
+        let thisURL = urlSwap(requests[i], {...req.params, ...cache, ...smallAttr, ...canonVars, locale});
+        if (thisURL.indexOf("http") !== 0) {
+          thisURL = `${origin}${thisURL.indexOf("/") === 0 ? "" : "/"}${thisURL}`;
+        }
         const thisResult = results[i].data && results[i].data.data ? results[i].data.data : [];
         const url = new URL(thisURL);
         const paramObject = Object.fromEntries(new URLSearchParams(url.search));
         if (paramObject.slugs && thisResult.length > 0) {
-          // slugs may include <vars> from magic generators (e.g., &slugs=Exporter:<hierarchy>). Run them through urlswap to sub in vars.
-          const slugs = urlSwap(paramObject.slugs, {...req.params, ...cache, ...smallAttr, ...canonVars, locale});
+          const {slugs} = paramObject;
           const pairs = slugs.split(",");
           for (const pair of pairs) {
             const dimension = pair.includes(":") ? pair.split(":")[0] : pair;
