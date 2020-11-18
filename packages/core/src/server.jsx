@@ -1,7 +1,7 @@
 /* global __TIMESTAMP__ */
 
 import React from "react";
-import Helmet from "react-helmet";
+import {HelmetProvider} from "react-helmet-async";
 import {renderToString} from "react-dom/server";
 import {ChunkExtractor, ChunkExtractorManager} from "@loadable/server";
 import {createMemoryHistory, match, RouterContext} from "react-router";
@@ -147,16 +147,6 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
             preRenderMiddleware(store, newProps)
               .then(() => {
 
-                const header = Helmet.rewind();
-                const htmlAttrs = header.htmlAttributes.toString().replace(" amp", "");
-
-                const defaultAttrs = headerConfig.htmlAttributes ? Object.keys(headerConfig.htmlAttributes)
-                  .map(key => {
-                    const val = headerConfig.htmlAttributes[key];
-                    return ` ${key}${val ? `="${val}"` : ""}`;
-                  })
-                  .join("") : "";
-
                 let status = 200;
                 const initialState = store.getState();
                 for (const key in initialState.data) {
@@ -167,6 +157,8 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                 }
 
                 let jsx;
+
+                const helmetContext = {};
 
                 let componentHTML,
                     scriptTags = "<script type=\"text/javascript\" charset=\"utf-8\" src=\"/assets/client.js\"></script>",
@@ -180,15 +172,17 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                   });
 
                   jsx =
-                    <I18nextProvider i18n={req.i18n}>
-                      <Provider store={store}>
-                        <CanonProvider helmet={headerConfig} locale={locale}>
-                          <ChunkExtractorManager extractor={extractor}>
-                            <RouterContext {...newProps} />
-                          </ChunkExtractorManager>
-                        </CanonProvider>
-                      </Provider>
-                    </I18nextProvider>;
+                    <HelmetProvider context={helmetContext}>
+                      <I18nextProvider i18n={req.i18n}>
+                        <Provider store={store}>
+                          <CanonProvider helmet={headerConfig} locale={locale}>
+                            <ChunkExtractorManager extractor={extractor}>
+                              <RouterContext {...newProps} />
+                            </ChunkExtractorManager>
+                          </CanonProvider>
+                        </Provider>
+                      </I18nextProvider>
+                    </HelmetProvider>;
                   // jsx = extractor.collectChunks(jsx);
                   componentHTML = renderToString(jsx);
 
@@ -208,15 +202,27 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                 }
                 else {
                   jsx =
-                    <I18nextProvider i18n={req.i18n}>
-                      <Provider store={store}>
-                        <CanonProvider helmet={headerConfig} locale={locale}>
-                          <RouterContext {...newProps} />
-                        </CanonProvider>
-                      </Provider>
-                    </I18nextProvider>;
+                    <HelmetProvider context={helmetContext}>
+                      <I18nextProvider i18n={req.i18n}>
+                        <Provider store={store}>
+                          <CanonProvider helmet={headerConfig} locale={locale}>
+                            <RouterContext {...newProps} />
+                          </CanonProvider>
+                        </Provider>
+                      </I18nextProvider>
+                    </HelmetProvider>;
                   componentHTML = renderToString(jsx);
                 }
+
+                const header = helmetContext.helmet;
+                const htmlAttrs = header.htmlAttributes.toString().replace(" amp", "");
+
+                const defaultAttrs = headerConfig.htmlAttributes ? Object.keys(headerConfig.htmlAttributes)
+                  .map(key => {
+                    const val = headerConfig.htmlAttributes[key];
+                    return ` ${key}${val ? `="${val}"` : ""}`;
+                  })
+                  .join("") : "";
 
                 if (process.env.CANON_BASE_URL) {
                   scriptTags = scriptTags.replace(/\/assets\//g, "assets/");

@@ -1,6 +1,7 @@
 import React, {Component, Fragment} from "react";
 import PropTypes from "prop-types";
 import {hot} from "react-hot-loader/root";
+import {Helmet} from "react-helmet-async";
 import {strip} from "d3plus-text";
 
 import TopNav from "components/TopNav";
@@ -94,13 +95,15 @@ class Docs extends Component {
     const {location} = this.props;
     const {pkg, page} = this.props.router.params;
 
-    const PageComponent = PACKAGES
+    const PACKAGE = PACKAGES
       .find(d => strip(d.title).toLowerCase() === pkg)
       .pages
-      .find(d => strip(d.title).toLowerCase() === page)
-      .component;
+      .find(d => strip(d.title).toLowerCase() === page);
+
+    const PageComponent = PACKAGE.component;
 
     return <Fragment>
+      <Helmet title={PACKAGE.title} />
       <TopNav />
       <main id="docs">
         <SideNav key="sidenav" pathname={location.pathname} />

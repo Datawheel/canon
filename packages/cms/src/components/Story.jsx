@@ -2,7 +2,7 @@ import React, {Component, Fragment} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {fetchData} from "@datawheel/canon-core";
-import {Helmet} from "react-helmet";
+import {Helmet} from "react-helmet-async";
 import "./Story.css";
 import stripP from "../utils/formatters/stripP";
 import stripHTML from "../utils/formatters/stripHTML";
