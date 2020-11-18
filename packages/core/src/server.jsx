@@ -147,9 +147,10 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
             preRenderMiddleware(store, newProps)
               .then(() => {
 
+                const initialState = store.getState();
                 // Needs may return a special canonRedirect key. If they do so, process a redirect, using the variables provided
                 // in those objects as variables to substitute in the routes.
-                const redirects = Object.values(store.getState().data).filter(d => d.canonRedirect);
+                const redirects = Object.values(initialState.data).filter(d => d.canonRedirect);
                 // If the query contains ?redirect=true, a redirect has already occurred. To avoid redirect loops, ensure this value is unset
                 if (!req.query.redirect && redirects.length > 0) {
                   // If any needs provided redirect keys, combine them into one object.
@@ -181,7 +182,6 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                   .join("") : "";
 
                 let status = 200;
-                const initialState = store.getState();
                 for (const key in initialState.data) {
                   if ({}.hasOwnProperty.call(initialState.data, key)) {
                     const error = initialState.data[key] ? initialState.data[key].error : null;
