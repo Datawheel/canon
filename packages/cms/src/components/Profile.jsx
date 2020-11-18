@@ -5,8 +5,6 @@ import {fetchData} from "@datawheel/canon-core";
 import PropTypes from "prop-types";
 import ProfileRenderer from "./ProfileRenderer";
 import {NonIdealState} from "@blueprintjs/core";
-import {Redirect} from "react-router";
-import linkify from "../utils/linkify";
 import "./Profile.css";
 
 class Profile extends Component {
