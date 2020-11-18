@@ -387,9 +387,9 @@ config: {
 
 Nearly every entity in the CMS, sections, paragraphs, selectors, vizes, even generators, has access to a concept known as `allowed` (sometimes labeled `Visibility`).
 
-This value is a variable from your list of variables whose truthiness determines whether to show (in the case of text) or execute (in the case of a generator) this entity. 
+This value is a variable from your list of variables whose truthiness determines whether to show (in the case of text) or execute (in the case of a generator) this entity.
 
-This can be used to hide sections dynamically, list only certain select options for given members, or only run generators for certain members. 
+This can be used to hide sections dynamically, list only certain select options for given members, or only run generators for certain members.
 
 ---
 
@@ -643,6 +643,12 @@ If the pieces are the same, one parameter may be used:
 
 `&slugs=Product`
 
+In some rare edge cases, a dimension and id are not enough to disambiguate a member. In these cases, a third argument can be passed, which refers to *the cube on which the given id is considered unique*:
+
+`&slugs=HS Product:HS4:trade_i_baci_a_92`
+
+Note that when using this cube disambiguation, you may not use the singular parameter, all three must be provided.
+
 ### Custom Attributes
 
 The fixed "Attributes" includes basic information about the currently selected member, like dimension, id, and hierarchy. This is useful because it is run *before* other generators, and can therefore be used both in subsequent `variables` object and also in API calls, using the `<bracket>` syntax.
@@ -857,7 +863,7 @@ If you have already followed the steps for [Enabling Image Support](#enabling-im
 
 #### Option 2 - Create an authentication token with Translate Permissions
 
-Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create an authentication token and give it "Cloud Translation -> Cloud Translation API User" permissions. 
+Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create an authentication token and give it "Cloud Translation -> Cloud Translation API User" permissions.
 
 Save the JSON token to disk and set its permissions to `644`.
 ```sh
@@ -904,7 +910,7 @@ Arguments:
     -p, --profile   The integer id for the the profile to translate
                     Use "all" to translate entire cms (be careful, this can be $ expensive)
     -s, --source    The source language to use for translation (optional, defaults to CANON_LANGUAGE_DEFAULT)
-    -t, --target    The target language for translation. 
+    -t, --target    The target language for translation.
 ```
 
 Example usage:
