@@ -1,7 +1,7 @@
 /* global __TIMESTAMP__ */
 
 import React from "react";
-import Helmet from "react-helmet";
+import {HelmetProvider} from "react-helmet-async";
 import {renderToString} from "react-dom/server";
 import {ChunkExtractor, ChunkExtractorManager} from "@loadable/server";
 import {createMemoryHistory, match, RouterContext} from "react-router";
@@ -147,18 +147,28 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
             preRenderMiddleware(store, newProps)
               .then(() => {
 
-                const header = Helmet.rewind();
-                const htmlAttrs = header.htmlAttributes.toString().replace(" amp", "");
-
-                const defaultAttrs = headerConfig.htmlAttributes ? Object.keys(headerConfig.htmlAttributes)
-                  .map(key => {
-                    const val = headerConfig.htmlAttributes[key];
-                    return ` ${key}${val ? `="${val}"` : ""}`;
-                  })
-                  .join("") : "";
+                const initialState = store.getState();
+                // Needs may return a special canonRedirect key. If they do so, process a redirect, using the variables provided
+                // in those objects as variables to substitute in the routes.
+                const redirects = Object.values(initialState.data).filter(d => d.canonRedirect);
+                // If the query contains ?redirect=true, a redirect has already occurred. To avoid redirect loops, ensure this value is unset
+                if (!req.query.redirect && redirects.length > 0) {
+                  // If any needs provided redirect keys, combine them into one object.
+                  const variables = redirects.reduce((acc, d) => ({...acc, ...d.canonRedirect}), {});
+                  // Use variables given by the canonRedirect key, but fall back on given params (to cover for unprovided keys, like :lang)
+                  const params = {...props.params, ...variables};
+                  // Not sure if this is a reliable way to get which route this is.
+                  let route = props.routes[1].path;
+                  // Sort the keys to be "integers first," i.e., slug<int> before slug.
+                  // This ensures that the swaps are processed "outside-in" (descending), and ":slug" doesn't match INSIDE ":slug2"
+                  Object.keys(params).sort(a => (/\d/).test(a) ? -1 : 1).forEach(key => {
+                    route = route.replace(new RegExp(`[(]{0,1}\/:${key}[)]{0,1}`), params[key] ? `/${params[key]}` : "");
+                  });
+                  // Pass a ?redirect flag, to avoid a redirect loop
+                  return res.redirect(301, `${route}?redirect=true`);
+                }
 
                 let status = 200;
-                const initialState = store.getState();
                 for (const key in initialState.data) {
                   if ({}.hasOwnProperty.call(initialState.data, key)) {
                     const error = initialState.data[key] ? initialState.data[key].error : null;
@@ -167,6 +177,8 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                 }
 
                 let jsx;
+
+                const helmetContext = {};
 
                 let componentHTML,
                     scriptTags = "<script type=\"text/javascript\" charset=\"utf-8\" src=\"/assets/client.js\"></script>",
@@ -180,15 +192,17 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                   });
 
                   jsx =
-                    <I18nextProvider i18n={req.i18n}>
-                      <Provider store={store}>
-                        <CanonProvider helmet={headerConfig} locale={locale}>
-                          <ChunkExtractorManager extractor={extractor}>
-                            <RouterContext {...newProps} />
-                          </ChunkExtractorManager>
-                        </CanonProvider>
-                      </Provider>
-                    </I18nextProvider>;
+                    <HelmetProvider context={helmetContext}>
+                      <I18nextProvider i18n={req.i18n}>
+                        <Provider store={store}>
+                          <CanonProvider helmet={headerConfig} locale={locale}>
+                            <ChunkExtractorManager extractor={extractor}>
+                              <RouterContext {...newProps} />
+                            </ChunkExtractorManager>
+                          </CanonProvider>
+                        </Provider>
+                      </I18nextProvider>
+                    </HelmetProvider>;
                   // jsx = extractor.collectChunks(jsx);
                   componentHTML = renderToString(jsx);
 
@@ -208,15 +222,27 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                 }
                 else {
                   jsx =
-                    <I18nextProvider i18n={req.i18n}>
-                      <Provider store={store}>
-                        <CanonProvider helmet={headerConfig} locale={locale}>
-                          <RouterContext {...newProps} />
-                        </CanonProvider>
-                      </Provider>
-                    </I18nextProvider>;
+                    <HelmetProvider context={helmetContext}>
+                      <I18nextProvider i18n={req.i18n}>
+                        <Provider store={store}>
+                          <CanonProvider helmet={headerConfig} locale={locale}>
+                            <RouterContext {...newProps} />
+                          </CanonProvider>
+                        </Provider>
+                      </I18nextProvider>
+                    </HelmetProvider>;
                   componentHTML = renderToString(jsx);
                 }
+
+                const header = helmetContext.helmet;
+                const htmlAttrs = header.htmlAttributes.toString().replace(" amp", "");
+
+                const defaultAttrs = headerConfig.htmlAttributes ? Object.keys(headerConfig.htmlAttributes)
+                  .map(key => {
+                    const val = headerConfig.htmlAttributes[key];
+                    return ` ${key}${val ? `="${val}"` : ""}`;
+                  })
+                  .join("") : "";
 
                 if (process.env.CANON_BASE_URL) {
                   scriptTags = scriptTags.replace(/\/assets\//g, "assets/");
@@ -225,7 +251,7 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
 
                 const serialize = obj => `JSON.parse('${jsesc(JSON.stringify(obj))}')`;
 
-                res.status(status).send(`<!doctype html>
+                return res.status(status).send(`<!doctype html>
 <html dir="${ rtl ? "rtl" : "ltr" }" ${htmlAttrs}${defaultAttrs}>
   <head>
     ${tagManagerHead}${pixelScript}${baseTag}

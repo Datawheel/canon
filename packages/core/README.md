@@ -10,6 +10,7 @@ Reusable React environment and components for creating visualization engines.
 * [Page Routing](#page-routing)
   * [Window Location](#window-location)
   * [Code Splitting](#code-splitting)
+  * [Custom Redirects](#custom-redirects)
 * [Hot Module Reloading](#hot-module-reloading)
 * [Redux Store](#redux-store)
 * [Localization](#localization)
@@ -203,6 +204,16 @@ const About = chunkify(/* #__LOADABLE__ */ () => import(/* webpackChunkName: "ab
 const Background = chunkify(/* #__LOADABLE__ */ () => import(/* webpackChunkName: "about" */ "./pages/docs/Background.jsx"));
 const Glossary = chunkify(/* #__LOADABLE__ */ () => import(/* webpackChunkName: "about" */ "./pages/docs/Glossary.jsx"));
 ```
+
+### Custom Redirects
+
+React Router v3 uses `routes.jsx` to organize page routing. Often, you will see pages routed using colons for params, such as `/page/:id`. This is especially true of the CMS, which uses `:slug` and `:id` in this fashion to match with the profile slug and the member id.
+
+Typically, redirects are handled by using router `<Redirect />` directly in `routes.jsx`, allowing for a permanent redirect of a static page. However, as many canon pages make use of `needs`, it may be necessary to process a dynamic redirect, determined by the results of the `need`.
+
+To make use of these custom redirects, ensure that your `need` returns an object that includes a specially named key: `canonRedirect`. In this key, place any NEW override variables you would like to use, keyed exactly as their appearance in the routes.jsx file (such as `:slug` or `:id`).
+
+This functionality is used by the CMS to redirect profiles from their numeric `id` (such as `25`) to their vanity slug (such as `Massachusetts`). When the profile route determines that the user has provided an `id`, it returns an object with a `canonRedirect` that provides the vanity slug via the `id` key. The custom redirect code then performs a `301` redirect, using the lookup object provided by `canonRedirect` to determine the new route.
 
 ---
 
