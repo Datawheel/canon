@@ -29,7 +29,7 @@ function fetchData(key, url, userConfig = defaultConfig, depConfig, depUseCache)
 
   // handles deprecated use of arguments 3, 4, and 5
   if (typeof userConfig === "function") {
-    userConfig = Object.assign(defaultConfig, {
+    userConfig = Object.assign({}, defaultConfig, {
       format: userConfig,
       config: depConfig !== undefined ? depConfig : defaultConfig.config,
       useCache: depUseCache !== undefined ? depUseCache : defaultConfig.useCache

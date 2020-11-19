@@ -230,7 +230,7 @@ importers:
       prop-types: 15.7.2
       react: 16.13.1
       react-dom: 16.13.1_react@16.13.1
-      react-helmet: 5.2.1_react@16.13.1
+      react-helmet-async: 1.0.7_react-dom@16.13.1+react@16.13.1
       react-hot-loader: 4.13.0_react-dom@16.13.1+react@16.13.1
       react-i18next: 9.0.10_i18next@10.6.0+react@16.13.1
       react-redux: 5.1.2_react@16.13.1+redux@4.0.5
@@ -353,7 +353,7 @@ importers:
       prop-types: ^15.6.0
       react: 16.13.1
       react-dom: 16.13.1
-      react-helmet: ^5.2.0
+      react-helmet-async: ^1.0.7
       react-hot-loader: ^4.12.11
       react-i18next: ^9.0.1
       react-redux: ^5.1.1
@@ -1614,6 +1614,12 @@ packages:
       regenerator-runtime: 0.13.7
     resolution:
       integrity: sha512-TeWkU52so0mPtDcaCTxNBI/IHiz0pZgr8VEFqXFtZWpYD08ZB6FaSwVAS8MKRQAP3bYKiVjwysOJgMFY28o6Tw==
+  /@babel/runtime/7.12.5:
+    dependencies:
+      regenerator-runtime: 0.13.7
+    dev: false
+    resolution:
+      integrity: sha512-plcc+hbExy3McchJCEQG3knOsuh3HH+Prx1P6cLIkET/0dLuQDEnrT+s27Axgc9bqfsmNUNHfscgMUdBpC9xfg==
   /@babel/template/7.10.4:
     dependencies:
       '@babel/code-frame': 7.10.4
@@ -10701,22 +10707,25 @@ packages:
       react: ^16.13.1
     resolution:
       integrity: sha512-81PIMmVLnCNLO/fFOQxdQkvEq/+Hfpv24XNJfpyZhTRfO0QcmQIF/PgCa1zCOj2w1hrn12MFLyaJ/G0+Mxtfag==
-  /react-fast-compare/2.0.4:
+  /react-fast-compare/3.2.0:
     dev: false
     resolution:
-      integrity: sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==
-  /react-helmet/5.2.1_react@16.13.1:
+      integrity: sha512-rtGImPZ0YyLrscKI9xTpV8psd6I8VAtjKCzQDlzyDvqJA8XOW78TXYQwNRNd8g8JZnDu8q9Fu/1v4HPAVwVdHA==
+  /react-helmet-async/1.0.7_react-dom@16.13.1+react@16.13.1:
     dependencies:
-      object-assign: 4.1.1
+      '@babel/runtime': 7.12.5
+      invariant: 2.2.4
       prop-types: 15.7.2
       react: 16.13.1
-      react-fast-compare: 2.0.4
-      react-side-effect: 1.2.0_react@16.13.1
+      react-dom: 16.13.1_react@16.13.1
+      react-fast-compare: 3.2.0
+      shallowequal: 1.1.0
     dev: false
     peerDependencies:
-      react: '>=15.0.0'
+      react: ^16.6.0
+      react-dom: ^16.6.0
     resolution:
-      integrity: sha512-CnwD822LU8NDBnjCpZ4ySh8L6HYyngViTZLfBBb3NjtrpN8m49clH8hidHouq20I51Y6TpCTISCBbqiY5GamwA==
+      integrity: sha512-By90p5uxAriGukbyejq2poK41DwTxpNWOpOjN8mIyX/BKrCd3+sXZ5pHUZXjHyjR5OYS7PGsOD9dbM61YxfFmA==
   /react-hot-loader/4.13.0_react-dom@16.13.1+react@16.13.1:
     dependencies:
       fast-levenshtein: 2.0.6
@@ -10837,15 +10846,6 @@ packages:
       react-dom: ^15.5.4 || ^16.0.0
     resolution:
       integrity: sha512-UAKmawFHn+c7x/DoXuHqOsQ5xwNk2Dxv7vP8Ft41K2hglPWkshcSos0tMTr8704UkFqImoUGzMTdN4vuZXoqbw==
-  /react-side-effect/1.2.0_react@16.13.1:
-    dependencies:
-      react: 16.13.1
-      shallowequal: 1.1.0
-    dev: false
-    peerDependencies:
-      react: ^0.13.0 || ^0.14.0 || ^15.0.0 || ^16.0.0
-    resolution:
-      integrity: sha512-v1ht1aHg5k/thv56DRcjw+WtojuuDHFUgGfc+bFHOWsF4ZK6C2V57DO0Or0GPsg6+LSTE0M6Ry/gfzhzSwbc5w==
   /react-sizeme/2.6.12:
     dependencies:
       element-resize-detector: 1.2.1

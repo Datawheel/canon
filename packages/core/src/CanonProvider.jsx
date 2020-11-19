@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import Loading from "$app/components/Loading";
 import d3plus from "$app/d3plus.js";
-import Helmet from "react-helmet";
+import {Helmet} from "react-helmet-async";
 import urllite from "urllite";
 import {Portal, Toaster} from "@blueprintjs/core";
 

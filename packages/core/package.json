@@ -3,7 +3,7 @@
   "sideEffects": [
     "*.css"
   ],
-  "version": "0.19.4",
+  "version": "0.20.0",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "./src/index.js",
   "types": "./types/index.d.ts",
@@ -129,7 +129,7 @@
     "prop-types": "^15.6.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
-    "react-helmet": "^5.2.0",
+    "react-helmet-async": "^1.0.7",
     "react-hot-loader": "^4.12.11",
     "react-i18next": "^9.0.1",
     "react-redux": "^5.1.1",

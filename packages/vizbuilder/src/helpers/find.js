@@ -176,7 +176,7 @@ export function userTableIdMeasure(measure, tableMeasureMap, cubes, selectorFn) 
   // get the measures associated to the table
   const tableMeasures = tableMeasureMap[`${measure.tableId}`] || [];
   // find their cubes
-  const tableCubes = tableMeasures.map(ms => cubes.find(cb => cb.name === ms.cube));
+  const tableCubes = tableMeasures.map(ms => cubes.find(cb => cb.uri === ms.cube));
   // let the user pick the right cube
   // @ts-ignore
   const pickedCube = selectorFn(tableCubes);

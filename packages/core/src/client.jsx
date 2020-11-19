@@ -7,6 +7,7 @@ import React from "react";
 import {hydrate} from "react-dom";
 import {loadableReady} from "@loadable/component";
 import {createHistory} from "history";
+import {HelmetProvider} from "react-helmet-async";
 import {applyRouterMiddleware, Router, RouterContext, useRouterHistory} from "react-router";
 import {syncHistoryWithStore} from "react-router-redux";
 import {animateScroll} from "react-scroll";
@@ -167,11 +168,13 @@ function createElement(Component, props) {
 const root = document.getElementById("React-Container");
 
 hydrate(
-  <I18nextProvider i18n={i18n}>
-    <Provider store={store}>
-      <Router createElement={createElement} history={history} render={applyRouterMiddleware(renderMiddleware())}>
-        {routes}
-      </Router>
-    </Provider>
-  </I18nextProvider>,
+  <HelmetProvider>
+    <I18nextProvider i18n={i18n}>
+      <Provider store={store}>
+        <Router createElement={createElement} history={history} render={applyRouterMiddleware(renderMiddleware())}>
+          {routes}
+        </Router>
+      </Provider>
+    </I18nextProvider>
+  </HelmetProvider>,
   root);

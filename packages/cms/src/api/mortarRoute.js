@@ -307,20 +307,37 @@ module.exports = function(app) {
     const requests = Array.from(new Set(generators.map(g => g.api)));
     const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, url, smallAttr)));
     const results = await Promise.all(fetches).catch(catcher);
-
     // Inject cms_search-level slugs into the payload to help with making front-end links
     for (let i = 0; i < requests.length; i++) {
       try {
-        const thisURL = requests[i];
+        // slugs may include <vars> from magic generators (e.g., &slugs=Exporter:<hierarchy>). Run them through urlswap to sub in vars.
+        const origin = `${ req.protocol }://${ req.headers.host }`;
+        let thisURL = urlSwap(requests[i], {...req.params, ...cache, ...smallAttr, ...canonVars, locale});
+        if (thisURL.indexOf("http") !== 0) {
+          thisURL = `${origin}${thisURL.indexOf("/") === 0 ? "" : "/"}${thisURL}`;
+        }
         const thisResult = results[i].data && results[i].data.data ? results[i].data.data : [];
-        const paramObject = Object.fromEntries(new URLSearchParams(thisURL));
+        const url = new URL(thisURL);
+        const paramObject = Object.fromEntries(new URLSearchParams(url.search));
         if (paramObject.slugs && thisResult.length > 0) {
-          const pairs = paramObject.slugs.split(",");
+          const {slugs} = paramObject;
+          const pairs = slugs.split(",");
           for (const pair of pairs) {
-            const dimension = pair.includes(":") ? pair.split(":")[0] : pair;
-            const idPattern = pair.includes(":") ? pair.split(":")[1] : pair;
+            let cubeName, dimension, idPattern;
+            if (pair.includes(":")) {
+              const list = pair.split(":");
+              dimension = list[0];
+              idPattern = list[1];
+              if (list[2]) cubeName = list[2];
+            }
+            else {
+              dimension = pair;
+              idPattern = pair;
+            }
             const ids = thisResult.map(d => String(d[`${idPattern} ID`] || d[idPattern]));
-            const members = await db.search.findAll({where: {dimension, id: ids}}).catch(catcher);
+            const where = {dimension, id: ids};
+            if (cubeName) where.cubeName = cubeName;
+            const members = await db.search.findAll({where}).catch(catcher);
             const slugMap = members.reduce((acc, d) => ({...acc, [d.id]: d.slug}), {});
             results[i].data.data = results[i].data.data.map(d => ({...d, [`${idPattern} Slug`]: slugMap[d[`${idPattern} ID`] || d[idPattern]]}));
           }
