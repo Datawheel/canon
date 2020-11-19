@@ -22,9 +22,9 @@ export default function RouteCreate() {
       <Route path="/cms" component={Builder} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={SignUp} />
-      <Route path="/profile/:slug/:id" component={Profile} />
-      <Route path="/profile/:slug/:id/:slug2/:id2" component={Profile} />
-      <Route path="/profile/:slug/:id/:slug2/:id2/:slug3/:id3" component={Profile} />
+      <Route path="/:lang/profile/:slug/:id" component={Profile} />
+      <Route path="/:lang/profile/:slug/:id/:slug2/:id2" component={Profile} />
+      <Route path="/:lang/profile/:slug/:id/:slug2/:id2/:slug3/:id3" component={Profile} />
 
       <Route path="*" component={Error} />
 
