@@ -159,13 +159,10 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                   const params = {...props.params, ...variables};
                   // Not sure if this is a reliable way to get which route this is.
                   let route = props.routes[1].path;
+                  // Sort the keys to be "integers first," i.e., slug<int> before slug.
+                  // This ensures that the swaps are processed "outside-in" (descending), and ":slug" doesn't match INSIDE ":slug2"
                   Object.keys(params).sort(a => (/\d/).test(a) ? -1 : 1).forEach(key => {
-                    if (route.includes(`(/:${key})`)) {
-                      route = route.replace(`(/:${key})`, params[key] ? `/${params[key]}` : "");
-                    }
-                    else if (route.includes(`:${key}`)) {
-                      route = route.replace(`:${key}`, params[key]);
-                    }
+                    route = route.replace(new RegExp(`[(]{0,1}\/:${key}[)]{0,1}`), params[key] ? `/${params[key]}` : "");
                   });
                   // Pass a ?redirect flag, to avoid a redirect loop
                   return res.redirect(301, `${route}?redirect=true`);
