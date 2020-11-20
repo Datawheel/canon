@@ -23,7 +23,7 @@
     "d3-array": "^1.2.4",
     "d3plus-common": "^0.7.0",
     "d3plus-format": "^0.1.18",
-    "d3plus-react": "^0.6.0",
+    "d3plus-react": "^0.6.1",
     "fast-sort": "^1.5.3",
     "form-urldecoded": "0.0.6",
     "form-urlencoded": "^4.1.3",
@@ -42,7 +42,7 @@
   "devDependencies": {
     "@blueprintjs/core": "^3.22.3",
     "@blueprintjs/select": "^3.11.0",
-    "@datawheel/canon-core": "workspace:^0.19.0",
+    "@datawheel/canon-core": "workspace:^0.20.0",
     "@types/i18next": "^12.1.0",
     "@types/react-router": "^3.0.20",
     "lodash": "^4.17.15",

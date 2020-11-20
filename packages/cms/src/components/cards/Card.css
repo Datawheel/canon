@@ -48,8 +48,8 @@
   }
 
   &.is-not-allowed {
-    & * {
-      filter: grayscale(15%) opacity(85%);
+    & > *:not(.cms-dialog) {
+      filter: grayscale(25%) opacity(75%);
     }
     &:before {
       @mixin font-xxs;

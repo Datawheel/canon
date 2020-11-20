@@ -1,9 +1,27 @@
 module.exports = {
   colorScale: {
     key: "colorScale",
-    display: "Color scale",
+    display: "Color Scale",
     format: "Accessor",
-    required: true
+    required: false,
+    typeof: "number",
+    tooltip: true,
+    formatter: "colorScaleConfig.axisConfig.tickFormat",
+    title: ["colorScaleConfig.axisConfig.title", "colorScaleConfig.legendConfig.title"]
+  },
+  column: {
+    key: "column",
+    display: "Columns",
+    format: "Accessor",
+    required: true,
+    formatter: "columnConfig.tickFormat",
+    title: "columnConfig.title"
+  },
+  columnConfigTitle: {
+    key: "columnConfig.title",
+    display: "Column Title",
+    format: "Input",
+    required: false
   },
   columns: {
     key: "columns",
@@ -36,6 +54,20 @@ module.exports = {
     display: "Image URL",
     format: "Input",
     required: true
+  },
+  row: {
+    key: "row",
+    display: "Rows",
+    format: "Accessor",
+    required: true,
+    formatter: "rowConfig.tickFormat",
+    title: "rowConfig.title"
+  },
+  rowConfigTitle: {
+    key: "rowConfig.title",
+    display: "Row Title",
+    format: "Input",
+    required: false
   },
   size: {
     key: "size",
@@ -76,7 +108,9 @@ module.exports = {
     display: "X-axis",
     format: "Accessor",
     required: true,
-    tooltip: true
+    tooltip: true,
+    formatter: "xConfig.tickFormat",
+    title: "xConfig.title"
   },
   xConfigTitle: {
     key: "xConfig.title",
@@ -89,7 +123,9 @@ module.exports = {
     display: "Y-axis",
     format: "Accessor",
     required: true,
-    tooltip: true
+    tooltip: true,
+    formatter: "yConfig.tickFormat",
+    title: "yConfig.title"
   },
   yConfigTitle: {
     key: "yConfig.title",
