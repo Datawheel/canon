@@ -39,7 +39,7 @@ module.exports = [
   {
     name: "Geo Map",
     type: "Geomap",
-    methods: [groupBy, colorScale, topojson]
+    methods: [groupBy, Object.assign({}, colorScale, {required: true}), topojson]
   },
   {
     name: "Graphic",
@@ -64,7 +64,7 @@ module.exports = [
   {
     name: "Matrix",
     type: "Matrix",
-    methods: [groupBy, row, column, rowConfigTitle, columnConfigTitle]
+    methods: [groupBy, row, column, rowConfigTitle, columnConfigTitle, colorScale]
   },
   {
     name: "Pie Chart",
@@ -74,12 +74,12 @@ module.exports = [
   {
     name: "Radial Matrix",
     type: "RadialMatrix",
-    methods: [groupBy, row, column]
+    methods: [groupBy, row, column, colorScale]
   },
   {
     name: "Scatter/Bubble",
     type: "Plot",
-    methods: [x, y, size, xConfigTitle, yConfigTitle]
+    methods: [x, y, size, xConfigTitle, yConfigTitle, colorScale]
   },
   {
     name: "Stacked Area",
@@ -90,7 +90,7 @@ module.exports = [
     name: "Treemap",
     type: "Treemap",
     default: true,
-    methods: [groupBy, sum]
+    methods: [groupBy, sum, colorScale]
   },
   {
     name: "Table",

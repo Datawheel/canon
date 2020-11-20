@@ -107,9 +107,10 @@ class VisualizationEditorUI extends Component {
   }
 
   compileCode() {
+
     const {object, payloadObject} = this.state;
     const {type} = object;
-    const stripID = d => typeof d === "string" ? d.replace(/(ID\s|\sID)/g, "") : d;
+    const stripID = d => typeof d === "string" ? d.replace(/(^ID\s|\sID$)/g, "") : d;
 
     const keys = Object.keys(object)
       // Filter out any keys where the user has manually selected none
@@ -118,93 +119,112 @@ class VisualizationEditorUI extends Component {
       .filter(d => d !== "formatters");
 
     const thisViz = vizLookup.find(v => v.type === type);
-    let tooltipKeys = [];
-    if (thisViz) {
-      tooltipKeys = thisViz.methods
-        // To build the tooltip, filter our methods to only the tooltip keys
-        .filter(method => method.tooltip)
-        // If this key is already handled by groupBy, remove it from showing in the tooltip
-        .filter(method => object.groupBy ? object[method.key] !== stripID(object.groupBy[object.groupBy.length - 1]) : true)
-        .map(d => d.key);
-    }
+    const methods = thisViz ? thisViz.methods : [];
 
-    // If the user has put instance variables between brackets (e.g. <id> or <var>)
-    // Then we need to manually create a special template string out of what the user
-    // has written. Remember that the "logic" is javascript that will be executed, so
-    // if the user has written something like ?id=<id> then the resulting code
-    // must be a template string like `/api?id=${variables.id}`
-    const code =
-    `return {${
-      keys.map(k => {
-        if (k === "data" && object[k]) {
-          const urls = object[k].map(url => {
-            let fixedURL = url;
-            (url.match(/<[^\&\=\/>]+>/g) || []).forEach(v => {
-              const strippedVar = v.replace("<", "").replace(">", "");
-              fixedURL = fixedURL.replace(v, `\$\{variables.${strippedVar}\}`);
-            });
-            return fixedURL;
-          });
-          if (urls.length === 1) {
-            return `\n  "${k}": ${urls.map(d => `\`${d}\``).join()}`;  
-          }
-          else {
-            return `\n  "${k}": [${urls.map(d => `\`${d}\``).join()}]`;  
-          }
+    const configObject = {};
+
+    /**
+     * Stores a value inside of the configObject at the specified chained key string,
+     * making sure not to overwrite any previously set nested Objects.
+     * @param {*} str A period-separated string, representing chained key names.
+     * @param {*} value The final value to be set in the object.
+     * @private
+     */
+    const periodStringParse = (str, value) => {
+      const levels = str.split(".");
+      levels.reduce((o, p, i) => (o[p] = i === levels.length - 1 ? value : o[p] || {}, o[p]), configObject);
+    };
+
+    keys.forEach(key => {
+
+      const formatter = object.formatters ? object.formatters[key] : null;
+
+      /** The main logic of setting key/value pairs on configObject */
+      if (key === "html") {
+        const value = `variables["${object[key]}"]`;
+        configObject.html = formatter ? `formatters.${formatter}(${value})` : value;
+      }
+      else {
+        periodStringParse(key, object[key]);
+      }
+
+      /** Here lies additional foldins that add to the default behaviors */
+      if (key === "groupBy") {
+        const groupBy = configObject.groupBy;
+        const labelKey = Object.keys(payloadObject).find(d => d === stripID(groupBy[groupBy.length - 1]));
+        if (labelKey) {
+          configObject.label = `d => ${formatter ? `String(formatters.${formatter}(d["${labelKey}"]))` : `String(d["${labelKey}"])`}`;
         }
-        // If the user is setting groupBy, we need to implicitly set the label also. Remember groupBy is a list
-        else if (k === "groupBy") {
-          const gString = `"${k}": [${object[k].map(d => `"${d}"`).join()}]`;
-          const label = Object.keys(payloadObject).find(d => d === stripID(object[k][object[k].length - 1]));
-          if (label) {
-            const formatter = object.formatters ? object.formatters[k] : null;
-            return `\n  ${gString},  \n  "label": d => ${formatter ? `String(formatters.${formatter}(d["${label}"]))` : `String(d["${label}"])`}`;
+      }
+
+    });
+
+    keys.forEach(key => {
+
+      const formatter = object.formatters ? object.formatters[key] : null;
+      const method = methods.find(method => method.key === key);
+
+      /** If the method specifies a separate formatter method, set that now. */
+      if (method && method.formatter && formatter && !object[method.formatter]) {
+        periodStringParse(method.formatter, `d => formatters.${formatter}(d)`);
+      }
+
+      /** If the method specifies a separate title method, and it's not being set. */
+      let titleKeys = method && method.title ? method.title : [];
+      if (!(titleKeys instanceof Array)) titleKeys = [titleKeys];
+      titleKeys.forEach(titleKey => {
+        if (!keys.includes(titleKey) || !object[titleKey].length) periodStringParse(titleKey, object[key]);
+      });
+
+    });
+
+    // To build the tooltip, filter our methods to only the methods with tooltip: true
+    // and ignote any groupBy keys which are already handled with the label.
+    const tooltipKeys = methods
+      .filter(method => method.tooltip)
+      .filter(method => object.groupBy ? object[method.key] !== stripID(object.groupBy[object.groupBy.length - 1]) : true)
+      .map(d => d.key);
+
+    // Set the appropriate tbody label and function for all
+    // keys in the tooltipKeys array.
+    periodStringParse("tooltipConfig.tbody", tooltipKeys.map(k => {
+      const formatter = object.formatters ? object.formatters[k] : null;
+      return [object[k], `d => ${formatter ? `formatters.${formatter}(d["${object[k]}"])` : `d["${object[k]}"]`}`];
+    }));
+
+    const newLine = d => "\n".padEnd(d * 2 + 1, " ");
+    const stringifyObject = (obj, depth = 0) => {
+
+      // Arrays are Objects. Needed to determine if the wrapper
+      // charactares should be square brackets or curly braces.
+      const isArray = obj instanceof Array;
+
+      return `${isArray ? "[" : "{"}${newLine(depth + 1)}${Object.keys(obj)
+        .sort((a, b) => a.localeCompare(b))
+        .map(key => {
+          let str = isArray ? "" : `${key}: `;
+          const val = obj[key];
+
+          // recursive check for objects/arrays
+          if (typeof val === "object") str += `${stringifyObject(val, depth + 1)}`;
+          // detect fat arrow functions and don't wrap with quotation marks
+          else if (typeof val === "string" && val.startsWith("d => ")) str += `${val}`;
+          // set all empty strings to a false Boolean
+          else if (typeof val === "string" && !val.length) str += "false";
+          // swap out <x> patterns for variables if needed
+          else if (typeof val === "string" && val.match(/<[^\&\=\/>]+>/g)) {
+            str += `\`${val.replace(/(<[^\&\=\/>]+>)/g, v => `\$\{variables.${v.slice(1, -1)}\}`)}\``;
           }
-          else {
-            return `\n  ${gString}`;
-          }
-        }
-        // If the user is setting HTML, they are referencing a variables dropdown
-        else if (k === "html") {
-          const formatter = object.formatters ? object.formatters[k] : null;
-          return formatter ? `\n  "${k}": formatters.${formatter}(variables["${object[k]}"])` : `\n  "${k}": variables["${object[k]}"]`;
-        }
-        // If the key has a dot, this is an object that needs to be destructured/crawled down
-        else if (k.includes(".")) {
-          const levels = k.split(".");
-          // If this is an axis config, implicitly apply a formatter if there is one.
-          if (levels[0] === "xConfig" || levels[0] === "yConfig") {
-            const formatter = object.formatters ? object.formatters[levels[0].charAt(0)] : null;
-            // xyConfig titles, when empty strings, need to be false.
-            const value = levels[1] === "title" ? object[k] === "" ? "false" : `"${object[k]}"` : `"${object[k]}"`;
-            if (formatter) {
-              return `\n  "${levels[0]}" : {"${levels[1]}": ${value}, "tickFormat": formatters.${formatter}}`;
-            }
-            else {
-              return `\n  "${levels[0]}" : {"${levels[1]}": ${value}}`;
-            }
-          }
-          else {
-            return `\n  "${levels[0]}" : {"${levels[1]}": "${object[k]}"}`;
-          }
-        }
-        else if (k === "columns") {
-          return `\n  "${k}": ${JSON.stringify(object[k])}`;
-        }
-        else {
-          return `\n  "${k}": "${object[k]}"`;
-        }
-      })
-    },${`
-  "tooltipConfig": {
-    "tbody": [
-      ${tooltipKeys.map(k => {
-    const formatter = object.formatters ? object.formatters[k] : null;
-    return `["${object[k]}", d => ${formatter ? `formatters.${formatter}(d["${object[k]}"])` : `d["${object[k]}"]`}]`;
-  })}
-    ]
-  }`}\n}`;
+          // coerce leftover values into strings
+          else str += `"${val}"`;
+
+          return str;
+        }).join(`,${newLine(depth + 1)}`)}${newLine(depth)}${isArray ? "]" : "}"}`;
+    };
+
+    const code = `return ${stringifyObject(configObject)};`;
     if (this.props.onSimpleChange) this.props.onSimpleChange(code, object);
+
   }
 
   maybeRebuild() {
@@ -428,27 +448,27 @@ class VisualizationEditorUI extends Component {
       />
 
       {/* data URL */}
-      { requiresPayload && object.data && Array.isArray(object.data) && 
-        object.data.map((d, i) => 
+      { requiresPayload && object.data && Array.isArray(object.data) &&
+        object.data.map((d, i) =>
           <TextButtonGroup
             key={`data-${i}`}
             namespace="cms"
             inputProps={{
               label: <React.Fragment>
                 Data Endpoint
-                {i === 0 
-                  ? <Button 
+                {i === 0
+                  ? <Button
                     className="cms-vizrow-button"
                     onClick={() => this.onKeyAdd.bind(this)("data")}
-                    icon="plus" 
+                    icon="plus"
                     iconOnly
                   >
                     Add Endpoint
                   </Button>
-                  : <Button 
+                  : <Button
                     className="cms-vizrow-button"
                     onClick={() => this.onKeyRemove.bind(this)("data", i)}
-                    icon="minus" 
+                    icon="minus"
                     iconOnly
                   >
                     Remove Endpoint
@@ -506,8 +526,8 @@ class VisualizationEditorUI extends Component {
             onKeyRemove={this.onKeyRemove.bind(this)}
             formatterList={formatterList}
             options={
-              method.format === "Variable" 
-                ? varOptions 
+              method.format === "Variable"
+                ? varOptions
                 : this.getOptionList.bind(this)(method, payloadObject).map(option =>
                   <option key={option.value} value={option.value}>{option.display}</option>)
             }
