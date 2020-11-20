@@ -1,10 +1,14 @@
 const {
   colorScale,
+  column,
+  columnConfigTitle,
   columns,
   groupBy,
   html,
   imageURL,
   label,
+  row,
+  rowConfigTitle,
   size,
   subtitle,
   sum,
@@ -58,9 +62,19 @@ module.exports = [
     methods: [groupBy, x, y, xConfigTitle, yConfigTitle]
   },
   {
+    name: "Matrix",
+    type: "Matrix",
+    methods: [groupBy, row, column, rowConfigTitle, columnConfigTitle]
+  },
+  {
     name: "Pie Chart",
     type: "Pie",
     methods: [groupBy, value]
+  },
+  {
+    name: "Radial Matrix",
+    type: "RadialMatrix",
+    methods: [groupBy, row, column]
   },
   {
     name: "Scatter/Bubble",

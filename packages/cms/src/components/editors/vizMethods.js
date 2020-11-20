@@ -5,6 +5,18 @@ module.exports = {
     format: "Accessor",
     required: true
   },
+  column: {
+    key: "column",
+    display: "Columns",
+    format: "Accessor",
+    required: true
+  },
+  columnConfigTitle: {
+    key: "columnConfig.title",
+    display: "Column Title",
+    format: "Input",
+    required: false
+  },
   columns: {
     key: "columns",
     display: "Columns",
@@ -36,6 +48,18 @@ module.exports = {
     display: "Image URL",
     format: "Input",
     required: true
+  },
+  row: {
+    key: "row",
+    display: "Rows",
+    format: "Accessor",
+    required: true
+  },
+  rowConfigTitle: {
+    key: "rowConfig.title",
+    display: "Row Title",
+    format: "Input",
+    required: false
   },
   size: {
     key: "size",

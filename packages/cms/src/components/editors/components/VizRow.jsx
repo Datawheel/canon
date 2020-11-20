@@ -10,14 +10,14 @@ class VizRow extends Component {
   render() {
 
     const {
-      method, 
-      object, 
-      onChange, 
-      onCheck, 
-      onChangeFormatter, 
+      method,
+      object,
+      onChange,
+      onCheck,
+      onChangeFormatter,
       onKeyAdd,
       onKeyRemove,
-      payloadObject, 
+      payloadObject,
       options,
       formatterList
     } = this.props;
@@ -31,9 +31,9 @@ class VizRow extends Component {
     return (
       <React.Fragment>
         {
-          values.map((value, i) => 
+          values.map((value, i) =>
             <React.Fragment key={`value-${i}`}>
-              {method.format === "Input" && 
+              {method.format === "Input" &&
                 <TextInput
                   label={method.display}
                   namespace="cms"
@@ -44,7 +44,7 @@ class VizRow extends Component {
                   onChange={e => onChange(method.key, e)}
                 />
               }
-              {method.format === "Checkbox" && 
+              {method.format === "Checkbox" &&
                 <fieldset className="cms-fieldset">
                   <legend className="u-font-sm">Columns</legend>
                   {allFields.map(column =>
@@ -62,30 +62,30 @@ class VizRow extends Component {
                 <React.Fragment>
                   <Select
                     key="cms-key-select"
-                    label={ method.multiple 
-                      ? i === 0 
+                    label={ method.multiple
+                      ? i === 0
                         ? <span>
                           {method.display}
-                          <Button 
+                          <Button
                             className="cms-vizrow-button"
                             onClick={() => onKeyAdd(method.key)}
-                            icon="plus" 
+                            icon="plus"
                             iconOnly
                           >
                             {`Add ${method.display}`}
                           </Button>
-                        </span> 
+                        </span>
                         : <span>
                           {method.display}
-                          <Button 
+                          <Button
                             className="cms-vizrow-button"
                             onClick={() => onKeyRemove(method.key, i)}
-                            icon="minus" 
+                            icon="minus"
                             iconOnly
                           >
                             {`Remove ${method.display}`}
                           </Button>
-                        </span> 
+                        </span>
                       : method.display
                     }
                     namespace="cms"
