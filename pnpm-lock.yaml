@@ -54,7 +54,7 @@ importers:
       d3plus-common: 0.7.0
       d3plus-export: 0.3.19
       d3plus-format: 0.1.18
-      d3plus-react: 0.6.0
+      d3plus-react: 0.6.1
       d3plus-text: 0.10.1
       d3plus-viz: 0.13.3
       draft-js: 0.11.7
@@ -86,7 +86,7 @@ importers:
       '@blueprintjs/core': ^3.28.1
       '@blueprintjs/datetime': ^3.18.1
       '@blueprintjs/select': ^3.13.2
-      '@datawheel/canon-core': 'workspace:^0.19.0'
+      '@datawheel/canon-core': 'workspace:^0.20.0'
       '@datawheel/canon-logiclayer': 'workspace:^0.4.0'
       '@datawheel/olap-client': ^1.3.3
       '@google-cloud/storage': 5.3.0
@@ -104,7 +104,7 @@ importers:
       d3plus-common: ^0.7.0
       d3plus-export: ^0.3.16
       d3plus-format: ^0.1.18
-      d3plus-react: ^0.6.0
+      d3plus-react: ^0.6.1
       d3plus-text: ^0.10.0
       d3plus-viz: ^0.13.1
       draft-js: ^0.11.3
@@ -391,7 +391,7 @@ importers:
       '@datawheel/canon-core': 'link:../core'
     specifiers:
       '@blueprintjs/core': ^3.28.1
-      '@datawheel/canon-core': 'workspace:^0.19.0'
+      '@datawheel/canon-core': 'workspace:^0.20.0'
       axios: ^0.19.2
       d3-array: ^1.2.1
       d3-collection: ^1.0.4
@@ -427,7 +427,7 @@ importers:
     specifiers:
       '@blueprintjs/core': ^3.22.3
       '@blueprintjs/select': ^3.11.0
-      '@datawheel/canon-core': 'workspace:^0.19.0'
+      '@datawheel/canon-core': 'workspace:^0.20.0'
       '@datawheel/olap-client': ^1.3.2
       '@types/i18next': ^12.1.0
       '@types/react-router': ^3.0.20
@@ -4358,6 +4358,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-KHW6M86R+FUPYGb3R5XiYjXPq7VzwxZ22buHhAEVG5ztoEcZZMLov530mmccaqA1GghZArjQV46fuc8kUqhhHw==
+  /d3-array/2.8.0:
+    dev: false
+    resolution:
+      integrity: sha512-6V272gsOeg7+9pTW1jSYOR1QE37g95I3my1hBmY+vOUNHRrk9yt4OTz/gK7PMkVAVDrYYq4mq3grTiZ8iJdNIw==
   /d3-brush/1.1.6:
     dependencies:
       d3-dispatch: 1.0.6
@@ -4504,6 +4508,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-EUkvKjqPFUAZyOlhY5gzCxCeI0Aep04LwIRpsZ/mLFelJiUfnK56jo5JMDSE7yyP2kLSb6LtF+S5chMk7uqPqw==
+  /d3-shape/2.0.0:
+    dependencies:
+      d3-path: 1.0.9
+    dev: false
+    resolution:
+      integrity: sha512-djpGlA779ua+rImicYyyjnOjeubyhql1Jyn1HK0bTyawuH76UQRWXd+pftr67H6Fa8hSwetkgb/0id3agKWykw==
   /d3-tile/1.0.0:
     dev: false
     resolution:
@@ -4640,6 +4650,18 @@ packages:
     dev: false
     resolution:
       integrity: sha512-K4mGzYU3faxXk5JpewsnjYSLL66bbSfVc4yjroJm57uUurgHdtxKue627du7atm626R87BS078uTiukJToJSTA==
+  /d3plus-matrix/0.1.2:
+    dependencies:
+      d3-array: 2.8.0
+      d3-shape: 2.0.0
+      d3plus-axis: 0.6.3
+      d3plus-common: 0.7.0
+      d3plus-shape: 0.17.0
+      d3plus-text: 0.10.1
+      d3plus-viz: 0.13.3
+    dev: false
+    resolution:
+      integrity: sha512-AZ2wchphmE5KtDwcZJ8/3FxKM6taHP68gDhoL3BBlUVc9SpGxm9l23s44NMFKtpJ1Pq8eSzSPqYFixr+lPbCRQ==
   /d3plus-network/0.6.0:
     dependencies:
       d3-array: 1.2.4
@@ -4679,21 +4701,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-A0Ich84uTDObHBe56o9WxTCYobnp3G1Fw1zcJOIT8avAzRDgTvk9/lGl1mCdQan28gYwFkKikFlZ3tKXKRRXcA==
-  /d3plus-react/0.6.0:
-    dependencies:
-      d3plus-common: 0.7.0
-      d3plus-geomap: 0.7.2
-      d3plus-hierarchy: 0.9.0
-      d3plus-network: 0.6.0
-      d3plus-plot: 0.9.4
-      d3plus-priestley: 0.4.0
-      d3plus-viz: 0.13.3
-    dev: false
-    peerDependencies:
-      prop-types: '>=15.6.2'
-      react: '>=15.6.2'
-    resolution:
-      integrity: sha512-BJHEj1zGTunCVCej258UlvnpRKIkYjyq5HF5Rt9sU/MYqxD2pVBzEeALjJDUfA61NQkVo/48/d7J3LC8d31nBQ==
   /d3plus-react/0.6.0_prop-types@15.7.2+react@16.13.1:
     dependencies:
       d3plus-common: 0.7.0
@@ -4727,6 +4734,22 @@ packages:
       react: '>=15.6.2'
     resolution:
       integrity: sha512-BJHEj1zGTunCVCej258UlvnpRKIkYjyq5HF5Rt9sU/MYqxD2pVBzEeALjJDUfA61NQkVo/48/d7J3LC8d31nBQ==
+  /d3plus-react/0.6.1:
+    dependencies:
+      d3plus-common: 0.7.0
+      d3plus-geomap: 0.7.2
+      d3plus-hierarchy: 0.9.0
+      d3plus-matrix: 0.1.2
+      d3plus-network: 0.6.0
+      d3plus-plot: 0.9.4
+      d3plus-priestley: 0.4.0
+      d3plus-viz: 0.13.3
+    dev: false
+    peerDependencies:
+      prop-types: '>=15.6.2'
+      react: '>=15.6.2'
+    resolution:
+      integrity: sha512-xnXZVzIIJ12e//rpQrRWVRDOEFQb0Jra3UqYAwM/hZIV7nnPZ6265ey6YI4xSzAYgOId6F6PSrns6ZhuSCr/uQ==
   /d3plus-shape/0.17.0:
     dependencies:
       d3-array: 1.2.4
