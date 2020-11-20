@@ -58,7 +58,7 @@
     "d3plus-common": "^0.7.0",
     "d3plus-export": "^0.3.16",
     "d3plus-format": "^0.1.18",
-    "d3plus-react": "^0.6.0",
+    "d3plus-react": "^0.6.1",
     "d3plus-text": "^0.10.0",
     "d3plus-viz": "^0.13.1",
     "draft-js": "^0.11.3",
@@ -85,7 +85,7 @@
     "sharp": "^0.25.3"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "workspace:^0.19.0",
+    "@datawheel/canon-core": "workspace:^0.20.0",
     "@datawheel/canon-logiclayer": "workspace:^0.4.0"
   },
   "peerDependencies": {
