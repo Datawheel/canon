@@ -23,7 +23,7 @@
     "d3-array": "^1.2.4",
     "d3plus-common": "^0.7.0",
     "d3plus-format": "^0.1.18",
-    "d3plus-react": "^0.6.0",
+    "d3plus-react": "^0.6.1",
     "fast-sort": "^1.5.3",
     "form-urldecoded": "0.0.6",
     "form-urlencoded": "^4.1.3",
