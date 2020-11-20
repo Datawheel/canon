@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {dataLoad} from "d3plus-viz";
 
+import varSwapRecursive from "../../utils/varSwapRecursive";
+
 import vizLookup from "./vizLookup";
 import VizRow from "./components/VizRow";
 import urlSwap from "../../utils/urlSwap";
@@ -92,7 +94,16 @@ class VisualizationEditorUI extends Component {
           lookup[`id${i + 1}`] = p.id;
         });
       }
-      const urls = data.map(url => urlSwap(url, Object.assign({}, env, variables, lookup)));
+
+      const {localeDefault, query} = this.props.status;
+      const {formatterFunctions} = this.props.resources;
+      const allSelectors = this.props.selectors;
+      const formatters = formatterFunctions[localeDefault];
+
+      const urls = data
+        .map(url => urlSwap(url, Object.assign({}, env, variables, lookup)))
+        .map(url => varSwapRecursive({url, allSelectors}, formatters, variables, query).url);
+
       dataLoad.bind({})(urls, this.extractPayload.bind(this), undefined, (error, payload) => {
         if (error) {
           console.log("API error", error);
@@ -354,7 +365,16 @@ class VisualizationEditorUI extends Component {
 
     if (data && Array.isArray(data) && data[0]) {
 
-      const urls = data.map(url => urlSwap(url, Object.assign({}, env, variables, lookup)));
+      const {localeDefault, query} = this.props.status;
+      const {formatterFunctions} = this.props.resources;
+      const allSelectors = this.props.selectors;
+      const formatters = formatterFunctions[localeDefault];
+
+      const urls = data
+        .map(url => urlSwap(url, Object.assign({}, env, variables, lookup)))
+        .map(url => varSwapRecursive({url, allSelectors}, formatters, variables, query).url);
+
+      console.log(urls);
       dataLoad.bind({})(urls, this.extractPayload.bind(this), undefined, (error, payload) => {
         if (error) {
           console.log("API error", error);
@@ -542,7 +562,8 @@ const mapStateToProps = state => ({
   env: state.env,
   variables: state.cms.variables,
   status: state.cms.status,
-  resources: state.cms.resources
+  resources: state.cms.resources,
+  selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []
 });
 
 export default connect(mapStateToProps)(VisualizationEditorUI);
