@@ -199,7 +199,7 @@
     &.is-fixed {
       position: fixed;
       z-index: 2;
-      top: var(--subnav-height);
+      top: var(--nav-height);
       height: var(--subnav-height);
       background-color: var(--hero-bg-color);
       box-shadow: 0 1px 0.25rem color(var(--black) a(0.333));
