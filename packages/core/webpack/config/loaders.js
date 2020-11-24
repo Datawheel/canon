@@ -20,7 +20,9 @@ const cssLoaders = [
   {
     loader: "postcss-loader",
     options: {
-      plugins: postCSS,
+      postcssOptions: {
+        plugins: postCSS
+      },
       sourceMap: !production
     }
   }

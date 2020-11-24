@@ -13,8 +13,12 @@ const appPath = path.join(appDir, "app");
 
 process.traceDeprecation = true;
 
+const runSpeedTest = true;
+const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
+const smp = new SpeedMeasurePlugin({disable: !runSpeedTest});
+
 /** @type {import("webpack").Configuration} */
-module.exports = {
+module.exports = smp.wrap({
   name: "server",
   mode: "development",
   context: path.join(__dirname, "../src"),
@@ -55,10 +59,10 @@ module.exports = {
     extensions: [".js", ".jsx", ".css"]
   },
   plugins: [
-    new webpack.NormalModuleReplacementPlugin(
-      /\/app\/.*\.(css|scss|sass)$/,
-      path.resolve(__dirname, "config/empty.css")
-    ),
+    // new webpack.NormalModuleReplacementPlugin(
+    //   /\/app\/.*\.(css|scss|sass)$/,
+    //   path.resolve(__dirname, "config/empty.css")
+    // ),
     new webpack.optimize.LimitChunkCountPlugin({maxChunks: 1}),
     new MiniCssExtractPlugin({
       filename: "styles.css",
@@ -66,18 +70,18 @@ module.exports = {
     }),
     new WebpackBar({color: "#7ab536", name: "server"}),
     new FriendlyErrorsWebpackPlugin({clearConsole: false}),
-    new HardSourceWebpackPlugin({
-      cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
-      environmentHash: {
-        root: appDir,
-        directories: [],
-        files: ["package-lock.json", "yarn.lock", "app/style.yml", ".env", ".envrc"]
-      },
-      info: {mode: "test", level: "error"}
-    }),
-    new HardSourceWebpackPlugin.ExcludeModulePlugin([
-      {test: /mini-css-extract-plugin[\\/]dist[\\/]loader/}
-    ]),
+    // new HardSourceWebpackPlugin({
+    //   cacheDirectory: path.join(appDir, "node_modules/.cache/hard-source/[confighash]"),
+    //   environmentHash: {
+    //     root: appDir,
+    //     directories: [],
+    //     files: ["package-lock.json", "yarn.lock", "app/style.yml", ".env", ".envrc"]
+    //   },
+    //   info: {mode: "test", level: "error"}
+    // }),
+    // new HardSourceWebpackPlugin.ExcludeModulePlugin([
+    //   {test: /mini-css-extract-plugin[\\/]dist[\\/]loader/}
+    // ]),
     new webpack.DefinePlugin(Object.keys(process.env)
       .filter(e => e.startsWith("CANON_CONST_"))
       .reduce((d, k) => {
@@ -85,4 +89,4 @@ module.exports = {
         return d;
       }, {__DEV__: true, __SERVER__: true, __TIMESTAMP__: new Date().getTime()}))
   ]
-};
+});

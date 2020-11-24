@@ -12,7 +12,7 @@ const appDir = process.cwd();
 const staticFolder = process.env.CANON_STATIC_FOLDER || "static";
 const staticPath = path.join(appDir, staticFolder);
 const canonPath = require.resolve("@datawheel/canon-core");
-let started = false;
+const started = false;
 
 shell.rm("-rf", path.join(staticPath, "assets/"));
 shell.mkdir("-p", path.join(staticPath, "assets/"));
@@ -32,14 +32,18 @@ compiler.watch({}, (err, stats) => {
     console.warn(e);
   });
 
-  if (!shell.test("-f", path.join(staticPath, "assets/server.js"))) {
-    console.error("\n\n 🛑  SERVER WEBPACK ERROR\n");
-    console.error("Unable to build server.js");
-    shell.exit(1);
-  }
-  else if (!started) {
-    started = true;
-    shell.exec(`node ${path.join(canonPath, "../../bin/server/index.js")}`);
-  }
+  // const fs = require("fs");
+  // fs.writeFileSync(path.join(process.cwd(), "stats.json"), JSON.stringify(stats.toJson("verbose")));
+  shell.exit(0);
+
+  // if (!shell.test("-f", path.join(staticPath, "assets/server.js"))) {
+  //   console.error("\n\n 🛑  SERVER WEBPACK ERROR\n");
+  //   console.error("Unable to build server.js");
+  //   shell.exit(1);
+  // }
+  // else if (!started) {
+  //   started = true;
+  //   shell.exec(`node ${path.join(canonPath, "../../bin/server/index.js")}`);
+  // }
 
 });
