@@ -16,8 +16,18 @@ class Selector extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      comparisons: props && props.default ? props.default.split(",").filter(d => d.length) : []
+      comparisons: props && props.default ? props.default.split(",").filter(d => d.length) : [],
+      activeValue: props.default
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.default !== this.props.default) {
+      const {onSelector} = this.context;
+      const {name} = this.props;
+      this.setState({activeValue: this.props.default});
+      onSelector(name, this.props.default);
+    }
   }
 
   addComparison(comparison) {
@@ -52,9 +62,9 @@ class Selector extends Component {
   }
 
   render() {
-    const {comparisons} = this.state;
+    const {activeValue, comparisons} = this.state;
     const {onSelector, print, variables} = this.context;
-    const {default: activeValue, fontSize, id, loading, options, name, selectCutoff, title, type} = this.props;
+    const {fontSize, id, loading, options, name, selectCutoff, title, type} = this.props;
     const slug = `${name}-${id}`;
     const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label}), {});
 
