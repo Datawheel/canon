@@ -168,6 +168,10 @@ class VisualizationEditorUI extends Component {
         }
       }
 
+      if (key === "data" && configObject.data.length === 1) {
+        configObject.data = configObject.data[0];
+      }
+
     });
 
     keys.forEach(key => {
@@ -192,16 +196,19 @@ class VisualizationEditorUI extends Component {
     // To build the tooltip, filter our methods to only the methods with tooltip: true
     // and ignote any groupBy keys which are already handled with the label.
     const tooltipKeys = methods
-      .filter(method => method.tooltip)
+      .filter(method => method.tooltip && object[method.key] !== "manual-none")
       .filter(method => object.groupBy ? object[method.key] !== stripID(object.groupBy[object.groupBy.length - 1]) : true)
       .map(d => d.key);
 
+
     // Set the appropriate tbody label and function for all
     // keys in the tooltipKeys array.
-    periodStringParse("tooltipConfig.tbody", tooltipKeys.map(k => {
-      const formatter = object.formatters ? object.formatters[k] : null;
-      return [object[k], `d => ${formatter ? `formatters.${formatter}(d["${object[k]}"])` : `d["${object[k]}"]`}`];
-    }));
+    if (tooltipKeys.length) {
+      periodStringParse("tooltipConfig.tbody", tooltipKeys.map(k => {
+        const formatter = object.formatters ? object.formatters[k] : null;
+        return [object[k], `d => ${formatter ? `formatters.${formatter}(d["${object[k]}"])` : `d["${object[k]}"]`}`];
+      }));
+    }
 
     const newLine = d => "\n".padEnd(d * 2 + 1, " ");
     const stringifyObject = (obj, depth = 0) => {
