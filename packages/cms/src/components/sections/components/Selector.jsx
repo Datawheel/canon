@@ -115,7 +115,7 @@ class Selector extends Component {
       }
 
       // options under selectCutoff; button group
-      if (options.length <= selectCutoff) {
+      if (options.length <= selectCutoff && options.every(b => stripHTML(b.label || variables[b.option]).length < 40)) {
         return <ButtonGroup label={title} className="cp-selector-button-group" fontSize={fontSize}>
           {(print ? options.filter(b => b.option === activeValue) : options).map(b =>
             <Button
