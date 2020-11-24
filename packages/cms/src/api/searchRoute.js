@@ -136,7 +136,7 @@ module.exports = function(app) {
               ];
               for (const config of configs) {
                 const buffer = await sharp(imageData).resize(config.res).toBuffer().catch(catcher);
-                const file = `/${config.type}/${newImage.id}.jpg`;
+                const file = `${config.type}/${newImage.id}.jpg`;
                 const options = {metadata: {contentType: "image/jpeg"}};
                 await storage.bucket(bucket).file(file).save(buffer, options).catch(catcher);
                 await storage.bucket(bucket).file(file).makePublic().catch(catcher);
