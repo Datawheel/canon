@@ -56,7 +56,7 @@ export default class VariableEditorUI extends Component {
           use: o.use,
           keyName: o.keyName,
           pKey: o.pKey,
-          pVal: pl[i][o.pKey]
+          pVal: pl[i] ? pl[i][o.pKey] : undefined
         }))
       );
       this.setState({objects}, this.compileCode.bind(this));
@@ -77,7 +77,7 @@ export default class VariableEditorUI extends Component {
       else {
         objects = [];
       }
-      
+
       // If this component is mounting and is NOT provided a simple config, it means the
       // user has just enabled simple mode. This means the parent component must be given
       // the simple logic NOW, so if the user clicks save without editing anything, it's there.
