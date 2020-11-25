@@ -164,6 +164,9 @@ class Table extends Component {
     const {d3plus, print} = this.context;
     config.data = data;
 
+    // removes erronous "column" key from Matrix chart configs
+    if (config.column) delete config.column;
+
     let columns = data.length ? Object.keys(data[0]) : [];
     if (Array.isArray(config.columns)) columns = config.columns;
     else if (typeof config.columns === "string") columns = [config.columns];
