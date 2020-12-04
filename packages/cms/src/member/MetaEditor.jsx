@@ -25,6 +25,7 @@ class MetaEditor extends Component {
     super(props);
     this.state = {
       sourceData: [],
+      cloudEnabled: false,
       cubes: [],
       currentCube: "",
       data: [],
@@ -54,8 +55,9 @@ class MetaEditor extends Component {
   componentDidMount() {
     const epoch = new Date().getTime();
     axios.get("/api/isImageEnabled").then(resp => {
-      const imageEnabled = resp.data;
-      this.setState({epoch, imageEnabled}, this.hitDB.bind(this));
+      const {imageEnabled, cloudEnabled} = resp.data;
+      console.log(imageEnabled, cloudEnabled);
+      this.setState({epoch, imageEnabled, cloudEnabled}, this.hitDB.bind(this));
     });
   }
 
@@ -247,6 +249,7 @@ class MetaEditor extends Component {
     });
   }
 
+  /*
   linkify(member) {
     const {metaData} = this.state;
     const links = [];
@@ -262,6 +265,7 @@ class MetaEditor extends Component {
     });
     return links;
   }
+  */
 
   /**
    * Once sourceData has been set, prepare the two variables that react-table needs: data and columns.
@@ -378,6 +382,8 @@ class MetaEditor extends Component {
           minWidth: this.columnWidths("id"),
           accessor: d => d.id
         });
+
+        /*
         displayColumns.push({
           id: `${field}-url`,
           Header: this.renderHeader("preview link"),
@@ -391,6 +397,7 @@ class MetaEditor extends Component {
             )}
           </ul>
         });
+        */
       }
       else {
         let columnGroup = idColumns;

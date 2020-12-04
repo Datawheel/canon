@@ -46,6 +46,8 @@ const cartesian = (a, b, ...c) => b ? cartesian(f(a, b), ...c) : a;
 
 let unaccentExtensionInstalled;
 
+const imageInclude = [{association: "image", attributes: {exclude: ["splash", "thumb"]}, include: [{association: "content"}]}, {association: "content"}];
+
 // The visibility or invisibility of certain profiles or variants determines which "dimension cube pairs" should be considered valid.
 // When making a query into canon_cms_search, use the de-duplicated, valid, and visible dim/cubes from this array to restrict the results.
 const fetchDimCubes = async db => {
@@ -87,7 +89,18 @@ module.exports = function(app) {
   const {db} = app.settings;
   const dbQuery = db.search.sequelize.query.bind(db.search.sequelize);
 
-  app.get("/api/isImageEnabled", async(req, res) => res.json(Boolean(flickr)));
+  app.get("/api/isImageEnabled", async(req, res) => {
+    console.log(db.image.attributes);
+    const payload = {imageEnabled: Boolean(flickr)};
+    if (!bucket) {
+      payload.cloudEnabled = false;
+    }
+    else {
+      const bucketRef = await storage.bucket(bucket).getMetadata().catch(() => false);
+      payload.cloudEnabled = Boolean(bucketRef);
+    }
+    return res.json(payload);
+  });
 
   app.post("/api/image/update", async(req, res) => {
     if (!flickr) return res.json({error: "Flickr API Key not configured"});
@@ -129,7 +142,7 @@ module.exports = function(app) {
               const newImage = await db.image.create(payload).catch(catcher);
               await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);
 
-              // Finally, upload splash and thumb version to google cloud.
+              // Finally, upload splash and thumb version to google cloud, or psql as a fallback
               const configs = [
                 {type: "splash", res: splashWidth},
                 {type: "thumb", res: thumbWidth}
@@ -138,16 +151,23 @@ module.exports = function(app) {
                 const buffer = await sharp(imageData).resize(config.res).toBuffer().catch(catcher);
                 const file = `${config.type}/${newImage.id}.jpg`;
                 const options = {metadata: {contentType: "image/jpeg"}};
-                await storage.bucket(bucket).file(file).save(buffer, options).catch(catcher);
-                await storage.bucket(bucket).file(file).makePublic().catch(catcher);
+                // Attempt to upload to google bucket. If it fails, fall back to psql blob
+                const writeResult = await storage.bucket(bucket).file(file).save(buffer, options).catch(e => {
+                  if (verbose) console.error(`Image upload error for ${file}, ${e.message}`);
+                  return false;
+                });
+                if (writeResult === false) {
+                  await db.image.update({[config.type]: buffer}, {where: {id: newImage.id}}).catch(catcher);
+                }
+                else {
+                  await storage.bucket(bucket).file(file).makePublic().catch(catcher);
+                }
               }
             }
           }
           const newRow = await db.search.findOne({
             where: {contentId},
-            include: [
-              {model: db.image, include: [{association: "content"}]}, {association: "content"}
-            ]
+            include: imageInclude
           }).catch(catcher);
           return res.json(newRow);
         }
@@ -281,7 +301,7 @@ module.exports = function(app) {
       for (const dc of allDimCubes) {
         let rows = await db.search.findAll({
           where: {dimension: dc.dimension, cubeName: dc.cubeName},
-          include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
+          include: imageInclude,
           order: [["zvalue", "DESC NULLS LAST"]],
           limit
         });
@@ -381,7 +401,7 @@ module.exports = function(app) {
         if (req.query.dimension) searchWhere.dimension = req.query.dimension.split(",");
         if (req.query.hierarchy) searchWhere.hierarchy = req.query.hierarchy.split(",");
         let rows = await db.search.findAll({
-          include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
+          include: imageInclude,
           // when a limit is provided, it is for EACH dimension, but this initial rowsearch is for a flat member list.
           // Pad out the limit by multiplying by the number of unique dimensions, then limit (slice) them later.
           // Not perfect, could probably revisit the logic here.
@@ -518,7 +538,7 @@ module.exports = function(app) {
       where.slug = slug.includes(",") ? slug.split(",") : slug;
       rows = await db.search.findAll({
         where,
-        include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}]
+        include: imageInclude
       });
     }
     else if (id) {
@@ -535,7 +555,7 @@ module.exports = function(app) {
       if (cubeName) where.cubeName = cubeName;
       rows = await db.search.findAll({
         where,
-        include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}]
+        include: imageInclude
       });
     }
     else {
@@ -605,7 +625,7 @@ module.exports = function(app) {
       }
       if (cubeName) searchWhere.cubeName = cubeName.split(",");
       rows = await db.search.findAll({
-        include: [{model: db.image, include: [{association: "content"}]}, {association: "content"}],
+        include: imageInclude,
         limit,
         order: [["zvalue", "DESC NULLS LAST"]],
         where: searchWhere

@@ -12,7 +12,9 @@ module.exports = function(sequelize, db) {
         unique: true
       },
       author: db.TEXT,
-      license: db.INTEGER
+      license: db.INTEGER,
+      splash: db.BLOB,
+      thumb: db.BLOB
     },
     {
       tableName: "canon_cms_image",
