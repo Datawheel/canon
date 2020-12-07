@@ -4,7 +4,7 @@ import {connect} from "react-redux";
 import ReactTable from "react-table";
 import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
-import {Icon, EditableText, Spinner} from "@blueprintjs/core";
+import {Icon, EditableText, Spinner, Popover, Position} from "@blueprintjs/core";
 
 import Dialog from "../components/interface/Dialog";
 import Status from "../components/interface/Status";
@@ -56,7 +56,6 @@ class MetaEditor extends Component {
     const epoch = new Date().getTime();
     axios.get("/api/isImageEnabled").then(resp => {
       const {imageEnabled, cloudEnabled} = resp.data;
-      console.log(imageEnabled, cloudEnabled);
       this.setState({epoch, imageEnabled, cloudEnabled}, this.hitDB.bind(this));
     });
   }
@@ -249,6 +248,10 @@ class MetaEditor extends Component {
     });
   }
 
+  imageUpload(cell) {
+    console.log(cell.original);
+  }
+
   /*
   linkify(member) {
     const {metaData} = this.state;
@@ -272,7 +275,7 @@ class MetaEditor extends Component {
    */
   prepData() {
     const {localeDefault, localeSecondary} = this.props.status;
-    const {epoch, imageEnabled, sourceData} = this.state;
+    const {epoch, imageEnabled, cloudEnabled, sourceData} = this.state;
     const data = this.fetchStringifiedSourceData.bind(this)(sourceData);
     let skip = ["stem", "imageId", "contentId"];
     if (!imageEnabled) skip = skip.concat("image");
@@ -307,9 +310,23 @@ class MetaEditor extends Component {
             const imgURL = `/api/image?dimension=${dimension}&cubeName=${cubeName}&id=${id}&type=thumb&t=${epoch}`;
             return cell.value
               // image wrapped inside a button
-              ? <button className="cp-table-cell-cover-button" onClick={this.clickCell.bind(this, cell)}>
+              ? <React.Fragment><button className="cp-table-cell-cover-button" onClick={this.clickCell.bind(this, cell)}>
                 <img className="cp-table-cell-img" src={imgURL} alt="add image" />
               </button>
+              {imageEnabled && cloudEnabled && cell.original.image && cell.original.image.thumb && <Popover
+                className="cms-img-upload-icon"
+                position = {Position.RIGHT}
+                isOpen={this.state[`isOpen${cell.original.contentId}`]}
+              >
+                <Icon icon="cloud-upload" iconSize={20}/>
+                <div className="cms-img-upload-popover">
+                  <p>This image is hosted locally, but cloud hosting appears to be configured. Upload?</p>
+                  <button className="bp3-button bp3-intent-primary" onClick={this.imageUpload.bind(this, cell)}>Upload</button>
+                  <button className="bp3-button bp3-intent-dismiss" onClick={() => this.setState({[`isOpen${cell.original.contentId}`]: false})}>Cancel</button>
+                </div>
+              </Popover>
+              }
+              </React.Fragment>
               // normal cell with a button
               : <Button
                 onClick={this.clickCell.bind(this, cell)}

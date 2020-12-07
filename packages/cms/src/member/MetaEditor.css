@@ -311,3 +311,15 @@
   padding-top: calc(var(--gutter-xs) + 10vh);
   padding-bottom: calc(var(--gutter-xl) + 10vh);
 }
+
+.cms-img-upload-icon {
+  position: absolute;
+  bottom: 2px;
+  right: 3px;
+  background-color: white;
+}
+
+.cms-img-upload-popover {
+  width: 300px;
+  padding: 5px;
+}

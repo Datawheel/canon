@@ -46,7 +46,8 @@ const cartesian = (a, b, ...c) => b ? cartesian(f(a, b), ...c) : a;
 
 let unaccentExtensionInstalled;
 
-const imageInclude = [{association: "image", attributes: {exclude: ["splash", "thumb"]}, include: [{association: "content"}]}, {association: "content"}];
+const imageIncludeNoBlobs = [{association: "image", attributes: {exclude: ["thumb", "splash"]}, include: [{association: "content"}]}, {association: "content"}];
+const imageIncludeThumbOnly = [{association: "image", attributes: {exclude: ["splash"]}, include: [{association: "content"}]}, {association: "content"}];
 
 // The visibility or invisibility of certain profiles or variants determines which "dimension cube pairs" should be considered valid.
 // When making a query into canon_cms_search, use the de-duplicated, valid, and visible dim/cubes from this array to restrict the results.
@@ -90,7 +91,6 @@ module.exports = function(app) {
   const dbQuery = db.search.sequelize.query.bind(db.search.sequelize);
 
   app.get("/api/isImageEnabled", async(req, res) => {
-    console.log(db.image.attributes);
     const payload = {imageEnabled: Boolean(flickr)};
     if (!bucket) {
       payload.cloudEnabled = false;
@@ -167,8 +167,9 @@ module.exports = function(app) {
           }
           const newRow = await db.search.findOne({
             where: {contentId},
-            include: imageInclude
+            include: imageIncludeThumbOnly
           }).catch(catcher);
+          if (newRow && newRow.image) newRow.image.thumb = Boolean(newRow.image.thumb);
           return res.json(newRow);
         }
         else {
@@ -301,7 +302,7 @@ module.exports = function(app) {
       for (const dc of allDimCubes) {
         let rows = await db.search.findAll({
           where: {dimension: dc.dimension, cubeName: dc.cubeName},
-          include: imageInclude,
+          include: imageIncludeNoBlobs,
           order: [["zvalue", "DESC NULLS LAST"]],
           limit
         });
@@ -401,7 +402,7 @@ module.exports = function(app) {
         if (req.query.dimension) searchWhere.dimension = req.query.dimension.split(",");
         if (req.query.hierarchy) searchWhere.hierarchy = req.query.hierarchy.split(",");
         let rows = await db.search.findAll({
-          include: imageInclude,
+          include: imageIncludeNoBlobs,
           // when a limit is provided, it is for EACH dimension, but this initial rowsearch is for a flat member list.
           // Pad out the limit by multiplying by the number of unique dimensions, then limit (slice) them later.
           // Not perfect, could probably revisit the logic here.
@@ -538,7 +539,7 @@ module.exports = function(app) {
       where.slug = slug.includes(",") ? slug.split(",") : slug;
       rows = await db.search.findAll({
         where,
-        include: imageInclude
+        include: imageIncludeThumbOnly
       });
     }
     else if (id) {
@@ -555,7 +556,7 @@ module.exports = function(app) {
       if (cubeName) where.cubeName = cubeName;
       rows = await db.search.findAll({
         where,
-        include: imageInclude
+        include: imageIncludeThumbOnly
       });
     }
     else {
@@ -625,12 +626,16 @@ module.exports = function(app) {
       }
       if (cubeName) searchWhere.cubeName = cubeName.split(",");
       rows = await db.search.findAll({
-        include: imageInclude,
+        include: imageIncludeThumbOnly,
         limit,
         order: [["zvalue", "DESC NULLS LAST"]],
         where: searchWhere
       });
     }
+
+    rows.forEach(d => {
+      if (d.image) d.image.thumb = Boolean(d.image.thumb);
+    });
 
     // MetaEditor.jsx makes use of this endpoint, but needs ALL locale content. If locale="all" is set,
     // Forget about the ensuing sanitazation/prep for front-end searches and just return the raw rows for manipulation in the CMS.
