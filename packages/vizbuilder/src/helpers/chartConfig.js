@@ -87,7 +87,6 @@ export default function createChartConfig(chart, uiParams) {
     };
   }
 
-  config.data = chart.data;
   config.tooltipConfig = tooltipGenerator(chart, uiParams);
   config.zoom = chartType === "geomap" && isSingleChart;
 
@@ -98,6 +97,9 @@ export default function createChartConfig(chart, uiParams) {
   //     isTimeline: isTimeline || config.timeline
   //   });
   // }
+
+  assign(config, uiParams.measureConfig || {});
+  config.data = chart.data;
 
   return config;
 }
