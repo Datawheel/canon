@@ -102,6 +102,29 @@ module.exports = function(app) {
     return res.json(payload);
   });
 
+  app.post("/api/image/cloudfix", async(req, res) => {
+    if (!flickr) return res.json({error: "Flickr API Key not configured"});
+    const {id} = req.body;
+    const imageRow = await db.image.findOne({where: {id}}).catch(catcher);
+    if (!imageRow) return res.json({error: "No Image Found"});
+    for (const type of ["thumb", "splash"]) {
+      const file = `${type}/${imageRow.id}.jpg`;
+      const options = {metadata: {contentType: "image/jpeg"}};
+      const writeResult = await storage.bucket(bucket).file(file).save(imageRow[type], options).catch(e => {
+        if (verbose) console.error(`Image upload error for ${file}, ${e.message}`);
+        return false;
+      });
+      if (writeResult === false) {
+        return res.json({error: "Image upload Error"});
+      }
+      else {
+        await db.image.update({[type]: null}, {where: {id}}).catch(catcher);
+        await storage.bucket(bucket).file(file).makePublic().catch(catcher);
+      }
+    }
+    return res.json("k");
+  });
+
   app.post("/api/image/update", async(req, res) => {
     if (!flickr) return res.json({error: "Flickr API Key not configured"});
     const {contentId} = req.body;

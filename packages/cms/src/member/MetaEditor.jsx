@@ -248,8 +248,39 @@ class MetaEditor extends Component {
     });
   }
 
-  imageUpload(cell) {
-    console.log(cell.original);
+  cloudFix(cell) {
+    if (cell.original.image) {
+      const Toast = this.context.toast.current;
+      const payload = {id: cell.original.image.id};
+      this.setState({loading: true});
+      axios.post("/api/image/cloudfix", payload).then(resp => {
+        console.log("back", resp);
+        if (resp.data) {
+          if (resp.data.error) {
+            Toast.show({
+              intent: "danger",
+              message: `Upload error - ${resp.data.error}`,
+              timeout: 2000
+            });
+            this.setState({loading: false, popoverid: false});
+          }
+          else {
+            const row = resp.data;
+            const sourceData = this.state.sourceData.map(d => row.contentId === d.contentId ? row : d);
+            // content id closer
+            const loading = false;
+            const popoverid = false;
+            const epoch = new Date().getTime();
+            this.setState({sourceData, loading, popoverid, epoch}, this.prepData.bind(this));
+            Toast.show({
+              intent: "success",
+              message: "Success!",
+              timeout: 2000
+            });
+          }
+        }
+      });
+    }
   }
 
   /*
@@ -316,13 +347,13 @@ class MetaEditor extends Component {
               {imageEnabled && cloudEnabled && cell.original.image && cell.original.image.thumb && <Popover
                 className="cms-img-upload-icon"
                 position = {Position.RIGHT}
-                isOpen={this.state[`isOpen${cell.original.contentId}`]}
+                isOpen={this.state.popoverid === cell.original.contentId}
               >
-                <Icon icon="cloud-upload" iconSize={20}/>
+                <Icon icon="cloud-upload" iconSize={20} onClick={() => this.setState({popoverid: cell.original.contentId})}/>
                 <div className="cms-img-upload-popover">
                   <p>This image is hosted locally, but cloud hosting appears to be configured. Upload?</p>
-                  <button className="bp3-button bp3-intent-primary" onClick={this.imageUpload.bind(this, cell)}>Upload</button>
-                  <button className="bp3-button bp3-intent-dismiss" onClick={() => this.setState({[`isOpen${cell.original.contentId}`]: false})}>Cancel</button>
+                  <button className="bp3-button bp3-intent-primary" onClick={this.cloudFix.bind(this, cell)}>Upload</button>
+                  <button className="bp3-button bp3-intent-dismiss" onClick={() => this.setState({popoverid: false})}>Cancel</button>
                 </div>
               </Popover>
               }
