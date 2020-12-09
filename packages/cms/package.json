@@ -17,6 +17,7 @@
     "canon-cms-migrate-0.11": "scripts/migration/canon-cms-migrate-0.11.js",
     "canon-cms-migrate-0.12": "scripts/migration/canon-cms-migrate-0.12.js",
     "canon-cms-migrate-0.13": "scripts/migration/canon-cms-migrate-0.13.js",
+    "canon-cms-migrate-0.14": "scripts/migration/canon-cms-migrate-0.14.js",
     "canon-cms-translate": "scripts/translation/canon-cms-translate.js",
     "canon-cms-warmup": "scripts/warmup/index.js"
   },
@@ -36,6 +37,7 @@
     "canon-cms-migrate-0.11": "node scripts/migration/canon-cms-migrate-0.11.js",
     "canon-cms-migrate-0.12": "node scripts/migration/canon-cms-migrate-0.12.js",
     "canon-cms-migrate-0.13": "node scripts/migration/canon-cms-migrate-0.13.js",
+    "canon-cms-migrate-0.14": "node scripts/migration/canon-cms-migrate-0.14.js",
     "canon-cms-translate": "scripts/translation/canon-cms-translate.js"
   },
   "dependencies": {
