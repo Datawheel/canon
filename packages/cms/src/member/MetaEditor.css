@@ -323,3 +323,9 @@
   width: 300px;
   padding: 5px;
 }
+
+.cms-img-status-box {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+}

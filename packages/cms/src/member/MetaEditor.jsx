@@ -252,9 +252,8 @@ class MetaEditor extends Component {
     if (cell.original.image) {
       const Toast = this.context.toast.current;
       const payload = {id: cell.original.image.id};
-      this.setState({loading: true});
+      this.setState({loading: true, popoverid: false});
       axios.post("/api/image/cloudfix", payload).then(resp => {
-        console.log("back", resp);
         if (resp.data) {
           if (resp.data.error) {
             Toast.show({
@@ -262,12 +261,14 @@ class MetaEditor extends Component {
               message: `Upload error - ${resp.data.error}`,
               timeout: 2000
             });
-            this.setState({loading: false, popoverid: false});
+            this.setState({loading: false});
           }
           else {
-            const row = resp.data;
-            const sourceData = this.state.sourceData.map(d => row.contentId === d.contentId ? row : d);
-            // content id closer
+            const rows = resp.data;
+            let {sourceData} = this.state;
+            for (const row of rows) {
+              sourceData = this.state.sourceData.map(d => row.contentId === d.contentId ? row : d);
+            }
             const loading = false;
             const popoverid = false;
             const epoch = new Date().getTime();
@@ -338,7 +339,7 @@ class MetaEditor extends Component {
           accessor: d => d.image ? d.image.url : null,
           Cell: cell => {
             const {dimension, cubeName, id} = cell.original;
-            const imgURL = `/api/image?dimension=${dimension}&cubeName=${cubeName}&id=${id}&type=thumb&t=${epoch}`;
+            const imgURL = `/api/image?dimension=${dimension}&cubeName=${cubeName}&id=${id}&size=thumb&t=${epoch}`;
             return cell.value
               // image wrapped inside a button
               ? <React.Fragment><button className="cp-table-cell-cover-button" onClick={this.clickCell.bind(this, cell)}>
@@ -612,6 +613,8 @@ class MetaEditor extends Component {
       data,
       dialogMode,
       dimensions,
+      imageEnabled,
+      cloudEnabled,
       query,
       epoch,
       filterBy,
@@ -719,6 +722,7 @@ class MetaEditor extends Component {
               />
             </div>
           </div>
+          <div className="cms-img-status-box">{`Flickr ${imageEnabled ? "enabled" : "disabled"}, Cloud ${cloudEnabled ? "enabled" : "disabled"}`}</div>
         </div>
 
         <div className="cms-editor cms-meta-table-container">
@@ -800,7 +804,7 @@ class MetaEditor extends Component {
                 {currentRow.imageId && currentRow.dimension && currentRow.id && currentRow.cubeName
                   ? <img
                     className="cms-meta-selected-img"
-                    src={`/api/image?dimension=${currentRow.dimension}&cubeName=${currentRow.cubeName}&id=${currentRow.id}&type=thumb&t=${epoch}`}
+                    src={`/api/image?dimension=${currentRow.dimension}&cubeName=${currentRow.cubeName}&id=${currentRow.id}&size=thumb&t=${epoch}`}
                     alt=""
                     draggable="false"
                   />

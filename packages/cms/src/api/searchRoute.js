@@ -122,7 +122,15 @@ module.exports = function(app) {
         await storage.bucket(bucket).file(file).makePublic().catch(catcher);
       }
     }
-    return res.json("k");
+    // return to the client all searchrows that were affected by this image update
+    const newRows = await db.search.findAll({
+      where: {imageId: imageRow.id},
+      include: imageIncludeThumbOnly
+    }).catch(catcher);
+    newRows.forEach(d => {
+      if (d && d.image) d.image.thumb = Boolean(d.image.thumb);
+    });
+    return res.json(newRows);
   });
 
   app.post("/api/image/update", async(req, res) => {
@@ -656,8 +664,10 @@ module.exports = function(app) {
       });
     }
 
-    rows.forEach(d => {
+    rows = rows.map(d => {
+      d = d.toJSON();
       if (d.image) d.image.thumb = Boolean(d.image.thumb);
+      return d;
     });
 
     // MetaEditor.jsx makes use of this endpoint, but needs ALL locale content. If locale="all" is set,
@@ -693,8 +703,7 @@ module.exports = function(app) {
     });
 
     const results = [];
-    for (let d of rows) {
-      d = d.toJSON();
+    for (const d of rows) {
       const result = {
         dimension: d.dimension,
         hierarchy: d.hierarchy,
