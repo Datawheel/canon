@@ -22,6 +22,8 @@ import FilterItem from "./FilterItem";
 import GroupItem from "./GroupItem";
 import Ranking from "./Ranking";
 
+import "../styles/index.css";
+
 /**
  * @typedef OwnState
  * @property {boolean} isSidebarOpen
