@@ -62,7 +62,7 @@ class Hero extends Component {
       for (let i = 0; i < dims.length; i++) {
         if (profile.images[i]) {
           images.push({
-            src: `/api/image?slug=${dims[i].slug}&id=${dims[i].id}&type=splash`,
+            src: `/api/image?slug=${dims[i].slug}&id=${dims[i].id}&size=splash`,
             author: profile.images[i].author,
             meta: profile.images[i].meta,
             permalink: profile.images[i].url
