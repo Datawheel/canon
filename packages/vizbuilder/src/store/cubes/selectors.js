@@ -96,6 +96,8 @@ export const selectMeasureMap = createSelector(selectMeasureList, measures =>
  * for each table name.
  * @returns {Record<string, MeasureItem[]>}
  */
-export const selectMeasureMapByTable = createSelector(selectMeasureList, measures =>
-  groupBy(measures, measure => measure.tableId)
-);
+export const selectMeasureMapByTable = createSelector(selectMeasureList, measures => {
+  const dict = groupBy(measures, measure => measure.tableId);
+  dict.undefined = [];
+  return dict;
+});

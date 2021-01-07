@@ -81,7 +81,7 @@ export const selectCube = createSelector(
 export const selectMeasureListForTable = createSelector(
   [selectMeasure, selectMeasureMapByTable],
   (measure, tableMeasureMap) =>
-    measure ? tableMeasureMap[`${measure.tableId}`] || [] : []
+    measure && measure.tableId ? tableMeasureMap[`${measure.tableId}`] || [] : []
 );
 
 /**

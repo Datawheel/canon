@@ -18,7 +18,7 @@ importers:
       '@datawheel/canon-core': 'link:../packages/core'
       '@datawheel/canon-logiclayer': 'link:../packages/logiclayer'
       axios: 0.19.2
-      d3plus-react: 0.6.1
+      d3plus-react: 0.6.1_prop-types@15.7.2+react@16.13.1
       d3plus-text: 0.10.1
       d3plus-viz: 0.13.3
       prop-types: 15.7.2
@@ -38,7 +38,7 @@ importers:
       '@blueprintjs/core': 3.33.0
       '@blueprintjs/datetime': 3.19.2
       '@blueprintjs/select': 3.14.2
-      '@datawheel/olap-client': 1.3.3
+      '@datawheel/olap-client': 2.0.0-alpha.3
       '@google-cloud/storage': 5.3.0
       '@google-cloud/translate': 6.0.3
       axios: 0.18.1
@@ -88,7 +88,7 @@ importers:
       '@blueprintjs/select': ^3.13.2
       '@datawheel/canon-core': 'workspace:^0.20.0'
       '@datawheel/canon-logiclayer': 'workspace:^0.4.0'
-      '@datawheel/olap-client': ^1.3.3
+      '@datawheel/olap-client': ^2.0.0-alpha.2
       '@google-cloud/storage': 5.3.0
       '@google-cloud/translate': ^6.0.3
       axios: ^0.18.0
@@ -245,7 +245,7 @@ importers:
       terser-webpack-plugin: 4.2.3_webpack@4.44.2
       url-loader: 2.3.0_file-loader@4.3.0+webpack@4.44.2
       urllite: 0.5.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       webpack-bundle-analyzer: 3.9.0
       webpack-cli: 3.3.12_webpack@4.44.2
       webpack-dev-middleware: 3.7.2_webpack@4.44.2
@@ -446,7 +446,7 @@ importers:
       react-viewport-list: ^1.3.3
       reselect: ^4.0.0
       shorthash: ^0.0.2
-lockfileVersion: 5.1
+lockfileVersion: 5.2
 packages:
   /@babel/code-frame/7.10.4:
     dependencies:
@@ -1749,6 +1749,15 @@ packages:
     dev: false
     resolution:
       integrity: sha512-RJmY571zukYCWv4zR6q4H+PHwdTIPaPoXIUkUwug2ZvFWSX+EDVwDtD8yTm62sN2XhAen1c76hnwGlRN/hj1ow==
+  /@datawheel/olap-client/2.0.0-alpha.3:
+    dependencies:
+      axios: 0.19.2
+      form-urldecoded: 0.1.4
+      form-urlencoded: 4.2.1
+      url-join: 4.0.1
+    dev: false
+    resolution:
+      integrity: sha512-HbBYSwQEYcICu+zFMpPkv4Tt5O1WdZvT9r5pSWzk1s+WtLxW+BLWdB6osqhpDInuK5sOQlcwM14akSgRtJCnQQ==
   /@eslint/eslintrc/0.1.3:
     dependencies:
       ajv: 6.12.5
@@ -1917,7 +1926,7 @@ packages:
   /@loadable/webpack-plugin/5.13.0_webpack@4.44.2:
     dependencies:
       make-dir: 3.1.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
     engines:
       node: '>=8'
@@ -1954,7 +1963,7 @@ packages:
       error-stack-parser: 2.0.6
       string-width: 2.1.1
       strip-ansi: 4.0.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
     engines:
       node: '>=8.0.0'
@@ -2963,7 +2972,7 @@ packages:
       mkdirp: 0.5.5
       pify: 4.0.1
       schema-utils: 2.7.1
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
     engines:
       node: '>= 6.9'
@@ -4172,7 +4181,7 @@ packages:
       postcss-value-parser: 4.1.0
       schema-utils: 2.7.1
       semver: 6.3.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
     engines:
       node: '>= 8.9.0'
@@ -4711,6 +4720,24 @@ packages:
       d3plus-plot: 0.9.4
       d3plus-priestley: 0.4.0
       d3plus-viz: 0.13.3
+    dev: false
+    peerDependencies:
+      prop-types: '>=15.6.2'
+      react: '>=15.6.2'
+    resolution:
+      integrity: sha512-xnXZVzIIJ12e//rpQrRWVRDOEFQb0Jra3UqYAwM/hZIV7nnPZ6265ey6YI4xSzAYgOId6F6PSrns6ZhuSCr/uQ==
+  /d3plus-react/0.6.1_prop-types@15.7.2+react@16.13.1:
+    dependencies:
+      d3plus-common: 0.7.0
+      d3plus-geomap: 0.7.2
+      d3plus-hierarchy: 0.9.0
+      d3plus-matrix: 0.1.2
+      d3plus-network: 0.6.0
+      d3plus-plot: 0.9.4
+      d3plus-priestley: 0.4.0
+      d3plus-viz: 0.13.3
+      prop-types: 15.7.2
+      react: 16.13.1
     dev: false
     peerDependencies:
       prop-types: '>=15.6.2'
@@ -5964,7 +5991,7 @@ packages:
     dependencies:
       loader-utils: 1.4.0
       schema-utils: 2.7.1
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
     engines:
       node: '>= 8.9.0'
@@ -6157,6 +6184,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-NO04S/g53M5F11zvH7guis9cTB/3+J6hrtf42g1OmlbjFCirJ3ZkDkLQ3GG4/pBs3PAGyzmvbFTJw8su4XxiDw==
+  /form-urldecoded/0.1.4:
+    dev: false
+    resolution:
+      integrity: sha512-VE6uEuVdfWxTIHwx1tz2QwMKOGezY4feEQ9DGave7O7amqB6C3Y6y64G24R1auD72HJ5hOEL+pa180oVUKVmAw==
   /form-urlencoded/1.4.1:
     dev: false
     resolution:
@@ -6600,7 +6631,7 @@ packages:
       rimraf: 2.7.1
       semver: 5.7.1
       tapable: 1.1.3
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       webpack-sources: 1.4.3
       write-json-file: 2.3.0
     dev: false
@@ -8360,7 +8391,7 @@ packages:
       loader-utils: 1.4.0
       normalize-url: 1.9.1
       schema-utils: 1.0.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       webpack-sources: 1.4.3
     dev: false
     engines:
@@ -8956,7 +8987,7 @@ packages:
     dependencies:
       cssnano: 4.1.10
       last-call-webpack-plugin: 3.0.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
     peerDependencies:
       webpack: ^4.0.0
@@ -12273,7 +12304,7 @@ packages:
       serialize-javascript: 4.0.0
       source-map: 0.6.1
       terser: 4.8.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       webpack-sources: 1.4.3
       worker-farm: 1.7.0
     dev: false
@@ -12293,7 +12324,7 @@ packages:
       serialize-javascript: 5.0.1
       source-map: 0.6.1
       terser: 5.3.4
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       webpack-sources: 1.4.3
     dev: false
     engines:
@@ -12733,7 +12764,7 @@ packages:
       loader-utils: 1.4.0
       mime: 2.4.6
       schema-utils: 2.7.1
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
     engines:
       node: '>= 8.9.0'
@@ -12962,7 +12993,7 @@ packages:
       loader-utils: 1.4.0
       supports-color: 6.1.0
       v8-compile-cache: 2.1.1
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       yargs: 13.3.2
     dev: false
     engines:
@@ -12978,7 +13009,7 @@ packages:
       mime: 2.4.6
       mkdirp: 0.5.5
       range-parser: 1.2.1
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       webpack-log: 2.0.0
     dev: false
     engines:
@@ -13012,7 +13043,7 @@ packages:
     dev: false
     resolution:
       integrity: sha512-lgTS3Xhv1lCOKo7SA5TjKXMjpSM4sBjNV5+q2bqesbSPs5FjGmU6jjtBSkX9b4qW87vDIsCIlUPOEhbZrMdjeQ==
-  /webpack/4.44.2_93ca2875a658e9d1552850624e6b91c7:
+  /webpack/4.44.2_webpack-cli@3.3.12:
     dependencies:
       '@webassemblyjs/ast': 1.9.0
       '@webassemblyjs/helper-module-context': 1.9.0
@@ -13043,7 +13074,6 @@ packages:
       node: '>=6.11.5'
     hasBin: true
     peerDependencies:
-      webpack: '*'
       webpack-cli: '*'
       webpack-command: '*'
     peerDependenciesMeta:
@@ -13062,7 +13092,7 @@ packages:
       pretty-time: 1.1.0
       std-env: 2.2.1
       text-table: 0.2.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       wrap-ansi: 6.2.0
     dev: false
     engines:
