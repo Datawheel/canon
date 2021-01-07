@@ -4,7 +4,7 @@ import {connect} from "react-redux";
 import ReactTable from "react-table";
 import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
-import {Icon, EditableText, Spinner} from "@blueprintjs/core";
+import {Icon, EditableText, Spinner, Popover, Position} from "@blueprintjs/core";
 
 import Dialog from "../components/interface/Dialog";
 import Status from "../components/interface/Status";
@@ -25,6 +25,7 @@ class MetaEditor extends Component {
     super(props);
     this.state = {
       sourceData: [],
+      cloudEnabled: false,
       cubes: [],
       currentCube: "",
       data: [],
@@ -54,8 +55,8 @@ class MetaEditor extends Component {
   componentDidMount() {
     const epoch = new Date().getTime();
     axios.get("/api/isImageEnabled").then(resp => {
-      const imageEnabled = resp.data;
-      this.setState({epoch, imageEnabled}, this.hitDB.bind(this));
+      const {imageEnabled, cloudEnabled} = resp.data;
+      this.setState({epoch, imageEnabled, cloudEnabled}, this.hitDB.bind(this));
     });
   }
 
@@ -247,6 +248,43 @@ class MetaEditor extends Component {
     });
   }
 
+  cloudFix(cell) {
+    if (cell.original.image) {
+      const Toast = this.context.toast.current;
+      const payload = {id: cell.original.image.id};
+      this.setState({loading: true, popoverid: false});
+      axios.post("/api/image/cloudfix", payload).then(resp => {
+        if (resp.data) {
+          if (resp.data.error) {
+            Toast.show({
+              intent: "danger",
+              message: `Upload error - ${resp.data.error}`,
+              timeout: 2000
+            });
+            this.setState({loading: false});
+          }
+          else {
+            const rows = resp.data;
+            let {sourceData} = this.state;
+            for (const row of rows) {
+              sourceData = this.state.sourceData.map(d => row.contentId === d.contentId ? row : d);
+            }
+            const loading = false;
+            const popoverid = false;
+            const epoch = new Date().getTime();
+            this.setState({sourceData, loading, popoverid, epoch}, this.prepData.bind(this));
+            Toast.show({
+              intent: "success",
+              message: "Success!",
+              timeout: 2000
+            });
+          }
+        }
+      });
+    }
+  }
+
+  /*
   linkify(member) {
     const {metaData} = this.state;
     const links = [];
@@ -262,13 +300,14 @@ class MetaEditor extends Component {
     });
     return links;
   }
+  */
 
   /**
    * Once sourceData has been set, prepare the two variables that react-table needs: data and columns.
    */
   prepData() {
     const {localeDefault, localeSecondary} = this.props.status;
-    const {epoch, imageEnabled, sourceData} = this.state;
+    const {epoch, imageEnabled, cloudEnabled, sourceData} = this.state;
     const data = this.fetchStringifiedSourceData.bind(this)(sourceData);
     let skip = ["stem", "imageId", "contentId"];
     if (!imageEnabled) skip = skip.concat("image");
@@ -300,12 +339,26 @@ class MetaEditor extends Component {
           accessor: d => d.image ? d.image.url : null,
           Cell: cell => {
             const {dimension, cubeName, id} = cell.original;
-            const imgURL = `/api/image?dimension=${dimension}&cubeName=${cubeName}&id=${id}&type=thumb&t=${epoch}`;
+            const imgURL = `/api/image?dimension=${dimension}&cubeName=${cubeName}&id=${id}&size=thumb&t=${epoch}`;
             return cell.value
               // image wrapped inside a button
-              ? <button className="cp-table-cell-cover-button" onClick={this.clickCell.bind(this, cell)}>
+              ? <React.Fragment><button className="cp-table-cell-cover-button" onClick={this.clickCell.bind(this, cell)}>
                 <img className="cp-table-cell-img" src={imgURL} alt="add image" />
               </button>
+              {imageEnabled && cloudEnabled && cell.original.image && cell.original.image.thumb && <Popover
+                className="cms-img-upload-icon"
+                position = {Position.RIGHT}
+                isOpen={this.state.popoverid === cell.original.contentId}
+              >
+                <Icon icon="cloud-upload" iconSize={20} onClick={() => this.setState({popoverid: cell.original.contentId})}/>
+                <div className="cms-img-upload-popover">
+                  <p>This image is hosted locally, but cloud hosting appears to be configured. Upload?</p>
+                  <button className="bp3-button bp3-intent-primary" onClick={this.cloudFix.bind(this, cell)}>Upload</button>
+                  <button className="bp3-button bp3-intent-dismiss" onClick={() => this.setState({popoverid: false})}>Cancel</button>
+                </div>
+              </Popover>
+              }
+              </React.Fragment>
               // normal cell with a button
               : <Button
                 onClick={this.clickCell.bind(this, cell)}
@@ -378,6 +431,8 @@ class MetaEditor extends Component {
           minWidth: this.columnWidths("id"),
           accessor: d => d.id
         });
+
+        /*
         displayColumns.push({
           id: `${field}-url`,
           Header: this.renderHeader("preview link"),
@@ -391,6 +446,7 @@ class MetaEditor extends Component {
             )}
           </ul>
         });
+        */
       }
       else {
         let columnGroup = idColumns;
@@ -557,6 +613,8 @@ class MetaEditor extends Component {
       data,
       dialogMode,
       dimensions,
+      imageEnabled,
+      cloudEnabled,
       query,
       epoch,
       filterBy,
@@ -664,6 +722,7 @@ class MetaEditor extends Component {
               />
             </div>
           </div>
+          <div className="cms-img-status-box">{`Flickr ${imageEnabled ? "enabled" : "disabled"}, Cloud ${cloudEnabled ? "enabled" : "disabled"}`}</div>
         </div>
 
         <div className="cms-editor cms-meta-table-container">
@@ -745,7 +804,7 @@ class MetaEditor extends Component {
                 {currentRow.imageId && currentRow.dimension && currentRow.id && currentRow.cubeName
                   ? <img
                     className="cms-meta-selected-img"
-                    src={`/api/image?dimension=${currentRow.dimension}&cubeName=${currentRow.cubeName}&id=${currentRow.id}&type=thumb&t=${epoch}`}
+                    src={`/api/image?dimension=${currentRow.dimension}&cubeName=${currentRow.cubeName}&id=${currentRow.id}&size=thumb&t=${epoch}`}
                     alt=""
                     draggable="false"
                   />

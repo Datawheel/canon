@@ -24,6 +24,8 @@ const imgCatcher = e => {
   return false;
 };
 
+const imageInclude = {association: "image", attributes: {exclude: ["splash", "thumb"]}, include: [{association: "content"}]};
+
 const getParentMemberWithImage = async(db, member, meta) => {
   const {id, hierarchy} = member;
   const {dimension, cubeName} = meta;
@@ -45,7 +47,7 @@ const getParentMemberWithImage = async(db, member, meta) => {
       for (const parent of parents) {
         let parentMember = await db.search.findOne({
           where: {dimension, id: parent.value},
-          include: {model: db.image, include: [{association: "content"}]}
+          include: imageInclude
         }).catch(catcher);
         if (parentMember) {
           parentMember = parentMember.toJSON();
@@ -63,7 +65,7 @@ const getParentMemberWithImage = async(db, member, meta) => {
 module.exports = function(app) {
 
   const {db} = app.settings;
-  
+
   app.get("/api/image", async(req, res) => {
     const {slug, id, type, t} = req.query;
     const size = req.query.size || "splash";
@@ -72,11 +74,11 @@ module.exports = function(app) {
     const imageError = () => res.sendFile(`${process.cwd()}/static/images/transparent.png`);
     const reqObj = req.query.dimension && req.query.cubeName ? {where: {dimension: req.query.dimension, cubeName: req.query.cubeName}} : {where: {slug}};
     const meta = await db.profile_meta.findOne(reqObj).catch(catcher);
-    if (!meta) return type === "json" ? jsonError() : imageError();  
+    if (!meta) return type === "json" ? jsonError() : imageError();
     const {dimension, cubeName} = meta;
     let member = await db.search.findOne({
       where: {dimension, cubeName, [sequelize.Op.or]: {id, slug: id}},
-      include: {model: db.image, include: [{association: "content"}]}
+      include: imageInclude
     }).catch(catcher);
     if (!member) return type === "json" ? jsonError() : imageError();
     member = member.toJSON();
@@ -104,12 +106,21 @@ module.exports = function(app) {
           if (parentMember) imageId = parentMember.imageId;
         }
         if (imageId) {
-          let url = `https://storage.googleapis.com/${bucket}/${size}/${imageId}.jpg`;
-          if (t) url += `?t=${t}`;
-          const imgData = await axios.get(url, {responseType: "arraybuffer"}).then(resp => resp.data).catch(imgCatcher);
-          if (!imgData) return imageError();
-          res.writeHead(200,  {"Content-Type": "image/jpeg"});
-          return res.end(imgData, "binary");  
+          // Check first to see if a blob is stored inside the psql row
+          const imageRow = await db.image.findOne({where: {id: imageId}}).catch(() => false);
+          if (imageRow && imageRow[size]) {
+            res.writeHead(200,  {"Content-Type": "image/jpeg"});
+            return res.end(imageRow[size], "binary");
+          }
+          // Otherwise, try the cloud storage location. A failure here will return a 1x1 transparent png
+          else {
+            let url = `https://storage.googleapis.com/${bucket}/${size}/${imageId}.jpg`;
+            if (t) url += `?t=${t}`;
+            const imgData = await axios.get(url, {responseType: "arraybuffer"}).then(resp => resp.data).catch(imgCatcher);
+            if (!imgData) return imageError();
+            res.writeHead(200,  {"Content-Type": "image/jpeg"});
+            return res.end(imgData, "binary");
+          }
         }
         else {
           return imageError();

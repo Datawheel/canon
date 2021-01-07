@@ -19,6 +19,8 @@ import Button from "../fields/Button";
 
 import "./Navbar.css";
 
+const {version} = require("../../../package.json");
+
 class Navbar extends Component {
   constructor(props) {
     super(props);
@@ -144,7 +146,7 @@ class Navbar extends Component {
     }
     else if (entity.meta && entity.meta.length) {
       const groupedMeta = groupMeta(entity.meta);
-      return groupedMeta.length > 0 ? groupedMeta.map(g => g[0] ? g[0].slug : "ERR_META").join(" / ") : "Unnamed";      
+      return groupedMeta.length > 0 ? groupedMeta.map(g => g[0] ? g[0].slug : "ERR_META").join(" / ") : "Unnamed";
     }
     else return "Unnamed";
   }
@@ -450,6 +452,8 @@ class Navbar extends Component {
                     <span className="cms-button-text">Log Out</span>
                   </a>
                 </Fragment>}
+
+                <p className="u-font-xxs">{`CMS Version ${version}`}</p>
               </div>
               <button
                 className={`cms-navbar-settings-overlay cms-overlay ${settingsOpen ? "is-visible" : "is-hidden"}`}

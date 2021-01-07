@@ -139,7 +139,25 @@ npm run dev
 
 ## Enabling Image Support
 
-Canon CMS includes the ability to assign each member of a cube (Such as *Massachusetts*, or *Metalworkers*) an acceptably licensed photo from flickr. In order to enable this, a series of steps must be taken to configure both the flickr authentication and the Google Cloud Storage for image hosting.  Contact the Admin who is in charge of this project's Google Cloud Project, or get permissions to do the following:
+Canon CMS includes the ability to assign each member of a cube (Such as *Massachusetts*, or *Metalworkers*) an acceptably licensed photo from flickr.
+
+### Local Hosting
+
+The CMS now supports images stored inside the psql database by default. If your installation is on the smaller side or is not using Google Cloud, no cloud configuration is required here. Image uploads will automatically be stored in the new "splash" and "thumb" columns of the database, and served up at the identical path to the cloud-hosted ones. This does make the .sql backups slightly larger, but avoids the need to manage a cloud hosting solution.
+
+Local hosting still requires a flickr key, so be sure to configure that:
+
+```sh
+export FLICKR_API_KEY=your_api_key
+```
+
+If you would prefer to use cloud hosting for its regional availability and scalability, or to keep your psql size small, or if you are already using Google Cloud, it is generally better to use S3 hosting, and you can use the following steps for that.
+
+Note: If you decide to change from local to remote at a later time, this is possible, and new images will be hosted remotely (the image endpoint tries both locations). If an image is hosted locally but cloud is enabled, a button will appear in the Metadata browser of the CMS which allows you to fix this (local to remote) with a single click.
+
+### Remote (S3 Storage) hosting in Google Cloud
+
+If you choose to host images remotely as opposed to locally, a series of steps must be taken to configure both the flickr authentication and the Google Cloud Storage for image hosting.  Contact the Admin who is in charge of this project's Google Cloud Project, or get permissions to do the following:
 
 #### 1) Create a bucket
 
@@ -1045,6 +1063,9 @@ Here is a list of Minor CMS versions and their release notes:
 - [canon-cms@0.11.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.11.0)
 - [canon-cms@0.12.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.12.0)
 - [canon-cms@0.13.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.13.0)
+- [canon-cms@0.14.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.14.0)
+- [canon-cms@0.15.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.15.0)
+- [canon-cms@0.16.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.16.0)
 
 ___
 
@@ -1061,6 +1082,7 @@ For upgrading to new versions, there are currently several migration scripts:
 7) `npx canon-cms-migrate-0.11` (for 0.10 or 0.11 CMS users, for upgrade to 0.12 ONLY)
 8) `npx canon-cms-migrate-0.12` (for 0.12 CMS users)
 9) `npx canon-cms-migrate-0.13` (for 0.13 CMS users)
+10) `npx canon-cms-migrate-0.16` (for 0.14, 0.15, or 0.16 CMS users, for upgrade to 0.17 ONLY)
 
 **Note:** Canon CMS Version 0.10.0 did **NOT** require a database migration, so the `0.9` script will output a `0.11` database.
 
