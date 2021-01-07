@@ -171,7 +171,7 @@ class ProfileSearch extends Component {
   onChange(e) {
 
     const {timeout} = this.state;
-    const {limit, minQueryLength, showExamples, formatResults} = this.props;
+    const {limit, minQueryLength, showExamples, formatResults, locale} = this.props;
 
     let query = e ? e.target.value : this.state.query;
     if (query.length < minQueryLength) query = "";
@@ -183,7 +183,7 @@ class ProfileSearch extends Component {
     }
     else {
 
-      const url = `/api/profilesearch?query=${query}&limit=${limit}`;
+      const url = `/api/profilesearch?query=${query}&limit=${limit}&locale=${locale}`;
 
       // handle the query
       this.setState({
