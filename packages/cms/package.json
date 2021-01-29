@@ -41,7 +41,7 @@
     "canon-cms-translate": "scripts/translation/canon-cms-translate.js"
   },
   "dependencies": {
-    "@blueprintjs/core": "^3.28.1",
+    "@blueprintjs/core": "^3.38.1",
     "@blueprintjs/datetime": "^3.18.1",
     "@blueprintjs/select": "^3.13.2",
     "@datawheel/olap-client": "^2.0.0-alpha.2",

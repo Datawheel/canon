@@ -35,7 +35,7 @@ importers:
       react: ^16.13.1
   packages/cms:
     dependencies:
-      '@blueprintjs/core': 3.33.0
+      '@blueprintjs/core': 3.38.1
       '@blueprintjs/datetime': 3.19.2
       '@blueprintjs/select': 3.14.2
       '@datawheel/olap-client': 2.0.0-alpha.3
@@ -83,7 +83,7 @@ importers:
       '@datawheel/canon-core': 'link:../core'
       '@datawheel/canon-logiclayer': 'link:../logiclayer'
     specifiers:
-      '@blueprintjs/core': ^3.28.1
+      '@blueprintjs/core': ^3.38.1
       '@blueprintjs/datetime': ^3.18.1
       '@blueprintjs/select': ^3.13.2
       '@datawheel/canon-core': 'workspace:^0.20.0'
@@ -1617,7 +1617,6 @@ packages:
   /@babel/runtime/7.12.5:
     dependencies:
       regenerator-runtime: 0.13.7
-    dev: false
     resolution:
       integrity: sha512-plcc+hbExy3McchJCEQG3knOsuh3HH+Prx1P6cLIkET/0dLuQDEnrT+s27Axgc9bqfsmNUNHfscgMUdBpC9xfg==
   /@babel/template/7.10.4:
@@ -1691,6 +1690,26 @@ packages:
       react-dom: ^15.3.0 || 16
     resolution:
       integrity: sha512-9gccauo44DsrW8IP75Qy7rKrRv3sgOTvs2Lv2DIEH9f+WZQjj37x+3bfiGKrzeWWRS5P1vP1uSgn89P/JZrD8w==
+  /@blueprintjs/core/3.38.1:
+    dependencies:
+      '@blueprintjs/icons': 3.24.0
+      '@types/dom4': 2.0.1
+      classnames: 2.2.6
+      dom4: 2.1.6
+      normalize.css: 8.0.1
+      popper.js: 1.16.1
+      react-lifecycles-compat: 3.0.4
+      react-popper: 1.3.7
+      react-transition-group: 2.9.0
+      resize-observer-polyfill: 1.5.1
+      tslib: 1.13.0
+    dev: false
+    hasBin: true
+    peerDependencies:
+      react: ^15.3.0 || 16 || 17
+      react-dom: ^15.3.0 || 16 || 17
+    resolution:
+      integrity: sha512-ZBqVfMgeIrXiuprsRxBnLM/MPgPSCRf27uckyhMFHRocyEtFS7zrOGmQeJb1Va0nZ/ufNsYk7EiHVxulb1KkSg==
   /@blueprintjs/datetime/3.19.2:
     dependencies:
       '@blueprintjs/core': 3.33.0
@@ -1710,6 +1729,13 @@ packages:
       tslib: 1.13.0
     resolution:
       integrity: sha512-clfdwRQlzqs2sDxjwQr4p10Z3bGNTnqpsLgN+4TN1ECf7plEEukhvQh6YK/Lfd5xDhEBEEZ/YQCawZbyAYjfXg==
+  /@blueprintjs/icons/3.24.0:
+    dependencies:
+      classnames: 2.2.6
+      tslib: 1.13.0
+    dev: false
+    resolution:
+      integrity: sha512-OvDDI5EUueS1Y3t594iS8LAGoHhLhYjC2GuN/01a85n+ASLSp0jf0/+uix2JeCOj41iTdRRCINbWuRwVQNNGPw==
   /@blueprintjs/select/3.14.2:
     dependencies:
       '@blueprintjs/core': 3.33.0
@@ -3373,6 +3399,12 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha512-AKcdTnFSWATd5/GCPRxr2ChwIJ85CeyrEyjRHlKxQ56d4XJMGym0uAiKn0xbLOGOl3+yRpOTi484dVCEc5AUzQ==
+  /call-bind/1.0.2:
+    dependencies:
+      function-bind: 1.1.1
+      get-intrinsic: 1.1.0
+    resolution:
+      integrity: sha512-7O+FbCihrB5WGbFYesctwmTKae6rOiIzmz1icreWJ+0aA7LJfuqhEso2T9ncpcFtzMQtzXf2QGGueWJGTYsqrA==
   /call-me-maybe/1.0.1:
     dev: false
     resolution:
@@ -4911,12 +4943,12 @@ packages:
       integrity: sha1-wB3mPvsO7JeYgB1Ax+Da4ltYLIQ=
   /deep-equal/1.1.1:
     dependencies:
-      is-arguments: 1.0.4
+      is-arguments: 1.1.0
       is-date-object: 1.0.2
       is-regex: 1.1.1
-      object-is: 1.1.3
+      object-is: 1.1.4
       object-keys: 1.1.1
-      regexp.prototype.flags: 1.3.0
+      regexp.prototype.flags: 1.3.1
     resolution:
       integrity: sha512-yd9c5AdiqVcR+JjcwUQb9DkhJc8ngNr0MahEBGvDiJw8puWab2yZlh+nkasOnZP+EGTAP6rRp2JzJhJZzvNF8g==
   /deep-extend/0.6.0:
@@ -5087,7 +5119,7 @@ packages:
       integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==
   /dom-helpers/3.4.0:
     dependencies:
-      '@babel/runtime': 7.11.2
+      '@babel/runtime': 7.12.5
     resolution:
       integrity: sha512-LnuPJ+dwqKDIyotW1VzmOZ5TONUN7CwkCR5hrgawTUbkBGYdeoNLZo6nNfGkCrjtE1nXXaj7iMMpDa8/d9WoIA==
   /dom-serializer/0.2.2:
@@ -5104,6 +5136,10 @@ packages:
   /dom4/2.1.5:
     resolution:
       integrity: sha512-gJbnVGq5zaBUY0lUh0LUEVGYrtN75Ks8ZwpwOYvnVFrKy/qzXK4R/1WuLIFExWj/tBxbRAkTzZUGJHXmqsBNjQ==
+  /dom4/2.1.6:
+    dev: false
+    resolution:
+      integrity: sha512-JkCVGnN4ofKGbjf5Uvc8mmxaATIErKQKSgACdBXpsQ3fY6DlIpAyWfiBSrGkttATssbDCp3psiAKWXk5gmjycA==
   /domain-browser/1.2.0:
     dev: false
     engines:
@@ -5432,6 +5468,7 @@ packages:
       object.assign: 4.1.1
       string.prototype.trimend: 1.0.1
       string.prototype.trimstart: 1.0.1
+    dev: false
     engines:
       node: '>= 0.4'
     resolution:
@@ -5450,6 +5487,7 @@ packages:
       object.assign: 4.1.1
       string.prototype.trimend: 1.0.1
       string.prototype.trimstart: 1.0.1
+    dev: false
     engines:
       node: '>= 0.4'
     resolution:
@@ -5459,6 +5497,7 @@ packages:
       is-callable: 1.2.2
       is-date-object: 1.0.2
       is-symbol: 1.0.3
+    dev: false
     engines:
       node: '>= 0.4'
     resolution:
@@ -6373,6 +6412,13 @@ packages:
       node: 6.* || 8.* || >= 10.*
     resolution:
       integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==
+  /get-intrinsic/1.1.0:
+    dependencies:
+      function-bind: 1.1.1
+      has: 1.0.3
+      has-symbols: 1.0.1
+    resolution:
+      integrity: sha512-M11rgtQp5GZMZzDL7jLTNxbDfurpzuau5uqRWDPvlHjfvg3TdScAZo96GLvhMjImrmR8uAt0FS2RLoMrfWGKlg==
   /get-stream/4.1.0:
     dependencies:
       pump: 3.0.0
@@ -7259,11 +7305,13 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha512-m5hnHTkcVsPfqx3AKlyttIPb7J+XykHvJP2B9bZDjlhLIoEq4XoK64Vg7boZlVWYK6LUY94dYPEE7Lh0ZkZKcQ==
-  /is-arguments/1.0.4:
+  /is-arguments/1.1.0:
+    dependencies:
+      call-bind: 1.0.2
     engines:
       node: '>= 0.4'
     resolution:
-      integrity: sha512-xPh0Rmt8NE65sNzvyUmWgI1tz3mKq74lGA0mL8LYZcoIzKOzDh6HmrYm3d18k60nHerC8A9Km8kYu87zfSFnLA==
+      integrity: sha512-1Ij4lOMPl/xB5kBDn7I+b2ttPMKa8szhEIrXDuXQD/oe3HJLTLhqhgGspwgyGd6MOywBUqVvYicF72lkgDnIHg==
   /is-arrayish/0.2.1:
     dev: false
     resolution:
@@ -7306,6 +7354,7 @@ packages:
     resolution:
       integrity: sha512-Kq1rokWXOPXWuaMAqZiJW4XxsmD9zGx9q4aePabbn3qCRGedtH7Cm+zV8WETitMfu1wdh+Rvd6w5egwSngUX2A==
   /is-callable/1.2.2:
+    dev: false
     engines:
       node: '>= 0.4'
     resolution:
@@ -7458,6 +7507,7 @@ packages:
     resolution:
       integrity: sha1-aRC8pdqMleeEtXUbl2z1oQ/uNtI=
   /is-negative-zero/2.0.0:
+    dev: false
     engines:
       node: '>= 0.4'
     resolution:
@@ -7562,6 +7612,7 @@ packages:
   /is-symbol/1.0.3:
     dependencies:
       has-symbols: 1.0.1
+    dev: false
     engines:
       node: '>= 0.4'
     resolution:
@@ -8829,16 +8880,17 @@ packages:
     resolution:
       integrity: sha1-fn2Fi3gb18mRpBupde04EnVOmYw=
   /object-inspect/1.8.0:
+    dev: false
     resolution:
       integrity: sha512-jLdtEOB112fORuypAyl/50VRVIBIdVQOSUUGQHzJ4xBSbit81zRarz7GThkEFZy1RceYrWYcPcBFPQwHyAc1gA==
-  /object-is/1.1.3:
+  /object-is/1.1.4:
     dependencies:
+      call-bind: 1.0.2
       define-properties: 1.1.3
-      es-abstract: 1.18.0-next.1
     engines:
       node: '>= 0.4'
     resolution:
-      integrity: sha512-teyqLvFWzLkq5B9ki8FVWA902UER2qkxmdA4nLf+wjOLAWgxzCWZNCxpDq9MvE8MmhWNr+I8w3BN49Vx36Y6Xg==
+      integrity: sha512-1ZvAZ4wlF7IyPVOcE1Omikt7UpaFlOQq0HlSti+ZvDH3UiD2brwGMwDbyV43jao2bKJ+4+WdPJHSd7kgzKYVqg==
   /object-keys/1.1.1:
     engines:
       node: '>= 0.4'
@@ -8858,6 +8910,7 @@ packages:
       es-abstract: 1.18.0-next.1
       has-symbols: 1.0.1
       object-keys: 1.1.1
+    dev: false
     engines:
       node: '>= 0.4'
     resolution:
@@ -10809,7 +10862,7 @@ packages:
       integrity: sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
   /react-popper/1.3.7:
     dependencies:
-      '@babel/runtime': 7.11.2
+      '@babel/runtime': 7.12.5
       create-react-context: 0.3.0_prop-types@15.7.2
       deep-equal: 1.1.1
       popper.js: 1.16.1
@@ -11108,10 +11161,19 @@ packages:
     dependencies:
       define-properties: 1.1.3
       es-abstract: 1.17.7
+    dev: false
     engines:
       node: '>= 0.4'
     resolution:
       integrity: sha512-2+Q0C5g951OlYlJz6yu5/M33IcsESLlLfsyIaLJaG4FA2r4yP8MvVMJUUP/fVBkSpbbbZlS5gynbEWLipiiXiQ==
+  /regexp.prototype.flags/1.3.1:
+    dependencies:
+      call-bind: 1.0.2
+      define-properties: 1.1.3
+    engines:
+      node: '>= 0.4'
+    resolution:
+      integrity: sha512-JiBdRBq91WlY7uRJ0ds7R+dU02i6LKi8r3BuQhNXn+kmeLN+EfHhfjqMRis1zJxnlu88hq/4dx0P2OP3APRTOA==
   /regexpp/3.1.0:
     dev: false
     engines:
@@ -12014,12 +12076,14 @@ packages:
     dependencies:
       define-properties: 1.1.3
       es-abstract: 1.17.7
+    dev: false
     resolution:
       integrity: sha512-LRPxFUaTtpqYsTeNKaFOw3R4bxIzWOnbQ837QfBylo8jIxtcbK/A/sMV7Q+OAV/vWo+7s25pOE10KYSjaSO06g==
   /string.prototype.trimstart/1.0.1:
     dependencies:
       define-properties: 1.1.3
       es-abstract: 1.17.7
+    dev: false
     resolution:
       integrity: sha512-XxZn+QpvrBI1FOcg6dIpxUPgWCPuNXvMD72aaRaUQv1eD4e/Qy8i/hFTe0BUmD60p/QA6bh1avmuPTfNjqVWRw==
   /string_decoder/0.10.31:
