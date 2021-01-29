@@ -415,7 +415,12 @@ module.exports = function(app) {
         where[sequelize.Op.or] = orArray;
         where.locale = locale;
         const contentRows = await db.search_content.findAll({where}).catch(catcher);
-        searchWhere.contentId = Array.from(new Set(contentRows.map(r => r.id)));
+        searchWhere[sequelize.Op.or] = [
+          // If the user searched by name, it must be matched against the result set from the earlier search_content query
+          {contentId: Array.from(new Set(contentRows.map(r => r.id)))},
+          // If the user searched by direct id, it must be matched against the id itself directly the in search table
+          {id: {[sequelize.Op.iLike]: `%${query}%`}}
+        ];
         // If the user has specified a profile by slug or id, restrict the search results to that profile's members
         if (req.query.profile) {
           // using "slug" here is not 100% correct, as profiles can be bilateral, and therefore have two slugs.
@@ -635,7 +640,12 @@ module.exports = function(app) {
         if (locale !== "all") where.locale = locale;
 
         rows = await db.search_content.findAll({where}).catch(catcher);
-        searchWhere.contentId = Array.from(new Set(rows.map(r => r.id)));
+        searchWhere[sequelize.Op.or] = [
+          // If the user searched by name, it must be matched against the result set from the earlier search_content query
+          {contentId: Array.from(new Set(rows.map(r => r.id)))},
+          // If the user searched by direct id, it must be matched against the id itself directly the in search table
+          {id: {[sequelize.Op.iLike]: `%${q}%`}}
+        ];
       }
       if (!cms) {
         const allDimCubes = await fetchDimCubes(db).catch(catcher);
