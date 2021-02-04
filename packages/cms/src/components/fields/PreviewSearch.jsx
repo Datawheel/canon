@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import axios from "axios";
 import {Icon} from "@blueprintjs/core";
 import {connect} from "react-redux";
-import {event, select} from "d3-selection";
+import {select} from "d3-selection";
 import Button from "../fields/Button";
 import {uuid} from "d3plus-common";
 import {setStatus} from "../../actions/status";
@@ -81,13 +81,13 @@ class PreviewSearch extends Component {
     const {primary, searchEmpty} = this.props;
     const {id} = this.state;
 
-    select(document).on(`mousedown.${id}`, () => {
+    select(document).on(`mousedown.${id}`, event => {
       if (this.state.active && this.container && !this.container.contains(event.target)) {
         this.setState({active: false});
       }
     });
 
-    select(document).on(`keydown.${id}`, () => {
+    select(document).on(`keydown.${id}`, event => {
       const {active, results} = this.state;
       const key = event.keyCode;
 
