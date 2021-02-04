@@ -9,7 +9,7 @@ import linkify from "../../utils/linkify";
 import {formatTitle} from "../../utils/profileTitleFormat";
 import {Icon, NonIdealState, Spinner} from "@blueprintjs/core";
 import {uuid} from "d3plus-common";
-import {event, select} from "d3-selection";
+import {select} from "d3-selection";
 import styles from "style.yml";
 import ProfileColumns from "./ProfileColumns";
 
@@ -83,7 +83,7 @@ class ProfileSearch extends Component {
       this.onChange.bind(this)();
     }
 
-    select(document).on(`mousedown.${id}`, () => {
+    select(document).on(`mousedown.${id}`, event => {
       const {active} = this.state;
       const {position} = this.props;
       const container = this.resultContainer;
@@ -92,7 +92,7 @@ class ProfileSearch extends Component {
       }
     });
 
-    select(document).on(`keydown.${id}`, () => {
+    select(document).on(`keydown.${id}`, event => {
 
       const {router} = this.context;
       const {activeKey, display} = this.props;
