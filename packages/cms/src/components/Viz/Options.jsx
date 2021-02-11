@@ -78,18 +78,6 @@ class Options extends Component {
     }
   }
 
-  listenForBlur() {
-    select(document).on("keydown", () =>
-      setTimeout(() => {
-        if (this.state.dialogOpen) {
-          if (document.activeElement.matches(".cp-section-heading") || document.activeElement.matches(".options-button")) {
-            this.setState({dialogOpen: false});
-          }
-        }
-      }, 20)
-    );
-  }
-
   onCSV() {
     const {title, dataAttachments} = this.props;
     const {results} = this.state;
@@ -299,7 +287,6 @@ class Options extends Component {
     }
 
     this.setState({dialogOpen: slug});
-    this.listenForBlur();
     const {results, loading} = this.state;
 
     if (slug === "view-table" && !results && !loading) {
