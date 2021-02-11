@@ -1,4 +1,3 @@
-import {assign} from "d3plus-common";
 import {dataConcat} from "d3plus-viz";
 import {parse} from "./FUNC";
 
@@ -40,13 +39,8 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc, id = nu
 
   // strip out the "dataFormat" from config
   const dataFormat = config.dataFormat ? config.dataFormat : resp => {
-
     const hasMultiples = Array.isArray(config.data) && config.data.length > 1 && config.data.some(d => typeof d === "string");
     const sources = hasMultiples ? resp : [resp];
-
-    // console.log(`d`, d);
-    // console.log(`sources`, sources);
-    // console.log(`dataConcat(sources, "data")`, dataConcat(sources, "data"));
     return dataConcat(sources, "data");
   };
   delete config.dataFormat;
@@ -59,21 +53,6 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc, id = nu
 
   const topojsonFormat = config.topojsonFormat || undefined;
   delete config.topojsonFormat;
-
-  // hides the non-discrete axis, if necessary
-  const discrete = config.discrete || "x";
-  const opposite = discrete === "x" ? "y" : "x";
-  config[`${discrete}Config`] = assign({}, config[`${discrete}Config`] || {}, {
-    gridConfig: {
-      "stroke-width": 0
-    },
-    tickSize: 0
-  });
-  config[`${opposite}Config`] = assign({}, config[`${opposite}Config`] || {}, {
-    barConfig: {
-      "stroke-width": 0
-    }
-  });
 
   return {config, dataFormat, linksFormat, nodesFormat, topojsonFormat};
 
