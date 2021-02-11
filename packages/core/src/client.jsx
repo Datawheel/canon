@@ -19,6 +19,23 @@ import {middleware as reduxMiddleware} from "$app/store";
 import configureStore from "./storeConfig";
 import {LOADING_END, LOADING_START} from "./consts";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
+import styles from "$app/style.yml";
+
+/**
+ * Finds a Number value for a given style.yml string variable. The cssVarRegex
+ * tests for nested CSS vars (ie. subnav-height: "var(--nav-height)") and resolves
+ * as deep as needed. Fallback return value is 0.
+ * @private
+ */
+function parseStyle(str) {
+  const cssVarRegex = /var\(--([A-z\-]+)\)/g;
+  let val = styles[str];
+  while (cssVarRegex.exec(val)) {
+    str = val.replace(/var\(--([A-z\-]+)\)/g, "$1");
+    val = styles[str];
+  }
+  return parseFloat(val) || 0;
+}
 
 const {basename} = window.__INITIAL_STATE__.location;
 const browserHistory = useRouterHistory(createHistory)({basename});
@@ -62,7 +79,7 @@ function scrollToHash(hash, wait = true) {
   if (elem) {
     const offset = elem.getBoundingClientRect().top;
     if (offset) {
-      animateScroll.scrollMore(offset);
+      animateScroll.scrollMore(offset - parseStyle("nav-height") - parseStyle("subnav-height") - 10);
       setTimeout(() => {
         elem.focus();
       }, 100);
