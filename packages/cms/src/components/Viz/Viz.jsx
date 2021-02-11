@@ -148,7 +148,6 @@ class Viz extends Component {
               let data;
               try {
                 data = vizProps.dataFormat(resp);
-                if (typeof data === "object" && !(data instanceof Array)) data = data.data || [];
               }
               catch (e) {
                 console.log("Error in dataFormat: ", e);
