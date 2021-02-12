@@ -177,8 +177,24 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
       // On conflict (update), do not attempt to change the slug
       const searchUpdateKeys = searchInsertKeys.filter(d => d !== "slug");
 
+      const dedupeSearch = [];
+      const dupes = [];
+
+      searchList.forEach(d => {
+        if (!dedupeSearch.find(o => o.id === d.id)) {
+          dedupeSearch.push(d);
+        }
+        else {
+          dupes.push(d);
+        }
+      });
+
+      if (dedupeSearch.length !== searchList.length && verbose) {
+        console.log(`Warning - Duplicate IDs in Tesseract: ${dupes.map(d => d.id)}`);
+      }
+
       let searchQuery = `INSERT INTO canon_cms_search (${searchInsertKeys.map(d => `"${d}"`).join(", ")})\nVALUES `;
-      searchList.forEach((obj, i) => {
+      dedupeSearch.forEach((obj, i) => {
         searchQuery += `${i ? "," : ""}\n(${searchInsertKeys.map(key => fixObjForPostgres(obj[key]))})`;
       });
       searchQuery += `\nON CONFLICT ("id", "dimension", "hierarchy", "cubeName")\nDO UPDATE SET (${searchUpdateKeys.map(d => `"${d}"`).join(", ")}) = (${searchUpdateKeys.map(key => `EXCLUDED."${key}"`).join(", ")})\nRETURNING *;`;
@@ -189,7 +205,7 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
       if (verbose) console.log(`Upserted ${searchRows.length} rows.`);
 
       // Iterate over the members from the cube and store them in a hash keyed by id/dim/hier
-      const searchLookup = searchList.reduce((obj, d) => {
+      const searchLookup = dedupeSearch.reduce((obj, d) => {
         obj[`${d.id}-${d.dimension}-${d.hierarchy}`] = d;
         return obj;
       }, {});
