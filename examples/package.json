@@ -22,7 +22,7 @@
     "@datawheel/canon-cms": "workspace:*",
     "@datawheel/canon-core": "workspace:*",
     "@datawheel/canon-logiclayer": "*",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "d3plus-react": "^1.0.0",
     "d3plus-text": "^1.0.1",
     "d3plus-viz": "^1.0.3",

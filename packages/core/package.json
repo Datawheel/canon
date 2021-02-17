@@ -61,7 +61,7 @@
     "@loadable/webpack-plugin": "^5.13.0",
     "@nuxtjs/friendly-errors-webpack-plugin": "^2.1.0",
     "@researchgate/react-intersection-observer": "^1.2.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.1.0",
     "bcrypt-nodejs": "0.0.3",
