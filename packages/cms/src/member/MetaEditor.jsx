@@ -601,7 +601,48 @@ class MetaEditor extends Component {
   }
 
   closeEditor() {
-    this.setState({url: "", flickrImages: [], isOpen: false, dialogMode: "direct", loading: false, imgIndex: 0});
+    this.setState({url: "", flickrImages: [], isOpen: false, dialogMode: "direct", loading: false, imgIndex: 0, selectedFile: false});
+  }
+
+  handleUploadChange(e) {
+    const selectedFile = e.target.files[0];
+    this.setState({selectedFile});
+  }
+
+  uploadFile(e) {
+    e.preventDefault();
+    const {selectedFile} = this.state;
+    const Toast = this.context.toast.current;
+    if (!selectedFile) {
+      Toast.show({
+        intent: "danger",
+        message: "No File Selected!",
+        timeout: 2000
+      });
+    }
+    else {
+      const url = "/api/image/upload";
+      const config = {headers: {"Content-Type": "multipart/form-data"}};
+      const data = new FormData();
+      data.append("file", selectedFile);
+      axios.post(url, data, config).then(resp => {
+        if (resp.data === "OK") {
+          Toast.show({
+            intent: "success",
+            message: "Upload Complete!",
+            timeout: 2000
+          });
+          this.setState({isOpen: false, selectedFile: false});
+        }
+        else {
+          Toast.show({
+            intent: "danger",
+            message: "Upload Error!",
+            timeout: 2000
+          });
+        }
+      });
+    }
   }
 
   render() {
@@ -774,13 +815,23 @@ class MetaEditor extends Component {
               >
                 search
               </Button>
+              <Button
+                active={dialogMode === "upload"}
+                fontSize="xs"
+                namespace="cms"
+                icon="upload"
+                iconPosition="left"
+                onClick={() => this.setState({dialogMode: "upload"})}
+              >
+                upload
+              </Button>
             </ButtonGroup>
           }
         >
 
-          {dialogMode === "direct"
+          {dialogMode === "direct" &&
             // paste in a URL
-            ? <Fragment>
+            <Fragment>
               <TextButtonGroup
                 className="u-margin-bottom-md"
                 namespace="cms"
@@ -824,9 +875,11 @@ class MetaEditor extends Component {
                 }
               </div>
             </Fragment>
+          }
 
+          { dialogMode === "search" &&
             // search Flickr
-            : <Fragment>
+            <Fragment>
               <TextButtonGroup
                 namespace="cms"
                 inputProps={{
@@ -848,7 +901,7 @@ class MetaEditor extends Component {
               />
 
               { searching || loading
-                // alerts
+              // alerts
                 ? <div className="cms-gallery-searching">
                   <Spinner size="50" className="cms-gallery-spinner u-margin-bottom-sm"/>
                   <p className="cms-gallery-searching-text u-font-xl">
@@ -858,7 +911,7 @@ class MetaEditor extends Component {
                     }
                   </p>
                 </div>
-                // display images
+              // display images
                 : flickrImages.length > 0 &&
                   <div className="cms-gallery-wrapper">
                     <ul className="cms-gallery-list">
@@ -882,6 +935,14 @@ class MetaEditor extends Component {
                     }
                   </div>
               }
+            </Fragment>
+          }
+          { dialogMode === "upload" &&
+            <Fragment>
+              <form onSubmit={this.uploadFile.bind(this)}>
+                <input type="file" className="form-control" name="upload_file" onChange={this.handleUploadChange.bind(this)} />
+                <button type="submit" className="btn btn-dark">Save</button>
+              </form>
             </Fragment>
           }
         </Dialog>

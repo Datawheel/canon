@@ -133,6 +133,12 @@ module.exports = function(app) {
     return res.json(newRows);
   });
 
+  app.post("/api/image/upload", async(req, res) => {
+    console.log("in");
+    console.log(req.file);
+    return res.json("OK");
+  });
+
   app.post("/api/image/update", async(req, res) => {
     if (!flickr) return res.json({error: "Flickr API Key not configured"});
     const {contentId} = req.body;
