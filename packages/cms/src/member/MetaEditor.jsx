@@ -628,9 +628,9 @@ class MetaEditor extends Component {
       data.append("imgFile", selectedFile);
       data.append("contentId", contentId);
       this.setState({loading: true});
-      const doneState = {url: "", flickrImages: [], isOpen: false, loading: false, imgIndex: 0, selectedFile: false};
+      const doneState = {url: "", flickrImages: [], isOpen: false, loading: false, imgIndex: 0, selectedFile: false, epoch: new Date().getTime()};
       axios.post(url, data, config).then(resp => {
-        this.setState(doneState);
+        this.setState(doneState, this.prepData.bind(this));
         if (resp.data.error) {
           Toast.show({
             intent: "danger",
@@ -653,7 +653,7 @@ class MetaEditor extends Component {
           });
         }
       }).catch(e => {
-        this.setState(doneState);
+        this.setState(doneState, this.prepData.bind(this));
         Toast.show({
           intent: "danger",
           message: `Upload Error - ${e.message}`,
