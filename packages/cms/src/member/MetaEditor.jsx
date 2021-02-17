@@ -611,7 +611,8 @@ class MetaEditor extends Component {
 
   uploadFile(e) {
     e.preventDefault();
-    const {selectedFile} = this.state;
+    const {selectedFile, currentRow} = this.state;
+    const {contentId} = currentRow;
     const Toast = this.context.toast.current;
     if (!selectedFile) {
       Toast.show({
@@ -624,23 +625,40 @@ class MetaEditor extends Component {
       const url = "/api/image/upload";
       const config = {headers: {"Content-Type": "multipart/form-data"}};
       const data = new FormData();
-      data.append("file", selectedFile);
+      data.append("imgFile", selectedFile);
+      data.append("contentId", contentId);
+      this.setState({loading: true});
+      const doneState = {url: "", flickrImages: [], isOpen: false, loading: false, imgIndex: 0, selectedFile: false};
       axios.post(url, data, config).then(resp => {
-        if (resp.data === "OK") {
+        this.setState(doneState);
+        if (resp.data.error) {
+          Toast.show({
+            intent: "danger",
+            message: `Upload Error - ${resp.data.error}`,
+            timeout: 2000
+          });
+        }
+        else if (resp.data === "OK") {
           Toast.show({
             intent: "success",
             message: "Upload Complete!",
             timeout: 2000
           });
-          this.setState({isOpen: false, selectedFile: false});
         }
         else {
           Toast.show({
             intent: "danger",
-            message: "Upload Error!",
+            message: "Unknown Upload Error!",
             timeout: 2000
           });
         }
+      }).catch(e => {
+        this.setState(doneState);
+        Toast.show({
+          intent: "danger",
+          message: `Upload Error - ${e.message}`,
+          timeout: 2000
+        });
       });
     }
   }
@@ -940,7 +958,7 @@ class MetaEditor extends Component {
           { dialogMode === "upload" &&
             <Fragment>
               <form onSubmit={this.uploadFile.bind(this)}>
-                <input type="file" className="form-control" name="upload_file" onChange={this.handleUploadChange.bind(this)} />
+                <input type="file" className="form-control" name="imgFile" onChange={this.handleUploadChange.bind(this)} />
                 <button type="submit" className="btn btn-dark">Save</button>
               </form>
             </Fragment>
