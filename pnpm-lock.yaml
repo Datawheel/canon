@@ -14,9 +14,9 @@ importers:
       shelljs: ^0.8.4
   examples:
     dependencies:
-      '@datawheel/canon-cms': link:../packages/cms
-      '@datawheel/canon-core': link:../packages/core
-      '@datawheel/canon-logiclayer': link:../packages/logiclayer
+      '@datawheel/canon-cms': 'link:../packages/cms'
+      '@datawheel/canon-core': 'link:../packages/core'
+      '@datawheel/canon-logiclayer': 'link:../packages/logiclayer'
       axios: 0.19.2
       d3plus-react: 1.0.0_prop-types@15.7.2+react@16.14.0
       d3plus-text: 1.0.1
@@ -24,8 +24,8 @@ importers:
       prop-types: 15.7.2
       react: 16.14.0
     specifiers:
-      '@datawheel/canon-cms': workspace:*
-      '@datawheel/canon-core': workspace:*
+      '@datawheel/canon-cms': 'workspace:*'
+      '@datawheel/canon-core': 'workspace:*'
       '@datawheel/canon-logiclayer': '*'
       axios: ^0.19.2
       d3plus-react: ^1.0.0
@@ -71,6 +71,7 @@ importers:
       jsonwebtoken: 8.5.1
       jszip: 3.5.0
       localforage: 1.9.0
+      multer: 1.4.2
       node-yaml: 3.2.0
       promise-throttle: 1.1.2
       puppeteer: 5.5.0
@@ -80,14 +81,14 @@ importers:
       react-table: 6.10.3
       sharp: 0.25.4
     devDependencies:
-      '@datawheel/canon-core': link:../core
-      '@datawheel/canon-logiclayer': link:../logiclayer
+      '@datawheel/canon-core': 'link:../core'
+      '@datawheel/canon-logiclayer': 'link:../logiclayer'
     specifiers:
       '@blueprintjs/core': ^3.38.1
       '@blueprintjs/datetime': ^3.18.1
       '@blueprintjs/select': ^3.13.2
-      '@datawheel/canon-core': workspace:^0.20.0
-      '@datawheel/canon-logiclayer': workspace:^0.4.0
+      '@datawheel/canon-core': 'workspace:^0.21.0'
+      '@datawheel/canon-logiclayer': 'workspace:^0.5.0'
       '@datawheel/olap-client': ^2.0.0-alpha.2
       '@google-cloud/storage': 5.3.0
       '@google-cloud/translate': ^6.0.3
@@ -121,6 +122,7 @@ importers:
       jsonwebtoken: ^8.5.1
       jszip: ^3.2.2
       localforage: ^1.7.2
+      multer: ^1.4.2
       node-yaml: ^3.1.1
       promise-throttle: ^1.0.0
       puppeteer: ^5.2.0
@@ -388,10 +390,10 @@ importers:
       sequelize: 4.44.4
       yn: 4.0.0
     devDependencies:
-      '@datawheel/canon-core': link:../core
+      '@datawheel/canon-core': 'link:../core'
     specifiers:
       '@blueprintjs/core': ^3.28.1
-      '@datawheel/canon-core': workspace:^0.20.0
+      '@datawheel/canon-core': 'workspace:^0.20.0'
       axios: ^0.19.2
       d3-array: ^2.11.0
       d3-collection: ^1.0.4
@@ -418,7 +420,7 @@ importers:
     devDependencies:
       '@blueprintjs/core': 3.38.2_react-dom@16.14.0+react@16.14.0
       '@blueprintjs/select': 3.15.4_react-dom@16.14.0+react@16.14.0
-      '@datawheel/canon-core': link:../core
+      '@datawheel/canon-core': 'link:../core'
       '@types/i18next': 12.1.0
       '@types/react-router': 3.0.24
       lodash: 4.17.20
@@ -427,7 +429,7 @@ importers:
     specifiers:
       '@blueprintjs/core': ^3.22.3
       '@blueprintjs/select': ^3.11.0
-      '@datawheel/canon-core': workspace:^0.20.0
+      '@datawheel/canon-core': 'workspace:^0.20.0'
       '@datawheel/olap-client': ^1.3.2
       '@types/i18next': ^12.1.0
       '@types/react-router': ^3.0.20
@@ -1452,7 +1454,7 @@ packages:
     dependencies:
       core-js: 2.6.12
       regenerator-runtime: 0.13.7
-    deprecated: 🚨 This package has been deprecated in favor of separate inclusion of a polyfill and regenerator-runtime (when needed). See the @babel/polyfill docs (https://babeljs.io/docs/en/babel-polyfill) for more information.
+    deprecated: "\U0001F6A8 This package has been deprecated in favor of separate inclusion of a polyfill and regenerator-runtime (when needed). See the @babel/polyfill docs (https://babeljs.io/docs/en/babel-polyfill) for more information."
     dev: false
     resolution:
       integrity: sha512-X0pi0V6gxLi6lFZpGmeNa4zxtwEmCs42isWLNjZZDE0Y8yVfgu0T2OAHlzBbdYlqbW/YXVvoBHpATEM+goCj8g==
@@ -2697,6 +2699,10 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-2CIM9GYIFSXv6lBhTz3mUU36WPE=
+  /append-field/1.0.0:
+    dev: false
+    resolution:
+      integrity: sha1-HjRA6RXwsSA9I3SOeO3XubW0PlY=
   /aproba/1.2.0:
     dev: false
     resolution:
@@ -2890,14 +2896,14 @@ packages:
     dependencies:
       follow-redirects: 1.5.10
       is-buffer: 2.0.5
-    deprecated: Critical security vulnerability fixed in v0.21.1. For more information, see https://github.com/axios/axios/pull/3410
+    deprecated: 'Critical security vulnerability fixed in v0.21.1. For more information, see https://github.com/axios/axios/pull/3410'
     dev: false
     resolution:
       integrity: sha512-0BfJq4NSfQXd+SkFdrvFbG7addhYSBA2mQwISr46pD6E5iqkWg02RAs8vyTT/j0RTnoYmeXauBuSv1qKwR179g==
   /axios/0.19.2:
     dependencies:
       follow-redirects: 1.5.10
-    deprecated: Critical security vulnerability fixed in v0.21.1. For more information, see https://github.com/axios/axios/pull/3410
+    deprecated: 'Critical security vulnerability fixed in v0.21.1. For more information, see https://github.com/axios/axios/pull/3410'
     dev: false
     resolution:
       integrity: sha512-fjgm5MvRHLhx+osE2xoekY70AhARk3a6hkN+3Io1jc00jtquGvxYlKlsFUhmUET0V5te6CcZI7lcv2Ym61mjHA==
@@ -3013,7 +3019,7 @@ packages:
     resolution:
       integrity: sha1-dclcMrdI4IUNEMKxaPa9vpiRrOg=
   /bcrypt-nodejs/0.0.3:
-    deprecated: bcrypt-nodejs is no longer actively maintained. Please use bcrypt or bcryptjs. See https://github.com/kelektiv/node.bcrypt.js/wiki/bcrypt-vs-brypt.js to learn more about these two options
+    deprecated: 'bcrypt-nodejs is no longer actively maintained. Please use bcrypt or bcryptjs. See https://github.com/kelektiv/node.bcrypt.js/wiki/bcrypt-vs-brypt.js to learn more about these two options'
     dev: false
     resolution:
       integrity: sha1-xgkX8m3CNWYVZsaBBhwwPCsohCs=
@@ -3285,6 +3291,15 @@ packages:
     dev: false
     resolution:
       integrity: sha1-hZgoeOIbmOHGZCXgPQF0eI9Wnug=
+  /busboy/0.2.14:
+    dependencies:
+      dicer: 0.2.5
+      readable-stream: 1.1.14
+    dev: false
+    engines:
+      node: '>=0.8.0'
+    resolution:
+      integrity: sha1-bCpiLvz0fFe7vh4qnDetNseSVFM=
   /bytes/3.0.0:
     dev: false
     engines:
@@ -3956,12 +3971,12 @@ packages:
     resolution:
       integrity: sha512-1sCb0wBXnBIL16pfFG1Gkvei6UzvKyTNYpiC41yrdjEv0UoJoq9E/abTMzyYJ6JpTkAj15dLjbqifIzEBDVvog==
   /core-js/1.2.7:
-    deprecated: core-js@<3 is no longer maintained and not recommended for usage due to the number of issues. Please, upgrade your dependencies to the actual version of core-js@3.
+    deprecated: 'core-js@<3 is no longer maintained and not recommended for usage due to the number of issues. Please, upgrade your dependencies to the actual version of core-js@3.'
     dev: false
     resolution:
       integrity: sha1-ZSKUwUZR2yj6k70tX/KYOk8IxjY=
   /core-js/2.6.12:
-    deprecated: core-js@<3 is no longer maintained and not recommended for usage due to the number of issues. Please, upgrade your dependencies to the actual version of core-js@3.
+    deprecated: 'core-js@<3 is no longer maintained and not recommended for usage due to the number of issues. Please, upgrade your dependencies to the actual version of core-js@3.'
     dev: false
     requiresBuild: true
     resolution:
@@ -4857,7 +4872,7 @@ packages:
   /debug/3.2.6:
     dependencies:
       ms: 2.1.3
-    deprecated: Debug versions >=3.2.0 <3.2.7 || >=4 <4.3.1 have a low-severity ReDos regression when used in a Node.js environment. It is recommended you upgrade to 3.2.7 or 4.3.1. (https://github.com/visionmedia/debug/issues/797)
+    deprecated: 'Debug versions >=3.2.0 <3.2.7 || >=4 <4.3.1 have a low-severity ReDos regression when used in a Node.js environment. It is recommended you upgrade to 3.2.7 or 4.3.1. (https://github.com/visionmedia/debug/issues/797)'
     dev: false
     resolution:
       integrity: sha512-mel+jf7nrtEl5Pn1Qx46zARXKDpBbvzezse7p7LqINmdoIk8PYP5SySaxEmYv6TZ0JyEKA1hsCId6DIhgITtWQ==
@@ -5048,6 +5063,15 @@ packages:
     dev: false
     resolution:
       integrity: sha512-AD1hi7iVJ8OD0aMLQU5VK0XH9LDlA1+BcPIgrAxPfaibx2DbWucuyOhc4oyQCbnvDDO68nN6/LcKfqTP343Jjg==
+  /dicer/0.2.5:
+    dependencies:
+      readable-stream: 1.1.14
+      streamsearch: 0.1.2
+    dev: false
+    engines:
+      node: '>=0.8.0'
+    resolution:
+      integrity: sha1-WZbAhrszIYyBLAkL3cCc0S+stw8=
   /diff-match-patch/1.0.5:
     dev: false
     resolution:
@@ -8591,6 +8615,21 @@ packages:
     dev: false
     resolution:
       integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
+  /multer/1.4.2:
+    dependencies:
+      append-field: 1.0.0
+      busboy: 0.2.14
+      concat-stream: 1.6.2
+      mkdirp: 0.5.5
+      object-assign: 4.1.1
+      on-finished: 2.3.0
+      type-is: 1.6.18
+      xtend: 4.0.2
+    dev: false
+    engines:
+      node: '>= 0.10.0'
+    resolution:
+      integrity: sha512-xY8pX7V+ybyUpbYMxtjM9KAiD9ixtg5/JkeKUTD6xilfDv0vzzOFcCp4Ljb1UU3tSOM3VTZtKo63OmzOrGi3Cg==
   /nan/2.14.2:
     dev: false
     optional: true
@@ -9550,7 +9589,7 @@ packages:
     resolution:
       integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==
   /popper.js/1.16.1:
-    deprecated: You can find the new Popper v2 at @popperjs/core, this package is dedicated to the legacy v1
+    deprecated: 'You can find the new Popper v2 at @popperjs/core, this package is dedicated to the legacy v1'
     resolution:
       integrity: sha512-Wb4p1J4zyFTbM+u6WuO4XstYx4Ky9Cewe4DWrel7B0w6VVICvPwdOpotjzcf6eD8TsckVnIMNONQyPIUFOUbCQ==
   /posix-character-classes/0.1.1:
@@ -11352,7 +11391,7 @@ packages:
     resolution:
       integrity: sha1-MrueOcBtZzONyTeMDW1gdFZq0TE=
   /resolve-url/0.2.1:
-    deprecated: https://github.com/lydell/resolve-url#deprecated
+    deprecated: 'https://github.com/lydell/resolve-url#deprecated'
     dev: false
     resolution:
       integrity: sha1-LGN/53yJOv0qZj/iGqkIAGjiBSo=
@@ -11844,7 +11883,7 @@ packages:
     dependencies:
       ip: 1.1.5
       smart-buffer: 1.1.15
-    deprecated: If using 2.x branch, please upgrade to at least 2.1.6 to avoid a serious bug with socket data flow and an import issue introduced in 2.1.0
+    deprecated: 'If using 2.x branch, please upgrade to at least 2.1.6 to avoid a serious bug with socket data flow and an import issue introduced in 2.1.0'
     dev: false
     engines:
       node: '>= 0.10.0'
@@ -12058,6 +12097,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-AiisoFqQ0vbGcZgQPY1cdP2I76glaVA/RauYR4G4thNFgkTqr90yXTo4LYX60Jl+sIlPNHHdGSwo01AvbKUSVQ==
+  /streamsearch/0.1.2:
+    dev: false
+    engines:
+      node: '>=0.8.0'
+    resolution:
+      integrity: sha1-gIudDlb8Jz2Am6VzOOkpkZoanxo=
   /strict-uri-encode/1.1.0:
     dev: false
     engines:
@@ -12853,7 +12898,7 @@ packages:
     resolution:
       integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==
   /urix/0.1.0:
-    deprecated: Please see https://github.com/lydell/urix#deprecated
+    deprecated: 'Please see https://github.com/lydell/urix#deprecated'
     dev: false
     resolution:
       integrity: sha1-2pN/emLiH+wf0Y1Js1wpNQZ6bHI=
