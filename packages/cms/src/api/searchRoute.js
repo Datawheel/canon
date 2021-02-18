@@ -87,7 +87,32 @@ const rowToResult = (row, locale) => {
   };
 };
 
-
+/**
+ * Given a db connection, image id, and image buffer, attempt to upload the image to google cloud.
+ * If the upload to cloud fails, store buffer data in psql row
+ */
+const uploadImage = async(db, id, imageData) => {
+  const configs = [
+    {type: "splash", res: splashWidth},
+    {type: "thumb", res: thumbWidth}
+  ];
+  for (const config of configs) {
+    const buffer = await sharp(imageData).resize(config.res).toFormat("jpeg").jpeg({force: true}).toBuffer().catch(catcher);
+    const file = `${config.type}/${id}.jpg`;
+    const options = {metadata: {contentType: "image/jpeg"}};
+    // Attempt to upload to google bucket. If it fails, fall back to psql blob
+    const writeResult = await storage.bucket(bucket).file(file).save(buffer, options).catch(e => {
+      if (verbose) console.error(`Image upload error for ${file}, ${e.message}`);
+      return false;
+    });
+    if (writeResult === false) {
+      await db.image.update({[config.type]: buffer}, {where: {id}}).catch(catcher);
+    }
+    else {
+      await storage.bucket(bucket).file(file).makePublic().catch(catcher);
+    }
+  }
+};
 
 module.exports = function(app) {
 
@@ -150,27 +175,7 @@ module.exports = function(app) {
       await db.image.update({url: `custom-image-${newImage.id}`}, {where: {id: newImage.id}}).catch(catcher);
       await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);
 
-      // Upload splash and thumb version to google cloud, or psql as a fallback
-      const configs = [
-        {type: "splash", res: splashWidth},
-        {type: "thumb", res: thumbWidth}
-      ];
-      for (const config of configs) {
-        const buffer = await sharp(imageData).resize(config.res).toFormat("jpeg").jpeg({force: true}).toBuffer().catch(catcher);
-        const file = `${config.type}/${newImage.id}.jpg`;
-        const options = {metadata: {contentType: "image/jpeg"}};
-        // Attempt to upload to google bucket. If it fails, fall back to psql blob
-        const writeResult = await storage.bucket(bucket).file(file).save(buffer, options).catch(e => {
-          if (verbose) console.error(`Image upload error for ${file}, ${e.message}`);
-          return false;
-        });
-        if (writeResult === false) {
-          await db.image.update({[config.type]: buffer}, {where: {id: newImage.id}}).catch(catcher);
-        }
-        else {
-          await storage.bucket(bucket).file(file).makePublic().catch(catcher);
-        }
-      }
+      await uploadImage(db, newImage.id, imageData).catch(catcher);
     }
     else {
       const imageRow = await db.image.findOne({where: {id: searchRow.imageId}}).catch(catcher);
