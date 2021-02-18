@@ -127,6 +127,11 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
       if (err) res.status(500).json(err);
       else if (redirect) res.redirect(302, `${redirect.basename}${redirect.pathname}${redirect.hash}${redirect.search}`);
       else if (props) {
+        // get the `status` property for the last matched route
+        const routeStatus = props.routes
+          .map(route => route.status * 1)
+          .filter(code => !isNaN(code) && code > 200)
+          .pop();
 
         // detects components wrapped in @loadable/component,
         // and forces the load in order to detect needs
@@ -174,6 +179,10 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                     const error = initialState.data[key] ? initialState.data[key].error : null;
                     if (error && typeof error === "number" && error > status) status = error;
                   }
+                }
+                // eslint-disable-next-line eqeqeq
+                if (routeStatus != null) {
+                  status = routeStatus;
                 }
 
                 let jsx;
