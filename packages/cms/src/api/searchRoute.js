@@ -3,6 +3,8 @@ const yn = require("yn");
 const d3Array = require("d3-array");
 const jwt = require("jsonwebtoken");
 const groupMeta = require("../utils/groupMeta");
+const multer = require("multer");
+const upload = multer({storage: multer.memoryStorage()});
 
 const {
   CANON_CMS_CUBES,
@@ -85,6 +87,33 @@ const rowToResult = (row, locale) => {
   };
 };
 
+/**
+ * Given a db connection, image id, and image buffer, attempt to upload the image to google cloud.
+ * If the upload to cloud fails, store buffer data in psql row
+ */
+const uploadImage = async(db, id, imageData) => {
+  const configs = [
+    {type: "splash", res: splashWidth},
+    {type: "thumb", res: thumbWidth}
+  ];
+  for (const config of configs) {
+    const buffer = await sharp(imageData).resize(config.res).toFormat("jpeg").jpeg({force: true}).toBuffer().catch(catcher);
+    const file = `${config.type}/${id}.jpg`;
+    const options = {metadata: {contentType: "image/jpeg"}};
+    // Attempt to upload to google bucket. If it fails, fall back to psql blob
+    const writeResult = await storage.bucket(bucket).file(file).save(buffer, options).catch(e => {
+      if (verbose) console.warn(`Cloud upload error for ${file}, ${e.message}. If not using Cloud hosting, this safely be ignored.`);
+      return false;
+    });
+    if (writeResult === false) {
+      await db.image.update({[config.type]: buffer}, {where: {id}}).catch(catcher);
+    }
+    else {
+      await storage.bucket(bucket).file(file).makePublic().catch(catcher);
+    }
+  }
+};
+
 module.exports = function(app) {
 
   const {db} = app.settings;
@@ -133,6 +162,30 @@ module.exports = function(app) {
     return res.json(newRows);
   });
 
+  app.post("/api/image/upload", upload.single("imgFile"), async(req, res) => {
+    if (!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+      return res.json({error: "File must be an image!"});
+    }
+    const {contentId} = req.body;
+    const imageData = req.file.buffer;
+    const searchRow = await db.search.findOne({where: {contentId}}).catch(catcher);
+    if (!searchRow.imageId) {
+      const payload = {author: null, license: null};
+      const newImage = await db.image.create(payload).catch(catcher);
+      await db.image.update({url: `custom-image-${newImage.id}`}, {where: {id: newImage.id}}).catch(catcher);
+      await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);
+
+      await uploadImage(db, newImage.id, imageData).catch(catcher);
+    }
+    else {
+      const imageRow = await db.image.findOne({where: {id: searchRow.imageId}}).catch(catcher);
+      if (imageRow) {
+        await uploadImage(db, imageRow.id, imageData).catch(catcher);
+      }
+    }
+    return res.json("OK");
+  });
+
   app.post("/api/image/update", async(req, res) => {
     if (!flickr) return res.json({error: "Flickr API Key not configured"});
     const {contentId} = req.body;
@@ -174,26 +227,7 @@ module.exports = function(app) {
               await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);
 
               // Finally, upload splash and thumb version to google cloud, or psql as a fallback
-              const configs = [
-                {type: "splash", res: splashWidth},
-                {type: "thumb", res: thumbWidth}
-              ];
-              for (const config of configs) {
-                const buffer = await sharp(imageData).resize(config.res).toBuffer().catch(catcher);
-                const file = `${config.type}/${newImage.id}.jpg`;
-                const options = {metadata: {contentType: "image/jpeg"}};
-                // Attempt to upload to google bucket. If it fails, fall back to psql blob
-                const writeResult = await storage.bucket(bucket).file(file).save(buffer, options).catch(e => {
-                  if (verbose) console.error(`Image upload error for ${file}, ${e.message}`);
-                  return false;
-                });
-                if (writeResult === false) {
-                  await db.image.update({[config.type]: buffer}, {where: {id: newImage.id}}).catch(catcher);
-                }
-                else {
-                  await storage.bucket(bucket).file(file).makePublic().catch(catcher);
-                }
-              }
+              await uploadImage(db, newImage.id, imageData).catch(catcher);
             }
           }
           const newRow = await db.search.findOne({

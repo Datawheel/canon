@@ -71,9 +71,10 @@ class MetaEditor extends Component {
     const currentRow = cell.original;
     const url = currentRow.image && currentRow.image.url ? currentRow.image.url : "";
     const isOpen = true;
+    const dialogMode = url.includes("custom-image") ? "upload" : this.state.dialogMode;
     const content = currentRow.content.find(d => d.locale === localeDefault);
     const flickrQuery = content ? content.name : "";
-    this.setState({url, isOpen, currentRow, flickrQuery});
+    this.setState({url, isOpen, currentRow, flickrQuery, dialogMode});
   }
 
   changeCell(cell, context, locale, value) {
@@ -601,7 +602,66 @@ class MetaEditor extends Component {
   }
 
   closeEditor() {
-    this.setState({url: "", flickrImages: [], isOpen: false, dialogMode: "direct", loading: false, imgIndex: 0});
+    this.setState({url: "", flickrImages: [], isOpen: false, dialogMode: "direct", loading: false, imgIndex: 0, selectedFile: false});
+  }
+
+  handleUploadChange(e) {
+    const selectedFile = e.target.files[0];
+    this.setState({selectedFile});
+  }
+
+  uploadFile(e) {
+    e.preventDefault();
+    const {selectedFile, currentRow} = this.state;
+    const {contentId} = currentRow;
+    const Toast = this.context.toast.current;
+    if (!selectedFile) {
+      Toast.show({
+        intent: "danger",
+        message: "No File Selected!",
+        timeout: 2000
+      });
+    }
+    else {
+      const url = "/api/image/upload";
+      const config = {headers: {"Content-Type": "multipart/form-data"}};
+      const data = new FormData();
+      data.append("imgFile", selectedFile);
+      data.append("contentId", contentId);
+      this.setState({loading: true});
+      const doneState = {url: "", flickrImages: [], isOpen: false, loading: false, imgIndex: 0, selectedFile: false, epoch: new Date().getTime()};
+      axios.post(url, data, config).then(resp => {
+        this.setState(doneState, this.prepData.bind(this));
+        if (resp.data.error) {
+          Toast.show({
+            intent: "danger",
+            message: `Upload Error - ${resp.data.error}`,
+            timeout: 2000
+          });
+        }
+        else if (resp.data === "OK") {
+          Toast.show({
+            intent: "success",
+            message: "Upload Complete!",
+            timeout: 2000
+          });
+        }
+        else {
+          Toast.show({
+            intent: "danger",
+            message: "Unknown Upload Error!",
+            timeout: 2000
+          });
+        }
+      }).catch(e => {
+        this.setState(doneState, this.prepData.bind(this));
+        Toast.show({
+          intent: "danger",
+          message: `Upload Error - ${e.message}`,
+          timeout: 2000
+        });
+      });
+    }
   }
 
   render() {
@@ -774,13 +834,24 @@ class MetaEditor extends Component {
               >
                 search
               </Button>
+              <Button
+                active={dialogMode === "upload"}
+                fontSize="xs"
+                namespace="cms"
+                icon="upload"
+                iconPosition="left"
+                onClick={() => this.setState({dialogMode: "upload"})}
+              >
+                upload
+              </Button>
             </ButtonGroup>
           }
         >
 
-          {dialogMode === "direct"
+          {dialogMode === "direct" &&
             // paste in a URL
-            ? <Fragment>
+            <Fragment>
+              {url.includes("custom-image") && <p className="u-font-xxs">Note: this is a custom image upload and has no URL permalink. If you wish to set a new image via Flickr, set its URL here.</p>}
               <TextButtonGroup
                 className="u-margin-bottom-md"
                 namespace="cms"
@@ -824,9 +895,11 @@ class MetaEditor extends Component {
                 }
               </div>
             </Fragment>
+          }
 
+          { dialogMode === "search" &&
             // search Flickr
-            : <Fragment>
+            <Fragment>
               <TextButtonGroup
                 namespace="cms"
                 inputProps={{
@@ -848,7 +921,7 @@ class MetaEditor extends Component {
               />
 
               { searching || loading
-                // alerts
+              // alerts
                 ? <div className="cms-gallery-searching">
                   <Spinner size="50" className="cms-gallery-spinner u-margin-bottom-sm"/>
                   <p className="cms-gallery-searching-text u-font-xl">
@@ -858,7 +931,7 @@ class MetaEditor extends Component {
                     }
                   </p>
                 </div>
-                // display images
+              // display images
                 : flickrImages.length > 0 &&
                   <div className="cms-gallery-wrapper">
                     <ul className="cms-gallery-list">
@@ -882,6 +955,14 @@ class MetaEditor extends Component {
                     }
                   </div>
               }
+            </Fragment>
+          }
+          { dialogMode === "upload" &&
+            <Fragment>
+              <form onSubmit={this.uploadFile.bind(this)}>
+                <input type="file" className="form-control" name="imgFile" onChange={this.handleUploadChange.bind(this)} />
+                <button type="submit" className="btn btn-dark">Save</button>
+              </form>
             </Fragment>
           }
         </Dialog>
