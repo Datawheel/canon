@@ -180,7 +180,7 @@ module.exports = function(app) {
     else {
       const imageRow = await db.image.findOne({where: {id: searchRow.imageId}}).catch(catcher);
       if (imageRow) {
-        console.log("update");
+        await uploadImage(db, imageRow.id, imageData).catch(catcher);
       }
     }
     return res.json("OK");

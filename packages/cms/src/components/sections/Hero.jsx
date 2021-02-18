@@ -224,6 +224,9 @@ class Hero extends Component {
       {subtitleContent}
     </div>;
 
+    // custom images can be uploaded with no flickr source. Only show the "image credits" section
+    // if at least one of the images has the flickr data to show
+    const hasFlickrSource = images && images.some(d => !d.permalink.includes("custom-image"));
 
     return (
       <header className="cp-section cp-hero">
@@ -260,55 +263,57 @@ class Hero extends Component {
         {images && images.length
           ? <Fragment>
             {/* credits */}
-            <div className={`cp-hero-credits ${creditsVisible ? "is-open" : "is-closed"}`}>
-              <Button
-                className="cp-hero-credits-button"
-                onClick={() => this.setState({creditsVisible: !creditsVisible})}
-                icon={creditsVisible ? "eye-off" : "eye-open"}
-                iconPosition="left"
-                fontSize="xxs"
-                active={creditsVisible}
-              >
-                <span className="u-visually-hidden">
-                  {creditsVisible ? "view " : "hide "}
-                </span>
-                image credits
-              </Button>
+            { hasFlickrSource &&
+              <div className={`cp-hero-credits ${creditsVisible ? "is-open" : "is-closed"}`}>
+                <Button
+                  className="cp-hero-credits-button"
+                  onClick={() => this.setState({creditsVisible: !creditsVisible})}
+                  icon={creditsVisible ? "eye-off" : "eye-open"}
+                  iconPosition="left"
+                  fontSize="xxs"
+                  active={creditsVisible}
+                >
+                  <span className="u-visually-hidden">
+                    {creditsVisible ? "view " : "hide "}
+                  </span>
+                  image credits
+                </Button>
 
-              {creditsVisible
-                ? <ul className="cp-hero-credits-list">
-                  {images.map((img, i) =>
-                    <li className="cp-hero-credits-item" key={img.permalink}>
-                      {images.length > 1
-                        ? <h2 className="cp-hero-credits-item-heading u-font-md">
-                          Image {i + 1}
-                        </h2> : ""
-                      }
+                {creditsVisible
+                  ? <ul className="cp-hero-credits-list">
+                    {images.map((img, i) =>
+                      <li className="cp-hero-credits-item" key={img.permalink}>
+                        {images.length > 1
+                          ? <h2 className="cp-hero-credits-item-heading u-font-md">
+                            Image {i + 1}
+                          </h2> : ""
+                        }
 
-                      {/* author */}
-                      {img.author
-                        ? <p className="cp-hero-credits-text">
-                          Photograph by <span className="cp-hero-credits-name heading">
-                            {img.author}
-                          </span>
-                        </p> : ""
-                      }
-                      {/* description */}
-                      {img.meta ? <p className="cp-hero-credits-text">
-                        {img.meta}
-                      </p> : ""}
-                      {/* flickr link */}
-                      {img.permalink ? <p className="cp-hero-credits-text u-font-xs">
-                        <span className="u-visually-hidden">Direct link: </span>
-                        <a className="cp-hero-credits-link" href={img.permalink}>
-                          {img.permalink.replace("https://", "")}
-                        </a>
-                      </p> : ""}
-                    </li>
-                  )}
-                </ul> : ""
-              }
-            </div>
+                        {/* author */}
+                        {img.author
+                          ? <p className="cp-hero-credits-text">
+                            Photograph by <span className="cp-hero-credits-name heading">
+                              {img.author}
+                            </span>
+                          </p> : ""
+                        }
+                        {/* description */}
+                        {img.meta ? <p className="cp-hero-credits-text">
+                          {img.meta}
+                        </p> : ""}
+                        {/* flickr link */}
+                        {img.permalink && !img.permalink.includes("custom-image") ? <p className="cp-hero-credits-text u-font-xs">
+                          <span className="u-visually-hidden">Direct link: </span>
+                          <a className="cp-hero-credits-link" href={img.permalink}>
+                            {img.permalink.replace("https://", "")}
+                          </a>
+                        </p> : ""}
+                      </li>
+                    )}
+                  </ul> : ""
+                }
+              </div>
+            }
 
             {/* images */}
             <div className="cp-hero-img-outer">
