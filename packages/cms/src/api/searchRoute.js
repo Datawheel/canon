@@ -102,7 +102,7 @@ const uploadImage = async(db, id, imageData) => {
     const options = {metadata: {contentType: "image/jpeg"}};
     // Attempt to upload to google bucket. If it fails, fall back to psql blob
     const writeResult = await storage.bucket(bucket).file(file).save(buffer, options).catch(e => {
-      if (verbose) console.error(`Image upload error for ${file}, ${e.message}`);
+      if (verbose) console.warn(`Cloud upload error for ${file}, ${e.message}. If not using Cloud hosting, this safely be ignored.`);
       return false;
     });
     if (writeResult === false) {

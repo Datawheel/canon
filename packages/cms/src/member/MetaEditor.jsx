@@ -71,9 +71,10 @@ class MetaEditor extends Component {
     const currentRow = cell.original;
     const url = currentRow.image && currentRow.image.url ? currentRow.image.url : "";
     const isOpen = true;
+    const dialogMode = url.includes("custom-image") ? "upload" : this.state.dialogMode;
     const content = currentRow.content.find(d => d.locale === localeDefault);
     const flickrQuery = content ? content.name : "";
-    this.setState({url, isOpen, currentRow, flickrQuery});
+    this.setState({url, isOpen, currentRow, flickrQuery, dialogMode});
   }
 
   changeCell(cell, context, locale, value) {
@@ -850,6 +851,7 @@ class MetaEditor extends Component {
           {dialogMode === "direct" &&
             // paste in a URL
             <Fragment>
+              {url.includes("custom-image") && <p className="u-font-xxs">Note: this is a custom image upload and has no URL permalink. If you wish to set a new image via Flickr, set its URL here.</p>}
               <TextButtonGroup
                 className="u-margin-bottom-md"
                 namespace="cms"
