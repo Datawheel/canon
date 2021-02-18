@@ -139,9 +139,13 @@ npm run dev
 
 ## Enabling Image Support
 
-Canon CMS includes the ability to assign each member of a cube (Such as *Massachusetts*, or *Metalworkers*) an acceptably licensed photo from flickr.
+Canon CMS includes the ability to assign each member of a cube (Such as *Massachusetts*, or *Metalworkers*) an acceptably licensed photo from flickr or a custom upload.
 
-### Local Hosting
+### Custom Uploads (no Flickr Source)
+
+Upload custom images using the Metadata tab of the CMS. This requires no `FLICKR_API_KEY`, nor any cloud configuration. The images will be stored in PSQL as blobs, or in S3 if configured (see options below)
+
+### Local Hosting with Flickr Source
 
 The CMS now supports images stored inside the psql database by default. If your installation is on the smaller side or is not using Google Cloud, no cloud configuration is required here. Image uploads will automatically be stored in the new "splash" and "thumb" columns of the database, and served up at the identical path to the cloud-hosted ones. This does make the .sql backups slightly larger, but avoids the need to manage a cloud hosting solution.
 
