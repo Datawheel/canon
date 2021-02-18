@@ -27,7 +27,7 @@ export default function RouteCreate() {
       <Route path="/:lang/profile/:slug/:id/:slug2/:id2/:slug3/:id3" component={Profile} />
       <Route path="/:lang/profilesearch" component={ProfileSearch} />
 
-      <Route path="*" component={Error} />
+      <Route path="*" component={Error} status={404} />
 
     </Route>
   );
