@@ -1,4 +1,8 @@
 const {env} = process;
+const {timeFormat} = require("d3-time-format");
+const formatTime = timeFormat("%B %-d, %Y");
+const path = require("path");
+const pdfHeader = path.resolve("static/images/pdf-header.png");
 
 /** @type {import("@datawheel/canon-core").Config} */
 module.exports = {
@@ -34,5 +38,42 @@ module.exports = {
         require("@datawheel/canon-core/models")
       ]
     }
-  ]
+  ],
+  pdf: {
+    pdfOptions: {
+      headerTemplate: `<div style="width: 100%;">
+        <img src="${pdfHeader}" width="100%" />
+      </div>`,
+      footerTemplate: `
+      <style>
+        .container {
+          background-color: #e5e5e5;
+          color: #000;
+          display: block;
+          font-family: 'Open Sans', 'Trebuchet MS', sans-serif;
+          font-size: 12px;
+          padding: 10px;
+          text-align: center;
+          width: 100%;
+          -webkit-print-color-adjust: exact;
+        }
+        .pageNumber,
+        .totalPages {
+          font-size: 12px;
+        }
+        .url, .subtitle {
+          font-size: 10px;
+        }
+      </style>
+      <div className="container">
+        Page <span className="pageNumber"></span> of <span className="totalPages"></span>
+        <div className="url"></div>
+        <div className="subtitle">Generated on ${formatTime(new Date())}</div>
+      </div>`,
+      margin: {bottom: 120, top: 170}
+    },
+    viewportOptions: {
+      deviceScaleFactor: 2
+    }
+  }
 };
