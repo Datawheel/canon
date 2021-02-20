@@ -2,7 +2,11 @@ const {env} = process;
 const {timeFormat} = require("d3-time-format");
 const formatTime = timeFormat("%B %-d, %Y");
 const path = require("path");
-const pdfHeader = path.resolve("static/images/pdf-header.png");
+const fs = require("fs");
+const imagePath = path.resolve("static/images/pdf-header.png");
+const buffer = fs.readFileSync(imagePath, {encoding: "base64"});
+const pdfHeader = `data:image/png;base64,${buffer}`;
+
 
 /** @type {import("@datawheel/canon-core").Config} */
 module.exports = {

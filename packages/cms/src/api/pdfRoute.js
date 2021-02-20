@@ -97,6 +97,6 @@ module.exports = function(app) {
     const pdfOptions = canon.pdf && canon.pdf.pdfOptions ? canon.pdf.pdfOptions : {};
     const viewportOptions = canon.pdf && canon.pdf.viewportOptions ? canon.pdf.viewportOptions : {};
     const pdf = await generate(path, pdfOptions, viewportOptions);
-    return res.json(pdf);
+    return res.send(pdf);
   });
 };
