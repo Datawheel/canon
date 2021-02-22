@@ -25,20 +25,28 @@ class PDFButton extends Component {
       const {pathname, query} = location;
       const {filename, pdfOptions, viewportOptions} = this.props;
 
-      const url = "/api/pdf";
       const queryString = Object.entries({...query, print: true}).map(([key, val]) => `${key}=${val}`).join("&");
       const path = `${pathname}?${queryString}`;
-      const payload = {path, pdfOptions, viewportOptions};
       const config = {responseType: "arraybuffer", headers: {Accept: "application/pdf"}};
-      this.setState({saving: true});
+      const callback = resp => {
+        const blob = new Blob([resp.data], {type: "application/pdf"});
+        saveAs(blob, `${filename}.pdf`);
+        this.setState({saving: false});
+      };
 
-      axios.post(url, payload, config)
-        .then(resp => {
-          const blob = new Blob([resp.data], {type: "application/pdf"});
-          saveAs(blob, `${filename}.pdf`);
-          this.setState({saving: false});
-        });
+      const requiresPost = pdfOptions || viewportOptions;
 
+      if (requiresPost) {
+        const url = "/api/pdf";
+        const payload = {path, pdfOptions, viewportOptions};
+        this.setState({saving: true});
+        axios.post(url, payload, config).then(callback);
+      }
+      else {
+        const url = `/api/pdf/get?path=${encodeURIComponent(path)}`;
+        this.setState({saving: true});
+        axios.get(url, config).then(callback);
+      }
     }
   }
 
@@ -70,8 +78,7 @@ class PDFButton extends Component {
 
 PDFButton.defaultProps = {
   className: "",
-  filename: "your-file-name",
-  pdfOptions: {}
+  filename: "your-file-name"
 };
 
 PDFButton.contextTypes = {

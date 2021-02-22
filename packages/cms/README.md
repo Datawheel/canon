@@ -606,8 +606,33 @@ import {PDFButton} from "@datawheel/canon-cms";
 <PDFButton
   className="" // a custom class attribute for the button itself
   filename="your-file-name" // the name of the resulting PDF file downloaded
-  pdfOptions={{}} // additional options to pass the puppeteer.pdf function (custom headers, footers, sizing, etc)
+  pdfOptions={{}} // additional options to pass the puppeteer.pdf function (custom headers, footers, sizing, etc). Results in a POST request - see below.
+  viewportOptions={{}} // additional viewport options to pass the puppeteer.pdf function. Results in a POST request - see below.
 />
+```
+
+#### A Note on PDF GET/POST operations
+
+If `pdfOptions` or `viewportOptions` are set in the `<PDFButton>`, the PDF generation will require a `POST` request in order to transmit the JSON configuration object. If you want PDF routes to be cached however, they need to be `GET` operations. To achieve this, remove `pdfOptions` and `viewportOptions` from the `<PDFButton>` component, and move these objects to the `canon.js` file, under a top-level key named `pdf`. The default behavior of `<PDFButton>` when not supplied with options is to perform a `GET` request using the configurations in `canon.js`.
+
+Additionally, Puppeteer doesn't play nicely with `href` images in its headers. To `src` images in `headerTemplate`, the image must be included directly as a base64 buffer:
+
+```js
+const path = require("path");
+const fs = require("fs");
+const imagePath = path.resolve("static/images/pdf-header.png");
+const buffer = fs.readFileSync(imagePath, {encoding: "base64"});
+const pdfHeader = `data:image/png;base64,${buffer}`;
+
+...
+
+pdf: {
+  pdfOptions: {
+    headerTemplate: `<div style="width: 100%;">
+      <img src="${pdfHeader}" width="100%" />
+    </div>`,
+
+...
 ```
 
 ---

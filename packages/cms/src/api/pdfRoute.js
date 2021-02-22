@@ -4,6 +4,11 @@ const {
   CANON_CMS_HTACCESS_USER,
   CANON_CMS_HTACCESS_PW
 } = process.env;
+const path = require("path");
+const canonConfigPath = path.resolve("canon.js");
+const canon = require(canonConfigPath);
+const yn = require("yn");
+const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 const style = `
 <style>
@@ -81,6 +86,17 @@ module.exports = function(app) {
     const path = `${req.protocol}://${req.headers.host}/${req.body.path}`;
     const pdf = await generate(path, req.body.pdfOptions, req.body.viewportOptions);
     res.set({"Content-Type": "application/pdf", "Content-Length": pdf.length});
+    return res.send(pdf);
+  });
+
+  app.get("/api/pdf/get", async(req, res) => {
+    const path = `${req.protocol}://${req.headers.host}/${req.query.path}`;
+    if (verbose && (!canon.pdf || !canon.pdf.pdfOptions || !canon.pdf.viewportOptions)) {
+      console.warn("Warning: PDF generation options not configured in canon.js");
+    }
+    const pdfOptions = canon.pdf && canon.pdf.pdfOptions ? canon.pdf.pdfOptions : {};
+    const viewportOptions = canon.pdf && canon.pdf.viewportOptions ? canon.pdf.viewportOptions : {};
+    const pdf = await generate(path, pdfOptions, viewportOptions);
     return res.send(pdf);
   });
 };
