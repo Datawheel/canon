@@ -23,7 +23,7 @@ class PDFButton extends Component {
       const {router} = this.context;
       const {location} = router;
       const {pathname, query} = location;
-      const {filename, pdfOptions, viewportOptions, method} = this.props;
+      const {filename, pdfOptions, viewportOptions} = this.props;
 
       const queryString = Object.entries({...query, print: true}).map(([key, val]) => `${key}=${val}`).join("&");
       const path = `${pathname}?${queryString}`;
@@ -34,16 +34,18 @@ class PDFButton extends Component {
         this.setState({saving: false});
       };
 
-      if (method === "GET") {
-        const url = `/api/pdf/get?path=${encodeURIComponent(path)}`;
-        this.setState({saving: true});
-        axios.get(url, config).then(callback);
-      }
-      else if (method === "POST") {
+      const requiresPost = pdfOptions || viewportOptions;
+
+      if (requiresPost) {
         const url = "/api/pdf";
         const payload = {path, pdfOptions, viewportOptions};
         this.setState({saving: true});
         axios.post(url, payload, config).then(callback);
+      }
+      else {
+        const url = `/api/pdf/get?path=${encodeURIComponent(path)}`;
+        this.setState({saving: true});
+        axios.get(url, config).then(callback);
       }
     }
   }
@@ -76,9 +78,7 @@ class PDFButton extends Component {
 
 PDFButton.defaultProps = {
   className: "",
-  filename: "your-file-name",
-  pdfOptions: {},
-  method: "GET"
+  filename: "your-file-name"
 };
 
 PDFButton.contextTypes = {
