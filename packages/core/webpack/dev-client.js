@@ -1,6 +1,7 @@
 const HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
       WebpackBar = require("webpackbar"),
       appDir = process.cwd(),
+      chpr = require("child_process"),
       path = require("path"),
       webpack = require("webpack"),
       yn = require("yn");
@@ -75,6 +76,11 @@ module.exports = {
       .reduce((d, k) => {
         d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
         return d;
-      }, {__DEV__: true, __SERVER__: false, __LOGREDUX__: yn(process.env.CANON_LOGREDUX || true)}))
+      }, {
+        __DEV__: true,
+        __GITHASH__: `"${chpr.execSync("git rev-parse --short HEAD")}"`,
+        __LOGREDUX__: yn(process.env.CANON_LOGREDUX, {default: true}),
+        __SERVER__: false
+      }))
   ]
 };

@@ -7,6 +7,7 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
       TerserJSPlugin = require("terser-webpack-plugin"),
       WebpackBar = require("webpackbar"),
       appDir = process.cwd(),
+      chpr = require("child_process"),
       commonLoaders = require("./config/loaders"),
       path = require("path"),
       webpack = require("webpack");
@@ -93,7 +94,12 @@ module.exports = [
         .reduce((d, k) => {
           d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
           return d;
-        }, {__DEV__: false, __SERVER__: false, __TIMESTAMP__: timestamp})),
+        }, {
+          __DEV__: false,
+          __GITHASH__: `"${chpr.execSync("git rev-parse --short HEAD")}"`,
+          __SERVER__: false,
+          __TIMESTAMP__: timestamp
+        })),
       new InlineEnviromentVariablesPlugin({NODE_ENV: "production"}),
       new BundleAnalyzerPlugin({
         analyzerMode: "static",
@@ -137,7 +143,12 @@ module.exports = [
         .reduce((d, k) => {
           d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
           return d;
-        }, {__DEV__: false, __SERVER__: true, __TIMESTAMP__: timestamp})),
+        }, {
+          __DEV__: false,
+          __GITHASH__: `"${chpr.execSync("git rev-parse --short HEAD")}"`,
+          __SERVER__: true,
+          __TIMESTAMP__: timestamp
+        })),
       new InlineEnviromentVariablesPlugin({NODE_ENV: "production"}),
       new BundleAnalyzerPlugin({
         analyzerMode: "static",

@@ -3,6 +3,7 @@ const FriendlyErrorsWebpackPlugin = require("@nuxtjs/friendly-errors-webpack-plu
       MiniCssExtractPlugin = require("mini-css-extract-plugin"),
       WebpackBar = require("webpackbar"),
       appDir = process.cwd(),
+      chpr = require("child_process"),
       commonLoaders = require("./config/loaders"),
       path = require("path"),
       webpack = require("webpack");
@@ -83,6 +84,11 @@ module.exports = {
       .reduce((d, k) => {
         d[`__${k.replace("CANON_CONST_", "")}__`] = JSON.stringify(process.env[k]);
         return d;
-      }, {__DEV__: true, __SERVER__: true, __TIMESTAMP__: new Date().getTime()}))
+      }, {
+        __DEV__: true,
+        __GITHASH__: `"${chpr.execSync("git rev-parse --short HEAD")}"`,
+        __SERVER__: true,
+        __TIMESTAMP__: new Date().getTime()
+      }))
   ]
 };
