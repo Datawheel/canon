@@ -25,7 +25,7 @@ class Subnav extends Component {
       currSection: false,
       currSubSection: false,
       hasSubgroups: sections.some(s => s.children && s.children.some(c => c.children)),
-      isOpen: false,
+      openSlug: false,
       top: false,
       fixed: false,
       sections
@@ -38,10 +38,12 @@ class Subnav extends Component {
   /** when tabbing out of the nav group, collapse it */
   onBlur(e) {
     const currentTarget = e.currentTarget;
+    const targetSlug = currentTarget.querySelector(".cp-subnav-link").href.split("#")[1];
 
     setTimeout(() => {
-      if (!currentTarget.contains(document.activeElement)) {
-        this.setState({isOpen: false});
+      const {openSlug} = this.state;
+      if (!currentTarget.contains(document.activeElement) && openSlug === targetSlug) {
+        this.setState({openSlug: false});
       }
     }, 85); // register the click before closing
   }
@@ -120,7 +122,7 @@ class Subnav extends Component {
 
     if (sections) {
       throttle(() => {
-        const {currSection, fixed} = this.state;
+        const {currSection, currSubSection, fixed} = this.state;
         const topBorder = pxToInt(styles["nav-height"] || "50px") + pxToInt(styles["subnav-height"] || "50px");
         const screenTop = window.pageYOffset + topBorder;
         const heroHeight = document.querySelector(".cp-hero").getBoundingClientRect().height;
@@ -154,7 +156,7 @@ class Subnav extends Component {
         }
 
         // update state only when changes detected
-        if (currSection !== newSection) {
+        if (currSection !== newSection || currSubSection !== newSubSection) {
           this.setState({currSection: newSection, currSubSection: newSubSection});
         }
       }, 30);
@@ -162,12 +164,13 @@ class Subnav extends Component {
   }
 
   renderPopup(section) {
-    const {isOpen} = this.state;
-    return <ul className={`cp-subnav-group-list ${isOpen ? "is-open" : "is-closed"}`}>
+    const {openSlug} = this.state;
+    return <ul className={`cp-subnav-group-list ${openSlug === section.slug ? "is-open" : "is-closed"}`}>
       { section.children.map(child =>
         <li key={child.id} className="cp-subnav-group-item">
           <AnchorLink
             className="cp-subnav-group-link u-font-xs"
+            onFocus={() => this.setState({openSlug: section.slug})}
             to={child.slug}
           >
             <Icon className="cp-subnav-group-link-icon" icon={child.icon && blueprintIcons.find(i => i === child.icon) ? child.icon : "dot"} />
@@ -181,7 +184,7 @@ class Subnav extends Component {
   render() {
     if (this.context.print) return null;
     const {children} = this.props;
-    const {currSection, currSubSection, fixed, hasSubgroups, isOpen, sections} = this.state;
+    const {currSection, currSubSection, fixed, hasSubgroups, openSlug, sections} = this.state;
 
     if (!sections || !Array.isArray(sections) || sections.length < 2) return null;
 
@@ -197,13 +200,12 @@ class Subnav extends Component {
 
           {sections.length ? <ol className="cp-subnav-list" key="l">
             {sections.map(section =>
-              <li className={`cp-subnav-item ${isOpen || currSection.slug === section.slug ? "is-active" : "is-inactive"}`} key={section.slug}
-                // onBlur={e => this.onBlur(e)}
-                // onClick={() => this.onFocusButton()}
+              <li className={`cp-subnav-item ${openSlug === section.slug || currSection.slug === section.slug ? "is-active" : "is-inactive"}`} key={section.slug}
+                onBlur={e => this.onBlur(e)}
+                onClick={() => this.onFocusButton()}
               >
                 <AnchorLink
-                  // onClick={() => this.setState({isOpen: !isOpen})}
-                  // onFocus={() => this.setState({isOpen: true})}
+                  onFocus={() => this.setState({openSlug: section.slug})}
                   ref={this.toggleButton}
                   className={`cp-subnav-link ${sections.length >= 5 ? "u-font-xs" : "u-font-sm" }`}
                   to={section.slug}
@@ -222,15 +224,14 @@ class Subnav extends Component {
 
           {hasSubgroups && currSection ? <ol className="cp-subnav-list cp-subnav-secondary" key="s">
             {(currSection ? currSection.children : []).map(section =>
-              <li className="cp-subnav-item" key={section.slug}
-                // onBlur={e => this.onBlur(e)}
-                // onClick={() => this.onFocusButton()}
+              <li className={`cp-subnav-item ${openSlug === section.slug || currSubSection.slug === section.slug ? "is-active" : "is-inactive"}`} key={section.slug}
+                onBlur={e => this.onBlur(e)}
+                onClick={() => this.onFocusButton()}
               >
                 <AnchorLink
-                  // onClick={() => this.setState({isOpen: !isOpen})}
-                  // onFocus={() => this.setState({isOpen: true})}
+                  onFocus={() => this.setState({openSlug: section.slug})}
                   ref={this.toggleButton}
-                  className={`cp-subnav-link ${isOpen || currSubSection.slug === section.slug ? "is-active" : "is-inactive"} ${sections.length >= 5 ? "u-font-xs" : "u-font-sm" }`}
+                  className={`cp-subnav-link ${sections.length >= 5 ? "u-font-xs" : "u-font-sm" }`}
                   to={section.slug}
                 >
                   {section.icon && blueprintIcons.find(i => i === section.icon) &&
