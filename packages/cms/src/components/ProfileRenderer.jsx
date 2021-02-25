@@ -196,6 +196,7 @@ class ProfileRenderer extends Component {
     sections.forEach(l => {
       if (l.type === "TextViz" || l.position === "sticky") l.type = "Default";
       if (l.type === "Column") l.type = "SingleColumn";
+      if (!l.slug) l.slug = `section-${l.id}`;
     });
 
     const groupableSections = ["SingleColumn"].concat(Object.keys(CustomSections)); // sections to be grouped together
