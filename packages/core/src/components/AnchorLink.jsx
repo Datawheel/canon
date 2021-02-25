@@ -20,13 +20,17 @@ class AnchorLink extends Component {
         href={ `#${to}` }
         id={ id }
         dangerouslySetInnerHTML={dangerouslySetInnerHTML}
-        onClick={this.onClick.bind(this)}></a>;
+        onClick={this.onClick.bind(this)}
+        onBlur={this.props.onBlur}
+        onFocus={this.props.onFocus}></a>;
     }
     else {
       return <a className={className}
         href={ `#${to}` }
         id={ id }
-        onClick={this.onClick.bind(this)}>
+        onClick={this.onClick.bind(this)}
+        onBlur={this.props.onBlur}
+        onFocus={this.props.onFocus}>
         { children }
       </a>;
     }
