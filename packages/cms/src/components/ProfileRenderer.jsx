@@ -196,6 +196,7 @@ class ProfileRenderer extends Component {
     sections.forEach(l => {
       if (l.type === "TextViz" || l.position === "sticky") l.type = "Default";
       if (l.type === "Column") l.type = "SingleColumn";
+      if (!l.slug) l.slug = `section-${l.id}`;
     });
 
     const groupableSections = ["SingleColumn"].concat(Object.keys(CustomSections)); // sections to be grouped together
@@ -312,7 +313,11 @@ class ProfileRenderer extends Component {
                   ? <Section
                     contents={innerGrouping[0]}
                     onSetVariables={this.onSetVariables.bind(this)}
-                    headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
+                    headingLevel={groupedSections.length === 1 || ii === 0
+                      ? "h2"
+                      : groupings.find(g => g[0].type.toLowerCase() === "subgrouping") &&
+                        innerGrouping[0].type.toLowerCase() !== "subgrouping" ? "h4"
+                        : "h3"}
                     loading={loading}
                     key={`${innerGrouping[0].slug}-${ii}`}
                     {...hideElements}
@@ -324,9 +329,10 @@ class ProfileRenderer extends Component {
                         contents={section}
                         onSetVariables={this.onSetVariables.bind(this)}
                         headingLevel={groupedSections.length === 1 || ii === 0
-                          ? iii === 0 ? "h2" : "h3"
-                          : "h4"
-                        }
+                          ? "h2"
+                          : groupings.find(g => g[0].type.toLowerCase() === "subgrouping") &&
+                            innerGrouping[0].type.toLowerCase() !== "subgrouping" ? "h4"
+                            : "h3"}
                         loading={loading}
                         key={`${section.slug}-${iii}`}
                         {...hideElements}

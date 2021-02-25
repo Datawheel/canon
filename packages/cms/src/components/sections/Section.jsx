@@ -21,6 +21,7 @@ import Selector from "./components/Selector";
 
 import Default from "./Default";
 import Grouping from "./Grouping";
+import SubGrouping from "./SubGrouping";
 import MultiColumn from "./MultiColumn";
 import SingleColumn from "./SingleColumn";
 import Tabs from "./Tabs";
@@ -30,7 +31,7 @@ import * as CustomSections from "CustomSections";
 
 // used to construct component
 // NOTE: should be every Component in `components/sections/` except for Section (i.e., this component) and Hero (always rendered separately)
-const sectionTypes = {Default, Grouping, MultiColumn, SingleColumn, Tabs, ...CustomSections};
+const sectionTypes = {Default, Grouping, SubGrouping, MultiColumn, SingleColumn, Tabs, ...CustomSections};
 
 /** wrapper for all sections */
 class Section extends Component {
