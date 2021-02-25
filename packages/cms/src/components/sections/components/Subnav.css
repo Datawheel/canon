@@ -231,6 +231,14 @@
         & .cp-subnav-link {
           color: var(--light-3);
         }
+        & .cp-subnav-item.is-active {
+          &:after {
+            content: none;
+          }
+          & .cp-subnav-link {
+            color: var(--white);
+          }
+        }
       }
     }
 
