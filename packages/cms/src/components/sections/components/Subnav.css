@@ -25,14 +25,7 @@
   transition: transform 0.1s ease-out;
 }
 
-/* base theming from hero vars */
-.cp-subnav-link {
-  position: relative; /* contain the "border" */
-  color: var(--hero-text-color);
-  opacity: 0.75;
-  transition:
-    color 0.2s ease-out,
-    opacity 0.2s ease-out;
+.cp-subnav-item {
 
   /* "border" */
   &:after {
@@ -51,6 +44,31 @@
     transition: background-color 0.3s ease-out;
   }
 
+  /* current section */
+  &.is-active {
+
+    & .cp-subnav-link {
+      color: var(--accent);
+      opacity: 1;
+    }
+
+    &:after {
+      background-color: var(--accent);
+    }
+
+  }
+
+}
+
+/* base theming from hero vars */
+.cp-subnav-link {
+  position: relative; /* contain the "border" */
+  color: var(--hero-text-color);
+  opacity: 0.75;
+  transition:
+    color 0.2s ease-out,
+    opacity 0.2s ease-out;
+
   /* interactions */
   &:hover, &:focus {
     color: var(--hero-heading-color);
@@ -59,16 +77,6 @@
 
     & .cp-subnav-link-icon {
       transform: scale(1.125);
-    }
-  }
-
-  /* current section */
-  &.is-active {
-    color: var(--accent);
-    opacity: 1;
-
-    &:after {
-      background-color: var(--accent);
     }
   }
 
@@ -89,8 +97,9 @@
   /* position below nav bar on non-small screens */
   @mixin min-sm {
     /* positioning */
+    left: 0;
     position: absolute;
-    top: var(--subnav-height);
+    top: 100%;
   }
 
   /* hidden state */
@@ -191,6 +200,9 @@
 /* horizontal layout on big screens */
 @mixin min-sm {
   .cp-subnav {
+    display: flex;
+    flex-direction: column;
+    height: var(--subnav-height);
     padding: 0;
     top: calc(0px - var(--subnav-height));
     width: 100%;
@@ -207,30 +219,39 @@
 
     /* overflow list */
     & .cp-subnav-list {
-      height: var(--subnav-height);
+      align-items: stretch;
       display: flex;
+      flex: 1 1 auto;
+      justify-content: center;
       margin-left: 0;
       padding: 0 var(--gutter-sm);
-      margin-right: var(--gutter-sm);
       overflow: visible;
+      &.cp-subnav-secondary {
+        background-color: var(--dark-2);
+        & .cp-subnav-link {
+          color: var(--light-3);
+        }
+      }
     }
 
     /* equally spaced items where possible */
     & .cp-subnav-item {
-      flex: 1 0 auto;
+      align-items: center;
+      display: flex;
+      justify-content: center;
       position: relative;
       text-align: center;
 
-      /* prevent the rightmost menu item from getting cropped off the page */
-      &:last-of-type:hover .cp-subnav-group-list,
-      &:last-of-type .cp-subnav-group-list {
+      /* prevent the rightmost dropdown menu item, if 4 or more items, from getting cropped off the page */
+      &:last-of-type:hover:nth-child(n+4) .cp-subnav-group-list,
+      &:last-of-type:nth-child(n+4) .cp-subnav-group-list {
+        left: auto;
         right: 0;
       }
     }
 
     /* links fill the subnav height */
     & .cp-subnav-link {
-      line-height: var(--subnav-height);
       padding: 0 var(--gutter-sm);
     }
 
