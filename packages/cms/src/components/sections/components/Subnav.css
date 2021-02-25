@@ -90,7 +90,7 @@
   @mixin min-sm {
     /* positioning */
     position: absolute;
-    top: var(--nav-height);
+    top: var(--subnav-height);
   }
 
   /* hidden state */
