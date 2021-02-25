@@ -47,7 +47,11 @@
   /* sizing */
   @mixin font-xs;
   display: block;
+  max-width: 300px;
   padding: 0.875em var(--gutter-md);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   /* theming */
   @mixin cms-nav-link-theme;
   transition:
