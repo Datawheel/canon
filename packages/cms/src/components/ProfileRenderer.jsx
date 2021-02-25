@@ -313,7 +313,11 @@ class ProfileRenderer extends Component {
                   ? <Section
                     contents={innerGrouping[0]}
                     onSetVariables={this.onSetVariables.bind(this)}
-                    headingLevel={groupedSections.length === 1 || ii === 0 ? "h2" : "h3"}
+                    headingLevel={groupedSections.length === 1 || ii === 0
+                      ? "h2"
+                      : groupings.find(g => g[0].type.toLowerCase() === "subgrouping") &&
+                        innerGrouping[0].type.toLowerCase() !== "subgrouping" ? "h4"
+                        : "h3"}
                     loading={loading}
                     key={`${innerGrouping[0].slug}-${ii}`}
                     {...hideElements}
@@ -325,9 +329,10 @@ class ProfileRenderer extends Component {
                         contents={section}
                         onSetVariables={this.onSetVariables.bind(this)}
                         headingLevel={groupedSections.length === 1 || ii === 0
-                          ? iii === 0 ? "h2" : "h3"
-                          : "h4"
-                        }
+                          ? "h2"
+                          : groupings.find(g => g[0].type.toLowerCase() === "subgrouping") &&
+                            innerGrouping[0].type.toLowerCase() !== "subgrouping" ? "h4"
+                            : "h3"}
                         loading={loading}
                         key={`${section.slug}-${iii}`}
                         {...hideElements}
