@@ -90,7 +90,7 @@ const formatter = (members, data, dimension, level) => {
   return newData;
 };
 
-const populateSearch = async(profileData, db, metaLookup = false) => {
+const populateSearch = async(profileData, db, metaLookup = false, newSlugs = false) => {
 
   const dbQuery = db.search.sequelize.query.bind(db.search.sequelize);
 
@@ -150,7 +150,10 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
       const slugs = await db.search.findAll().catch(catcher);
       const usedSlugs = {};
       slugs.forEach(s => {
-        if (s.slug) usedSlugs[s.slug] = true;
+        // If slugs are to be generated from scratch ("newSlugs"), do not include any slugs from this dim/level set as "used". This prevents
+        // them from crashing into each other and adding ids on the end.
+        const exclude = newSlugs && s.cubeName === cubeName && s.dimension === dimension && dimLevels.includes(s.hierarchy);
+        if (!exclude && s.slug) usedSlugs[s.slug] = true;
       });
 
       const slugify = str => strip(str).replace(/-{2,}/g, "-").toLowerCase();
@@ -174,8 +177,11 @@ const populateSearch = async(profileData, db, metaLookup = false) => {
       const searchInsertKeys = Object.keys(searchList[0]).filter(d => d !== "name");
       // If metaLookup was provided, this is a migration. Make sure the insert SQL processes the insert
       if (metaLookup && !searchInsertKeys.includes("imageId")) searchInsertKeys.push("imageId");
-      // On conflict (update), do not attempt to change the slug
-      const searchUpdateKeys = searchInsertKeys.filter(d => d !== "slug");
+      let searchUpdateKeys = searchInsertKeys;
+      // On conflict (update), do not attempt to change the slug, unless the user has specified to override.
+      if (!newSlugs) {
+        searchUpdateKeys = searchInsertKeys.filter(d => d !== "slug");
+      }
 
       const dedupeSearch = [];
       const dupes = [];
