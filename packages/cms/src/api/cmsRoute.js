@@ -94,7 +94,7 @@ const sortStoryTree = (db, stories) => {
 
 const sortProfile = (db, profile) => {
   // Don't use flatSort for meta. Meta can have multiple entities in the same ordering, so do not attempt to "flatten" them out
-  profile.meta = profile.meta.sort(sorter); 
+  profile.meta = profile.meta.sort(sorter);
   profile.materializers = flatSort(db.materializer, profile.materializers);
   profile.sections = flatSort(db.section, profile.sections);
   return profile;
@@ -140,7 +140,7 @@ const getSectionTypes = () => {
       const sectionTypeDirCustomFixed = sectionTypeDirCustom.replace(/\\/g, "/");
       const compName = file.replace(sectionTypeDirCustomFixed, "").replace(".jsx", "");
       sectionTypes.push(compName);
-    });    
+    });
   }
   return sectionTypes;
 };
@@ -271,20 +271,20 @@ module.exports = function(app) {
   const newList = cmsTables;
   newList.forEach(ref => {
     app.post(`/api/cms/${ref}/new`, isEnabled, async(req, res) => {
-      // If the order was provided, we need to bump all siblings up to make room. 
+      // If the order was provided, we need to bump all siblings up to make room.
       if (req.body.ordering) {
         const where = {
           ordering: {[Op.gte]: req.body.ordering},
           [parentOrderingTables[ref]]: req.body[parentOrderingTables[ref]]
         };
-        await db[ref].update({ordering: sequelize.literal("ordering +1")}, {where}).catch(catcher);        
+        await db[ref].update({ordering: sequelize.literal("ordering +1")}, {where}).catch(catcher);
       }
-      // If it was not provided, but this is a table that needs them, append it to the end and 
+      // If it was not provided, but this is a table that needs them, append it to the end and
       // insert the derived ordering into req.body
       else if (parentOrderingTables[ref]) {
         const where = {
           where: {[parentOrderingTables[ref]]: req.body[parentOrderingTables[ref]]},
-          attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], 
+          attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]],
           raw: true
         };
         const maxFetch = await db[ref].findAll(where).catch(catcher);
@@ -322,7 +322,7 @@ module.exports = function(app) {
           return res.json(selector);
         }
         else {
-          return res.json(newObj);  
+          return res.json(newObj);
         }
       }
     });
@@ -338,7 +338,7 @@ module.exports = function(app) {
     await db.section_content.create({id: section.id, locale: envLoc}).catch(catcher);
     const reqObj = Object.assign({}, profileReqFull, {where: {id: profile.id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
-    newProfile = sortProfile(db, newProfile.toJSON()); 
+    newProfile = sortProfile(db, newProfile.toJSON());
     newProfile.sections = newProfile.sections.map(section => {
       section = sortSection(db, section);
       section.types = getSectionTypes();
@@ -356,7 +356,7 @@ module.exports = function(app) {
     await db.storysection_content.create({id: storysection.id, locale: envLoc}).catch(catcher);
     const reqObj = Object.assign({}, storyReqFull, {where: {id: story.id}});
     let newStory = await db.story.findOne(reqObj).catch(catcher);
-    newStory = sortStory(db, newStory.toJSON()); 
+    newStory = sortStory(db, newStory.toJSON());
     newStory.storysection = newStory.storysections.map(storysection => {
       storysection = sortStorySection(db, storysection);
       storysection.types = getSectionTypes();
@@ -404,10 +404,10 @@ module.exports = function(app) {
 
   app.post("/api/cms/repopulateSearch", isEnabled, async(req, res) => {
     req.setTimeout(1000 * 60 * 5);
-    const {id} = req.body;
+    const {id, newSlugs} = req.body;
     let profileData = await db.profile_meta.findOne({where: {id}});
     profileData = profileData.toJSON();
-    await populateSearch(profileData, db);
+    await populateSearch(profileData, db, false, newSlugs);
     return res.json({});
   });
 
@@ -478,7 +478,7 @@ module.exports = function(app) {
   ];
   sectionSwapList.forEach(swap => {
     app.post(`/api/cms/${swap.ref}/swap`, isEnabled, async(req, res) => {
-      // Sections can be Groupings, which requires a more complex swap that brings it child sections along with it 
+      // Sections can be Groupings, which requires a more complex swap that brings it child sections along with it
       const {id} = req.body;
       const original = await db[swap.ref].findOne({where: {id}}).catch(catcher);
       let sections = await db[swap.ref].findAll({where: {[swap.parent]: original[swap.parent]}, order: [["ordering", "ASC"]]}).catch(catcher);
@@ -495,7 +495,7 @@ module.exports = function(app) {
           sectionsGrouped[sectionsGrouped.length - 1].push(section);
         }
       });
-      // Sections that come before the Groupings start are technically in groups of their own. 
+      // Sections that come before the Groupings start are technically in groups of their own.
       let isGroupLeader = false;
       sectionsGrouped.forEach(group => {
         if (group.map(d => d.id).includes(original.id) && group[0].id === original.id) isGroupLeader = true;
@@ -509,7 +509,7 @@ module.exports = function(app) {
         updatedSections = sectionsGrouped
           .flat()
           .map((section, i) => ({...section, ordering: i}));
-      } 
+      }
       else {
         const oi = original.ordering;
         const ni = original.ordering + 1;
@@ -613,7 +613,7 @@ module.exports = function(app) {
     // Now that all the creations are complete, fetch a new hierarchical and sorted profile.
     const finalReqObj = Object.assign({}, profileReqFull, {where: {id: newProfile.id}});
     let finalProfile = await db.profile.findOne(finalReqObj).catch(catcher);
-    finalProfile = sortProfile(db, finalProfile.toJSON()); 
+    finalProfile = sortProfile(db, finalProfile.toJSON());
     finalProfile.sections = finalProfile.sections.map(section => {
       section = sortSection(db, section);
       section.types = getSectionTypes();
@@ -634,7 +634,7 @@ module.exports = function(app) {
       // Todo: make this more generic. Extract out the /new code have duplicate use it.
       if (ref === "materializer") {
         await db[ref].update({ordering: sequelize.literal("ordering +1")}, {where: {profile_id: entity.profile_id, ordering: {[Op.gt]: entity.ordering}}}).catch(catcher);
-        duplicate.ordering++;        
+        duplicate.ordering++;
       }
       const newEntity = await db[ref].create(duplicate).catch(catcher);
       return res.json(newEntity);
@@ -642,7 +642,7 @@ module.exports = function(app) {
   });
 
   /* TRANSLATIONS */
-  /** Translations are provided by the Google API and require an authentication key. They are requested client-side for 
+  /** Translations are provided by the Google API and require an authentication key. They are requested client-side for
    * card-by-card translations (allowing for in-place editing) but can be batch-translated here.
    */
   app.post("/api/cms/section/translate", async(req, res) => {
@@ -715,7 +715,7 @@ module.exports = function(app) {
     });
   });
 
-  /* CUSTOM DELETES */ 
+  /* CUSTOM DELETES */
   app.delete("/api/cms/generator/delete", isEnabled, async(req, res) => {
     const row = await db.generator.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.generator.destroy({where: {id: req.query.id}});
@@ -758,7 +758,7 @@ module.exports = function(app) {
     const row = await db.profile.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.profile.destroy({where: {id: req.query.id}}).catch(catcher);
-    // Todo: This prunesearch is outdated - need to call it multiple times for each meta row. 
+    // Todo: This prunesearch is outdated - need to call it multiple times for each meta row.
     // pruneSearch(row.dimension, row.levels, db);
     let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
@@ -776,12 +776,12 @@ module.exports = function(app) {
 
   app.delete("/api/cms/profile_meta/delete", isEnabled, async(req, res) => {
     const row = await db.profile_meta.findOne({where: {id: req.query.id}}).catch(catcher);
-    // Profile meta can have multiple variants now sharing the same index. 
+    // Profile meta can have multiple variants now sharing the same index.
     const variants = await db.profile_meta.findAll({where: {profile_id: row.profile_id, ordering: row.ordering}}).catch(catcher);
     // Only "slide down" others if we are deleting the last one at this ordering.
     if (variants.length === 1) {
       await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    }    
+    }
     await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
     pruneSearch(row.cubeName, row.dimension, row.levels, db);
     const reqObj = Object.assign({}, profileReqFull, {where: {id: row.profile_id}});

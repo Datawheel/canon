@@ -15,17 +15,42 @@ class DimensionCard extends Component {
     this.state = {
       rebuilding: false,
       alertObj: false,
-      isOpen: false
+      isOpen: false,
+      newSlugs: false
     };
   }
 
+  maybeRebuildSearch() {
+    const {newSlugs} = this.state;
+    const alertObj = {
+      callback: this.rebuildSearch.bind(this),
+      title: "Rebuild Search Members?",
+      description: <label className="cms-checkbox-label u-font-xs">
+        <input
+          className="cms-checkbox"
+          type="checkbox"
+          checked={newSlugs}
+          onChange={this.toggleSlugs.bind(this)}
+        />
+        &nbsp;Select this box to rebuild slugs from source data (This may change permalinks).
+      </label>,
+      confirm: "Rebuild"
+    };
+    this.setState({alertObj});
+  }
+
+  toggleSlugs(e) {
+    this.setState({newSlugs: e.target.checked}, this.maybeRebuildSearch.bind(this));
+  }
+
   rebuildSearch() {
+    const {newSlugs} = this.state;
     const {meta} = this.props;
     const {id} = meta;
     const url = "/api/cms/repopulateSearch/";
     const timeout = 1000 * 60 * 5;
-    this.setState({rebuilding: true});
-    axios.post(url, {id}, {timeout}).then(() => {
+    this.setState({rebuilding: true, alertObj: false, newSlugs: false});
+    axios.post(url, {id, newSlugs}, {timeout}).then(() => {
       this.setState({rebuilding: false});
     });
   }
@@ -55,7 +80,7 @@ class DimensionCard extends Component {
       allowed,
       type: "dimension",
       onDelete: this.maybeDelete.bind(this),
-      onRefresh: this.rebuildSearch.bind(this),
+      onRefresh: this.maybeRebuildSearch.bind(this),
       onEdit: () => this.setState({isOpen: !this.state.isOpen}),
       rebuilding,
       alertObj,
