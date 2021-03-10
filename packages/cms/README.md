@@ -532,6 +532,7 @@ import {ProfileSearch} from "@datawheel/canon-cms";
   columnOrder={[]} // the order of the "columns" display (ie. ["hs92", "country"])
   columnTitles={{}} // overrides for the default column titles (ie. {hs92: "Products"})
   display={"list"} // available options are "list" or "columns"
+  formatResults={resp => resp} // callback function to modify the JSON response used for rendering
   inputFontSize={"xxl"} // the CSS size for the input box ("sm", "md", "lg", "xl", "xxl")
   joiner={"&"} // the character used when joining titles in multi-dimensional profiles
   limit={10} // how many results to show
