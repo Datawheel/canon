@@ -195,6 +195,9 @@
   .cp-subnav {
     background-color: var(--hero-bg-color);
   }
+  .cp-subnav-secondary {
+    display: none;
+  }
 }
 
 /* horizontal layout on big screens */

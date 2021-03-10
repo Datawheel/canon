@@ -9,12 +9,27 @@ import {merge} from "d3-array";
 
 import throttle from "../../../utils/throttle";
 import blueprintIcons from "../../../utils/blueprintIcons";
-import pxToInt from "../../../utils/formatters/pxToInt";
 import stripHTML from "../../../utils/formatters/stripHTML";
 
 import styles from "style.yml";
 
 import "./Subnav.css";
+
+/**
+ * Finds a Number value for a given style.yml string variable. The cssVarRegex
+ * tests for nested CSS vars (ie. subnav-height: "var(--nav-height)") and resolves
+ * as deep as needed. Fallback return value is 0.
+ * @private
+ */
+function parseStyle(str) {
+  const cssVarRegex = /var\(--([A-z\-]+)\)/g;
+  let val = styles[str];
+  while (cssVarRegex.exec(val)) {
+    str = val.replace(/var\(--([A-z\-]+)\)/g, "$1");
+    val = styles[str];
+  }
+  return parseFloat(val) || 0;
+}
 
 class Subnav extends Component {
 
@@ -123,7 +138,7 @@ class Subnav extends Component {
     if (sections) {
       throttle(() => {
         const {currSection, currSubSection, fixed} = this.state;
-        const topBorder = pxToInt(styles["nav-height"] || "50px") + pxToInt(styles["subnav-height"] || "50px");
+        const topBorder = parseStyle(styles["nav-height"]) + parseStyle(styles["subnav-height"]);
         const screenTop = window.pageYOffset + topBorder;
         const heroHeight = document.querySelector(".cp-hero").getBoundingClientRect().height;
 
