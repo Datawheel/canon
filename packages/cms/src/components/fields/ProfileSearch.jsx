@@ -195,11 +195,9 @@ class ProfileSearch extends Component {
         timeout: setTimeout(() => {
 
           axios.get(url)
+            .then(resp => url === this.state.loading ? formatResults(resp) : false)
             .then(resp => {
-              if (url === this.state.loading) {
-                resp = formatResults(resp);
-                this.setState({results: resp.data, loading: false});
-              }
+              if (resp) this.setState({results: resp.data, loading: false});
             })
             .catch(() => {});
 
