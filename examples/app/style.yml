@@ -80,7 +80,8 @@ body-font-scale-xl:         "125%"   # 1rem = 20px (min-width: 1400px)
 
 # measurements
 nav-height:                 "50px"
-subnav-height:              "100px"
+test-height: "100px"
+subnav-height:              "var(--test-height)"
 container-width:            "80rem" # 1280px
 hero-container-width:       "var(--container-width)"
 
