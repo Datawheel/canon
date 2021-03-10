@@ -246,18 +246,16 @@ class Section extends Component {
     const sourceContent = <SourceGroup sources={sources} />;
 
     // reset button
-    const resetButton = <Button
+    const resetButton = showReset ? <Button
       onClick={this.resetVariables.bind(this)}
       className={`cp-var-reset-button ${layoutClass}-var-reset-button`}
       fontSize="xs"
       icon="undo"
       iconPosition="left"
-      disabled={!showReset}
-      fill={!showReset}
       key="var-reset-button"
     >
       {t("CMS.Section.Reset visualizations")}
-    </Button>;
+    </Button> : null;
 
     const componentProps = {
       slug,
