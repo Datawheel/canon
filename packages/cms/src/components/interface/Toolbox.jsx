@@ -21,7 +21,7 @@ class Toolbox extends Component {
     super(props);
     this.state = {
       currentView: "generators",
-      detailView: true,
+      view: "detail",
       query: ""
     };
   }
@@ -35,9 +35,9 @@ class Toolbox extends Component {
     const changedEntireProfile = oldSlugs !== newSlugs;
     const changedLocale = prevProps.status.localeSecondary !== this.props.status.localeSecondary;
 
-    // TODO: This can be streamlined to make use of a caching system (see NavBar.jsx and profiles.js) 
-    // When a profile is loaded, save its current previews and variables (all we have is variables right now) and 
-    // Responsibly reload them when changing entire profile. For now, deal with the more heavy reload 
+    // TODO: This can be streamlined to make use of a caching system (see NavBar.jsx and profiles.js)
+    // When a profile is loaded, save its current previews and variables (all we have is variables right now) and
+    // Responsibly reload them when changing entire profile. For now, deal with the more heavy reload
     if (changedSinglePreview || changedEntireProfile || changedLocale) {
       this.props.fetchVariables();
     }
@@ -100,7 +100,7 @@ class Toolbox extends Component {
   }
 
   render() {
-    const {detailView, query} = this.state;
+    const {view, query} = this.state;
     const {children, toolboxVisible} = this.props;
     const {profile, variables} = this.props;
     const formattersAll = this.props.formatters;
@@ -152,17 +152,18 @@ class Toolbox extends Component {
     let outputResults = [];
     const outputCutoff = 200;
     let isCutoff = false;
-    if (!detailView) {
+    if (view === "output") {
       outputResults = Object.keys(variables[localeDefault])
         .sort((a, b) => a.localeCompare(b))
         .filter(key => key !== "_genStatus" && key !== "_matStatus")
-        .filter(key => key.toLowerCase().includes(query.toLowerCase()) || typeof variables[localeDefault][key] === "string" && variables[localeDefault][key].toLowerCase().includes(query.toLowerCase()))
+        .filter(key => key.toLowerCase().includes(query.toLowerCase()) || typeof variables[localeDefault][key] === "string" && variables[localeDefault][key].toLowerCase().includes(query.toLowerCase()));
       if (outputResults.length > outputCutoff) {
         outputResults = outputResults.slice(0, outputCutoff);
         isCutoff = true;
       }
     }
 
+    const fullView = view === "lite" || view === "detail";
 
     return (
       <aside className={`cms-toolbox ${toolboxVisible ? "is-visible" : "is-hidden"}${dialogOpen ? " has-open-dialog" : ""}`}>
@@ -179,8 +180,8 @@ class Toolbox extends Component {
 
         <ButtonGroup namespace="cms" buttons={[
           {
-            onClick: () => this.setState({detailView: true}),
-            active: detailView,
+            onClick: () => this.setState({view: "detail"}),
+            active: view === "detail",
             namespace: "cms",
             icon: "th-list",
             iconPosition: "left",
@@ -188,8 +189,17 @@ class Toolbox extends Component {
             fontSize: "xs"
           },
           {
-            onClick: () => this.setState({detailView: false}),
-            active: !detailView,
+            onClick: () => this.setState({view: "lite"}),
+            active: view === "lite",
+            namespace: "cms",
+            icon: "square",
+            iconPosition: "left",
+            children: "lite view",
+            fontSize: "xs"
+          },
+          {
+            onClick: () => this.setState({view: "output"}),
+            active: view === "output",
             namespace: "cms",
             icon: "list",
             iconPosition: "left",
@@ -198,7 +208,7 @@ class Toolbox extends Component {
           }
         ]} />
 
-        {!detailView &&
+        {view === "output" &&
           <div>
             <ul className="cms-button-list">
               {outputResults
@@ -219,10 +229,10 @@ class Toolbox extends Component {
           </div>
         }
 
-        {/* Hide the panels if not detailView - but SHOW them if dialogOpen is set, which means
+        {/* Hide the panels if not fullView - but SHOW them if dialogOpen is set, which means
           * that someone has clicked an individual variable and wants to view its editor
           */}
-        <div className={`cms-toolbox-deck-wrapper${detailView || dialogOpen ? "" : " is-hidden"}`}>
+        <div className={`cms-toolbox-deck-wrapper${fullView || dialogOpen ? "" : " is-hidden"}`}>
 
           {(showGenerators || dialogOpen) &&
             <Deck
@@ -235,9 +245,10 @@ class Toolbox extends Component {
                   key={g.id}
                   minData={g}
                   context="generator"
-                  hidden={!detailView}
+                  hidden={!fullView}
                   type="generator"
                   readOnly={i === 0}
+                  compact={view === "lite"}
                   usePortalForAlert
                 />
               )}
@@ -255,16 +266,17 @@ class Toolbox extends Component {
                   key={m.id}
                   minData={m}
                   context="materializer"
-                  hidden={!detailView}
+                  hidden={!fullView}
                   type="materializer"
                   showReorderButton={materializers[materializers.length - 1].id !== m.id}
+                  compact={view === "lite"}
                   usePortalForAlert
                 />
               )}
             />
           }
 
-          { detailView && showSelectors &&
+          { fullView && showSelectors &&
             <Deck
               title="Selectors"
               entity="selector"
@@ -274,13 +286,14 @@ class Toolbox extends Component {
                 <SelectorCard
                   key={s.id}
                   minData={s}
+                  compact={view === "lite"}
                   usePortalForAlert
                 />
               )}
             />
           }
 
-          { detailView && showFormatters &&
+          { fullView && showFormatters &&
             <Deck
               title="Formatters"
               entity="formatter"
@@ -291,6 +304,7 @@ class Toolbox extends Component {
                   context="formatter"
                   key={f.id}
                   minData={f}
+                  compact={view === "lite"}
                   type="formatter"
                   usePortalForAlert
                 />

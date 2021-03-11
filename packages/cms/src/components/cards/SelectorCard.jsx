@@ -153,7 +153,7 @@ class SelectorCard extends Component {
 
   render() {
     const {isOpen, alertObj, allowSave} = this.state;
-    const {onMove, parentArray, type, minData} = this.props;
+    const {onMove, parentArray, type, minData, compact} = this.props;
     const {localeDefault} = this.props.status;
     const variables = this.props.variables[localeDefault];
 
@@ -248,9 +248,9 @@ class SelectorCard extends Component {
           {minData &&
             <Fragment key="dl">
               {/* content preview */}
-              <DefinitionList definitions={displayData} key="dd" />
+              {!compact && <DefinitionList definitions={displayData} key="dd" />}
               {/* list of variables */}
-              {varList.length > 0 && <Fragment key="o">
+              {!compact && varList.length > 0 && <Fragment key="o">
                 <div className="cms-definition-label u-font-xxs">options:</div>
                 <VarList vars={varList} />
               </Fragment>}
