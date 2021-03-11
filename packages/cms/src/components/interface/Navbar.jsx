@@ -191,6 +191,9 @@ class Navbar extends Component {
   }
 
   formatLabel(str) {
+    if (!str.includes("{{") && !str.includes("[[")) {
+      return stripHTML(str);
+    }
     const {profiles} = this.props;
     const {query, localeDefault, currentPid} = this.props.status;
     const {formatterFunctions} = this.props.resources;
