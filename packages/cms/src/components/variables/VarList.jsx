@@ -7,14 +7,14 @@ export default class VarList extends Component {
 
     return vars && vars.length
       ? <ul className="cms-var-list">
-        {vars.map(item =>
+        {vars.map((item, i) =>
           <li
             className={`cms-var-item${
               !item || typeof item === "object" ? " cms-error-var-item" : ""
             }${
               item && item.toString().indexOf("(default)") >= 0 ? " cms-default-var-item" : ""
             }`}
-            key={`var-list-${item}-${Math.random()}`}
+            key={`var-list-${i}`}
           >
             {item ? item.toString() : "undefined"}
           </li>

@@ -45,7 +45,7 @@ class VariableCard extends Component {
     const {id} = minData;
 
     const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
-    if (didUpdate) {      
+    if (didUpdate) {
       const Toast = this.context.toast.current;
       const {status} = this.props.status.justUpdated;
       if (status === "SUCCESS") {
@@ -200,7 +200,7 @@ class VariableCard extends Component {
   }
 
   render() {
-    const {attr, readOnly, minData, type, showReorderButton} = this.props;
+    const {attr, readOnly, minData, type, showReorderButton, compact} = this.props;
     const {localeDefault, localeSecondary} = this.props.status;
     const {displayData, secondaryDisplayData, isOpen, alertObj, dupes, size, duration} = this.state;
     const variables = this.props.variables[localeDefault] || {};
@@ -295,13 +295,13 @@ class VariableCard extends Component {
                 {localeSecondary &&
                   <LocaleName>{localeDefault}</LocaleName>
                 }
-                <VarTable dataset={displayData} dupes={dupes} showAll={minData.id === "attributes"}/>
+                {!compact && <VarTable dataset={displayData} dupes={dupes} showAll={minData.id === "attributes"}/>}
               </div>
 
               {localeSecondary &&
                 <div className="cms-card-locale-container" key="cls">
                   <LocaleName>{localeSecondary}</LocaleName>
-                  <VarTable dataset={secondaryDisplayData} dupes={dupes} showAll={minData.id === "attributes"}/>
+                  {!compact && <VarTable dataset={secondaryDisplayData} dupes={dupes} showAll={minData.id === "attributes"}/>}
                 </div>
               }
             </div>
@@ -312,17 +312,17 @@ class VariableCard extends Component {
               <Icon className="cms-card-error-icon" icon="warning-sign" /> Highlighted variables conflict with another generator or materializer
             </p>
           }
-          {size > 10000 && 
+          {size > 10000 &&
             <p className="cms-card-error u-font-xxs u-margin-top-xs">
               <Icon className="cms-card-error-icon" icon="warning-sign" /> Large Generator Warning! {size} characters.
             </p>
           }
-          {usesConsole && 
+          {usesConsole &&
             <p className="cms-card-error u-font-xxs u-margin-top-xs">
               <Icon className="cms-card-error-icon" icon="warning-sign" /> Warning: Remove <pre className="cms-console-warning">console.log</pre>.
             </p>
           }
-          {duration && 
+          {duration &&
             <p className={`cms-card-error cms-card-status-${status} u-font-xxs u-margin-top-xs`}>
               <Icon className="cms-card-error-icon" icon="time" /> {`Duration: ${duration} ms.`}
             </p>
