@@ -103,6 +103,8 @@ const getSelectorsInUse = str => {
 module.exports = (rawProfile, variables, formatterFunctions, locale, query = {}) => {
   let profile = sortProfile(extractLocaleContent(rawProfile, locale, "profile"));
 
+  // Gather the selectors in use from titles, stats, vizes, alloweds, etc, compare them to query, and give
+  // Section.jsx the ability to know whether it should re-render
   profile.sections.forEach(section => {
     section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
     let selectorsInUse = [];
