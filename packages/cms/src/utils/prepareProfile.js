@@ -93,12 +93,24 @@ const fixSelector = (selector, dynamic) => {
   return selector;
 };
 
+const getSelectorsInUse = str => {
+  const re = /\[\[(.*?)\]\]/g;
+  const matches = str.match(re);
+  return matches ? matches.map(d => d.replace("[[", "").replace("]]", "")) : [];
+};
+
 // Perform a local varswap
 module.exports = (rawProfile, variables, formatterFunctions, locale, query = {}) => {
   let profile = sortProfile(extractLocaleContent(rawProfile, locale, "profile"));
-  
+
   profile.sections.forEach(section => {
     section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
+    let selectorsInUse = [];
+    section.descriptions.forEach(d => selectorsInUse = selectorsInUse.concat(getSelectorsInUse(d.description)));
+    section.subtitles.forEach(d => selectorsInUse = selectorsInUse.concat(getSelectorsInUse(d.subtitle)));
+    section.visualizations.forEach(d => selectorsInUse = selectorsInUse.concat(getSelectorsInUse(d.logic)));
+    selectorsInUse = [...new Set(selectorsInUse)];
+    section.updateMe = Object.keys(query).some(d => selectorsInUse.includes(d));
   });
 
   // Before sending the profiles down to be varswapped, remember that some sections have groupings. If a grouping
@@ -118,7 +130,7 @@ module.exports = (rawProfile, variables, formatterFunctions, locale, query = {})
       }
     }
   });
-  
+
   profile = varSwapRecursive(profile, formatterFunctions, variables, query);
   // If the user provided selectors in the query, then the user has changed a dropdown.
   // This means that OTHER dropdowns on the page need to be set to match. To accomplish
@@ -141,5 +153,5 @@ module.exports = (rawProfile, variables, formatterFunctions, locale, query = {})
   // remove these from the top-level objects before returning the profile (remember, they are kept down in _rawProfile)
   delete profile.allSelectors;
   delete profile.allMaterializers;
-  return profile;   
+  return profile;
 };

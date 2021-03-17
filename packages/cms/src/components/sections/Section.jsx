@@ -39,7 +39,7 @@ class Section extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      contents: props.contents,
+      // contents: props.contents,
       loading: false,
       isStickyIE: false,
       selectors: {},
@@ -56,7 +56,7 @@ class Section extends Component {
   }
 
   componentDidMount() {
-    const stickySection = this.state.contents.position === "sticky";
+    const stickySection = this.props.contents.position === "sticky";
     const currentSection = this.section.current;
 
     // make sure the section is sticky
@@ -74,11 +74,21 @@ class Section extends Component {
     window.removeEventListener("scroll", this.scrollBind);
   }
 
+
+  shouldComponentUpdate(nextProps) {
+    if (nextProps.contents.updateMe === undefined) return true;
+    return nextProps.contents.updateMe;
+  }
+
   componentDidUpdate(prevProps) {
+    console.log("weeee");
+
+    /*
     if (JSON.stringify(prevProps.contents) !== JSON.stringify(this.props.contents)) {
       this.setState({contents: this.props.contents});
       this.updateSource.bind(this)(false);
     }
+    */
   }
 
   updateSource(newSources) {
@@ -141,7 +151,7 @@ class Section extends Component {
   }
 
   handleScroll() {
-    const stickySection = this.state.contents.position === "sticky";
+    const stickySection = this.props.contents.position === "sticky";
 
     // make sure the current section is sticky & the document window exists
     if (stickySection === true && isIE) {
@@ -163,8 +173,8 @@ class Section extends Component {
   }
 
   render() {
-    const {contents, sources, isStickyIE, height, showReset} = this.state;
-    const {headingLevel, hideAnchor, hideOptions, isModal, loading, t} = this.props;
+    const {sources, isStickyIE, height, showReset} = this.state;
+    const {contents, headingLevel, hideAnchor, hideOptions, isModal, loading, t} = this.props;
     const {configOverride} = contents;
 
     // remap old section names
