@@ -250,11 +250,12 @@
       position: relative;
       text-align: center;
 
-      /* prevent the rightmost dropdown menu item, if 4 or more items, from getting cropped off the page */
-      &:last-of-type:hover:nth-child(n+4) .cp-subnav-group-list,
-      &:last-of-type:nth-child(n+4) .cp-subnav-group-list {
-        left: auto;
-        right: 0;
+      /* prevent the right half dropdown menu items from getting cropped off the page */
+      @for $n from 4 to 20 {
+        &:nth-child(n+$(n)):nth-last-child(-n+$(n)) .cp-subnav-group-list {
+          left: auto;
+          right: 0;
+        }
       }
     }
 
