@@ -1,4 +1,3 @@
-import axios from "axios";
 import {connect} from "react-redux";
 import {withNamespaces} from "react-i18next";
 import React, {Component, Fragment} from "react";
@@ -17,7 +16,6 @@ import Subnav from "./sections/components/Subnav";
 import Mirror from "./Viz/Mirror";
 import isIE from "../utils/isIE.js";
 import mortarEval from "../utils/mortarEval";
-import hashCode from "../utils/hashCode.js";
 import deepClone from "../utils/deepClone.js";
 import prepareProfile from "../utils/prepareProfile";
 import funcifyFormatterByLocale from "../utils/funcifyFormatterByLocale";
