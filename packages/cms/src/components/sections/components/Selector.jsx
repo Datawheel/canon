@@ -23,10 +23,7 @@ class Selector extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.default !== this.props.default) {
-      const {onSelector} = this.context;
-      const {name} = this.props;
       this.setState({activeValue: this.props.default});
-      onSelector(name, this.props.default);
     }
   }
 
