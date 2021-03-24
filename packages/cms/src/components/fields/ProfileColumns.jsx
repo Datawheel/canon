@@ -6,7 +6,7 @@ class ProfileColumns extends Component {
 
   render() {
 
-    const {columnFormat, columnTitles, data, joiner, tileProps} = this.props;
+    const {columnFormat, columnTitles, data, joiner, renderTile, tileProps} = this.props;
 
     return (
       <ul key="columns" className="cms-profilecolumns">
@@ -16,8 +16,7 @@ class ProfileColumns extends Component {
             <li key={`p-${i}`} className="cms-profilecolumn">
               { data.length > 1 && <h3 className="cms-profilecolumn-title" dangerouslySetInnerHTML={{__html: columnTitles[profile] || datum[0].map(columnFormat).join(joiner)}} /> }
               <ul className="cms-profilecolumn-list">
-                {datum.map((result, j) =>
-                  <ProfileTile key={`r-${j}`} {...tileProps} data={result} />)}
+                {datum.map((result, j) => renderTile(result, j, tileProps))}
               </ul>
             </li>
           );
@@ -34,6 +33,9 @@ ProfileColumns.defaultProps = {
   columnTitles: {},
   data: [],
   joiner: " & ",
+  renderTile(result, i, tileProps) {
+    return <ProfileTile key={`r-${i}`} {...tileProps} data={result} />;
+  },
   tileProps: {}
 };
 

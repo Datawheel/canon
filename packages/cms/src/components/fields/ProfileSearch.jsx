@@ -296,6 +296,8 @@ class ProfileSearch extends Component {
       inputFontSize,
       joiner,
       position,
+      renderListItem,
+      renderTile,
       subtitleFormat,
       t
     } = this.props;
@@ -419,7 +421,7 @@ class ProfileSearch extends Component {
 
                       return (
                         <ul key="grid" className="cms-profilesearch-grid">
-                          {gridProfiles.map((data, j) => <ProfileTile key={`r-${j}`} {...{joiner, subtitleFormat, data}} />)}
+                          {gridProfiles.map((data, j) => renderTile(data, j, {joiner, subtitleFormat}))}
                         </ul>
                       );
 
@@ -438,21 +440,20 @@ class ProfileSearch extends Component {
                           return aIndex - bIndex;
                         })
                         .map(profile => results.profiles[profile] || []);
-                      return <ProfileColumns columnFormat={subtitleFormat} columnTitles={columnTitles} joiner={joiner} tileProps={{joiner, subtitleFormat}} data={columnProfiles} />;
+                      return <ProfileColumns columnFormat={subtitleFormat} columnTitles={columnTitles} joiner={joiner} renderTile={renderTile} tileProps={{joiner, subtitleFormat}} data={columnProfiles} />;
 
                     default:
                       const listProfiles = (results.grouped || [])
                         .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
                       return (
                         <ul key="list" className="cms-profilesearch-list">
-                          {listProfiles.map((result, j) =>
-                            <li key={`r-${j}`} className="cms-profilesearch-list-item">
-                              <Link to={linkify(router, result, locale)} className="cms-profilesearch-list-item-link">
-                                {result.map(d => formatTitle(d.name)).join(joiner)}
-                                <div className="cms-profilesearch-list-item-sub u-font-xs">{result.map(subtitleFormat).join(joiner)}</div>
-                              </Link>
-                            </li>
-                          )}
+                          {listProfiles.map((result, j) => renderListItem(
+                            result,
+                            j,
+                            linkify(router, result, locale),
+                            result.map(d => formatTitle(d.name)).join(joiner),
+                            result.map(subtitleFormat).join(joiner)
+                          ))}
                         </ul>
                       );
                   }
@@ -502,6 +503,17 @@ ProfileSearch.defaultProps = {
   minQueryLength: 1,
   placeholder: "Search...",
   position: "static",
+  renderListItem(result, i, link, title, subtitle) {
+    return <li key={`r-${i}`} className="cms-profilesearch-list-item">
+      <Link to={link} className="cms-profilesearch-list-item-link">
+        {title}
+        <div className="cms-profilesearch-list-item-sub u-font-xs">{subtitle}</div>
+      </Link>
+    </li>;
+  },
+  renderTile(result, i, tileProps) {
+    return <ProfileTile key={`r-${i}`} {...tileProps} data={result} />;
+  },
   showExamples: false,
   subtitleFormat: d => d.memberHierarchy
 };

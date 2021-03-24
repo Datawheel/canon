@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {hot} from "react-hot-loader/root";
-import {ProfileSearch} from "@datawheel/canon-cms";
+import {ProfileSearch, ProfileTile} from "@datawheel/canon-cms";
 // import axios from "axios";
 
 /** */
@@ -70,6 +70,15 @@ class Search extends Component {
           // filterHierarchyTitle={d => `<i>${d}</i>`}
           // filterProfileTitle={content => `<i>${(content.label || "Unnamed").replace(/\<[\/p]{1,2}\>/g, "")}</i>`}
           formatResults={dataFormat}
+          renderListItem={(result, i, link, title, subtitle) =>
+            <li key={`r-${i}`} className="cms-profilesearch-list-item">
+              <a href={link} className="cms-profilesearch-list-item-link">
+                {title}
+                <div className="cms-profilesearch-list-item-sub u-font-xs">{subtitle}</div>
+              </a>
+            </li>}
+          renderTile={(result, i, tileProps) => <ProfileTile key={`r-${i}`} {...tileProps} data={result} />}
+          // renderTile={(result, i, tileProps) => <div>Ceci n'est pas une tuile.</div>}
           showExamples={true}
         />
       </div>

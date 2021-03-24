@@ -531,7 +531,8 @@ import {ProfileSearch} from "@datawheel/canon-cms";
   availableProfiles={[]} // limit the type of profile results to show (ie. ["hs92", "country"])
   columnOrder={[]} // the order of the "columns" display (ie. ["hs92", "country"])
   columnTitles={{}} // overrides for the default column titles (ie. {hs92: "Products"})
-  display={"list"} // available options are "list" or "columns"
+  display={"list"} // available options are "list", "columns", and "grid"
+  filters={false} // enables a set of nested profile, hierarchy, and cube filters
   filterCubeTitle={cubeName => cubeName} // cube title used for filters (allows for grouping cubes with matching labels)
   filterDimensionTitle={dimension => dimension} // dimension title used for filters (allows for grouping dimensions with matching labels)
   filterHierarchyTitle={hierarchy => hierarchy} // hierarchy title used for filters (allows for grouping hierarchies with matching labels)
@@ -543,6 +544,14 @@ import {ProfileSearch} from "@datawheel/canon-cms";
   minQueryLength={1} // when the search query is below this number, no API requests will be made
   placeholder={"Search..."} // the placeholder text in the input element
   position={"static"} // either "static" or "absolute" (for a pop-up result window)
+  renderListItem={(result, i, link, title, subtitle) =>
+    <li key={`r-${i}`} className="cms-profilesearch-list-item">
+      <a href={link} className="cms-profilesearch-list-item-link">
+        {title}
+        <div className="cms-profilesearch-list-item-sub u-font-xs">{subtitle}</div>
+      </a>
+    </li>} // component that is rendered when display is "list"
+  renderTile={(result, i, tileProps) => <ProfileTile key={`r-${i}`} {...tileProps} data={result} />} // component that is rendered when display is "columns" or "grid"
   subtitleFormat={result => result.memberHierarchy} // overrides for the default result subtitles
   showExamples={false} // setting this to `true` will display results when no query has been entered
   showFilters={false} // show a faceted search underneath the input box
