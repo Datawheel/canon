@@ -14,7 +14,7 @@ class ProfileColumns extends Component {
           const profile = datum[0].map(d => d.slug).join("/");
           return (
             <li key={`p-${i}`} className="cms-profilecolumn">
-              <h3 className="cms-profilecolumn-title" dangerouslySetInnerHTML={{__html: columnTitles[profile] || datum[0].map(columnFormat).join(joiner)}} />
+              { data.length > 1 && <h3 className="cms-profilecolumn-title" dangerouslySetInnerHTML={{__html: columnTitles[profile] || datum[0].map(columnFormat).join(joiner)}} /> }
               <ul className="cms-profilecolumn-list">
                 {datum.map((result, j) =>
                   <ProfileTile key={`r-${j}`} {...tileProps} data={result} />)}
