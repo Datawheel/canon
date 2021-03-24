@@ -64,10 +64,13 @@ class Search extends Component {
         <ProfileSearch
           availableProfiles={oecProfiles}
           display="grid"
-          filterCubeTitle={d => d.replace(/^trade_s_([a-z]{3}).*$/, "$1").replace(/^suelos_sue[0-9]{2}(.*)$/, "$1").toUpperCase()}
+          filters={true}
+          filterCubeTitle={d => `<i>${d.replace(/^trade_s_([a-z]{3}).*$/, "$1").replace(/^suelos_sue[0-9]{2}(.*)$/, "$1").toUpperCase()}</i>`}
+          // filterDimensionTitle={d => `<i>${d}</i>`}
+          // filterHierarchyTitle={d => `<i>${d}</i>`}
+          // filterProfileTitle={content => `<i>${(content.label || "Unnamed").replace(/\<[\/p]{1,2}\>/g, "")}</i>`}
           formatResults={dataFormat}
           showExamples={true}
-          showFilters={true}
         />
       </div>
     );

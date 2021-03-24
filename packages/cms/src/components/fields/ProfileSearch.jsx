@@ -313,13 +313,14 @@ class ProfileSearch extends Component {
       const groupedDimensions = group(merge(activeProfile[1].map(p => p.meta)), d => filterDimensionTitle(d.dimension));
       const dimensions = Array.from(groupedDimensions, ([key, value]) => {
 
+        const dimensions = unique(value.map(d => d.dimension));
         const sortedCubes = Array.from(group(value.map(d => d.cubeName), filterCubeTitle), d => unique(d[1]).join(",")).sort((a, b) => filterCubeTitle(a).localeCompare(filterCubeTitle(b)));
         const cubes = unique(value.map(d => d.cubeName));
-        if (cubes.length > 1) return {dimension: key, cubes, sortedCubes};
+        if (cubes.length > 1) return {dimensions, title: key, cubes, sortedCubes};
 
         const levelSets = value.map(v => v.levels);
         const levels = unique(merge(levelSets));
-        return {dimension: key, levels, sortedLevels: levels.slice().sort((a, b) => max(levelSets, s => s.indexOf(a)) - max(levelSets, s => s.indexOf(b)))};
+        return {dimensions, title: key, levels, sortedLevels: levels.slice().sort((a, b) => max(levelSets, s => s.indexOf(a)) - max(levelSets, s => s.indexOf(b)))};
 
       });
       activeDimensions = dimensions.filter(d => (d.levels || d.cubes).length > 1);
@@ -364,38 +365,38 @@ class ProfileSearch extends Component {
         { profiles && filters ? <ul className="cms-profilesearch-filters-profiles">
           <li key="filters-all"
             className={`cms-profilesearch-filters-profile${!filterProfiles ? " active" : ""}`}
-            onClick={() => this.setState({filterProfiles: false}, this.onFilterLevel.bind(this, false))}>
-            All
-          </li>
+            onClick={() => this.setState({filterProfiles: false}, this.onFilterLevel.bind(this, false))}
+            dangerouslySetInnerHTML={{__html: filterProfileTitle({label: "All"})}} />
           { profileGroups.map(g => {
             const profileIds = g[1].map(p => p.id);
             return <li key={`filters-${profileIds.join("-")}`}
               className={`cms-profilesearch-filters-profile${profileIds.join(",") === filterProfiles ? " active" : ""}`}
-              onClick={() => this.setState({filterProfiles: profileIds.join(",")}, this.onFilterLevel.bind(this, false))}>
-              { g[0] }
-            </li>;
+              onClick={() => this.setState({filterProfiles: profileIds.join(",")}, this.onFilterLevel.bind(this, false))}
+              dangerouslySetInnerHTML={{__html: g[0]}} />;
           }) }
         </ul> : null }
         { activeDimensions ? <div className="cms-profilesearch-filters-dimensions">
-          { activeDimensions.map(d => <ul key={`filters-dimension-${d.dimension}`} className="cms-profilesearch-filters-levels">
+          { activeDimensions.map(d => <ul key={`filters-dimension-${d.dimensions.join(",").replace(/\s/g, "-")}`} className="cms-profilesearch-filters-levels">
             { d.levels
-              ? <li className={`cms-profilesearch-filters-dimension${ filterLevels && filterLevels.includes(d.levels.join(",")) ? " active" : ""}`} onClick={this.onFilterLevel.bind(this, false)}>
-                { d.dimension }:
-              </li>
-              : <li className={`cms-profilesearch-filters-dimension${ filterCubes && filterCubes.includes(d.cubes.join(",")) ? " active" : ""}`} onClick={this.onFilterLevel.bind(this, false)}>
-                { d.dimension }:
-              </li>}
+              ? <li className={`cms-profilesearch-filters-dimension${ filterLevels && filterLevels.includes(d.levels.join(",")) ? " active" : ""}`}
+                onClick={this.onFilterLevel.bind(this, false)}
+                dangerouslySetInnerHTML={{__html: d.title}} />
+              : <li className={`cms-profilesearch-filters-dimension${ filterCubes && filterCubes.includes(d.cubes.join(",")) ? " active" : ""}`}
+                onClick={this.onFilterLevel.bind(this, false)}
+                dangerouslySetInnerHTML={{__html: d.title}} />}
             {d.sortedLevels
-              ? d.sortedLevels.map(l => <li key={`filters-level-${l}`}
-                className={`cms-profilesearch-filters-level${ filterLevels && !filterLevels.includes(d.levels.join(",")) && filterLevels.includes(l) ? " active" : "" }`}
-                onClick={this.onFilterLevel.bind(this, l)}>
-                { filterHierarchyTitle(l) }
-              </li>)
-              : d.sortedCubes.map(l => <li key={`filters-level-${l}`}
-                className={`cms-profilesearch-filters-level${ filterCubes && !filterCubes.includes(d.cubes.join(",")) && filterCubes.includes(l) ? " active" : "" }`}
-                onClick={this.onFilterLevel.bind(this, l)}>
-                { filterCubeTitle(l.split(",")[0]) }
-              </li>)}
+              ? d.sortedLevels.map(l =>
+                <li key={`filters-level-${l}`}
+                  className={`cms-profilesearch-filters-level${ filterLevels && !filterLevels.includes(d.levels.join(",")) && filterLevels.includes(l) ? " active" : "" }`}
+                  onClick={this.onFilterLevel.bind(this, l)}
+                  dangerouslySetInnerHTML={{__html: filterHierarchyTitle(l)}} />
+              )
+              : d.sortedCubes.map(l =>
+                <li key={`filters-level-${l}`}
+                  className={`cms-profilesearch-filters-level${ filterCubes && !filterCubes.includes(d.cubes.join(",")) && filterCubes.includes(l) ? " active" : "" }`}
+                  onClick={this.onFilterLevel.bind(this, l)}
+                  dangerouslySetInnerHTML={{__html: filterCubeTitle(l.split(",")[0])}} />
+              )}
           </ul>) }
         </div> : null }
 
