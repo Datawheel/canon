@@ -146,7 +146,7 @@ class Navbar extends Component {
     }
     else if (entity.meta && entity.meta.length) {
       const groupedMeta = groupMeta(entity.meta);
-      return groupedMeta.length > 0 ? groupedMeta.map(g => g[0] ? g[0].slug : "ERR_META").join(" / ") : "Unnamed";
+      return groupedMeta.length > 0 ? groupedMeta.map(g => g[0] ? g[0].dimension || g[0].slug : "ERR_META").join(" / ") : "Unnamed";
     }
     else return "Unnamed";
   }
