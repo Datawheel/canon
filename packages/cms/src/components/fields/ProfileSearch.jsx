@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {hot} from "react-hot-loader/root";
 import {connect} from "react-redux";
 import {withNamespaces} from "react-i18next";
 import PropTypes from "prop-types";
@@ -7,11 +8,16 @@ import axios from "axios";
 import "./ProfileSearch.css";
 import linkify from "../../utils/linkify";
 import {formatTitle} from "../../utils/profileTitleFormat";
+import stripHTML from "../../utils/formatters/stripHTML";
+import groupMeta from "../../utils/groupMeta";
 import {Icon, NonIdealState, Spinner} from "@blueprintjs/core";
 import {uuid} from "d3plus-common";
+import {group, max, merge, min} from "d3-array";
 import {select} from "d3-selection";
+import {unique} from "d3plus-common";
 import styles from "style.yml";
 import ProfileColumns from "./ProfileColumns";
+import ProfileTile from "./ProfileTile";
 
 /** used for up/down arrow movement */
 function findSibling(elem, dir = "next") {
@@ -66,8 +72,12 @@ class ProfileSearch extends Component {
     super(props);
     this.state = {
       active: false,
+      filterCubes: false,
+      filterProfiles: false,
+      filterLevels: false,
       id: uuid(),
       loading: false,
+      profiles: false,
       query: "",
       results: false,
       timeout: 0
@@ -157,6 +167,11 @@ class ProfileSearch extends Component {
 
     }, false);
 
+    axios.get("/api/cms/profiles")
+      .then(resp => resp.data.filter(p => p.visible))
+      .then(profiles => this.setState({profiles}))
+      .catch(() => {});
+
   }
 
   scrollToLink(elem) {
@@ -170,7 +185,7 @@ class ProfileSearch extends Component {
 
   onChange(e) {
 
-    const {timeout} = this.state;
+    const {filterCubes, filterLevels, filterProfiles, timeout} = this.state;
     const {limit, minQueryLength, showExamples, formatResults, locale} = this.props;
 
     let query = e ? e.target.value : this.state.query;
@@ -183,7 +198,10 @@ class ProfileSearch extends Component {
     }
     else {
 
-      const url = `/api/profilesearch?query=${query}&limit=${limit}&locale=${locale}`;
+      let url = `/api/profilesearch?query=${query}&limit=${limit}&locale=${locale}`;
+      if (filterProfiles) url += `&profile=${filterProfiles}`;
+      if (filterLevels) url += `&hierarchy=${filterLevels}`;
+      if (filterCubes) url += `&cubeName=${filterCubes}`;
 
       // handle the query
       this.setState({
@@ -225,22 +243,87 @@ class ProfileSearch extends Component {
 
   }
 
+  onFilterLevel(filter) {
+    const newFilters = filter ? filter.split(",") : [false];
+    const {filterCubes, filterLevels, filterProfiles, profiles} = this.state;
+    const {filterDimensionTitle} = this.props;
+    let newCubes = [];
+    let newLevels = [];
+    const profileIds = filterProfiles ? filterProfiles.split(",").map(Number) : [];
+    const cubeNames = filterCubes ? filterCubes.split(",") : [];
+    const levelNames = filterLevels ? filterLevels.split(",") : [];
+    const activeMetas = merge(profiles
+      .filter(p => profileIds.includes(p.id))
+      .map(p => p.meta));
+    const hierarchyGroups = Array.from(group(activeMetas, d => filterDimensionTitle(d.dimension)), arr => [unique(merge(arr[1].map(a => a.levels))), unique(arr[1].map(a => a.cubeName))]);
+    hierarchyGroups.forEach(([l, c]) => {
+      newFilters.forEach(level => {
+        if (c.length > 1) {
+          const currCubes = c.find(x => cubeNames.includes(x));
+          if (c.includes(level)) newCubes.push(level);
+          else if (level && currCubes) newCubes.push(currCubes);
+          else newCubes = newCubes.concat(c);
+        }
+        else {
+          const currFilter = l.find(x => levelNames.includes(x));
+          if (l.includes(level)) newLevels.push(level);
+          else if (level && currFilter) newLevels.push(currFilter);
+          else newLevels = newLevels.concat(l);
+        }
+      });
+    });
+    this.setState({
+      filterCubes: unique(newCubes).join(","),
+      filterLevels: unique(newLevels).join(",")
+    }, this.onChange.bind(this));
+  }
+
   render() {
 
     const {router} = this.context;
-    const {active, loading, query, results} = this.state;
+    const {active, filterCubes, filterLevels, filterProfiles, loading, profiles, query, results} = this.state;
     const {locale, placeholder} = this.props;
     const {
       availableProfiles,
       columnTitles,
       display,
       columnOrder,
+      filters,
+      filterCubeTitle,
+      filterDimensionTitle,
+      filterHierarchyTitle,
+      filterProfileTitle,
       inputFontSize,
       joiner,
       position,
       subtitleFormat,
       t
     } = this.props;
+
+    let profileGroups = [];
+    if (profiles && filters) {
+      const filteredProfiles = (profiles || [])
+        .filter(d => !availableProfiles.length || availableProfiles.includes(d.meta[0].slug));
+      profileGroups = Array.from(group(filteredProfiles, d => filterProfileTitle(d.content, d.meta)))
+        .sort((a, b) => min(a[1], d => d.ordering) - min(b[1], d => d.ordering));
+    }
+    const activeProfile = profileGroups.find(g => g[1].map(p => p.id).join(",") === filterProfiles);
+    let activeDimensions;
+    if (activeProfile) {
+      const groupedDimensions = group(merge(activeProfile[1].map(p => p.meta)), d => filterDimensionTitle(d.dimension));
+      const dimensions = Array.from(groupedDimensions, ([key, value]) => {
+
+        const sortedCubes = Array.from(group(value.map(d => d.cubeName), filterCubeTitle), d => unique(d[1]).join(",")).sort((a, b) => filterCubeTitle(a).localeCompare(filterCubeTitle(b)));
+        const cubes = unique(value.map(d => d.cubeName));
+        if (cubes.length > 1) return {dimension: key, cubes, sortedCubes};
+
+        const levelSets = value.map(v => v.levels);
+        const levels = unique(merge(levelSets));
+        return {dimension: key, levels, sortedLevels: levels.slice().sort((a, b) => max(levelSets, s => s.indexOf(a)) - max(levelSets, s => s.indexOf(b)))};
+
+      });
+      activeDimensions = dimensions.filter(d => (d.levels || d.cubes).length > 1);
+    }
 
     return (
       <div className="cms-profilesearch">
@@ -278,6 +361,44 @@ class ProfileSearch extends Component {
           </button>
         </label>
 
+        { profiles && filters ? <ul className="cms-profilesearch-filters-profiles">
+          <li key="filters-all"
+            className={`cms-profilesearch-filters-profile${!filterProfiles ? " active" : ""}`}
+            onClick={() => this.setState({filterProfiles: false}, this.onFilterLevel.bind(this, false))}>
+            All
+          </li>
+          { profileGroups.map(g => {
+            const profileIds = g[1].map(p => p.id);
+            return <li key={`filters-${profileIds.join("-")}`}
+              className={`cms-profilesearch-filters-profile${profileIds.join(",") === filterProfiles ? " active" : ""}`}
+              onClick={() => this.setState({filterProfiles: profileIds.join(",")}, this.onFilterLevel.bind(this, false))}>
+              { g[0] }
+            </li>;
+          }) }
+        </ul> : null }
+        { activeDimensions ? <div className="cms-profilesearch-filters-dimensions">
+          { activeDimensions.map(d => <ul key={`filters-dimension-${d.dimension}`} className="cms-profilesearch-filters-levels">
+            { d.levels
+              ? <li className={`cms-profilesearch-filters-dimension${ filterLevels && filterLevels.includes(d.levels.join(",")) ? " active" : ""}`} onClick={this.onFilterLevel.bind(this, false)}>
+                { d.dimension }:
+              </li>
+              : <li className={`cms-profilesearch-filters-dimension${ filterCubes && filterCubes.includes(d.cubes.join(",")) ? " active" : ""}`} onClick={this.onFilterLevel.bind(this, false)}>
+                { d.dimension }:
+              </li>}
+            {d.sortedLevels
+              ? d.sortedLevels.map(l => <li key={`filters-level-${l}`}
+                className={`cms-profilesearch-filters-level${ filterLevels && !filterLevels.includes(d.levels.join(",")) && filterLevels.includes(l) ? " active" : "" }`}
+                onClick={this.onFilterLevel.bind(this, l)}>
+                { filterHierarchyTitle(l) }
+              </li>)
+              : d.sortedCubes.map(l => <li key={`filters-level-${l}`}
+                className={`cms-profilesearch-filters-level${ filterCubes && !filterCubes.includes(d.cubes.join(",")) && filterCubes.includes(l) ? " active" : "" }`}
+                onClick={this.onFilterLevel.bind(this, l)}>
+                { filterCubeTitle(l.split(",")[0]) }
+              </li>)}
+          </ul>) }
+        </div> : null }
+
         <div className={`cms-profilesearch-container cms-profilesearch-container-${position}`} key="container" ref={comp => this.resultContainer = comp}>
           {
             (position !== "absolute" || active) && results
@@ -289,6 +410,17 @@ class ProfileSearch extends Component {
 
                 else {
                   switch (display) {
+
+                    case "grid":
+
+                      const gridProfiles = (results.grouped || [])
+                        .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
+
+                      return (
+                        <ul key="grid" className="cms-profilesearch-grid">
+                          {gridProfiles.map((data, j) => <ProfileTile key={`r-${j}`} {...{joiner, subtitleFormat, data}} />)}
+                        </ul>
+                      );
 
                     case "columns":
                       const filteredProfiles = Object.keys(results.profiles || {})
@@ -348,6 +480,21 @@ ProfileSearch.defaultProps = {
   columnOrder: [],
   columnTitles: {},
   display: "list",
+  filters: false,
+  filterCubeTitle: d => d,
+  filterDimensionTitle: d => d,
+  filterHierarchyTitle: d => d,
+  filterProfileTitle: (content, meta) => {
+    if (content && content.label && content.label !== "New Profile Label") {
+      return stripHTML(content.label);
+    }
+    else if (meta && meta.length) {
+      const groupedMeta = groupMeta(meta);
+      return groupedMeta.length > 0 ? groupedMeta.map(g => g[0] ? g[0].dimension || g[0].slug : "ERR_META").join(" / ") : "Unnamed";
+    }
+    else return "Unnamed";
+  },
+  formatResults: resp => resp,
   inputFontSize: "xxl",
   joiner: " & ",
   limit: 10,
@@ -355,11 +502,10 @@ ProfileSearch.defaultProps = {
   placeholder: "Search...",
   position: "static",
   showExamples: false,
-  subtitleFormat: d => d.memberHierarchy,
-  formatResults: resp => resp
+  subtitleFormat: d => d.memberHierarchy
 };
 
-ProfileSearch = withNamespaces()(ProfileSearch);
+ProfileSearch = withNamespaces()(hot(ProfileSearch));
 
 export default connect(state => ({
   locale: state.i18n.locale

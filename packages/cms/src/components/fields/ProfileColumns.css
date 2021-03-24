@@ -4,14 +4,13 @@
   @mixin list-reset;
   display: flex;
   flex-wrap: wrap;
-  width: calc(100% + var(--gutter-lg)); /* offset column margin */
+  width: 100%;
 
   & .cms-profilecolumn {
     @mixin list-reset;
     flex: 1 0 calc(25% - var(--gutter-lg));
     min-width: 10rem;
     max-width: 100%;
-    margin-right: var(--gutter-lg);
     position: relative;
     padding-bottom: var(--gutter-lg);
 
@@ -27,14 +26,14 @@
       height: var(--nav-height);
       padding: 1rem 0;
       /* hide tiles as they pass through */
-      background-color: var(--white);
+      background-color: var(--light-2);
     }
 
     /* "column" layout */
     & .cms-profilecolumn-list {
       column-width: 14rem;
-      column-gap: var(--gutter);
-      padding: 0;
+      column-gap: var(--gutter-sm);
+      padding: var(--gutter-xs);
     }
 
   }

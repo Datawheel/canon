@@ -532,6 +532,10 @@ import {ProfileSearch} from "@datawheel/canon-cms";
   columnOrder={[]} // the order of the "columns" display (ie. ["hs92", "country"])
   columnTitles={{}} // overrides for the default column titles (ie. {hs92: "Products"})
   display={"list"} // available options are "list" or "columns"
+  filterCubeTitle={cubeName => cubeName} // cube title used for filters (allows for grouping cubes with matching labels)
+  filterDimensionTitle={dimension => dimension} // dimension title used for filters (allows for grouping dimensions with matching labels)
+  filterHierarchyTitle={hierarchy => hierarchy} // hierarchy title used for filters (allows for grouping hierarchies with matching labels)
+  filterProfileTitle={(content, meta) => content.label} // profile title used for filters (allows for grouping profiles with matching labels)
   formatResults={resp => resp} // callback function to modify the JSON response used for rendering
   inputFontSize={"xxl"} // the CSS size for the input box ("sm", "md", "lg", "xl", "xxl")
   joiner={"&"} // the character used when joining titles in multi-dimensional profiles
@@ -541,6 +545,7 @@ import {ProfileSearch} from "@datawheel/canon-cms";
   position={"static"} // either "static" or "absolute" (for a pop-up result window)
   subtitleFormat={result => result.memberHierarchy} // overrides for the default result subtitles
   showExamples={false} // setting this to `true` will display results when no query has been entered
+  showFilters={false} // show a faceted search underneath the input box
 />
 ```
 
@@ -552,8 +557,9 @@ If you would prefer to build your own search component, the DeepSearch API is av
 |`locale`|Language for results|
 |`limit`|Maximum number of results to return|
 |`profile`|Restrict results to a profile, must be an integer profile id or a profile slug (unary profiles only)|
-|`dimension`|Restrict results by dimension|
+|`dimension`|Restrict results by dimension (comma separated)|
 |`hierarchy`|Restrict results by hierarchy (comma separated)|
+|`cubeName`|Restrict results by source cube name (comma separated)|
 |`min_confidence`|Confidence threshold (Deepsearch Only)|
 
 Results will be returned in a response object that includes metadata on the results. Matching members separated by profile can be found in the `profiles` key of the response object. A single grouped list of all matching profiles can be found in the `grouped` key of the response object.
