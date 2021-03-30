@@ -23,8 +23,9 @@ async function hydrateModels(options) {
   log.overwrite("Testing connection... SUCCESS");
 
   log.write("Retrieving ProfileMeta and Search models...");
-  const ProfileMeta = sequelize.import("../../src/db/profile_meta");
-  const Search = sequelize.import("../../src/db/search");
+  const {modelPaths} = require("../../models");
+  const ProfileMeta = sequelize.import(modelPaths.profile_meta);
+  const Search = sequelize.import(modelPaths.search);
   log.overwrite("Retrieving ProfileMeta and Search models... SUCCESS");
 
   return {
