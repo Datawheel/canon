@@ -32,16 +32,17 @@ module.exports = async function(options) {
   log.write("Requesting configured profiles...");
   let profiles = await ProfileMeta.findAll({
     where: {
-      slug: limitedProfiles.length > 0
-        ? {[Op.in]: limitedProfiles}
-        : {[Op.ne]: ""},
+      cubeName: {[Op.ne]: ""},
       dimension: {[Op.ne]: ""},
       [Op.and]: Sequelize.where(
         Sequelize.fn("array_length", Sequelize.col("levels"), 1),
         {[Op.gt]: 0}
       ),
       measure: {[Op.ne]: ""},
-      cubeName: {[Op.ne]: ""}
+      slug: limitedProfiles.length > 0
+        ? {[Op.in]: limitedProfiles}
+        : {[Op.ne]: ""},
+      visible: true
     }
   });
   log.overwrite("Requesting configured profiles... SUCCESS\n");
@@ -88,8 +89,9 @@ module.exports = async function(options) {
     log.write("Requesting saved pages on this profile...");
     const pages = await Search.findAll({
       where: {
-        dimension: profile.dimension,
-        cubeName: profile.cubeName
+        cubeName: profile.cubeName,
+        dimension: profile.dimension
+
       },
       order: [
         ["zvalue", "DESC"],
