@@ -1,10 +1,11 @@
 # Canon
-Reusable React environment and components for creating visualization engines.
+Canon is a reusable React environment and set of components for creating visualization engines.
 
 ![](https://github.com/datawheel/canon/raw/master/docs/bang.png)
 
 #### Contents
 * [Setup and Installation](#setup-and-installation)
+* [Running Development Server](#running-development-server)
 * [Deployment](#deployment)
 * [Header/Meta Information](#header-meta-information)
 * [Page Routing](#page-routing)
@@ -42,22 +43,13 @@ Reusable React environment and components for creating visualization engines.
 
 ## Setup and Installation
 
-Canon is published on NPM, and should be installed just like any other node package. After creating a package.json file (try `npm init`), install Canon like this:
+Canon is published on NPM, and comes with an initializer package that creates an empty Canon project.  This script will generate a new Canon app with some basic scaffolding and boilerplate code and will setup a basic backend server (written in Node.js Express) and a frontend application (written in React/Redux). To create a new Canon app, simply create a new root folder for your project, navigate to that directory, and run:
 
 ```bash
-npm i @datawheel/canon-core
+npm init @datawheel/canon
 ```
-
-Once installed, run the following command to create some initial scaffolding:
-
-```bash
-npx canon-setup
-```
-
-Now that the necessary files are in place, simply run `npm run dev` to spin up the development server. Once the process finished "Bundling Client Webpack", visit `https://localhost:3300` in the browser and view your beautiful Hello World!
 
 All React components are stored in the `app/` directory, with the main entry component being `app/App.jsx`. Here is the initial scaffolding you should see in your project folder:
-* `.vscode/` - VSCode editor settings for code linting
 * `app/` - majority of the front-end site code
   * `components/` - components that are used by multiple pages
   * `pages/` - page-specific components (like the homepage and profiles)
@@ -69,9 +61,16 @@ All React components are stored in the `app/` directory, with the main entry com
   * `routes.jsx` - hook ups for all of the page routes
   * `style.yml` - global color and style variables
 * `static/` - static files used by the site like images and PDFs
-* `.eslintrc` - javascript style rules used for consistent coding
-* `.gitignore` - development files to exclude from the git repository
+* `typings` - directory of types to define types of certain variables
 * `canon.js` - contains any canon settings/modifications (empty by default)
+* `.vscode/` - VSCode editor settings for code linting
+* `.env` - a file of environment variables needed to properly configure the app
+* `.gitignore` - development files to exclude from the git repository
+
+## Running Development Server
+
+Now that the necessary files are in place, you can run `npm run dev` to spin up the development server. Once the process finished "Bundling Client Webpack", visit `https://localhost:3300` in the browser and view your beautiful Hello World!
+
 
 ---
 

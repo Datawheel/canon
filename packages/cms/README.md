@@ -28,7 +28,9 @@ Content Management System for Canon sites.
 
 ## Why?
 
-Datawheel makes sites with lots of profiles, which requires lots of templating support. Content creators and translators need to be able to author and update page templates easily. Canon CMS allows users to:
+Building websites can be hard, especially when they need to display _tons_ of information. For a company like Datawheel, an organization that needs to build maintainable sites that can showcase data from thousands of data "members," the creation of *data-agnostic, dynamic templates* that can render beautiful web pages (or "profiles") is crucial. The Canon CMS fulfills this need by giving content creators and translators the tools they need to be able to author and update page templates easily.
+
+Canon CMS allows users to:
 
 - Hit an endpoint to receive a data payload
 - Turn that payload into variables using javascript
@@ -48,7 +50,7 @@ Canon CMS is a package for `canon`. These instructions assume you have installed
 
 #### 2) Configure the database models in the `canon.js` file
 
-Canon CMS uses the `canon`-level user model to handle authentication and edit permissions, in addition to some other models to store the content. You must configure these modules manually on the application's `canon.js` file:
+Canon CMS uses the `canon`-level user model to handle authentication and edit permissions, in addition to some other models to store the content of the CMS templates. You must configure these modules manually on the application's `canon.js` file:
 
 ```js
 module.exports = {
@@ -90,8 +92,6 @@ Canon CMS requires a `canon-cms` specific env var for the current location of yo
 export CANON_CMS_CUBES=https://tesseract-url.com/tesseract
 ```
 
-By default, the CMS will only be enabled on development environments. If you wish to enable the CMS on production, see the `CANON_CMS_ENABLE` in [Environment Variables](#environment-variables) below.
-
 In summary, your env vars should now look like this:
 ```sh
 export CANON_API=http://localhost:3300
@@ -101,7 +101,13 @@ export CANON_DB_CONNECTION_STRING=postgresql://dbuser:dbpass@dbhost:dbport/dbnam
 export CANON_CMS_CUBES=https://tesseract-url.com/tesseract
 ```
 
-Remember the `CANON_DB_CONNECTION_STRING` is up to you, depending on how did you configure the DB on the `canon.js` file.
+Remember the actual value of `CANON_DB_CONNECTION_STRING` is up to you as it depends on how you configured your Postgres database.
+
+By default, the CMS will only be enabled on development environments. If you wish to enable the CMS on production, see the `CANON_CMS_ENABLE` in [Environment Variables](#environment-variables) below.
+
+#### 5) (Optional) Add Proxy for Local Tesseract Instance
+
+Your `CANON_CMS_CUBES` variable will (obviously) differ based on your project. If you are developing against a _local instance of tesseract_, you will likely need to add a simple proxy to bypass CORS errors from requesting data between different ports.  To do this, you will need to add a file called `local-proxy.js` in the `/api/` directory in the root level of your project (create one if you don't have one). The file should then look like [this](https://gist.github.com/greenrhyno/018042999a0deab501529224764c0fa4).
 
 #### 4) Add the Builder Component to a route
 ```jsx

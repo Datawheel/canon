@@ -14,6 +14,15 @@ A reusable react environment, and components for creating visualization engines.
 | [/packages/logiclayer](./packages/logiclayer/) | [@datawheel/canon-logiclayer](https://www.npmjs.com/package/@datawheel/canon-logiclayer) | [![npm version](https://badge.fury.io/js/%40datawheel%2Fcanon-logiclayer.svg)](https://badge.fury.io/js/%40datawheel%2Fcanon-logiclayer) | [changelog](./packages/logiclayer/CHANGELOG.md) |
 | [/packages/vizbuilder](./packages/vizbuilder/) | [@datawheel/canon-vizbuilder](https://www.npmjs.com/package/@datawheel/canon-vizbuilder) | [![npm version](https://badge.fury.io/js/%40datawheel%2Fcanon-vizbuilder.svg)](https://badge.fury.io/js/%40datawheel%2Fcanon-vizbuilder) | [changelog](./packages/vizbuilder/CHANGELOG.md) |
 
+## Summaries
+
+- [Canon Core](./packages/core/) - Reusable React environment and components for creating visualization engines.
+- [Create Canon](./packages/create-canon/) - Package for create the boilerplate code for a new Canon app.
+- [CMS](./packages/cms/) - Content Management System for Canon sites
+- [Canon Logic Layer](./packages/canon-logiclayer/) - a REST API that simplifies queries to a mondrian cube using shorthand and introspective logic.
+- [VizBuilder](/packages/vizbuilder) - a dynamic chart builder engine component.
+
+
 ## License
 
 &copy; 2020 Datawheel, LLC. Licensed under GPLv3.
