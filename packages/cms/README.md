@@ -101,7 +101,7 @@ export CANON_DB_CONNECTION_STRING=postgresql://dbuser:dbpass@dbhost:dbport/dbnam
 export CANON_CMS_CUBES=https://tesseract-url.com/tesseract
 ```
 
-Remember the actual value of `CANON_DB_CONNECTION_STRING` is up to you as it depends on how you configured your Postgres database. on the `canon.js` file.
+Remember the actual value of `CANON_DB_CONNECTION_STRING` is up to you as it depends on how you configured your Postgres database.
 
 By default, the CMS will only be enabled on development environments. If you wish to enable the CMS on production, see the `CANON_CMS_ENABLE` in [Environment Variables](#environment-variables) below.
 

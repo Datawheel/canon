@@ -20,7 +20,7 @@ A reusable react environment, and components for creating visualization engines.
 - [Create Canon](./packages/create-canon/) - Package for create the boilerplate code for a new Canon app.
 - [CMS](./packages/cms/) - Content Management System for Canon sites
 - [Canon Logic Layer](./packages/canon-logiclayer/) - a REST API that simplifies queries to a mondrian cube using shorthand and introspective logic.
-- [VisBuilder](/packages/vizbuilder) - a dynamic chart builder engine component.
+- [VizBuilder](/packages/vizbuilder) - a dynamic chart builder engine component.
 
 
 ## License
