@@ -19,6 +19,7 @@ import {middleware as reduxMiddleware} from "$app/store";
 import configureStore from "./storeConfig";
 import {LOADING_END, LOADING_START} from "./consts";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
+import maybeRedirect from "./helpers/maybeRedirect";
 import styles from "$app/style.yml";
 
 /**
@@ -151,6 +152,8 @@ function renderMiddleware() {
               preRenderMiddleware(store, newProps)
                 .then(() => {
                   store.dispatch({type: LOADING_END});
+                  const idRedirect = maybeRedirect(query, props, store.getState());
+                  if (idRedirect) props.router.push(idRedirect);
                   postRender();
                 });
             });
