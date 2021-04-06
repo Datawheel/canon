@@ -21,7 +21,6 @@ body {
       }
       & ul {
         & li{
-          margin: 10px 0;
           & code {
             margin-bottom: 0px;
           }

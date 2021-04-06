@@ -248,6 +248,29 @@ module.exports = function(app) {
     return res.json(profiles);
   });
 
+  /**
+   * Returns a list of profiles including both the meta and content associations
+   * for the current language. Primarily used by the ProfileSearch component.
+   */
+  app.get("/api/cms/profiles", async(req, res) => {
+    let meta = await db.profile.findAll({
+      include: [
+        {association: "meta", separate: true},
+        {association: "content", separate: true}
+      ]
+    }).catch(catcher);
+    meta = meta.map(m => m.toJSON());
+    const locale = req.query.locale ? req.query.locale : envLoc;
+    meta.forEach(m => {
+      if (m.content instanceof Array) {
+        m.content = m.content.find(c => c.locale === locale) ||
+          m.content.find(c => c.locale === envLoc) ||
+           m[0];
+      }
+    });
+    res.json(meta);
+  });
+
   app.get("/api/cms/formatter", async(req, res) => {
     const formatters = await db.formatter.findAll().catch(catcher);
     res.json(formatters);
