@@ -120,7 +120,7 @@ const populateSearch = async(profileData, db, metaLookup = false, newSlugs = fal
     for (let i = 0; i < levels.length; i++) {
 
       const level = levels[i];
-      const members = await client.getMembers(level, {locale}).catch(catcher);
+      let members = await client.getMembers(level, {locale}).catch(catcher);
 
       let data = [];
 
@@ -138,6 +138,20 @@ const populateSearch = async(profileData, db, metaLookup = false, newSlugs = fal
           obj[d[`ID ${level.name}`] ? d[`ID ${level.name}`] : d[`${level.name} ID`]] = d[measure];
           return obj;
         }, {})).catch(catcher);
+
+      /**
+       * In the original DataUSA implementation of this code, it was sufficient to build this list of inserts using ALL possible
+       * members for a given level using client.getMembers(level). However, in certain installations (CIREN) members of a given level
+       * have been split out across cubes, so they can be seen in different profiles - profiles which are linked to dimension/cube pairs.
+       * However, because getMembers returns ALL members for a level, it ignores the boundaries of cubes, and erroneously adds members that
+       * are OUTSIDE of the selected cube, giving them a zvalue of 0 because the selected measure doesn't exist for those outside cubes.
+       * To address this, filter the master members list down to only include members for which the measure exists, i.e., what was returned from the Query.
+       *
+       * In fixing this edge case, there may be some other edge case being undone here. There may be cases where users, when importing, want members
+       * who have no measure at all to be imported. If that ends up being the case, this may need to be converted to an optional ingest parameter for
+       * future installations.
+       */
+      members = members.filter(d => data[d.key] !== undefined);
 
       fullList = fullList.concat(formatter(members, data, dimension, level.name)).filter(d => d.id);
 
