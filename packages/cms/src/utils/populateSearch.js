@@ -54,7 +54,7 @@ const catcher = e => {
 
 const isObject = d => !Array.isArray(d) && typeof d === "object";
 const fixObjForPostgres = d => {
-  if (!d) {
+  if (d !== 0 && !d) {
     return "NULL";
   }
   if (isObject(d)) {
@@ -90,7 +90,7 @@ const formatter = (members, data, dimension, level) => {
   return newData;
 };
 
-const populateSearch = async(profileData, db, metaLookup = false, newSlugs = false) => {
+const populateSearch = async(profileData, db, metaLookup = false, newSlugs = false, includeAllMembers = false) => {
 
   const dbQuery = db.search.sequelize.query.bind(db.search.sequelize);
 
@@ -140,18 +140,12 @@ const populateSearch = async(profileData, db, metaLookup = false, newSlugs = fal
         }, {})).catch(catcher);
 
       /**
-       * In the original DataUSA implementation of this code, it was sufficient to build this list of inserts using ALL possible
-       * members for a given level using client.getMembers(level). However, in certain installations (CIREN) members of a given level
-       * have been split out across cubes, so they can be seen in different profiles - profiles which are linked to dimension/cube pairs.
-       * However, because getMembers returns ALL members for a level, it ignores the boundaries of cubes, and erroneously adds members that
-       * are OUTSIDE of the selected cube, giving them a zvalue of 0 because the selected measure doesn't exist for those outside cubes.
-       * To address this, filter the master members list down to only include members for which the measure exists, i.e., what was returned from the Query.
-       *
-       * In fixing this edge case, there may be some other edge case being undone here. There may be cases where users, when importing, want members
-       * who have no measure at all to be imported. If that ends up being the case, this may need to be converted to an optional ingest parameter for
-       * future installations.
+       * The default behavior here is to filter down the members list to those with values for the chosen measure.
+       * However, if the user has specified to include all members, don't perform this filter. This will result in
+       * members in the search database that do not have values for the chosen measure, BUT may have values for other measures,
+       * in other cubes. This is sometimes used for shared dimensions.
        */
-      members = members.filter(d => data[d.key] !== undefined);
+      if (!includeAllMembers) members = members.filter(d => data[d.key] !== undefined);
 
       fullList = fullList.concat(formatter(members, data, dimension, level.name)).filter(d => d.id);
 
