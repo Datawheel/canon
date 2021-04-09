@@ -164,6 +164,9 @@ const populateSearch = async(profileData, db, metaLookup = false, newSlugs = fal
         if (!exclude && s.slug) usedSlugs[s.slug] = true;
       });
 
+      const meta = await db.profile_meta.findAll().catch(catcher);
+      const cubeHash = meta.reduce((acc, d) => ({...acc, [d.cubeName]: d.id}), {});
+
       const slugify = str => strip(str).replace(/-{2,}/g, "-").toLowerCase();
 
       if (verbose) console.log("Generating slugs...");
@@ -178,6 +181,12 @@ const populateSearch = async(profileData, db, metaLookup = false, newSlugs = fal
       });
       if (verbose) console.log("Deduping slugs...");
       searchList.forEach(member => {
+        if (usedSlugs[member.slug]) {
+          const idslug = `${member.slug}-${member.id}`;
+          if (usedSlugs[idslug]) {
+            // use cubeHash for id here
+          }
+        }
         usedSlugs[member.slug] ? member.slug = `${member.slug}-${member.id}` : usedSlugs[member.slug] = true;
       });
       if (verbose) console.log("Slug generation complete.");
