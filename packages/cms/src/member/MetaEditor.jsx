@@ -339,8 +339,8 @@ class MetaEditor extends Component {
           minWidth: this.columnWidths("image"),
           accessor: d => d.image ? d.image.url : null,
           Cell: cell => {
-            const {dimension, cubeName, id} = cell.original;
-            const imgURL = `/api/image?dimension=${dimension}&cubeName=${cubeName}&id=${id}&size=thumb&t=${epoch}`;
+            const {dimension, cubeName, id, hierarchy} = cell.original;
+            const imgURL = `/api/image?dimension=${dimension}&cubeName=${cubeName}&id=${id}&level=${hierarchy}&size=thumb&t=${epoch}`;
             return cell.value
               // image wrapped inside a button
               ? <React.Fragment><button className="cp-table-cell-cover-button" onClick={this.clickCell.bind(this, cell)}>
@@ -875,7 +875,7 @@ class MetaEditor extends Component {
                 {currentRow.imageId && currentRow.dimension && currentRow.id && currentRow.cubeName
                   ? <img
                     className="cms-meta-selected-img"
-                    src={`/api/image?dimension=${currentRow.dimension}&cubeName=${currentRow.cubeName}&id=${currentRow.id}&size=thumb&t=${epoch}`}
+                    src={`/api/image?dimension=${currentRow.dimension}&cubeName=${currentRow.cubeName}&id=${currentRow.id}&level=${currentRow.hierarchy}&size=thumb&t=${epoch}`}
                     alt=""
                     draggable="false"
                   />

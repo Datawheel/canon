@@ -76,10 +76,12 @@ module.exports = function(app) {
     const meta = await db.profile_meta.findOne(reqObj).catch(catcher);
     if (!meta) return type === "json" ? jsonError() : imageError();
     const {dimension, cubeName} = meta;
-    let member = await db.search.findOne({
+    const searchWhere = {
       where: {dimension, cubeName, [sequelize.Op.or]: {id, slug: id}},
       include: imageInclude
-    }).catch(catcher);
+    };
+    if (req.query.level) searchWhere.where.hierarchy = req.query.level;
+    let member = await db.search.findOne(searchWhere).catch(catcher);
     if (!member) return type === "json" ? jsonError() : imageError();
     member = member.toJSON();
     if (type === "json") {
