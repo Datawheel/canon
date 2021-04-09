@@ -390,7 +390,7 @@ module.exports = function(app) {
 
   app.post("/api/cms/profile/upsertDimension", isEnabled, async(req, res) => {
     req.setTimeout(1000 * 60 * 5);
-    const profileData = req.body;
+    const {profileData, includeAllMembers} = req.body;
     const {profile_id} = profileData;  // eslint-disable-line
     profileData.dimension = profileData.dimName;
     const oldmeta = await db.profile_meta.findOne({where: {id: profileData.id}}).catch(catcher);
@@ -403,7 +403,7 @@ module.exports = function(app) {
         profileData.ordering = ordering;
       }
       await db.profile_meta.create(profileData);
-      await populateSearch(profileData, db);
+      await populateSearch(profileData, db, false, false, includeAllMembers);
     }
     // Updates are more complex - the user may have changed levels, or even modified the dimension
     // entirely. We have to prune the search before repopulating it.
@@ -411,7 +411,7 @@ module.exports = function(app) {
       await db.profile_meta.update(profileData, {where: {id: profileData.id}});
       if (oldmeta.cubeName !== profileData.cubeName || oldmeta.dimension !== profileData.dimension || oldmeta.levels.join() !== profileData.levels.join()) {
         pruneSearch(oldmeta.cubeName, oldmeta.dimension, oldmeta.levels, db);
-        await populateSearch(profileData, db);
+        await populateSearch(profileData, db, false, false, includeAllMembers);
       }
     }
     const reqObj = Object.assign({}, profileReqFull, {where: {id: profile_id}});
@@ -427,10 +427,10 @@ module.exports = function(app) {
 
   app.post("/api/cms/repopulateSearch", isEnabled, async(req, res) => {
     req.setTimeout(1000 * 60 * 5);
-    const {id, newSlugs} = req.body;
+    const {id, newSlugs, includeAllMembers} = req.body;
     let profileData = await db.profile_meta.findOne({where: {id}});
     profileData = profileData.toJSON();
-    await populateSearch(profileData, db, false, newSlugs);
+    await populateSearch(profileData, db, false, newSlugs, includeAllMembers);
     return res.json({});
   });
 

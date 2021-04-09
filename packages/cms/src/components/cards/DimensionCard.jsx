@@ -16,41 +16,49 @@ class DimensionCard extends Component {
       rebuilding: false,
       alertObj: false,
       isOpen: false,
-      newSlugs: false
+      newSlugs: false,
+      includeAllMembers: false
     };
   }
 
   maybeRebuildSearch() {
-    const {newSlugs} = this.state;
+    const {newSlugs, includeAllMembers} = this.state;
     const alertObj = {
       callback: this.rebuildSearch.bind(this),
       title: "Rebuild Search Members?",
-      description: <label className="cms-checkbox-label u-font-xs">
-        <input
-          className="cms-checkbox"
-          type="checkbox"
-          checked={newSlugs}
-          onChange={this.toggleSlugs.bind(this)}
-        />
-        &nbsp;Select this box to rebuild slugs from source data (This may change permalinks).
-      </label>,
+      description: <Fragment>
+        <label className="cms-checkbox-label u-font-xs">
+          <input
+            className="cms-checkbox"
+            type="checkbox"
+            checked={newSlugs}
+            onChange={e => this.setState({newSlugs: e.target.checked}, this.maybeRebuildSearch.bind(this))}
+          />
+          &nbsp;Rebuild slugs from source data (This may change permalinks)
+        </label><br/>
+        <label className="cms-checkbox-label u-font-xs">
+          <input
+            className="cms-checkbox"
+            type="checkbox"
+            checked={includeAllMembers}
+            onChange={e => this.setState({includeAllMembers: e.target.checked}, this.maybeRebuildSearch.bind(this))}
+          />
+          &nbsp;Include members that have have no value for this measure
+        </label>
+      </Fragment>,
       confirm: "Rebuild"
     };
     this.setState({alertObj});
   }
 
-  toggleSlugs(e) {
-    this.setState({newSlugs: e.target.checked}, this.maybeRebuildSearch.bind(this));
-  }
-
   rebuildSearch() {
-    const {newSlugs} = this.state;
+    const {newSlugs, includeAllMembers} = this.state;
     const {meta} = this.props;
     const {id} = meta;
     const url = "/api/cms/repopulateSearch/";
     const timeout = 1000 * 60 * 5;
     this.setState({rebuilding: true, alertObj: false, newSlugs: false});
-    axios.post(url, {id, newSlugs}, {timeout}).then(() => {
+    axios.post(url, {id, newSlugs, includeAllMembers}, {timeout}).then(() => {
       this.setState({rebuilding: false});
     });
   }
