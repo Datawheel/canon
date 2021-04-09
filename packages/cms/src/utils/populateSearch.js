@@ -181,13 +181,12 @@ const populateSearch = async(profileData, db, metaLookup = false, newSlugs = fal
       });
       if (verbose) console.log("Deduping slugs...");
       searchList.forEach(member => {
-        if (usedSlugs[member.slug]) {
-          const idslug = `${member.slug}-${member.id}`;
-          if (usedSlugs[idslug]) {
-            // use cubeHash for id here
-          }
-        }
-        usedSlugs[member.slug] ? member.slug = `${member.slug}-${member.id}` : usedSlugs[member.slug] = true;
+        // A slug may not be unique across all cubes, so use its id for disambiguation
+        if (usedSlugs[member.slug]) member.slug += `-${member.id}`;
+        // Further, in some edge cases (usually when a cube is split into multiples), even
+        // the id may not be enough, so use a cube-id to disambiguate.
+        if (usedSlugs[member.slug]) member.slug += `-${cubeHash[member.cubeName]}`;
+        usedSlugs[member.slug] = true;
       });
       if (verbose) console.log("Slug generation complete.");
 
