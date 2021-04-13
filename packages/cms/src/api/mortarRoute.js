@@ -493,6 +493,7 @@ module.exports = function(app) {
       if (meta && meta.cubeName) {
         const attribute = await db.search.findOne({where: {slug: dim.id, cubeName: meta.cubeName}}).catch(catcher);
         if (attribute && attribute.id) {
+          dim.memberSlug = dim.id;
           dim.id = attribute.id;
         }
         else {
@@ -747,7 +748,7 @@ module.exports = function(app) {
     // Note! Images are strictly ordered to match your strictly ordered slug/id pairs
     const images = [];
     for (const dim of dims) {
-      const url = `${origin}/api/image?slug=${dim.slug}&id=${dim.id}&locale=${locale}&type=json`;
+      const url = `${origin}/api/image?slug=${dim.slug}&memberSlug=${dim.memberSlug}&locale=${locale}&type=json`;
       const image = await axios.get(url).then(d => d.data).catch(catcher);
       images.push(image ? image.image : null);
     }
