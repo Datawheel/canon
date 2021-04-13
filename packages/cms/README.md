@@ -217,6 +217,12 @@ Images will automatically be rendered in the "Hero" section of a profile, which 
 /api/image?slug=<slug>&id=<id>
 ```
 
+Or, in rare cases where `id` is not unique enough, you may use the guaranteed-unique member slug:
+
+```
+/api/image?slug=<slug>&memberSlug=<memberSlug>
+```
+
 Images default to splash size, but you may set `&size=thumb` for a thumbnail. To retrieve metadata about the image rather than the image itself, add `&type=json` to the params.
 
 ---

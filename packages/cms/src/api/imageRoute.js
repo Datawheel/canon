@@ -67,7 +67,7 @@ module.exports = function(app) {
   const {db} = app.settings;
 
   app.get("/api/image", async(req, res) => {
-    const {slug, id, type, t} = req.query;
+    const {slug, id, memberSlug, type, t} = req.query;
     const size = req.query.size || "splash";
     const locale = req.query.locale || envLoc;
     const jsonError = () => res.json({error: "Not Found"});
@@ -77,9 +77,11 @@ module.exports = function(app) {
     if (!meta) return type === "json" ? jsonError() : imageError();
     const {dimension, cubeName} = meta;
     const searchWhere = {
-      where: {dimension, cubeName, [sequelize.Op.or]: {id, slug: id}},
+      where: {dimension, cubeName},
       include: imageInclude
     };
+    if (memberSlug) searchWhere.where.slug = memberSlug;
+    if (id) searchWhere.where.id = id;
     if (req.query.level) searchWhere.where.hierarchy = req.query.level;
     let member = await db.search.findOne(searchWhere).catch(catcher);
     if (!member) return type === "json" ? jsonError() : imageError();
