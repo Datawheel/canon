@@ -46,15 +46,13 @@ class Table extends Component {
     const url = config.data;
 
     if (url) {
-      this.setState({error: false, loading: url});
+      this.setState({error: false, loading: true});
       dataLoad.bind({})(url, dataFormat, undefined, (error, data) => {
-        if (JSON.stringify(this.state.loading) === JSON.stringify(url)) {
-          if (error) {
-            console.error(error);
-            this.setState({error, loading: false});
-          }
-          else this.setState({data, loading: false});
+        if (error) {
+          console.error(error);
+          this.setState({error, loading: false});
         }
+        else this.setState({data, loading: false});
       });
     }
 
