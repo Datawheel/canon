@@ -46,14 +46,21 @@ class Table extends Component {
     const url = config.data;
 
     if (url) {
-      this.setState({error: false, loading: true});
-      dataLoad.bind({})(url, dataFormat, undefined, (error, data) => {
-        if (error) {
-          console.error(error);
-          this.setState({error, loading: false});
+      // When the user provides immediate data in-line (not a remote call), dataLoad actually returns *before* the
+      // loading state has changed.
+      const fetch = () => dataLoad.bind({})(url, dataFormat, undefined, (error, data) => {
+        // The quickness of that local load means that this comparison still has loading set to "false"
+        if (this.state.loading === JSON.stringify(url)) {
+          if (error) {
+            console.error(error);
+            this.setState({error, loading: false});
+          }
+          else this.setState({data, loading: false});
         }
-        else this.setState({data, loading: false});
       });
+      // Therefore, run the datafetch AFTER the setstate has completed, so when the fetch callback runs, this.state.loading
+      // is set to a value that has meaning for the comparison.
+      this.setState({error: false, loading: JSON.stringify(url)}, fetch.bind(this));
     }
 
   }
