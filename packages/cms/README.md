@@ -549,6 +549,7 @@ import {ProfileSearch} from "@datawheel/canon-cms";
   filterDimensionTitle={dimension => dimension} // dimension title used for filters (allows for grouping dimensions with matching labels)
   filterHierarchyTitle={hierarchy => hierarchy} // hierarchy title used for filters (allows for grouping hierarchies with matching labels)
   filterProfileTitle={(content, meta) => content.label} // profile title used for filters (allows for grouping profiles with matching labels)
+  filterQueryArgs={false} // enables filters to update the query string
   formatResults={resp => resp} // callback function to modify the JSON response used for rendering
   inputFontSize={"xxl"} // the CSS size for the input box ("sm", "md", "lg", "xl", "xxl")
   joiner={"&"} // the character used when joining titles in multi-dimensional profiles

@@ -69,6 +69,7 @@ class Search extends Component {
           // filterDimensionTitle={d => `<i>${d}</i>`}
           // filterHierarchyTitle={d => `<i>${d}</i>`}
           // filterProfileTitle={content => `<i>${(content.label || "Unnamed").replace(/\<[\/p]{1,2}\>/g, "")}</i>`}
+          filterQueryArgs={true}
           formatResults={dataFormat}
           renderListItem={(result, i, link, title, subtitle) =>
             <li key={`r-${i}`} className="cms-profilesearch-list-item">

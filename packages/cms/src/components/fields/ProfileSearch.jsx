@@ -93,6 +93,14 @@ class ProfileSearch extends Component {
       this.onChange.bind(this)();
     }
 
+    // passes any query args to the default filter values stored in state
+    const {query} = this.context.router.location;
+    const queryArgs = {};
+    if (query.profiles) queryArgs.filterProfiles = query.profiles;
+    if (query.levels) queryArgs.filterLevels = query.levels;
+    if (query.cubes) queryArgs.filterCubes = query.cubes;
+    if (Object.keys(queryArgs).length) this.setState(queryArgs);
+
     select(document).on(`mousedown.${id}`, event => {
       const {active} = this.state;
       const {position} = this.props;
@@ -186,12 +194,25 @@ class ProfileSearch extends Component {
   onChange(e) {
 
     const {filterCubes, filterLevels, filterProfiles, timeout} = this.state;
-    const {limit, minQueryLength, showExamples, formatResults, locale} = this.props;
+    const {filterQueryArgs, limit, minQueryLength, showExamples, formatResults, locale} = this.props;
 
     let query = e ? e.target.value : this.state.query;
     if (query.length < minQueryLength) query = "";
 
     clearTimeout(timeout);
+
+    // sets new query args on any filter change, before pinging the search API
+    if (filterQueryArgs) {
+      const {router} = this.context;
+      const {basename, pathname} = router.location;
+      const newQuery = {};
+      newQuery.profiles = filterProfiles || "";
+      if (filterCubes) newQuery.cubes = filterCubes;
+      if (filterLevels) newQuery.levels = filterLevels;
+      const queryString = Object.entries(newQuery).map(([key, val]) => `${key}=${val}`).join("&");
+      const newPath = `${basename}${pathname}?${queryString}`;
+      router.replace(newPath);
+    }
 
     if (!showExamples && !query.length) {
       this.setState({results: false, query});
@@ -496,6 +517,7 @@ ProfileSearch.defaultProps = {
     }
     else return "Unnamed";
   },
+  filterQueryArgs: false,
   formatResults: resp => resp,
   inputFontSize: "xxl",
   joiner: " & ",
