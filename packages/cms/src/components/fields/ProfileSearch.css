@@ -25,6 +25,12 @@
         z-index: 2;
       }
     }
+    &.cms-profilesearch-container-static {
+      background-color: var(--light-2);
+      & .bp3-non-ideal-state {
+        min-height: 50vh;
+      }
+    }
   }
 
   & .cp-input-label {
@@ -199,6 +205,63 @@
       }
     }
 
+  }
+
+  & .cms-profilesearch-filters-profiles {
+    @mixin list-reset;
+    text-align: center;
+    & .cms-profilesearch-filters-profile {
+      display: inline-block;
+      padding: var(--gutter-xs);
+      &.active {
+        font-weight: bold;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  & .cms-profilesearch-filters-dimensions {
+    & .cms-profilesearch-filters-levels {
+      @mixin list-reset;
+      display: inline-block;
+      & .cms-profilesearch-filters-dimension {
+        display: inline-block;
+        font-size: var(--font-xs);
+        padding: var(--gutter-xs);
+        &.active {
+          background-color: var(--light-2);
+          font-weight: bold;
+          text-decoration: underline;
+        }
+      }
+      & .cms-profilesearch-filters-level {
+        display: inline-block;
+        font-size: var(--font-xs);
+        padding: var(--gutter-xs);
+        &.active {
+          background-color: var(--light-2);
+          font-weight: bold;
+          text-decoration: underline;
+        }
+      }
+      &:not(:first-child) {
+        margin-left: var(--gutter-sm);
+      }
+    }
+  }
+
+  /* "grid" layout */
+  & .cms-profilesearch-grid {
+    @mixin list-reset;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    & .cms-profilesearch-tile {
+      flex: 1 1 auto;
+      margin: var(--gutter-xs);
+      max-width: 350px;
+      min-width: 250px;
+    }
   }
 
   /* "list" layout */

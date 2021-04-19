@@ -26,6 +26,7 @@ class DimensionEditor extends Component {
         levels: []
       },
       selectedDimension: {},
+      includeAllMembers: false,
       mode: "add",
       fieldsChanged: false
     };
@@ -124,7 +125,7 @@ class DimensionEditor extends Component {
   }
 
   saveProfile() {
-    const {profileData, mode} = this.state;
+    const {profileData, mode, includeAllMembers} = this.state;
     const {profiles, meta, ordering} = this.props;
     const {currentPid} = this.props.status;
     let takenSlugs = profiles.map(p => p.meta).reduce((acc, d) => acc.concat(d.map(m => m.slug)), []);
@@ -140,16 +141,18 @@ class DimensionEditor extends Component {
       });
     }
     else {
-      const payload = Object.assign({}, profileData, {profile_id: currentPid});
+      const payload = {};
+      payload.profileData = Object.assign({}, profileData, {profile_id: currentPid});
       // If ordering was provided, this is a Variant
-      if (!isNaN(ordering)) payload.ordering = ordering;
+      if (!isNaN(ordering)) payload.profileData.ordering = ordering;
+      payload.includeAllMembers = includeAllMembers;
       this.props.modifyDimension(payload);
       if (this.props.onComplete) this.props.onComplete();
     }
   }
 
   render() {
-    const {fieldsChanged, profileData, mode} = this.state;
+    const {fieldsChanged, profileData, mode, includeAllMembers} = this.state;
     const {cubeData} = this.props;
 
     if (!cubeData) return null;
@@ -211,17 +214,30 @@ class DimensionEditor extends Component {
         }
 
         {profileData.dimension && profileData.levels.length > 0 &&
-          <Select
-            label="Measure"
-            inline
-            namespace="cms"
-            value={profileData.measure}
-            onChange={this.changeField.bind(this, "measure")}
-          >
-            <option value="default">Choose a measure</option>
-            {measureOptions}
-          </Select>
+          <Fragment>
+            <Select
+              label="Measure"
+              inline
+              namespace="cms"
+              value={profileData.measure}
+              onChange={this.changeField.bind(this, "measure")}
+            >
+              <option value="default">Choose a measure</option>
+              {measureOptions}
+            </Select>
+            <label className="cms-checkbox-label u-font-xs">
+              <input
+                className="cms-checkbox"
+                type="checkbox"
+                checked={includeAllMembers}
+                onChange={e => this.setState({includeAllMembers: e.target.checked})}
+              />
+            &nbsp;Include members that have have no value for this measure?
+            </label>
+          </Fragment>
         }
+
+
 
         {/* visibility select */}
         <Select

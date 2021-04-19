@@ -54,7 +54,7 @@ const catcher = e => {
 
 const isObject = d => !Array.isArray(d) && typeof d === "object";
 const fixObjForPostgres = d => {
-  if (!d) {
+  if (d !== 0 && !d) {
     return "NULL";
   }
   if (isObject(d)) {
@@ -90,7 +90,7 @@ const formatter = (members, data, dimension, level) => {
   return newData;
 };
 
-const populateSearch = async(profileData, db, metaLookup = false, newSlugs = false) => {
+const populateSearch = async(profileData, db, metaLookup = false, newSlugs = false, includeAllMembers = false) => {
 
   const dbQuery = db.search.sequelize.query.bind(db.search.sequelize);
 
@@ -120,7 +120,7 @@ const populateSearch = async(profileData, db, metaLookup = false, newSlugs = fal
     for (let i = 0; i < levels.length; i++) {
 
       const level = levels[i];
-      const members = await client.getMembers(level, {locale}).catch(catcher);
+      let members = await client.getMembers(level, {locale}).catch(catcher);
 
       let data = [];
 
@@ -139,6 +139,14 @@ const populateSearch = async(profileData, db, metaLookup = false, newSlugs = fal
           return obj;
         }, {})).catch(catcher);
 
+      /**
+       * The default behavior here is to filter down the members list to those with values for the chosen measure.
+       * However, if the user has specified to include all members, don't perform this filter. This will result in
+       * members in the search database that do not have values for the chosen measure, BUT may have values for other measures,
+       * in other cubes. This is sometimes used for shared dimensions.
+       */
+      if (!includeAllMembers) members = members.filter(d => data[d.key] !== undefined);
+
       fullList = fullList.concat(formatter(members, data, dimension, level.name)).filter(d => d.id);
 
     }
@@ -156,6 +164,9 @@ const populateSearch = async(profileData, db, metaLookup = false, newSlugs = fal
         if (!exclude && s.slug) usedSlugs[s.slug] = true;
       });
 
+      const meta = await db.profile_meta.findAll().catch(catcher);
+      const cubeHash = meta.reduce((acc, d) => ({...acc, [d.cubeName]: d.id}), {});
+
       const slugify = str => strip(str).replace(/-{2,}/g, "-").toLowerCase();
 
       if (verbose) console.log("Generating slugs...");
@@ -170,7 +181,12 @@ const populateSearch = async(profileData, db, metaLookup = false, newSlugs = fal
       });
       if (verbose) console.log("Deduping slugs...");
       searchList.forEach(member => {
-        usedSlugs[member.slug] ? member.slug = `${member.slug}-${member.id}` : usedSlugs[member.slug] = true;
+        // A slug may not be unique across all cubes, so use its id for disambiguation
+        if (usedSlugs[member.slug]) member.slug += `-${member.id}`;
+        // Further, in some edge cases (usually when a cube is split into multiples), even
+        // the id may not be enough, so use a cube-id to disambiguate.
+        if (usedSlugs[member.slug]) member.slug += `-${cubeHash[member.cubeName]}`;
+        usedSlugs[member.slug] = true;
       });
       if (verbose) console.log("Slug generation complete.");
 

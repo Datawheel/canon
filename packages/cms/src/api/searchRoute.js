@@ -1,6 +1,7 @@
 const sequelize = require("sequelize");
 const yn = require("yn");
 const d3Array = require("d3-array");
+const {unique} = require("d3plus-common");
 const jwt = require("jsonwebtoken");
 const groupMeta = require("../utils/groupMeta");
 const multer = require("multer");
@@ -63,7 +64,7 @@ const fetchDimCubes = async db => {
   meta.forEach(m => {
     // Only register this variant as visible if both itself and its parent profile are visible.
     const visible = profileVisibilityHash[m.profile_id] && m.visible;
-    if (visible && !allDimCubes.find(d => d.dimension === m.dimension && d.cubeName === m.cubeName)) allDimCubes.push(m);
+    if (visible) allDimCubes.push(m);
   });
   return allDimCubes;
 };
@@ -354,7 +355,16 @@ module.exports = function(app) {
 
   const profileSearch = async(req, res) => {
 
-    const allDimCubes = await fetchDimCubes(db).catch(catcher);
+    let allDimCubes = await fetchDimCubes(db).catch(catcher);
+
+    if (req.query.profile) {
+      const profileIds = req.query.profile.split(",").map(Number);
+      allDimCubes = allDimCubes.filter(dc => profileIds.includes(dc.profile_id));
+    }
+    if (req.query.cubeName) {
+      const cubeSlugs = req.query.cubeName.split(",");
+      allDimCubes = allDimCubes.filter(dc => cubeSlugs.includes(dc.cubeName));
+    }
 
     const locale = req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
@@ -364,9 +374,22 @@ module.exports = function(app) {
     if (!req.query.query || req.query.query === "") {
       results.origin = "legacy";
       results.results = {};
+
       for (const dc of allDimCubes) {
+
+        const searchWhere = {
+          cubeName: dc.cubeName,
+          dimension: dc.dimension,
+          hierarchy: dc.levels
+        };
+
+        // Also allow the user to directly limit searches by dimension and comma separated hierarchy (levels)
+        // Note that this can happen in conjunction with the req.query.profile limitation above, as overrides.
+        if (req.query.dimension) searchWhere.dimension = req.query.dimension.split(",");
+        if (req.query.hierarchy) searchWhere.hierarchy = req.query.hierarchy.split(",");
+
         let rows = await db.search.findAll({
-          where: {dimension: dc.dimension, cubeName: dc.cubeName},
+          where: searchWhere,
           include: imageIncludeNoBlobs,
           order: [["zvalue", "DESC NULLS LAST"]],
           limit
@@ -389,6 +412,12 @@ module.exports = function(app) {
           if (verbose) console.error(`Error connecting to Deepsearch, defaulting to Postgres: ${e}`);
           return false;
         });
+        if (req.query.hierarchy) {
+          const validLevels = req.query.hierarchy.split(",");
+          Object.keys(results.results).forEach(dim => {
+            results.results[dim] = results.results[dim].filter(r => validLevels.includes(r.metadata.hierarchy));
+          });
+        }
         if (results) results.origin = "deepsearch";
       }
       if (!deepsearchAPI || deepsearchAPI && !results) {
@@ -455,22 +484,18 @@ module.exports = function(app) {
           // If the user searched by direct id, it must be matched against the id itself directly the in search table
           {id: {[sequelize.Op.iLike]: `%${query}%`}}
         ];
-        // If the user has specified a profile by slug or id, restrict the search results to that profile's members
+        // If the user has specified a profile(s), restrict the search results to those cubes
         if (req.query.profile) {
-          // using "slug" here is not 100% correct, as profiles can be bilateral, and therefore have two slugs.
-          // However, for the more common unilateral case, allow "single-slug" lookup for convenience.
-          const metaWhere = !isNaN(req.query.profile) ? {profile_id: req.query.profile} : {slug: req.query.profile};
-          const thisMeta = await db.profile_meta.findOne({where: metaWhere});
-          if (thisMeta) {
-            searchWhere.cubeName = thisMeta.cubeName;
-            searchWhere.dimension = thisMeta.dimension;
-            searchWhere.hierarchy = thisMeta.levels;
-          }
+          searchWhere.cubeName = allDimCubes.map(dc => dc.cubeName);
+          searchWhere.dimension = allDimCubes.map(dc => dc.dimension);
+          searchWhere.hierarchy = unique(d3Array.merge(allDimCubes.map(dc => dc.levels)));
         }
-        // Also allow the user to directly limit searches by dimension and comma separated hierarchy (levels)
+        // Also allow the user to directly limit searches by and comma separated dimension, hierarchy, and cube.
         // Note that this can happen in conjunction with the req.query.profile limitation above, as overrides.
         if (req.query.dimension) searchWhere.dimension = req.query.dimension.split(",");
         if (req.query.hierarchy) searchWhere.hierarchy = req.query.hierarchy.split(",");
+        if (req.query.cubeName) searchWhere.cubeName = req.query.cubeName.split(",");
+
         let rows = await db.search.findAll({
           include: imageIncludeNoBlobs,
           // when a limit is provided, it is for EACH dimension, but this initial rowsearch is for a flat member list.
@@ -491,20 +516,7 @@ module.exports = function(app) {
       }
     }
 
-    // Results are keyed by dimension. Use nonzero length dimension results to find out which profiles are a match
-    const dimCubes = [];
-    Object.keys(results.results).forEach(dim => {
-      if (results.results[dim].length > 0) {
-        const cubes = [...new Set(results.results[dim].map(d => d.metadata.cube_name))];
-        cubes.forEach(cube => {
-          dimCubes.push(`${dim}/${cube}`);
-        });
-      }
-    });
-
-    let meta = await db.profile_meta.findAll().catch(catcher);
-    meta = meta.map(d => d.toJSON());
-    const relevantPids = [...new Set(meta.filter(p => dimCubes.includes(`${p.dimension}/${p.cubeName}`)).map(d => d.profile_id))];
+    const relevantPids = unique(allDimCubes.map(d => d.profile_id));
     let profiles = await db.profile.findAll({where: {id: relevantPids, visible: true}, include: {association: "meta"}}).catch(catcher);
     profiles = profiles.map(d => d.toJSON());
 
