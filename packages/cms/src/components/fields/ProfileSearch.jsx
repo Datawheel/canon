@@ -89,17 +89,15 @@ class ProfileSearch extends Component {
     const {id} = this.state;
     const {showExamples} = this.props;
 
-    if (showExamples) {
-      this.onChange.bind(this)();
-    }
-
     // passes any query args to the default filter values stored in state
     const {query} = this.context.router.location;
     const queryArgs = {};
     if (query.profiles) queryArgs.filterProfiles = query.profiles;
     if (query.levels) queryArgs.filterLevels = query.levels;
     if (query.cubes) queryArgs.filterCubes = query.cubes;
-    if (Object.keys(queryArgs).length) this.setState(queryArgs);
+
+    if (Object.keys(queryArgs).length) this.setState(queryArgs, showExamples ? this.onChange.bind(this) : undefined);
+    else if (showExamples) this.onChange.bind(this)();
 
     select(document).on(`mousedown.${id}`, event => {
       const {active} = this.state;
