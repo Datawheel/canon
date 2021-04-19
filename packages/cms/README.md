@@ -56,19 +56,22 @@ Canon CMS uses the `canon`-level user model to handle authentication and edit pe
 module.exports = {
   ...,
   db: [{
-    connection: process.env.CANON_DB_CONNECTION_STRING,
+    host: process.env.CANON_DB_HOST,
+    name: process.env.CANON_DB_NAME,
+    user: process.env.CANON_DB_USER,
+    pass: process.env.CANON_DB_PW,
     tables: [
       require("@datawheel/canon-core/models"),
-      require("@datawheel/canon-cms/models")
+      require("@datawheel/canon-cms/models"),
     ]
   }]
   ...,
 };
 ```
 
-You can then set the connection parameters in the environment variables, using the keys you set in the code. Check the documentation for canon-core's DB configuration for more info on how the setup works.
+This tells the app what database schema/tables are needed for your application and where to find the database that will hold them. If you have not already, you will need to create a database (and ideally a new role to manage it) using postgresql. Once you have configured this, you can then define the connection parameters in the environment variables, using the keys you set in the code (e.g. `CANON_DB_XXXX`). Check the documentation for canon-core's DB configuration for more info on how the setup works.
 
-Please note Canon CMS currently only supports Postgres.
+Please note Canon CMS currently only supports Postgres databases.
 
 #### 3) Configure `canon` vars
 
@@ -82,7 +85,7 @@ export CANON_API=http://localhost:3300
 CMS content that you author can be translated into other languages. Set `CANON_LANGUAGE_DEFAULT` to your locale. If you plan to translate your content, set `CANON_LANGUAGES` to a comma separated list of languages you wish to use. Note that while `CANON_LANGUAGES` can be changed later, `CANON_LANGUAGE_DEFAULT` cannot, so remember to set it before starting!
 ```sh
 export CANON_LANGUAGE_DEFAULT=en
-export CANON_LANGUAGES=pt,es,ru,et
+export CANON_LANGUAGES=en,es
 ```
 
 #### 4) Configure `canon-cms` vars
@@ -96,12 +99,15 @@ In summary, your env vars should now look like this:
 ```sh
 export CANON_API=http://localhost:3300
 export CANON_LANGUAGE_DEFAULT=en
-export CANON_LANGUAGES=pt,es,ru,et
-export CANON_DB_CONNECTION_STRING=postgresql://dbuser:dbpass@dbhost:dbport/dbname
+export CANON_LANGUAGES=en,es
 export CANON_CMS_CUBES=https://tesseract-url.com/tesseract
+export CANON_DB_USER=db_user_name
+export CANON_DB_PW=db_user_password
+export CANON_DB_NAME=db_name
+export CANON_DB_HOST=db_host
 ```
 
-Remember the actual value of `CANON_DB_CONNECTION_STRING` is up to you as it depends on how you configured your Postgres database.
+Remember the actual value of all of the `CANON_DB_XXXX` variables (or single `CANON_DB_CONNECTION_STRING` variable if you want to combine them) is up to you as it depends on how you configured your Postgres database.
 
 By default, the CMS will only be enabled on development environments. If you wish to enable the CMS on production, see the `CANON_CMS_ENABLE` in [Environment Variables](#environment-variables) below.
 
@@ -110,6 +116,9 @@ By default, the CMS will only be enabled on development environments. If you wis
 Your `CANON_CMS_CUBES` variable will (obviously) differ based on your project. If you are developing against a _local instance of tesseract_, you will likely need to add a simple proxy to bypass CORS errors from requesting data between different ports.  To do this, you will need to add a file called `local-proxy.js` in the `/api/` directory in the root level of your project (create one if you don't have one). The file should then look like [this](https://gist.github.com/greenrhyno/018042999a0deab501529224764c0fa4).
 
 #### 4) Add the Builder Component to a route
+
+In `app/routes.jsx`, make the following additions to add a route to the CMS builder:
+
 ```jsx
 import {Builder} from "@datawheel/canon-cms";
 

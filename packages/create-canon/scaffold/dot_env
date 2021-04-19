@@ -1,4 +1,4 @@
-CANON_API="https://api.dataafrica.io/"
+CANON_API="http://localhost:3300"
 
 CANON_LANGUAGE_DEFAULT=en
 CANON_LANGUAGES=en,es
