@@ -161,7 +161,7 @@ class ProfileRenderer extends Component {
 
     this.updateQuery(selectors);
 
-    const newProfile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, selectors);
+    const newProfile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, selectors, true);
     this.setState({selectors, profile: {...profile, ...newProfile}});
   }
 

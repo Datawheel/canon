@@ -100,20 +100,22 @@ const getSelectorsInUse = str => {
 };
 
 // Perform a local varswap
-module.exports = (rawProfile, variables, formatterFunctions, locale, query = {}) => {
+module.exports = (rawProfile, variables, formatterFunctions, locale, query = {}, isSelector = false) => {
   let profile = sortProfile(extractLocaleContent(rawProfile, locale, "profile"));
 
   // Gather the selectors in use from titles, stats, vizes, alloweds, etc, compare them to query, and give
   // Section.jsx the ability to know whether it should re-render
-  profile.sections.forEach(section => {
-    section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
-    let selectorsInUse = [];
-    section.descriptions.forEach(d => selectorsInUse = selectorsInUse.concat(getSelectorsInUse(d.description)));
-    section.subtitles.forEach(d => selectorsInUse = selectorsInUse.concat(getSelectorsInUse(d.subtitle)));
-    section.visualizations.forEach(d => selectorsInUse = selectorsInUse.concat(getSelectorsInUse(d.logic)));
-    selectorsInUse = [...new Set(selectorsInUse)];
-    section.updateMe = Object.keys(query).some(d => selectorsInUse.includes(d));
-  });
+  if (isSelector) {
+    profile.sections.forEach(section => {
+      section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
+      let selectorsInUse = [];
+      section.descriptions.forEach(d => selectorsInUse = selectorsInUse.concat(getSelectorsInUse(d.description)));
+      section.subtitles.forEach(d => selectorsInUse = selectorsInUse.concat(getSelectorsInUse(d.subtitle)));
+      section.visualizations.forEach(d => selectorsInUse = selectorsInUse.concat(getSelectorsInUse(d.logic)));
+      selectorsInUse = [...new Set(selectorsInUse)];
+      section.updateMe = Object.keys(query).some(d => selectorsInUse.includes(d));
+    });
+  }
 
   // Before sending the profiles down to be varswapped, remember that some sections have groupings. If a grouping
   // has been set to NOT be visible, then its "virtual children" should not be visible either. Copy the outer grouping's
