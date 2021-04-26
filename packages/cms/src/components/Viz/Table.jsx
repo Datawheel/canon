@@ -107,9 +107,10 @@ class Table extends Component {
   // render ungrouped column
   renderColumn = (obj, config) => {
     const {data, headerFormat, cellFormat} = config;
-    const col = typeof obj === "string" ? obj : obj.key;
+    const col = typeof obj === "string" ? obj : obj.accessor;
     const onClick = typeof obj === "object" ? obj.onClick : undefined;
-    const title = headerFormat ? headerFormat(col) : col;
+    const header = obj.Header ? obj.Header : obj.accessor;
+    const title = headerFormat ? headerFormat(header) : header;
 
     /** */
     function formatValue(cell, value) {
@@ -155,6 +156,15 @@ class Table extends Component {
       minWidth,
       maxWidth: minWidth < 100 ? minWidth : undefined,
       Cell: cell => {
+        if (obj.cellStyle) {
+          try {
+            const newCell = obj.cellStyle(cell);
+            if (newCell) cell = newCell;  // the spec asks for a return value, but support editing by reference as well.
+          }
+          catch (e) {
+            console.error("Error in cellStyle");
+          }
+        }
         const html = formatValue(cell, cell.value);
         return <span className={`cp-table-cell-inner cp-table-cell-inner-${onClick ? "clickable" : "static"}`} onClick={onClick ? onClick.bind(this, cell.original) : undefined} dangerouslySetInnerHTML={{__html: html}} />;
       }
@@ -179,14 +189,19 @@ class Table extends Component {
 
     const tableStructure = columns.map(col => {
       // if the current column is a string alone, render the column
-      if (typeof col === "string" || typeof col === "object" && col.key) {
+      if (typeof col === "string" || typeof col === "object" && col.accessor) {
         return this.renderColumn(col, config);
       }
       else if (Array.isArray(col)) {
         return this.renderGrouping(col, config);
       }
       else return {};
-    }).filter(Boolean); // handle malformed tables
+    }).filter(Boolean) // handle malformed tables
+      .map(d => {   // remove front-end styling method (irrelevant to react-table)
+        if (d.cellStyle) delete d.cellStyle;
+        return d;
+      });
+
 
     if (print && typeof window !== "undefined") {
       const totalWidth = sum(tableStructure, d => d.minWidth);
