@@ -156,7 +156,14 @@ class Table extends Component {
       minWidth,
       maxWidth: minWidth < 100 ? minWidth : undefined,
       Cell: cell => {
-        if (obj.Cell) obj.Cell(cell);
+        if (obj.cellStyle) {
+          try {
+            cell = obj.cellStyle(cell);
+          }
+          catch (e) {
+            console.error("Error in cellStyle");
+          }
+        }
         const html = formatValue(cell, cell.value);
         return <span className={`cp-table-cell-inner cp-table-cell-inner-${onClick ? "clickable" : "static"}`} onClick={onClick ? onClick.bind(this, cell.original) : undefined} dangerouslySetInnerHTML={{__html: html}} />;
       }
@@ -188,7 +195,12 @@ class Table extends Component {
         return this.renderGrouping(col, config);
       }
       else return {};
-    }).filter(Boolean); // handle malformed tables
+    }).filter(Boolean) // handle malformed tables
+      .map(d => {   // remove front-end styling method (irrelevant to react-table)
+        if (d.cellStyle) delete d.cellStyle;
+        return d;
+      });
+
 
     if (print && typeof window !== "undefined") {
       const totalWidth = sum(tableStructure, d => d.minWidth);
