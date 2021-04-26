@@ -158,7 +158,8 @@ class Table extends Component {
       Cell: cell => {
         if (obj.cellStyle) {
           try {
-            cell = obj.cellStyle(cell);
+            const newCell = obj.cellStyle(cell);
+            if (newCell) cell = newCell;  // the spec asks for a return value, but support editing by reference as well.
           }
           catch (e) {
             console.error("Error in cellStyle");
