@@ -434,6 +434,29 @@ This value is a variable from your list of variables whose truthiness determines
 
 This can be used to hide sections dynamically, list only certain select options for given members, or only run generators for certain members.
 
+#### Applying Styles
+
+React-table provides access to a `Cell` method, referenced [here](https://github.com/tannerlinsley/react-table/tree/v6#example), which allows the return of a JSX element for formatting purposes. However, CMS visualization definitions are written in ES6 and run client-side, and therefore cannot be transpiled into JSX. This architectural mismatch is a side effect of combining the d3plus style "plain old javascript" configuration with a JSX component, namely React-Table. The JSX parameters that React-Table wants can't always be provided by vanilla, untranspiled front-end js.
+
+However, if you need access to the `.styles` key of the cell object, a `cellStyle` method has been added to the column definition. This method is invoked inside the JSX callback, so you have may modify and return the object (ES6 only!)
+
+```js
+return {
+  columns: [
+    {Header: "custom", accessor: "id"},
+    {Header: "headers", accessor: "x", cellStyle: row => {
+      row.styles.color = "red";
+      row.value = row.value + "%";
+      return row;
+    }},
+    {Header: "testing", accessor: "y"}
+  ],
+  ...
+};
+```
+
+This `cellStyle` method operates much like the `Cell` method of react-table, but again, *you may not return a JSX element*. Make vanilla ES6 modifications to the object and return it.
+
 ---
 
 ## Custom Sections
