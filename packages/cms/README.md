@@ -438,7 +438,7 @@ This can be used to hide sections dynamically, list only certain select options 
 
 React-table provides access to a `Cell` method, referenced [here](https://github.com/tannerlinsley/react-table/tree/v6#example), which allows the return of a JSX element for formatting purposes. However, CMS visualization definitions are written in ES6 and run client-side, and therefore cannot be transpiled into JSX. This architectural mismatch is a side effect of combining the d3plus style "plain old javascript" configuration with a JSX component, namely React-Table. The JSX parameters that React-Table wants can't always be provided by vanilla, untranspiled front-end js.
 
-However, if you need access to the `.styles` key of the cell object, a `cellStyle` method has been added to the column definition. This method is invoked inside the JSX callback, so you have may modify and return the object (ES6 only!)
+However, if you need access to the `cell` object (to format its styles or value), a `cellStyle` method has been added to the column definition. This method is invoked inside the JSX callback, so you have may modify and return the object (ES6 only!)
 
 ```js
 return {
