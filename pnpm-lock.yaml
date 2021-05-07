@@ -448,7 +448,7 @@ importers:
       react-viewport-list: ^1.3.3
       reselect: ^4.0.0
       shorthash: ^0.0.2
-lockfileVersion: 5.2
+lockfileVersion: 5.1
 packages:
   /@babel/code-frame/7.12.13:
     dependencies:
