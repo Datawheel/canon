@@ -103,8 +103,9 @@ async function hydrateModels(options, reporter) {
   await sequelize.authenticate().then(step.resolve, step.reject);
 
   step = reporter.step("Retrieving ProfileMeta and Search models");
-  const ProfileMeta = sequelize.import("../../src/db/profile_meta");
-  const Search = sequelize.import("../../src/db/search");
+  const {modelPaths} = require("../../models");
+  const ProfileMeta = sequelize.import(modelPaths.profile_meta);
+  const Search = sequelize.import(modelPaths.search);
   step.resolve();
 
   return {
