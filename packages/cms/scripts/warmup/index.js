@@ -2,18 +2,20 @@
 
 const getopts = require("getopts");
 
-const helpText = `Canon CMS / Warmup script
+const title = "Canon CMS / Warmup script\n";
+
+const helpText = `${title}
 Usage: npx canon-cms-warmup <command> [args]
 
 Commands:
     help    Shows this information.
     run     Inits a scan of all available routes in the installed CMS.
             - Required: base, db[-props]
-            - Optional: output, password, profile, threads, username
+            - Optional: output, profile, threads, username, password
     retry   Reads an outputted file from a previous scan and retries to load
             the failed endpoints.
             - Required: input
-            - Optional: threads, output
+            - Optional: output, threads
 
 If command is not set, "run" will be executed.
 
@@ -23,8 +25,9 @@ Arguments:
     -h, --help      Shows this information.
     -H, --header    Set a header for all requests.
                     This parameter must be used once for each "key: value" combo.
-    -i, --input     The path to the file that contains the errored endpoints.
-    -o, --output    The path to the file where to log the errored endpoints.
+    -i, --input     The path to the 'results.json' file of the scan to retry.
+    -o, --output    The path to the folder where the reports will be saved.
+                    Defaults to './cms_warmup_YYYYMMDDhhmmss'.
     -p, --password  The password in case of needing basic authentication.
         --profile   A comma separated string of the profiles that should be loaded.
                     If omitted or empty, all available profiles will be used.
@@ -69,14 +72,16 @@ const options = getopts(process.argv.slice(2), {
     output: "o",
     password: "p",
     threads: "t",
-    username: "u"
+    username: "u",
+    verbose: "v"
   },
   default: {
     "db-host": "localhost:5432",
     "header": [],
+    "output": `./cms_warmup_${new Date().toISOString().replace(/\D/g, "").slice(0, 14)}`,
     "threads": "5"
   },
-  boolean: ["help"],
+  boolean: ["help", "verbose"],
   string: [
     "base",
     "db",
@@ -94,13 +99,13 @@ const options = getopts(process.argv.slice(2), {
   ]
 });
 
-const actionMap = {
-  retry: () => require("./cliRetry"),
-  run: () => require("./cliRun"),
-  stress: () => require("./cliStress")
-};
-
-cli(options);
+cli(options)
+  .then(() => {
+    process.exit(0);
+  }, err => {
+    console.error(err);
+    process.exit(1);
+  });
 
 /**
  * Main CLI router function for the warmup command
@@ -113,16 +118,22 @@ async function cli(options) {
     process.exit(0);
   }
 
+  console.log(title);
+
   const key = options._[0] || "run";
 
+  const actionMap = {
+    retry: () => require("./cli_retry"),
+    run: () => require("./cli_run")
+  };
+
   const actionWrapper = actionMap[key];
-  if (typeof actionWrapper === "function") {
-    const action = actionWrapper();
-    await action(options).catch(err => {
-      console.error(`\nError during execution of "${key}" script:`, err);
-    });
-    process.exit(0);
+  if (typeof actionWrapper !== "function") {
+    throw new Error(`Command "${key}" is not a valid warmup action.`);
   }
 
-  throw new Error(`Command "${key}" is not a valid warmup action.`);
+  const action = actionWrapper();
+  await action(options).catch(err => {
+    throw new Error(`Error during execution of "${key}" script:\n ${err}`);
+  });
 }
