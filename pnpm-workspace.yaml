@@ -4,3 +4,4 @@ packages:
   - 'packages/core'
   - 'packages/logiclayer'
   - 'packages/vizbuilder'
+  - 'packages/checker'
