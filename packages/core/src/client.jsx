@@ -91,7 +91,11 @@ function scrollToHash(hash, tries = 0) {
       const offset = Math.round(top - parseStyle("nav-height") - parseStyle("subnav-height") - 10);
 
       // if the element is not at zero, scroll to it's position
-      if (offset !== 0) animateScroll.scrollMore(offset);
+      if (offset !== 0) {
+        animateScroll.scrollMore(offset, {
+          duration: Math.abs(offset) < window.innerHeight ? 200 : 0
+        });
+      }
 
       // if the element is not focused, focus it!
       if (elem !== document.activeElement) elem.focus();
@@ -102,7 +106,7 @@ function scrollToHash(hash, tries = 0) {
       if (tries < maxTries) {
         scrollTimeout = setTimeout(() => {
           scrollToHash(hash, tries + 1);
-        }, 1000);
+        }, 200);
       }
 
     }
