@@ -53,6 +53,7 @@ export default {
       "Download Page as PDF": "Download Page as PDF"
     },
     "Search": {
+      "All": "All",
       "Empty": "Please enter a search term",
       "Loading": "Loading results...",
       "No results": "No results matching \"{{query}}\"",

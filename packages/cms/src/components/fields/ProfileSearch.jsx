@@ -387,7 +387,7 @@ class ProfileSearch extends Component {
           <li key="filters-all"
             className={`cms-profilesearch-filters-profile${!filterProfiles ? " active" : ""}`}
             onClick={() => this.setState({filterProfiles: false}, this.onFilterLevel.bind(this, false))}
-            dangerouslySetInnerHTML={{__html: filterProfileTitle({label: "All"})}} />
+            dangerouslySetInnerHTML={{__html: filterProfileTitle({label: t("CMS.Search.All")})}} />
           { profileGroups.map(g => {
             const profileIds = g[1].map(p => p.id);
             return <li key={`filters-${profileIds.join("-")}`}
