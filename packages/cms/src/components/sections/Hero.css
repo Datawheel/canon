@@ -218,6 +218,7 @@
 .bp3-dialog.cp-hero-search {
   background: var(--white);
   padding: var(--gutter-md) var(--gutter-md) 0;
+  width: 85%;
   & .cms-profilesearch {
     height: 75vh;
   }
