@@ -1,17 +1,35 @@
 const {EventEmitter} = require("events");
 const {Worker, MessageChannel} = require("worker_threads");
 
+/**
+ * @typedef WorkResultData
+ * @property {any} job
+ * @property {"SUCCESS" | "FAILURE"} status
+ * @property {any} data
+ */
+
+/**
+ * @typedef WorkResultError
+ * @property {any} job
+ * @property {"ERROR"} status
+ * @property {Error} error
+ */
+
+/**
+ * @typedef {WorkResultData | WorkResultError} WorkResult
+ */
+
 const WORKER_STATUS = {
+  NULL: Symbol("null"),
   IDLE: Symbol("idle"),
   BUSY: Symbol("busy")
 };
 
-/**
- * @typedef WorkResult
- * @property {Error | undefined} error
- * @property {"ERROR" | "SUCCESS"} status
- * @property {any} workData
- */
+const EVENTS = {
+  FINISHED: "finished",
+  PROGRESS: "progress",
+  READY: "ready"
+};
 
 class WorkerPool extends EventEmitter {
 
@@ -20,13 +38,10 @@ class WorkerPool extends EventEmitter {
    *
    * @param {string} script Path to the worker script
    * @param {number} size Number of concurrent workers
-   * @param {(err?: Error, workData: any) => void} [onProgress] Hook for the "progress" event
+   * @param {(result: WorkResult) => void} [onProgress] Hook for the "progress" event
    */
   constructor(script, size, onProgress) {
     super();
-
-    /** @type {{status: Symbol, worker: Worker}[]} */
-    this.pool = [];
 
     /** @type {any[]} */
     this.queue = [];
@@ -34,45 +49,30 @@ class WorkerPool extends EventEmitter {
     /** @type {WorkResult[]} */
     this.results = [];
 
-    this.totalWorks = 0;
+    this.jobsTotal = 0;
+    this.jobsSuccess = 0;
+    this.jobsFailure = 0;
+    this.jobsError = 0;
+    this.jobsStartTime = 0;
 
     this.script = script;
     this.size = parseInt(size, 10) || 2;
-    this.onProgress = onProgress;
 
-    this._initialize();
-  }
-
-  /**
-   * Create an initialize workers of the worker pool
-   */
-  _initialize() {
-    for (let i = 0; i < this.size; i++) {
+    this.pool = new Array(this.size).fill(0).map(() => {
       const worker = new Worker(this.script);
-      this.pool.push({
-        status: WORKER_STATUS.IDLE,
-        worker
+      worker.on("message", value => {
+        if (value === "ready") {
+          this.setWorkerIdle(worker);
+          this.areWorkersReady() && this.emit(EVENTS.READY);
+          worker.removeAllListeners("message");
+        }
       });
-      worker.once("exit", () => {
-        this.emit(`worker ${worker.threadId} terminated`);
-      });
+      return {status: WORKER_STATUS.NULL, worker};
+    });
+
+    if (typeof onProgress === "function") {
+      this.on(EVENTS.PROGRESS, onProgress);
     }
-
-    typeof this.onProgress === "function" &&
-      this.on("progress", this.onProgress);
-
-    this.on("workFinished", (workData, result) => {
-      this.results.push({workData, status: result.status, error: result.error});
-      this.emit("progress", result.error, workData);
-      const worker = this.getIdleWorker();
-      this.runWork(worker);
-    });
-
-    this.on("workError", (workData, error) => {
-      this.results.push({workData, status: "ERROR", error});
-      const worker = this.getIdleWorker();
-      this.runWork(worker);
-    });
   }
 
   terminate() {
@@ -80,6 +80,14 @@ class WorkerPool extends EventEmitter {
     return Promise.all(
       this.pool.map(item => item.worker.terminate())
     );
+  }
+
+  /**
+   * Checks if all the workers are ready to accept jobs
+   * @returns {boolean}
+   */
+  areWorkersReady() {
+    return this.pool.every(w => w.status !== WORKER_STATUS.NULL);
   }
 
   /**
@@ -119,7 +127,7 @@ class WorkerPool extends EventEmitter {
    */
   queueWork(workData) {
     this.queue.push(workData);
-    this.totalWorks++;
+    this.jobsTotal++;
     const worker = this.getIdleWorker();
     if (worker) {
       this.runWork(worker);
@@ -131,26 +139,48 @@ class WorkerPool extends EventEmitter {
    * @param {Worker} worker
    */
   runWork(worker) {
-    const workData = this.queue.shift();
+    const job = this.queue.shift();
 
-    if (workData) {
+    if (job) {
       this.setWorkerBusy(worker);
 
-      const {port1, port2} = new MessageChannel();
-      worker.postMessage({workData, port: port1}, [port1]);
+      /** @type {(report: Omit<WorkResultData, "job"> | Omit<WorkResultError, "job">)} */
+      const reportHandler = report => {
+        this.setWorkerIdle(worker);
 
-      port2.once("message", result => {
-        this.setWorkerIdle(worker);
-        this.emit("workFinished", workData, result);
-      });
-      port2.once("error", err => {
-        this.setWorkerIdle(worker);
-        this.emit("workError", workData, err);
-      });
+        report.status === "SUCCESS" && this.jobsSuccess++;
+        report.status === "FAILURE" && this.jobsFailure++;
+        report.status === "ERROR" && this.jobsError++;
+
+        const result = {...report, job};
+        this.results.push(result);
+        this.emit(EVENTS.PROGRESS, result);
+
+        const nextWorker = this.getIdleWorker();
+        nextWorker && this.runWork(nextWorker);
+      };
+
+      const {port1, port2} = new MessageChannel();
+      port2.once("message", reportHandler);
+      worker.postMessage({job, port: port1}, [port1]);
     }
     else {
-      this.emit("finished");
+      this.emit(EVENTS.FINISHED);
     }
+  }
+
+  /**
+   * Returns a promise that resolves when all workers in the pool are ready to
+   * accepts jobs.
+   * @returns {Promise<void>}
+   */
+  waitForWorkersReady() {
+    return new Promise(resolve => {
+      this.jobsStartTime = Date.now();
+      this.areWorkersReady()
+        ? resolve()
+        : this.once(EVENTS.READY, resolve);
+    });
   }
 
   /**
@@ -159,13 +189,37 @@ class WorkerPool extends EventEmitter {
    */
   waitForResults() {
     return new Promise(resolve => {
-      this.once("finished", () => {
+      this.once(EVENTS.FINISHED, () => {
         // Wait a bit before finishing so "progress" events complete
         setTimeout(() => {
           resolve(this.results);
         }, 2000);
       });
     });
+  }
+
+  /** */
+  printProgressBar() {
+    const {jobsTotal, jobsSuccess, jobsFailure, jobsError} = this;
+    const jobsFinished = this.results.length;
+    const progress = jobsFinished / jobsTotal;
+
+    const elapsed = Math.floor((Date.now() - this.jobsStartTime) / 1000);
+    const estTotal = Math.ceil(elapsed * jobsTotal / jobsFinished);
+    const remaining = estTotal - elapsed;
+    const timeRemaining = `${Math.floor(remaining / 3600)}h${Math.floor(remaining % 3600 / 60)}m`.replace(/\D?0[hm]/g, "") || "<1m";
+
+    const labels = `${jobsTotal}: ${jobsSuccess}S ${jobsFailure}F ${jobsError}E [${timeRemaining}]`;
+
+    const widthSpace = process.stdout.columns * 1 || 80;
+    const barLength = widthSpace - labels.length - 8;
+    const bar = [].concat(
+      new Array(Math.floor(barLength * progress)).fill("#"),
+      new Array(barLength).fill(" ")
+    ).join("");
+
+    process.stdout.write("\r\x1b[K");
+    process.stdout.write(`${labels} [${bar.substr(0, barLength)}] ${Math.floor(progress * 100)}%`);
   }
 }
 
