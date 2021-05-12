@@ -11,7 +11,6 @@ const filename = str => strip(str.replace(/<[^>]+>/g, ""))
   .replace(/\-$/g, "");
 
 import stripHTML from "../../utils/formatters/stripHTML";
-import groupMeta from "../../utils/groupMeta";
 
 import Viz from "../Viz/Viz";
 import SourceGroup from "../Viz/SourceGroup";
@@ -30,23 +29,9 @@ import "./Hero.css";
 class Hero extends Component {
 
   constructor(props) {
+
     super(props);
-    this.state = {
-      contents: props.contents,
-      loading: false,
-      selectors: {},
-      sources: [],
-      images: [],
-      creditsVisible: false,
-      clickedIndex: undefined
-    };
-
-    if (typeof window !== "undefined") window.titleClick = this.titleClick.bind(this);
-  }
-
-  componentDidMount() {
-    const {profile} = this.props;
-    const {dims} = profile;
+    const {contents, profile} = props;
 
     /** Image Metadata
       * A profile is a set of one more slug/id pairs. In multi-variate profiles, these pairs are strictly
@@ -57,6 +42,7 @@ class Hero extends Component {
       * one of the three that have an image, then this image array will be [null, {imageData}, null].
       */
 
+    const {dims} = profile;
     const images = [];
     if (dims) {
       for (let i = 0; i < dims.length; i++) {
@@ -71,7 +57,17 @@ class Hero extends Component {
       }
     }
 
-    this.setState({images});
+    this.state = {
+      contents,
+      loading: false,
+      selectors: {},
+      sources: [],
+      images,
+      creditsVisible: false,
+      clickedIndex: undefined
+    };
+
+    if (typeof window !== "undefined") window.titleClick = this.titleClick.bind(this);
   }
 
   titleClick(index) {
@@ -79,80 +75,6 @@ class Hero extends Component {
     setTimeout(() => {
       document.querySelector(".cp-hero-search .cp-input").focus();
     }, 300);
-  }
-
-  /**
-   * Users may click the title of a profile to search on that dimension. However, the embedded ProfileSearch component
-   * makes use of the /api/profilesearch (deepsearch) endpoint. That endpoint's main function is to return full profiles,
-   * not search on individual dimensions. However, it does return a "results" key with the raw deepsearch responses, keyed
-   * by dimension. So, when a user is searching, take the relevants results from the raw "results" key, and intelligently
-   * combine them with the "locked" other member (in the case of bilaterals) to build a full "linkify-able" search Result.
-   */
-  formatResults(resp) {
-    const {clickedIndex} = this.state;
-    const {meta, variables} = this.props.profile;
-    const {router} = this.context;
-    const groupedMeta = groupMeta(meta);
-    let dimensionResults = [];
-    if (groupedMeta[clickedIndex] && (groupedMeta.length === 1 || groupedMeta.length === 2)) {
-      const rawResults = resp.data.results;
-      // A single "slot" in the meta may have multiple variants - grab all possible variants
-      const metaVariants = groupedMeta[clickedIndex];
-      if (metaVariants) {
-        try {
-          // Filter down to the applicable dimensions - the ones that match any of the possible variants.
-          const relevantDimensions = Object.keys(rawResults).filter(d => metaVariants.map(m => m.dimension).includes(d));
-          // For each relevant dimension of the raw Results, collate linkifyable objects
-          relevantDimensions.forEach(dim => {
-            // First make a function that turns a deepsearch result into a linkify object
-            const formatFoundResult = d => ({
-              slug: metaVariants.find(m => m.cubeName === d.metadata.cube_name).slug,
-              id: d.metadata.id,
-              memberSlug: d.metadata.slug,
-              memberDimension: dim,
-              memberHierarchy: d.metadata.hierarchy,
-              name: d.name,
-              ranking: d.popularity
-            });
-            // Only use results that match the possible variants of the meta we are searching on
-            const filteredResults = rawResults[dim].filter(d => metaVariants.map(m => m.cubeName).includes(d.metadata.cube_name));
-            // Remember that the search results only pertain to one dimension
-            const scaffoldedResults = filteredResults.map(d => {
-              // If this is a unary profile, just wrap it in an array for linkify, no need for scaffolding
-              if (groupedMeta.length === 1) {
-                return [formatFoundResult(d)];
-              }
-              // However if bilateral, scaffold out the other "Fixed" member to fully formulate a link
-              else {
-                const otherIndex = clickedIndex === 0 ? 1 : 0;
-                const thisResult = [];
-                thisResult[clickedIndex] = formatFoundResult(d);
-                const slugKey = clickedIndex === 0 ? "slug2" : "slug";
-                const varIndex = otherIndex + 1;
-                // use the variables object to scaffold out the "fixed" member
-                thisResult[otherIndex] = {
-                  slug: router.params[slugKey],  // wondering - is there a better way than params to know what slug we're on?
-                  id: variables[`id${varIndex}`],
-                  memberSlug: variables[`slug${varIndex}`],
-                  memberDimension: variables[`dimension${varIndex}`],
-                  memberHierarchy: variables[`hierarchy${varIndex}`],
-                  name: variables[`name${varIndex}`],
-                  // Copy the other object's ranking and apply it to this one, so the sort below can use [0] no matter the order
-                  ranking: thisResult[clickedIndex].ranking
-                };
-                return thisResult;
-              }
-            });
-            dimensionResults = dimensionResults.concat(scaffoldedResults);
-          });
-          dimensionResults.sort((a, b) => b[0].ranking - a[0].ranking);
-        }
-        catch (e) {
-          console.log("Search Error!");
-        }
-      }
-    }
-    return Object.assign({}, resp, {data: {grouped: dimensionResults}});
   }
 
   spanifyTitle(title) {
@@ -226,7 +148,7 @@ class Hero extends Component {
 
     // custom images can be uploaded with no flickr source. Only show the "image credits" section
     // if at least one of the images has the flickr data to show
-    const hasFlickrSource = images && images.some(d => !d.permalink.includes("custom-image"));
+    const hasFlickrSource = images.some(d => !d.permalink.includes("custom-image"));
 
     return (
       <header className="cp-section cp-hero">
@@ -260,7 +182,7 @@ class Hero extends Component {
         </div>
 
         {/* display image credits, and images */}
-        {images && images.length
+        {images.length
           ? <Fragment>
             {/* credits */}
             { hasFlickrSource &&
@@ -334,9 +256,11 @@ class Hero extends Component {
           onClose={() => this.setState({clickedIndex: undefined})}
         >
           <ProfileSearch
-            inputFontSize="md"
-            display="list"
-            formatResults={this.formatResults.bind(this)}
+            defaultProfiles={`${profile.id}`}
+            defaultQuery={stripHTML(contents.title)}
+            filters={true}
+            inputFontSize="lg"
+            display="grid"
             {...searchProps}
           />
         </Dialog>

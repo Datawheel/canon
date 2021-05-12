@@ -575,6 +575,10 @@ import {ProfileSearch} from "@datawheel/canon-cms";
   availableProfiles={[]} // limit the type of profile results to show (ie. ["hs92", "country"])
   columnOrder={[]} // the order of the "columns" display (ie. ["hs92", "country"])
   columnTitles={{}} // overrides for the default column titles (ie. {hs92: "Products"})
+  defaultCubes={false} // default cube names (comma-separate) to use when mounting the component
+  defaultLevels={false} // default level names (comma-separate) to use when mounting the component
+  defaultProfiles={false} // default profile IDs (comma-separate) to use when mounting the component
+  defaultQuery={""} // default search query to use when mounting the component
   display={"list"} // available options are "list", "columns", and "grid"
   filters={false} // enables a set of nested profile, hierarchy, and cube filters
   filterCubeTitle={cubeName => cubeName} // cube title used for filters (allows for grouping cubes with matching labels)

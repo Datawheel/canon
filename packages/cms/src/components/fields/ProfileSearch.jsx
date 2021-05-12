@@ -72,13 +72,13 @@ class ProfileSearch extends Component {
     super(props);
     this.state = {
       active: false,
-      filterCubes: false,
-      filterProfiles: false,
-      filterLevels: false,
+      filterCubes: props.defaultCubes,
+      filterProfiles: props.defaultProfiles,
+      filterLevels: props.defaultLevels,
       id: uuid(),
       loading: false,
       profiles: false,
-      query: "",
+      query: props.defaultQuery,
       results: false,
       timeout: 0
     };
@@ -97,7 +97,7 @@ class ProfileSearch extends Component {
     if (query.cubes) queryArgs.filterCubes = query.cubes;
 
     if (Object.keys(queryArgs).length) this.setState(queryArgs, showExamples ? this.onChange.bind(this) : undefined);
-    else if (showExamples) this.onChange.bind(this)();
+    else if (showExamples || this.state.query.length) this.onChange.bind(this)();
 
     select(document).on(`mousedown.${id}`, event => {
       const {active} = this.state;
@@ -387,7 +387,7 @@ class ProfileSearch extends Component {
           <li key="filters-all"
             className={`cms-profilesearch-filters-profile${!filterProfiles ? " active" : ""}`}
             onClick={() => this.setState({filterProfiles: false}, this.onFilterLevel.bind(this, false))}
-            dangerouslySetInnerHTML={{__html: filterProfileTitle({label: "All"})}} />
+            dangerouslySetInnerHTML={{__html: filterProfileTitle({label: t("CMS.Search.All")})}} />
           { profileGroups.map(g => {
             const profileIds = g[1].map(p => p.id);
             return <li key={`filters-${profileIds.join("-")}`}
@@ -427,7 +427,7 @@ class ProfileSearch extends Component {
               ? (() => {
 
                 if (!results.grouped.length) {
-                  return <NonIdealState key="empty" icon="zoom-out" title={t("CMS.Search.No results", {query})} />;
+                  return <NonIdealState key="empty" icon="zoom-out" title={t("CMS.Search.No results", {query, interpolation: {escapeValue: false}})} />;
                 }
 
                 else {
@@ -500,6 +500,10 @@ ProfileSearch.defaultProps = {
   availableProfiles: [],
   columnOrder: [],
   columnTitles: {},
+  defaultCubes: false,
+  defaultProfiles: false,
+  defaultLevels: false,
+  defaultQuery: "",
   display: "list",
   filters: false,
   filterCubeTitle: d => d,
