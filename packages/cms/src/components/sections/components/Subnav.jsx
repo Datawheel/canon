@@ -138,7 +138,7 @@ class Subnav extends Component {
     if (sections) {
       throttle(() => {
         const {currSection, currSubSection, fixed} = this.state;
-        const topBorder = parseStyle(styles["nav-height"]) + parseStyle(styles["subnav-height"]);
+        const topBorder = parseStyle("nav-height") + parseStyle("subnav-height");
         const screenTop = window.pageYOffset + topBorder;
         const heroHeight = document.querySelector(".cp-hero").getBoundingClientRect().height;
 

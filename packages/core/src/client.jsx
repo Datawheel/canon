@@ -72,23 +72,50 @@ i18n
     resources: resourceObj
   });
 
+let scrollTimeout;
+
 /**
     Scrolls to a page element if it exists on the page.
 */
-function scrollToHash(hash, wait = true) {
+function scrollToHash(hash, tries = 0) {
+
+  const maxTries = 5;
+  clearTimeout(scrollTimeout);
+
   const elem = hash && hash.indexOf("#") === 0 ? document.getElementById(hash.slice(1)) : false;
+
   if (elem) {
-    const offset = elem.getBoundingClientRect().top;
-    if (offset) {
-      animateScroll.scrollMore(offset - parseStyle("nav-height") - parseStyle("subnav-height") - 10);
-      setTimeout(() => {
-        elem.focus();
-      }, 100);
+    const top = elem.getBoundingClientRect().top;
+    if (top) {
+
+      const offset = Math.round(top - parseStyle("nav-height") - parseStyle("subnav-height") - 10);
+
+      // if the element is not at zero, scroll to it's position
+      if (offset !== 0) {
+        animateScroll.scrollMore(offset, {
+          duration: Math.abs(offset) < window.innerHeight ? 200 : 0
+        });
+      }
+
+      // if the element is not focused, focus it!
+      if (elem !== document.activeElement) elem.focus();
+
+      // retry this whole process a few times, just in case
+      // elements above it change height onLoad and push
+      // the element up or down
+      if (tries < maxTries) {
+        scrollTimeout = setTimeout(() => {
+          scrollToHash(hash, tries + 1);
+        }, 200);
+      }
+
     }
   }
-  else if (wait) {
-    setTimeout(() => {
-      scrollToHash(hash, false);
+  // if no element on the page has the requested hash,
+  // retry again in 100ms (could be added via JavaScript)
+  else if (tries < maxTries) {
+    scrollTimeout = setTimeout(() => {
+      scrollToHash(hash, tries + 1);
     }, 100);
   }
 }
