@@ -257,7 +257,7 @@ class Hero extends Component {
         >
           <ProfileSearch
             defaultProfiles={`${profile.id}`}
-            defaultQuery={stripHTML(contents.title)}
+            defaultQuery={contents ? stripHTML(contents.title) : ""}
             filters={true}
             inputFontSize="lg"
             display="grid"

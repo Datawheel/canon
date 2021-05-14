@@ -6,7 +6,7 @@ import Home from "./pages/Home";
 import Docs from "./pages/Docs";
 import Error from "./pages/core/NotFound";
 
-import {Builder, Profile, ProfileSearch} from "@datawheel/canon-cms";
+import {Builder, Profile, ProfileSearch, Story, StoryLanding} from "@datawheel/canon-cms";
 import {Login, SignUp} from "@datawheel/canon-core";
 
 /** */
@@ -26,6 +26,8 @@ export default function RouteCreate() {
       <Route path="/:lang/profile/:slug/:id/:slug2/:id2" component={Profile} />
       <Route path="/:lang/profile/:slug/:id/:slug2/:id2/:slug3/:id3" component={Profile} />
       <Route path="/:lang/profilesearch" component={ProfileSearch} />
+      <Route path="/:lang/story/:slug" component={Story} />
+      <Route path="/:lang/stories" component={StoryLanding} />
 
       <Route path="*" component={Error} status={404} />
 

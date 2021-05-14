@@ -27,7 +27,7 @@ class StoryEditor extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.id !== this.props.id) {
       this.setState({minData: deepClone(this.props.minData)});
-    }    
+    }
   }
 
   setDate(date) {
@@ -82,7 +82,7 @@ class StoryEditor extends Component {
             key="title-card"
             minData={minData}
             fields={["title", "subtitle"]}
-            plainfields={["image"]}
+            plainFields={["image"]}
             type="story"
           />}
         >
@@ -119,7 +119,7 @@ class StoryEditor extends Component {
           entity="description"
           addItem={this.addItem.bind(this, "story_description")}
           cards={minData.descriptions && minData.descriptions.map(d =>
-            <TextCard 
+            <TextCard
               key={d.id}
               minData={d}
               fields={["description"]}
@@ -135,7 +135,7 @@ class StoryEditor extends Component {
           entity="footnote"
           addItem={this.addItem.bind(this, "story_footnote")}
           cards={minData.footnotes && minData.footnotes.map(d =>
-            <TextCard 
+            <TextCard
               key={d.id}
               minData={d}
               fields={["title", "description"]}
@@ -151,11 +151,11 @@ class StoryEditor extends Component {
           entity="author"
           addItem={this.addItem.bind(this, "author")}
           cards={minData.authors && minData.authors.map(d =>
-            <TextCard 
+            <TextCard
               key={d.id}
               minData={d}
               fields={["bio"]}
-              plainfields={["name", "title", "image", "twitter"]}
+              plainFields={["name", "title", "image", "twitter"]}
               type="author"
               showReorderButton={minData.authors[minData.authors.length - 1].id !== d.id}
             />

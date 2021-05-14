@@ -228,7 +228,7 @@ class TextCard extends Component {
     const source = minData.content.find(c => c.locale === localeDefault);
     if (source) {
       const {id, locale, ...content} = source;  //eslint-disable-line
-      Toast.show({icon: "translate", intent: Intent.WARNING, message: "Translating...", timeout: 1000});  
+      Toast.show({icon: "translate", intent: Intent.WARNING, message: "Translating...", timeout: 1000});
       const config = {
         source: localeDefault,
         target: localeSecondary,
@@ -240,19 +240,19 @@ class TextCard extends Component {
       translateContent(content, config).then(resp => {
         // Bubble up any remote errors
         if (resp.error) {
-          Toast.show({icon: "error", intent: Intent.DANGER, message: `Translation Error: ${resp.error}`, timeout: 5000});  
+          Toast.show({icon: "error", intent: Intent.DANGER, message: `Translation Error: ${resp.error}`, timeout: 5000});
           this.setState({alertObj: false});
         }
         // If there were no remote errors, spread the content into the object
         else {
           minData.content = minData.content.map(d => d.locale === localeSecondary ? {...d, ...resp.translated} : d);
           this.setState({alertObj: false, minData});
-          Toast.show({icon: "translate", intent: Intent.SUCCESS, message: "Translation Complete!", timeout: 1000});  
+          Toast.show({icon: "translate", intent: Intent.SUCCESS, message: "Translation Complete!", timeout: 1000});
           this.editor.wrappedInstance.reload();
         }
         // catch non-remote errors here
       }).catch(e => {
-        Toast.show({icon: "error", intent: Intent.DANGER, message: `Translation Error: ${e}`, timeout: 5000});  
+        Toast.show({icon: "error", intent: Intent.DANGER, message: `Translation Error: ${e}`, timeout: 5000});
         this.setState({alertObj: false});
       });
     }

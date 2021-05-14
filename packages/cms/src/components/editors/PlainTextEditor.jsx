@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import TextInput from "../fields/TextInput";
+import "./PlainTextEditor.css";
 
 class PlainTextEditor extends Component {
 
@@ -44,7 +45,7 @@ class PlainTextEditor extends Component {
     const thisLocale = data.content.find(c => c.locale === locale);
 
     return (
-      <div id="text-editor">
+      <div className="cms-plaintext-editor">
         {fields.map(f =>
           <TextInput
             label={f}

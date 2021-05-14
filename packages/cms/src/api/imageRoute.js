@@ -81,7 +81,7 @@ module.exports = function(app) {
       include: imageInclude
     };
     if (memberSlug) searchWhere.where.slug = memberSlug;
-    if (id) searchWhere.where.id = id;
+    if (id) searchWhere.where[sequelize.Op.or] = {id, slug: id};
     if (req.query.level) searchWhere.where.hierarchy = req.query.level;
     let member = await db.search.findOne(searchWhere).catch(catcher);
     if (!member) return type === "json" ? jsonError() : imageError();
