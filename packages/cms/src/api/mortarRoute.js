@@ -791,7 +791,7 @@ module.exports = function(app) {
     let stories = await db.story.findAll({include: [
       {association: "content"},
       {association: "authors", include: [
-        {association: "content", attributes: ["name", "image", "locale"]}
+        {association: "content", attributes: ["name", "title", "image", "twitter", "bio", "locale"]}
       ]}
     ]}).catch(catcher);
     stories = stories.map(story => extractLocaleContent(story.toJSON(), locale, "story"));

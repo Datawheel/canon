@@ -14,7 +14,7 @@ class StoryLanding extends Component {
       <div id="StoryLanding">
         <h3>Stories</h3>
         <ul>
-          {stories.map((story, i) => 
+          {stories.map((story, i) =>
             <li key={`${story.slug}-${i}`}><a href={`/story/${story.slug}`}>{stripP(story.title)}</a></li>
           )}
         </ul>
