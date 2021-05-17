@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const readline = require("readline");
 const {Reporter} = require("./common");
-const WorkerPool = require("./workerPool");
+const WorkerPool = require("./worker_pool");
 
 const workerPath = path.resolve(__dirname, "worker.js");
 

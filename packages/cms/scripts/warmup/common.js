@@ -29,7 +29,7 @@ class Reporter {
 
   /**
    * @param {string} profile
-   * @param {import("./workerpool").WorkResult[]} results
+   * @param {import("./worker_pool").WorkResult[]} results
    * @returns {Promise<void>}
    */
   writeReport(profile, results) {

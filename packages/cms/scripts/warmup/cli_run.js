@@ -3,7 +3,7 @@
 const path = require("path");
 const Sequelize = require("sequelize");
 const {Reporter, hydrateModels} = require("./common");
-const WorkerPool = require("./workerpool");
+const WorkerPool = require("./worker_pool");
 
 const workerPath = path.resolve(__dirname, "worker.js");
 
