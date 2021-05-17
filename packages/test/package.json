@@ -10,7 +10,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Datawheel/canon.git",
-    "directory": "packages/checker"
+    "directory": "packages/test"
   },
   "author": "Pablo H. Paladino <pablo@datawheel.us>",
   "license": "GPL-3.0-or-later",
