@@ -33,22 +33,6 @@ importers:
       d3plus-viz: ^1.0.3
       prop-types: ^15.7.2
       react: ^16.13.1
-  packages/checker:
-    dependencies:
-      axios: 0.21.1
-      compression: 1.7.4
-      cors: 2.8.5
-      express: 4.17.1
-      sequelize: 4.44.4
-    devDependencies:
-      nodemon: 2.0.7
-    specifiers:
-      axios: ^0.21.1
-      compression: ^1.7.4
-      cors: ^2.8.5
-      express: ^4.17.1
-      nodemon: ^2.0.4
-      sequelize: ^4.13.10
   packages/cms:
     dependencies:
       '@blueprintjs/core': 3.38.2
@@ -418,6 +402,22 @@ importers:
       promise-throttle: ^1.0.0
       sequelize: ^4.13.10
       yn: ^4.0.0
+  packages/test:
+    dependencies:
+      axios: 0.21.1
+      compression: 1.7.4
+      cors: 2.8.5
+      express: 4.17.1
+      sequelize: 4.44.4
+    devDependencies:
+      nodemon: 2.0.7
+    specifiers:
+      axios: ^0.21.1
+      compression: ^1.7.4
+      cors: ^2.8.5
+      express: ^4.17.1
+      nodemon: ^2.0.4
+      sequelize: ^4.13.10
   packages/vizbuilder:
     dependencies:
       '@datawheel/olap-client': 1.3.3
@@ -2188,7 +2188,6 @@ packages:
       integrity: sha512-EPpXLOVqDvisVxtlbvzfyqSsFeQxltFbluZNRndIb8tr9KiBnYNLzrc1N3pyKUCww2RNrfHDViqDWWE1LCJQtQ==
   /@types/node/14.14.41:
     dev: false
-    optional: true
     resolution:
       integrity: sha512-dueRKfaJL4RTtSa7bWeTK1M+VH+Gns73oCgzvYfHZywRCoPSd8EkXBL0mZ9unPTveBn+D9phZBaxuzpwjWkW0g==
   /@types/prop-types/15.7.3:
@@ -12706,12 +12705,14 @@ packages:
     dependencies:
       '@types/geojson': 1.0.6
       terraformer: 1.0.12
+    deprecated: terraformer-wkt-parser is deprecated and no longer supported. Please use @terraformer/wkt.
     dev: false
     engines:
       node: '>=4.2.6'
     resolution:
       integrity: sha512-+CJyNLWb3lJ9RsZMTM66BY0MT3yIo4l4l22Jd9CrZuwzk54fsu4Sc7zejuS9fCITTuTQy3p06d4MZMVI7v5wSg==
   /terraformer/1.0.12:
+    deprecated: terraformer is deprecated and no longer supported. Please use @terraformer/arcgis.
     dev: false
     engines:
       node: '>=4.2.6'
@@ -13627,7 +13628,7 @@ packages:
       integrity: sha1-oJYpuakgAo1yFAT7Q1vc/1yRvCE=
   /wkx/0.4.8:
     dependencies:
-      '@types/node': 14.14.25
+      '@types/node': 14.14.41
     dev: false
     resolution:
       integrity: sha512-ikPXMM9IR/gy/LwiOSqWlSL3X/J5uk9EO2hHNRXS41eTLXaUFEVw9fn/593jW/tE5tedNg8YjT5HkCa4FqQZyQ==
