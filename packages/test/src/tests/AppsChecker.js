@@ -16,14 +16,14 @@ class AppsChecker{
         id: "1-Canon-core",
         title: "Canon Core",
         description: "Check Canon Core alive endpoint.",
-        testFn: async ()=>{
+        validate: async ()=>{
           try {
             const cubeUrl = `${CANON_API}/api/alive/core`;
 
             const data = await Axios.get(cubeUrl)
               .then(resp => resp.data);
 
-            return {error: false, msg: data};
+            return {error: data.error, msg: data};
 
           } catch (error) {
             console.log(error);
@@ -36,14 +36,14 @@ class AppsChecker{
         id: "2-Canon-cms",
         title: "Canon CMS",
         description: "Check Canon CMS alive endpoint.",
-        testFn: async ()=>{
+        validate: async ()=>{
           try {
             const cubeUrl = `${CANON_API}/api/alive/cms`;
 
             const data = await Axios.get(cubeUrl)
               .then(resp => resp.data);
 
-            return {error: false, msg: data};
+            return {error: data.error, msg: data};
 
           } catch (error) {
             console.log(error);
@@ -71,7 +71,7 @@ class AppsChecker{
       //Log
       response.log.push(`Checking ${app.id}...`);
       //Execute test function
-      result = await app.testFn();
+      result = await app.validate();
       //Assing results
       response.results.push({
         id:app.id,

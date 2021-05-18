@@ -21,7 +21,7 @@ class ServicesChecker{
         id: "1-Postgres",
         title: "CMS Postgres database",
         description: "CMS Postgres database check.",
-        testFn: async ()=>{
+        validate: async ()=>{
           try {
 
             const dbConnection = CANON_DB_CONNECTION_STRING ||
@@ -47,7 +47,7 @@ class ServicesChecker{
         id: "2-Tesseract",
         title: "Tesseract server",
         description: "Check if Tesseract server is up and running.",
-        testFn: async ()=>{
+        validate: async ()=>{
           try {
             const cubeUrl = CANON_CMS_CUBES;
 
@@ -82,7 +82,7 @@ class ServicesChecker{
       //Log
       response.log.push(`Checking ${service.id}...`);
       //Execute test function
-      result = await service.testFn();
+      result = await service.validate();
       //Assing results
       response.results.push({
         id:service.id,
