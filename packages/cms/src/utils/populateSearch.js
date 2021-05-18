@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const d3Array = require("d3-array");
 const yn = require("yn");
 const {strip} = require("d3plus-text");
+const stripHTML = require("./formatters/stripHTML");
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
@@ -167,7 +168,7 @@ const populateSearch = async(profileData, db, metaLookup = false, newSlugs = fal
       const meta = await db.profile_meta.findAll().catch(catcher);
       const cubeHash = meta.reduce((acc, d) => ({...acc, [d.cubeName]: d.id}), {});
 
-      const slugify = str => strip(str).replace(/-{2,}/g, "-").toLowerCase();
+      const slugify = str => strip(stripHTML(str)).replace(/-{2,}/g, "-").toLowerCase();
 
       if (verbose) console.log("Generating slugs...");
       // Add a generated slug and the originating cubeName to the write payload

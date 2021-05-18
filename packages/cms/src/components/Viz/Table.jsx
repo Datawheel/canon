@@ -111,6 +111,7 @@ class Table extends Component {
     const onClick = typeof obj === "object" ? obj.onClick : undefined;
     const header = obj.Header ? obj.Header : obj.accessor;
     const title = headerFormat ? headerFormat(header) : header;
+    const {print} = this.context;
 
     /** */
     function formatValue(cell, value) {
