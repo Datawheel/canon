@@ -206,9 +206,9 @@ class Options extends Component {
               const fakeHeader = document.createElement("span");
               // remove header button screen reader text & icon
               const hiddenText = header.querySelector(".u-visually-hidden");
-              hiddenText.parentNode.removeChild(hiddenText);
+              if (hiddenText) hiddenText.parentNode.removeChild(hiddenText);
               const icon = header.querySelector(".cp-table-header-icon");
-              icon.parentNode.removeChild(icon);
+              if (icon) icon.parentNode.removeChild(icon);
               // get header text
               fakeHeader.innerHTML = header.textContent || header.innerText;
               // get the classes from the real header & add them to the fake
