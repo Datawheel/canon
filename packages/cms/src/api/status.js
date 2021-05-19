@@ -4,11 +4,11 @@ module.exports = function(app) {
     CANON_API
   } = process.env;
 
-  app.get("/api/alive/cms", (req, res) => {
+  app.get("/api/status/cms", (req, res) => {
 
     const response = {
       error: false,
-      msg: `Canon CMS is alive in ${CANON_API}/api/alive/cms`
+      msg: `Canon CMS is alive in ${CANON_API}/api/status/cms`
     };
 
     //TODO: add relevant validations here

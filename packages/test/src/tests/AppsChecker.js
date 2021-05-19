@@ -15,10 +15,10 @@ class AppsChecker{
       {
         id: "1-Canon-core",
         title: "Canon Core",
-        description: "Check Canon Core alive endpoint.",
+        description: "Check Canon Core status endpoint.",
         validate: async ()=>{
           try {
-            const cubeUrl = `${CANON_API}/api/alive/core`;
+            const cubeUrl = `${CANON_API}/api/status/core`;
 
             const data = await Axios.get(cubeUrl)
               .then(resp => resp.data);
@@ -35,10 +35,10 @@ class AppsChecker{
       {
         id: "2-Canon-cms",
         title: "Canon CMS",
-        description: "Check Canon CMS alive endpoint.",
+        description: "Check Canon CMS status endpoint.",
         validate: async ()=>{
           try {
-            const cubeUrl = `${CANON_API}/api/alive/cms`;
+            const cubeUrl = `${CANON_API}/api/status/cms`;
 
             const data = await Axios.get(cubeUrl)
               .then(resp => resp.data);
