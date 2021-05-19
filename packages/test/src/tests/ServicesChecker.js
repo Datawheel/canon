@@ -1,11 +1,11 @@
-const CONSTS = require('./../utils/consts'),
+const CONSTS = require("./../utils/consts"),
       Axios = require("axios"),
       Sequelize = require("sequelize");
 
 
-class ServicesChecker{
+class ServicesChecker {
 
-  constructor(ENV_VARS){
+  constructor(ENV_VARS) {
 
     const {
       CANON_CMS_CUBES,
@@ -21,7 +21,7 @@ class ServicesChecker{
         id: "1-Postgres",
         title: "CMS Postgres database",
         description: "CMS Postgres database check.",
-        validate: async ()=>{
+        validate: async() => {
           try {
 
             const dbConnection = CANON_DB_CONNECTION_STRING ||
@@ -34,11 +34,12 @@ class ServicesChecker{
 
             const data = await sequelize.query("SELECT version();");
 
-            return {error: false, msg: data[0] && data[0][0]?data[0][0]:data};
+            return {error: false, msg: data[0] && data[0][0] ? data[0][0] : data};
 
-          } catch (error) {
+          }
+          catch (error) {
             console.log(error);
-            console.log('ERROR postgres', error);
+            console.log("ERROR postgres", error);
             return {error: true, msg: error.toString()};
           }
         }
@@ -47,7 +48,7 @@ class ServicesChecker{
         id: "2-Tesseract",
         title: "Tesseract server",
         description: "Check if Tesseract server is up and running.",
-        validate: async ()=>{
+        validate: async() => {
           try {
             const cubeUrl = CANON_CMS_CUBES;
 
@@ -56,9 +57,10 @@ class ServicesChecker{
 
             return {error: false, msg: data};
 
-          } catch (error) {
+          }
+          catch (error) {
             console.log(error);
-            console.log('ERROR tesseract', error);
+            console.log("ERROR tesseract", error);
             return {error: true, msg: error.toString()};
           }
         }
@@ -66,38 +68,38 @@ class ServicesChecker{
     ];
   }
 
-  async run(){
-    //Response object with deafult PASS and initialized log.
+  async run() {
+    // Response object with deafult PASS and initialized log.
     const response = {
       status: CONSTS.STATUS.PASS,
-      log:[`Starting up: ${this.SERVICES.length} services to check.`],
+      log: [`Starting up: ${this.SERVICES.length} services to check.`],
       results: []
     };
 
     let result;
-    //Iterate over services
+    // Iterate over services
     for (let index = 0; index < this.SERVICES.length; index++) {
-      //The services object
+      // The services object
       const service = this.SERVICES[index];
-      //Log
+      // Log
       response.log.push(`Checking ${service.id}...`);
-      //Execute test function
+      // Execute test function
       result = await service.validate();
-      //Assing results
+      // Assing results
       response.results.push({
-        id:service.id,
-        title:service.title,
-        description:service.description,
+        id: service.id,
+        title: service.title,
+        description: service.description,
         result
       });
-      //Log
-      response.log.push(`Checked ${service.title}: ${result.error?CONSTS.STATUS.FAIL:CONSTS.STATUS.PASS}`);
-      //Check CONSTS.status. Whole status is FAIL if there is at least one FAIL.
+      // Log
+      response.log.push(`Checked ${service.title}: ${result.error ? CONSTS.STATUS.FAIL : CONSTS.STATUS.PASS}`);
+      // Check CONSTS.status. Whole status is FAIL if there is at least one FAIL.
       if (response.status === CONSTS.STATUS.PASS && result.error) response.status = CONSTS.STATUS.FAIL;
     }
 
-    //Last log line
-    response.log.push(`Finished.`);
+    // Last log line
+    response.log.push("Finished.");
 
     return response;
   }

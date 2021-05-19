@@ -1,12 +1,12 @@
-const CONSTS = require('../utils/consts'),
+const CONSTS = require("../utils/consts"),
       Axios = require("axios"),
       Sequelize = require("sequelize"),
-      ChildProcess = require('child_process');
+      ChildProcess = require("child_process");
 
 
-class ServicesChecker{
+class ServicesChecker {
 
-  constructor(ENV_VARS){
+  constructor(ENV_VARS) {
 
     const {
       CANON_CMS_CUBES,
@@ -23,9 +23,9 @@ class ServicesChecker{
         title: "Node version",
         description: "Check Node version",
         cli: "node -v",
-        validate: (output) => {
+        validate: output => {
           const expectedVersion = 12;
-          const currentVersion = parseInt(output.split('.')[0].replace('v',''));
+          const currentVersion = parseInt(output.split(".")[0].replace("v", ""));
           const invalidVersion = currentVersion < expectedVersion;
           const result = {
             error: invalidVersion,
@@ -40,9 +40,9 @@ class ServicesChecker{
         title: "NPM version",
         description: "Check NPM version",
         cli: "npm -v",
-        validate: (output) => {
+        validate: output => {
           const expectedVersion = 6;
-          const currentVersion = parseInt(output.split('.')[0]);
+          const currentVersion = parseInt(output.split(".")[0]);
           const invalidVersion = currentVersion < expectedVersion;
           const result = {
             error: invalidVersion,
@@ -65,50 +65,50 @@ class ServicesChecker{
     return new Promise((resolve, reject) => {
       exec(cmd, (error, stdout, stderr) => {
         const result = {
-          error: error?true:false,
-          msg:stdout?stdout:stderr
+          error: error ? true : false,
+          msg: stdout ? stdout : stderr
         };
         resolve(result);
       });
     });
   }
 
-  async run(){
-    //Response object with deafult PASS and initialized log.
+  async run() {
+    // Response object with deafult PASS and initialized log.
     const response = {
       status: CONSTS.STATUS.PASS,
-      log:[`Starting up: ${this.COMMANDS.length} commands to check.`],
+      log: [`Starting up: ${this.COMMANDS.length} commands to check.`],
       results: []
     };
 
     let result;
-    //Iterate over command
+    // Iterate over command
     for (let index = 0; index < this.COMMANDS.length; index++) {
-      //The command object
+      // The command object
       const command = this.COMMANDS[index];
-      //Log
+      // Log
       response.log.push(`Running ${command.id}...`);
-      //Execute test function
+      // Execute test function
       result = await this.execShellCommand(command.cli);
 
-      //If there is no error from CLI pass through command's validate function
-      if(!result.error && command.validate){
+      // If there is no error from CLI pass through command's validate function
+      if (!result.error && command.validate) {
         result = command.validate(result.msg);
       }
 
-      //Add results
+      // Add results
       response.results.push({
-        id:command.id,
-        title:command.title,
-        description:command.description,
+        id: command.id,
+        title: command.title,
+        description: command.description,
         result
       });
-      //Log
+      // Log
       response.log.push(`Checked ${command.title};`);
     }
 
-    //Last log line
-    response.log.push(`Finished.`);
+    // Last log line
+    response.log.push("Finished.");
 
     return response;
   }

@@ -1,8 +1,8 @@
 const STATUS = {
-  FAIL:"[FAILED]",
-  PASS:"[PASS]"
+  FAIL: "[FAILED]",
+  PASS: "[PASS]"
 };
 
 module.exports = {
   STATUS
-}
+};

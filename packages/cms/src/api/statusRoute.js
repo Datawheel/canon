@@ -11,7 +11,7 @@ module.exports = function(app) {
       msg: `Canon CMS is alive in ${CANON_API}/api/status/cms`
     };
 
-    //TODO: add relevant validations here
+    // TODO: add relevant validations here
 
     res.json(response);
 

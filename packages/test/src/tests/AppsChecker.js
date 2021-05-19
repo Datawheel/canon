@@ -1,11 +1,11 @@
-const CONSTS = require('./../utils/consts'),
+const CONSTS = require("./../utils/consts"),
       Axios = require("axios"),
       Sequelize = require("sequelize");
 
 
-class AppsChecker{
+class AppsChecker {
 
-  constructor(ENV_VARS){
+  constructor(ENV_VARS) {
 
     const {
       CANON_API
@@ -16,7 +16,7 @@ class AppsChecker{
         id: "1-Canon-core",
         title: "Canon Core",
         description: "Check Canon Core status endpoint.",
-        validate: async ()=>{
+        validate: async() => {
           try {
             const cubeUrl = `${CANON_API}/api/status/core`;
 
@@ -25,9 +25,10 @@ class AppsChecker{
 
             return {error: data.error, msg: data};
 
-          } catch (error) {
+          }
+          catch (error) {
             console.log(error);
-            console.log('ERROR Canon core', error);
+            console.log("ERROR Canon core", error);
             return {error: true, msg: error.toString()};
           }
         }
@@ -36,7 +37,7 @@ class AppsChecker{
         id: "2-Canon-cms",
         title: "Canon CMS",
         description: "Check Canon CMS status endpoint.",
-        validate: async ()=>{
+        validate: async() => {
           try {
             const cubeUrl = `${CANON_API}/api/status/cms`;
 
@@ -45,9 +46,10 @@ class AppsChecker{
 
             return {error: data.error, msg: data};
 
-          } catch (error) {
+          }
+          catch (error) {
             console.log(error);
-            console.log('ERROR Canon core', error);
+            console.log("ERROR Canon core", error);
             return {error: true, msg: error.toString()};
           }
         }
@@ -55,38 +57,38 @@ class AppsChecker{
     ];
   }
 
-  async run(){
-    //Response object with deafult PASS and initialized log.
+  async run() {
+    // Response object with deafult PASS and initialized log.
     const response = {
       status: CONSTS.STATUS.PASS,
-      log:[`Starting up: ${this.APPS.length} apps to check.`],
+      log: [`Starting up: ${this.APPS.length} apps to check.`],
       results: []
     };
 
     let result;
-    //Iterate over services
+    // Iterate over services
     for (let index = 0; index < this.APPS.length; index++) {
-      //The services object
+      // The services object
       const app = this.APPS[index];
-      //Log
+      // Log
       response.log.push(`Checking ${app.id}...`);
-      //Execute test function
+      // Execute test function
       result = await app.validate();
-      //Assing results
+      // Assing results
       response.results.push({
-        id:app.id,
-        title:app.title,
-        description:app.description,
+        id: app.id,
+        title: app.title,
+        description: app.description,
         result
       });
-      //Log
-      response.log.push(`Checked ${app.title}: ${result.error?CONSTS.STATUS.FAIL:CONSTS.STATUS.PASS}`);
-      //Check CONSTS.status. Whole status is FAIL if there is at least one FAIL.
+      // Log
+      response.log.push(`Checked ${app.title}: ${result.error ? CONSTS.STATUS.FAIL : CONSTS.STATUS.PASS}`);
+      // Check CONSTS.status. Whole status is FAIL if there is at least one FAIL.
       if (response.status === CONSTS.STATUS.PASS && result.error) response.status = CONSTS.STATUS.FAIL;
     }
 
-    //Last log line
-    response.log.push(`Finished.`);
+    // Last log line
+    response.log.push("Finished.");
 
     return response;
   }

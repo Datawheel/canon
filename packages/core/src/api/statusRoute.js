@@ -11,7 +11,7 @@ module.exports = function(app) {
       msg: `Canon CORE is alive in ${CANON_API}/api/status/core`
     };
 
-    //TODO: add relevant validations here
+    // TODO: add relevant validations here
 
     res.json(response);
 
