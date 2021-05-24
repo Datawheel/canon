@@ -20,7 +20,7 @@ async function naTestHandler(page) {
   function textContentWalker() {
     const target = document.querySelector("#Profile");
     const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT, {
-      acceptNode: node => (/\bN\/A\b/g).test(node.wholeText)
+      acceptNode: node => (/\bN\/A\b|undefined/g).test(node.wholeText)
         ? NodeFilter.FILTER_ACCEPT
         : NodeFilter.FILTER_SKIP
     });

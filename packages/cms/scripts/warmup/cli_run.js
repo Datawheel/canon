@@ -45,7 +45,9 @@ module.exports = async function(options) {
 
   if (limitedProfiles.length > 0) {
     reporter.print(`User requested for profiles: ${limitedProfiles.join(", ")}`);
-    profiles = profiles.sort((a, b) => limitedProfiles.indexOf(a.slug) - limitedProfiles.indexOf(b.slug));
+    profiles = profiles.sort((a, b) =>
+      limitedProfiles.indexOf(a.slug) - limitedProfiles.indexOf(b.slug)
+    );
   }
   reporter.print(`Profiles found: ${profiles.map(p => p.slug).join(", ")}`);
 
@@ -65,18 +67,20 @@ module.exports = async function(options) {
 
     step = reporter.step("Requesting saved pages on this profile");
     const pages = await Search.findAll({
+      include: [{association: "contents"}],
       where: {
         cubeName: profile.cubeName,
         dimension: profile.dimension
       },
       order: [
         ["zvalue", "DESC"],
-        ["cubeName", "DESC"],
-        ["dimension", "DESC"],
-        ["hierarchy", "DESC"],
-        ["slug", "DESC"]
+        ["hierarchy", "ASC"],
+        ["slug", "ASC"]
       ]
-    }).then(step.resolve, step.reject);
+    }).then(pages => pages.filter(search => {
+      const {contents} = search;
+      return !contents || !contents.some(cnt => cnt.attr && cnt.attr.show === false);
+    })).then(step.resolve, step.reject);
 
     reporter.print(`Obtained ${pages.length} pages.`);
 

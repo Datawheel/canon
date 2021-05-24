@@ -102,16 +102,20 @@ async function hydrateModels(options, reporter) {
   step = reporter.step("Testing connection");
   await sequelize.authenticate().then(step.resolve, step.reject);
 
-  step = reporter.step("Retrieving ProfileMeta and Search models");
+  step = reporter.step("Retrieving database models");
   const {modelPaths} = require("../../models");
   const ProfileMeta = sequelize.import(modelPaths.profile_meta);
   const Search = sequelize.import(modelPaths.search);
+  const SearchContent = sequelize.import(modelPaths.search_content);
   step.resolve();
 
-  return {
-    ProfileMeta,
-    Search
-  };
+  Search.hasMany(SearchContent, {
+    foreignKey: "id",
+    sourceKey: "contentId",
+    as: "contents"
+  });
+
+  return {ProfileMeta, Search, SearchContent};
 }
 
 /**

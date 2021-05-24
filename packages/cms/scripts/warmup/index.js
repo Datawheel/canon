@@ -79,7 +79,7 @@ const options = getopts(process.argv.slice(2), {
     "db-host": "localhost:5432",
     "header": [],
     "output": `./cms_warmup_${new Date().toISOString().replace(/\D/g, "").slice(0, 14)}`,
-    "threads": "5"
+    "threads": "2"
   },
   boolean: ["help", "verbose"],
   string: [
@@ -133,7 +133,5 @@ async function cli(options) {
   }
 
   const action = actionWrapper();
-  await action(options).catch(err => {
-    throw new Error(`Error during execution of "${key}" script:\n ${err}`);
-  });
+  await action(options);
 }
