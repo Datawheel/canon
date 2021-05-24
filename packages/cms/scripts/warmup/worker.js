@@ -14,7 +14,15 @@ initWorker();
 async function initWorker() {
   const browser = await puppeteer.launch();
 
-  parentPort.on("message", messageHandler);
+  parentPort.on("message", async message => {
+    if (message.type === "TERMINATE") {
+      await browser.close();
+      parentPort.postMessage("terminated");
+    }
+    if (message.type === "NEXT_JOB") {
+      await jobHandler(message);
+    }
+  });
   parentPort.postMessage("ready");
 
   /**
@@ -22,19 +30,23 @@ async function initWorker() {
    * @param {any} param.job
    * @param {MessagePort} param.port
    */
-  async function messageHandler({job, port}) {
+  async function jobHandler({job, port}) {
     const page = await browser.newPage();
+    const jobResult = {status: "ERROR"};
 
     try {
       const result = await executeTests(page, job);
-      const status = result.test_na.length === 0 ? "SUCCESS" : "FAILURE";
-      port.postMessage({status, data: result});
+      jobResult.data = result;
+      jobResult.status = result.test_na.length === 0 ? "SUCCESS" : "FAILURE";
     }
     catch (error) {
-      port.postMessage({status: "ERROR", error: error.message});
+      jobResult.error = error.message;
+      jobResult.status = "ERROR";
     }
-
-    await page.close();
+    finally {
+      await page.close();
+    }
+    port.postMessage(jobResult);
   }
 }
 

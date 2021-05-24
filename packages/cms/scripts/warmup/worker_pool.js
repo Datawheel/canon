@@ -67,7 +67,23 @@ class WorkerPool extends EventEmitter {
           worker.removeAllListeners("message");
         }
       });
-      return {status: WORKER_STATUS.NULL, worker};
+      const terminate = () => new Promise(resolve => {
+        const timeout = setTimeout(cleanAndTerminate, 10000);
+        worker.on("message", value => {
+          if (value === "terminated") {
+            clearTimeout(timeout);
+            cleanAndTerminate();
+          }
+        });
+        worker.postMessage({type: "TERMINATE"});
+
+        function cleanAndTerminate() {
+          worker.removeAllListeners("message");
+          worker.terminate().then(resolve);
+        }
+      })
+
+      return {status: WORKER_STATUS.NULL, worker, terminate};
     });
 
     if (typeof onProgress === "function") {
@@ -78,7 +94,7 @@ class WorkerPool extends EventEmitter {
   terminate() {
     this.removeAllListeners();
     return Promise.all(
-      this.pool.map(item => item.worker.terminate())
+      this.pool.map(item => item.terminate())
     );
   }
 
@@ -162,7 +178,7 @@ class WorkerPool extends EventEmitter {
 
       const {port1, port2} = new MessageChannel();
       port2.once("message", reportHandler);
-      worker.postMessage({job, port: port1}, [port1]);
+      worker.postMessage({type: "NEXT_JOB", job, port: port1}, [port1]);
     }
     else {
       this.emit(EVENTS.FINISHED);
