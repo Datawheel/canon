@@ -76,6 +76,8 @@ class ServicesChecker {
   async run() {
     // Response object with deafult PASS and initialized log.
     const response = {
+      title: "Commands",
+      description: "Run commands in local server",
       status: CONSTS.STATUS.PASS,
       log: [`Starting up: ${this.COMMANDS.length} commands to check.`],
       results: []

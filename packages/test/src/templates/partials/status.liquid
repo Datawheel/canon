@@ -1,0 +1,34 @@
+{% assign noErrorBoolean = error == false %}
+{% assign noErrorString = error == "[PASS]" %}
+
+<span class="status-ball">
+  {% if noErrorBoolean or noErrorString %}
+    <div class="status-ball-success">
+      <svg viewBox="0 0 87 87" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+          <g id="Group-3" transform="translate(2.000000, 2.000000)">
+            <circle class="status-ball-success-circle-back" stroke="#638450" stroke-width="4" cx="41.5" cy="41.5" r="41.5"></circle>
+            <circle class="status-ball-success-circle" stroke="white" stroke-width="5" cx="41.5" cy="41.5" r="41.5"></circle>
+            <polyline class="status-ball-success-path" stroke="#638450" stroke-width="4"
+              points="19 38.8036813 31.1020744 54.8046875 63.299221 28"></polyline>
+          </g>
+        </g>
+      </svg>
+    </div>
+  {% else %}
+    <div class="status-ball-error">
+      <svg viewBox="0 0 87 87" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+          <g id="Group-2" transform="translate(2.000000, 2.000000)">
+            <circle stroke="rgba(252, 191, 191, .5)" stroke-width="4" cx="41.5" cy="41.5" r="41.5"></circle>
+            <circle class="status-ball-error-circle" stroke="#F74444" stroke-width="4" cx="41.5" cy="41.5" r="41.5"></circle>
+            <path class="status-ball-error-line1" d="M22.244224,22 L60.4279902,60.1837662" id="Line" stroke="#F74444"
+              stroke-width="3" stroke-linecap="square"></path>
+            <path class="status-ball-error-line2" d="M60.755776,21 L23.244224,59.8443492" id="Line" stroke="#F74444" stroke-width="3"
+              stroke-linecap="square"></path>
+          </g>
+        </g>
+      </svg>
+    </div>
+  {% endif %}
+</span>

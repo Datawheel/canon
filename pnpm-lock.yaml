@@ -408,6 +408,7 @@ importers:
       compression: 1.7.4
       cors: 2.8.5
       express: 4.17.1
+      liquidjs: 9.25.0
       sequelize: 4.44.4
     devDependencies:
       nodemon: 2.0.7
@@ -416,6 +417,7 @@ importers:
       compression: ^1.7.4
       cors: ^2.8.5
       express: ^4.17.1
+      liquidjs: ^9.25.0
       nodemon: ^2.0.4
       sequelize: ^4.13.10
   packages/vizbuilder:
@@ -8220,6 +8222,13 @@ packages:
     dev: false
     resolution:
       integrity: sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==
+  /liquidjs/9.25.0:
+    dev: false
+    engines:
+      node: '>=4.8.7'
+    hasBin: true
+    resolution:
+      integrity: sha512-TIccrphsWN53fVF9G/wDaKD1cHaB097ULLf+FzxxqN2iyJjzp/Oe9xlFjZCR1ZrAeISusWSPg3r7Dg8BD2Uztg==
   /load-json-file/2.0.0:
     dependencies:
       graceful-fs: 4.2.4

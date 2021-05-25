@@ -1,0 +1,24 @@
+<h2>{% include 'status', error:result.status %}<span class="text">{{ result.title }}</span></h2>
+<p>{{result.description}}</p>
+<h3>Results:</h3>
+<table class="result-table">
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Title</th>
+      <th>Description</th>
+      <th width="40%">Result</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in result.results %}
+      <tr>{% include 'result-item', item:item %}</tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p>Execution log:</p>
+{% for line in result.log %}
+<small>{{ line }}</small><br/>
+{% endfor %}
+<hr/>
+
