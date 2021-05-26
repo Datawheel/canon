@@ -42,11 +42,24 @@ app.set("view engine", "liquid");
 
 // Define the home route
 app.get("/", async(req, res) => {
+
+  // Format
+  let format = (req.query.format || "html").toLocaleLowerCase();
+  format = ["json", "html"].indexOf(format) > -1 ? format : "html";
+
   const results = await getCheckersResponse();
-  res.render("results", {
-    results: Object.values(results),
-    title: "Integration tests results"
-  });
+
+  if (format === "json") {
+    // Send JSON response
+    res.send(results).end();
+  }
+  else {
+    // Send HTML response
+    res.render("results", {
+      results: Object.values(results),
+      title: "Integration tests results"
+    });
+  }
 });
 
 // Initialize Checkers
@@ -58,17 +71,6 @@ const getCheckersResponse = async() => ({
   apps: await apps.run(),
   services: await services.run(),
   commands: await commands.run()
-});
-
-// Run basic stats as a status
-app.get("/status", async(req, res) => {
-
-  // Response object with deafult PASS.
-  const response = await getCheckersResponse();
-
-  // Send response
-  res.send(response).end();
-
 });
 
 module.exports = app;
