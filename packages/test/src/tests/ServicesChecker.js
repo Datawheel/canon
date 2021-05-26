@@ -72,7 +72,7 @@ class ServicesChecker {
     // Response object with deafult PASS and initialized log.
     const response = {
       title: "Services",
-      description: "Validate services",
+      description: "Validate services availability.",
       status: CONSTS.STATUS.PASS,
       log: [`Starting up: ${this.SERVICES.length} services to check.`],
       results: []

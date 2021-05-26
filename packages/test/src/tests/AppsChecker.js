@@ -61,7 +61,7 @@ class AppsChecker {
     // Response object with deafult PASS and initialized log.
     const response = {
       title: "Applications",
-      description: "Check internal status for applications",
+      description: "Check internal status for applications.",
       status: CONSTS.STATUS.PASS,
       log: [`Starting up: ${this.APPS.length} apps to check.`],
       results: []

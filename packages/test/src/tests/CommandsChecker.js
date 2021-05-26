@@ -50,13 +50,13 @@ class ServicesChecker {
           };
           return result;
         }
-      },
+      }/* ,
       {
         id: "3-npm-oudated",
         title: "NPM oudated",
         description: "Check NPM oudated packages",
         cli: "npm outdated --long --all"
-      }
+      }*/
     ];
   }
 
@@ -77,7 +77,7 @@ class ServicesChecker {
     // Response object with deafult PASS and initialized log.
     const response = {
       title: "Commands",
-      description: "Run commands in local server",
+      description: "Run shell commands in local server.",
       status: CONSTS.STATUS.PASS,
       log: [`Starting up: ${this.COMMANDS.length} commands to check.`],
       results: []
