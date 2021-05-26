@@ -59,27 +59,30 @@ Arguments:
  * @property {string} output The path to the file where to log the errored endpoints.
  * @property {string} password The password in case of needing basic authentication.
  * @property {string} profile A comma separated string of the profiles that should be loaded.
- * @property {string} threads The number of concurrent connections to work with.
+ * @property {string} timeout Time limit to consider a page load failed.
  * @property {string} username The username in case of needing basic authentication.
+ * @property {string} workers The number of concurrent connections to work with.
  */
 
 const options = getopts(process.argv.slice(2), {
   alias: {
     base: "b",
-    help: "h",
     header: "H",
+    help: "h",
     input: "i",
     output: "o",
     password: "p",
-    threads: "t",
+    timeout: "t",
     username: "u",
-    verbose: "v"
+    verbose: "v",
+    workers: "w"
   },
   default: {
     "db-host": "localhost:5432",
     "header": [],
     "output": `./cms_warmup_${new Date().toISOString().replace(/\D/g, "").slice(0, 14)}`,
-    "threads": "2"
+    "timeout": 20,
+    "workers": "2"
   },
   boolean: ["help", "verbose"],
   string: [
@@ -94,8 +97,9 @@ const options = getopts(process.argv.slice(2), {
     "output",
     "password",
     "profile",
-    "threads",
-    "username"
+    "timeout",
+    "username",
+    "workers"
   ]
 });
 
@@ -120,18 +124,6 @@ async function cli(options) {
 
   console.log(title);
 
-  const key = options._[0] || "run";
-
-  const actionMap = {
-    retry: () => require("./cli_retry"),
-    run: () => require("./cli_run")
-  };
-
-  const actionWrapper = actionMap[key];
-  if (typeof actionWrapper !== "function") {
-    throw new Error(`Command "${key}" is not a valid warmup action.`);
-  }
-
-  const action = actionWrapper();
+  const action = require("./cluster");
   await action(options);
 }
