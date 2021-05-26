@@ -2,7 +2,7 @@
   "name": "@datawheel/canon-test",
   "description": "Canon health test.",
   "main": "./src/index.js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"
