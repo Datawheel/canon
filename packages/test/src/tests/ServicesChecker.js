@@ -1,5 +1,5 @@
-const CONSTS = require("./../utils/consts"),
-      Axios = require("axios"),
+const Axios = require("axios"),
+      CONSTS = require("./../utils/consts"),
       Sequelize = require("sequelize");
 
 
@@ -71,6 +71,8 @@ class ServicesChecker {
   async run() {
     // Response object with deafult PASS and initialized log.
     const response = {
+      title: "Services",
+      description: "Validate services availability.",
       status: CONSTS.STATUS.PASS,
       log: [`Starting up: ${this.SERVICES.length} services to check.`],
       results: []
