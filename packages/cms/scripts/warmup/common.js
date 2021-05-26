@@ -2,22 +2,26 @@
 
 const fs = require("fs");
 const path = require("path");
-const Sequelize = require("sequelize");
 
 class Reporter {
   constructor(output) {
+    this.remainingStartTime = null;
+    this.remainingTotalAmount = 0;
+
+    this.resetCounters();
+    output && this.setOutput(output);
+  }
+
+  setOutput(output) {
     const outputPath = path.resolve(process.cwd(), output);
     if (!fs.existsSync(outputPath)) {
       fs.mkdirSync(outputPath);
     }
-    process.stdout.write(`Logging errors to folder:\n  ${outputPath}\n`);
+    process.stdout.write(`Reports will be saved on:\n  ${outputPath}\n`);
+    this.outputPath = outputPath;
 
     const writerPath = path.resolve(outputPath, "results.json");
-
     this.writer = fs.createWriteStream(writerPath, {flags: "w"});
-    this.outputPath = outputPath;
-    this.remainingTotalAmount = 0;
-    this.remainingStartTime = null;
   }
 
   /**
@@ -32,8 +36,8 @@ class Reporter {
    * @param {import("./worker_pool").WorkResult[]} results
    * @returns {Promise<void>}
    */
-  writeReport(profile, results) {
-    const content = transposeResults(results.filter(result => result.status === "FAILURE"));
+  writeReport(profile) {
+    const content = transposeResults(this.failures);
     const reportPath = path.resolve(this.outputPath, `profile_${profile}.json`);
     return fs.promises.writeFile(reportPath, content);
   }
@@ -54,6 +58,29 @@ class Reporter {
     process.stdout.write(`${line}\n`);
   }
 
+  countResult(report) {
+    report.status === "ERROR" && this.errorCount++;
+    report.status === "SUCCESS" && this.successCount++;
+    report.status === "FAILURE" && this.failures.push(report);
+  }
+
+  resetCounters() {
+    this.errorCount = 0;
+    this.failures = [];
+    this.successCount = 0;
+  }
+
+  printCount(profile) {
+    let profileStatus = "";
+    if (this.errorCount > 0) {
+      profileStatus = `with ${this.errorCount} errors`;
+    }
+    if (this.failures.length > 0) {
+      profileStatus = `${profileStatus ? ", and" : "with"} ${this.failures.length} failures`;
+    }
+    this.print(`\nProfile "${profile}" completed ${profileStatus || "without errors"}.`);
+  }
+
   /**
    * @param {string} message
    */
@@ -68,7 +95,7 @@ class Reporter {
 
       /**
        * @template T
-       * @type {(value: T) => T | PromiseLike<T>}
+       * @type {(value: T) => T}
        */
       resolve(value) {
         process.stdout.write("\r\x1b[K");
@@ -80,48 +107,9 @@ class Reporter {
 }
 
 /**
- * Creates a new sequelize connection, and imports the needed models into it.
- *
- * @param {import(".").WarmupCliOptions} options
- * @param {import("./reporter").Reporter} reporter
+ * @param {WorkResultData} reports
  */
-async function hydrateModels(options, reporter) {
-  let step;
-
-  const dbConnection = options.db ||
-    `postgresql://${options["db-user"]}:${options["db-pass"]}@${options["db-host"]}/${options["db-name"]}`;
-  reporter.print(`Database Connection: ${dbConnection}`);
-
-  step = reporter.step("Creating new sequelize instance");
-  const sequelize = new Sequelize(dbConnection, {
-    logging: false,
-    operatorsAliases: false
-  });
-  step.resolve();
-
-  step = reporter.step("Testing connection");
-  await sequelize.authenticate().then(step.resolve, step.reject);
-
-  step = reporter.step("Retrieving database models");
-  const {modelPaths} = require("../../models");
-  const ProfileMeta = sequelize.import(modelPaths.profile_meta);
-  const Search = sequelize.import(modelPaths.search);
-  const SearchContent = sequelize.import(modelPaths.search_content);
-  step.resolve();
-
-  Search.hasMany(SearchContent, {
-    foreignKey: "id",
-    sourceKey: "contentId",
-    as: "contents"
-  });
-
-  return {ProfileMeta, Search, SearchContent};
-}
-
-/**
- * @param {WorkResultData} results
- */
-function transposeResults(results) {
+function transposeResults(reports) {
   const selectors = new Map([["", [""].slice(0, 0)]]);
   selectors.clear();
 
@@ -133,17 +121,30 @@ function transposeResults(results) {
     return defaultValue;
   };
 
-  for (const result of results) {
-    for (const selector of result.data.test_na) {
-      getReference(selector).push(result.data.url);
+  for (const report of reports) {
+    for (const selector of report.result.test_na) {
+      getReference(selector).push(report.data.url);
     }
   }
 
   return JSON.stringify([...selectors.entries()], null, 2);
 }
 
+/**
+ * @param {string[]} rawHeaders
+ * @returns {Record<string, string>}
+ */
+function parseHeaders(rawHeaders) {
+  return [].concat(rawHeaders).reduce((headers, combo) => {
+    const splitIndex = combo.indexOf(":");
+    const key = combo.substr(0, splitIndex).trim();
+    headers[key] = combo.substr(splitIndex + 1).trim();
+    return headers;
+  }, {});
+}
+
 module.exports = {
   Reporter,
-  hydrateModels,
+  parseHeaders,
   transposeResults
 };

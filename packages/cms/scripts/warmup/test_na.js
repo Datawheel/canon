@@ -26,6 +26,7 @@ async function naTestHandler(page) {
     });
 
     const selectorList = [];
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const currentNode = walker.nextNode();
       if (!currentNode) break;
