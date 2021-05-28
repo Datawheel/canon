@@ -36,6 +36,10 @@ module.exports = function(sequelize, db) {
     }
   );
 
+  p.associate = models => {
+    p.hasMany(models.search, {foreignKey: "cubeName", sourceKey: "cubeName", as: "members"});
+  };
+
   return p;
 
 };
