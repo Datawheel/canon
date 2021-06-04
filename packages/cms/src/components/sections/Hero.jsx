@@ -1,7 +1,6 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import {nest} from "d3-collection";
-import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
 import {Dialog} from "@blueprintjs/core";
 
@@ -277,4 +276,4 @@ Hero.contextTypes = {
 
 export default connect(state => ({
   locale: state.i18n.locale
-}))(hot(Hero));
+}))(Hero);

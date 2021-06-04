@@ -8,8 +8,8 @@
     "module": "es2015",
     "moduleResolution": "node",
     "paths": {
-      "$root/*": ["./*"],
-      "$app/*": ["./app/*"]
+      "$app/*": ["./app/*"],
+      "$root/*": ["./*"]
     },
     "strictNullChecks": true,
     "target": "es2016"

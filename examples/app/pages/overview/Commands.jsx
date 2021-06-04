@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 
 class Contribution extends Component {
 
@@ -36,4 +35,4 @@ class Contribution extends Component {
   }
 }
 
-export default hot(Contribution);
+export default Contribution;

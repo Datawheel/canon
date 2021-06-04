@@ -1,5 +1,4 @@
 import React, {Component, Fragment} from "react";
-import {hot} from "react-hot-loader/root";
 
 import stripHTML from "../../../utils/formatters/stripHTML";
 import Parse from "./Parse";
@@ -58,4 +57,4 @@ Stat.defaultProps = {
   El: "li"
 };
 
-export default hot(Stat);
+export default Stat;

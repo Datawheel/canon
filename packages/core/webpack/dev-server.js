@@ -37,7 +37,11 @@ module.exports = {
     libraryTarget: "commonjs2"
   },
   module: {
-    rules: commonLoaders({extract: true})
+    rules: commonLoaders({
+      extract: true,
+      mode: "development",
+      server: true
+    })
   },
   resolve: {
     alias: {

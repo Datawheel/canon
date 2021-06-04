@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
 
 import {Select as BlueprintSelect} from "@blueprintjs/select";
@@ -158,4 +157,4 @@ Selector.defaultProps = {
   selectCutoff: 3
 };
 
-export default hot(Selector);
+export default Selector;

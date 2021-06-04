@@ -1,5 +1,4 @@
 import React, {Component, Fragment} from "react";
-import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
 
 import toSpacedCase from "../../utils/formatters/toSpacedCase";
@@ -168,4 +167,4 @@ Tabs.contextTypes = {
   router: PropTypes.object
 };
 
-export default hot(Tabs);
+export default Tabs;

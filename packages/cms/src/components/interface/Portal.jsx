@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import ReactDOM from "react-dom";
-import {hot} from "react-hot-loader/root";
 
 import "./Portal.css";
 
@@ -53,4 +52,4 @@ Portal.defaultProps = {
   rootElementSelector: ".cms"
 };
 
-export default hot(Portal);
+export default Portal;

@@ -2,7 +2,6 @@ import axios from "axios";
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import ReactTable from "react-table";
-import {hot} from "react-hot-loader/root";
 import PropTypes from "prop-types";
 import {Icon, EditableText, Spinner, Popover, Position} from "@blueprintjs/core";
 
@@ -981,4 +980,4 @@ const mapStateToProps = state => ({
   status: state.cms.status
 });
 
-export default connect(mapStateToProps)(hot(MetaEditor));
+export default connect(mapStateToProps)(MetaEditor);

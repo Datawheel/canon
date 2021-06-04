@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import * as d3plus from "d3plus-react";
 import {SizeMe} from "react-sizeme";
-import {hot} from "react-hot-loader/root";
 
 import Graphic from "./Graphic";
 import HTML from "./HTML";
@@ -199,4 +198,4 @@ Viz.defaultProps = {
   headingLevel: "h3"
 };
 
-export default hot(Viz);
+export default Viz;

@@ -60,7 +60,11 @@ module.exports = [
       publicPath
     },
     module: {
-      rules: commonLoaders({extract: true})
+      rules: commonLoaders({
+        extract: true,
+        mode: "production",
+        server: false
+      })
     },
     resolve,
     optimization: {
@@ -115,7 +119,7 @@ module.exports = [
       libraryTarget: "commonjs2"
     },
     module: {
-      rules: commonLoaders({extract: true})
+      rules: commonLoaders({mode: "production", server: true, extract: true})
     },
     resolve,
     optimization: {

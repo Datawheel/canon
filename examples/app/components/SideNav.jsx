@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from "react";
 import PropTypes from "prop-types";
-import {hot} from "react-hot-loader/root";
 import {Alignment, Button, Collapse, AnchorButton} from "@blueprintjs/core";
 import {PACKAGES} from "$app/pages/Docs";
 import {strip} from "d3plus-text";
@@ -86,4 +85,4 @@ SideNav.contextTypes = {
   router: PropTypes.object
 };
 
-export default hot(SideNav);
+export default SideNav;

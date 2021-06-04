@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 
 import ProfileSearch from "../../src/components/fields/ProfileSearch";
 import ProfileColumns from "../../src/components/fields/ProfileColumns";
@@ -282,4 +281,4 @@ class ProfileSearchPage extends Component {
 
 }
 
-export default hot(ProfileSearchPage);
+export default ProfileSearchPage;

@@ -1,6 +1,5 @@
 import {Activate} from "@datawheel/canon-core";
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 import {withNamespaces} from "react-i18next";
 
 import TopNav from "components/TopNav";
@@ -44,4 +43,4 @@ class Home extends Component {
   }
 }
 
-export default withNamespaces()(hot(Home));
+export default withNamespaces()(Home);

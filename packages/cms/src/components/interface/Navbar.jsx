@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import {hot} from "react-hot-loader/root";
 import {Icon} from "@blueprintjs/core";
 
 import varSwapRecursive from "../../utils/varSwapRecursive";
@@ -504,4 +503,4 @@ const mapDispatchToProps = dispatch => ({
   setVariables: newVariables => dispatch(setVariables(newVariables))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(hot(Navbar));
+export default connect(mapStateToProps, mapDispatchToProps)(Navbar);

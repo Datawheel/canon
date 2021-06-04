@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 import {connect} from "react-redux";
 import {withNamespaces} from "react-i18next";
 import PropTypes from "prop-types";
@@ -542,7 +541,7 @@ ProfileSearch.defaultProps = {
   subtitleFormat: d => d.memberHierarchy
 };
 
-ProfileSearch = withNamespaces()(hot(ProfileSearch));
+ProfileSearch = withNamespaces()(ProfileSearch);
 
 export default connect(state => ({
   locale: state.i18n.locale

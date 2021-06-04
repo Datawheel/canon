@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Link} from "react-router";
-import {hot} from "react-hot-loader/root";
 import {Alignment, Icon, Navbar} from "@blueprintjs/core";
 
 // const userLinks = "<a class='user-link' data-refresh='true' href='/login'>Login</a><a class='user-link' href='/reset'>Reset</a><a class='user-link' href='/signup'>Sign Up</a><a class='user-link' href='/no/route/here/please/stop'>No Route</a><a class='user-link' target='_blank' href='http://www.google.com'>Google</a>";
@@ -36,4 +35,4 @@ class Nav extends Component {
 
 export default connect(state => ({
   auth: state.auth
-}), {})(hot(Nav));
+}), {})(Nav);

@@ -218,17 +218,9 @@ This functionality is used by the CMS to redirect profiles from their numeric `i
 
 ## Hot Module Reloading
 
-To enable hot module reloading, the component being used on a Route (like `Home.jsx` or `Profile.jsx`) needs to be wrapped with the `hot` wrapper when exporting. Import it like this:
+Hot module reloading is enabled out of the box, you don't need to add imports to enable it. The current implementation is provided by React Fast Refresh.
 
-```jsx
-import {hot} from "react-hot-loader/root";
-```
-
-And export it like this:
-
-```jsx
-export default hot(Home);
-```
+If you are upgrading from a previous version of Canon, which used `react-hot-loader`, you will need to remove any reference to it, including manual calls to the `hot()` function.
 
 ---
 

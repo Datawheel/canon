@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 
 class Installation extends Component {
 
@@ -16,4 +15,4 @@ class Installation extends Component {
   }
 }
 
-export default hot(Installation);
+export default Installation;

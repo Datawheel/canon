@@ -1,3 +1,4 @@
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 const HardSourceWebpackPlugin = require("hard-source-webpack-plugin"),
       WebpackBar = require("webpackbar"),
       appDir = process.cwd(),
@@ -26,8 +27,8 @@ module.exports = {
       "core-js/modules/es6.promise",
       "core-js/modules/es6.array.iterator",
       "@babel/polyfill",
-      "react-hot-loader/patch",
       "webpack-hot-middleware/client",
+      "react-refresh/runtime",
       "./client"
     ]
   },
@@ -37,7 +38,11 @@ module.exports = {
     publicPath
   },
   module: {
-    rules: commonLoaders({extract: false})
+    rules: commonLoaders({
+      extract: false,
+      mode: "development",
+      server: false
+    })
   },
   resolve: {
     alias: {
@@ -70,6 +75,7 @@ module.exports = {
       info: {mode: "test", level: "error"}
     }),
     new webpack.HotModuleReplacementPlugin(),
+    new ReactRefreshWebpackPlugin(),
     new webpack.DefinePlugin(Object.keys(process.env)
       .filter(e => e.startsWith("CANON_CONST_"))
       .reduce((d, k) => {

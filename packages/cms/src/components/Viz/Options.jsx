@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
 import ReactTable from "react-table";
@@ -547,4 +546,4 @@ Options.contextTypes = {
 
 export default withNamespaces()(connect(state => ({
   location: state.location
-}))(hot(Options)));
+}))(Options));
