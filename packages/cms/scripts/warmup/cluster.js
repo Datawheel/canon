@@ -24,7 +24,6 @@ module.exports = async function(options) {
     : undefined;
   const headers = parseHeaders(options.header);
   const maxTimeoutPerPage = parseInt(options.timeout, 10) * 1000;
-  const networkIdleLevel = options.networkIdleLevel || "0";
 
   const cluster = await Cluster.launch({
     concurrency: Cluster.CONCURRENCY_PAGE,
@@ -41,18 +40,16 @@ module.exports = async function(options) {
   await cluster.task(async params => {
     const {page, data: job} = params;
 
-    await page.setDefaultNavigationTimeout(maxTimeoutPerPage * 1000);
+    await page.setDefaultNavigationTimeout(maxTimeoutPerPage);
     await page.setExtraHTTPHeaders(headers);
     await page.setViewport({width: 1280, height: 720});
 
     credentials && await page.authenticate(credentials);
 
-    await page.goto(job.url, {
-      waitUntil: `networkidle${networkIdleLevel}`
-    });
+    await page.goto(job.url, {waitUntil: "load"});
 
     // Wait for the Profile to load completely
-    await page.waitForSelector("#Profile", {timeout: 3000});
+    await page.waitForSelector("#Profile", {timeout: maxTimeoutPerPage});
 
     // Look for N/A in the content
     const report = await naTestHandler(page).then(result => {
