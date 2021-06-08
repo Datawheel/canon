@@ -76,7 +76,7 @@ export default {
     const urlList = ensureArray(action.payload);
     return MultiClient.dataSourcesFromURL(...urlList).then(dataSources => {
       // @ts-ignore
-      client.datasources = [];
+      client.datasources = {};
       client.addDataSource(...dataSources);
     });
   },

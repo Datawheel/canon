@@ -56,7 +56,7 @@ export function queryBuilder(
   for (let i = 0; i < filters.length; i++) {
     const item = filters[i];
     isValidFilter(item) &&
-      query.addFilter(item.measure, comparisonMap[item.operator], item.interpretedValue);
+      query.addFilter(item.measure, [comparisonMap[item.operator], item.interpretedValue]);
   }
 
   return query;

@@ -100,7 +100,10 @@ const populateSearch = async(profileData, db, metaLookup = false, newSlugs = fal
   const dimension = profileData.dimName || profileData.dimension;
   const dimLevels = profileData.levels;
 
-  const cube = await client.getCube(cubeName).catch(catcher);
+  const cube = await client.getCube(cubeName).catch(err => {
+    console.error(`Error while retrieving cube ${cubeName}:`, err);
+    throw err;
+  });
 
   const levels = [];
 
