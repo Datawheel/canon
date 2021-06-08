@@ -4,7 +4,7 @@
     "*.css"
   ],
   "description": "A visualization explorer for OLAP cube servers.",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "author": "Francisco Abarzúa <francisco@datawheel.us>",
