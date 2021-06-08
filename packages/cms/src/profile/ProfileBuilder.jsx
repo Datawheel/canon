@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import {hot} from "react-hot-loader/root";
 import {NonIdealState} from "@blueprintjs/core";
 import ProfileEditor from "./ProfileEditor";
 import SectionEditor from "./SectionEditor";
@@ -25,7 +24,7 @@ class ProfileBuilder extends Component {
   }
 
   componentDidMount() {
-    // Prevents the user from accidentally leaving the page with a back/reload action. setTimeout is necessary here to 
+    // Prevents the user from accidentally leaving the page with a back/reload action. setTimeout is necessary here to
     // avoid a spurious Alert that would pop up when users log in using AuthForm (which fires a necessary redirect)
     if (typeof window !== "undefined") {
       setTimeout(() => window.onbeforeunload = () => "Are you sure you want to leave?", 3000);
@@ -128,4 +127,4 @@ const mapDispatchToProps = dispatch => ({
   resetPreviews: () => dispatch(resetPreviews())
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(hot(ProfileBuilder));
+export default connect(mapStateToProps, mapDispatchToProps)(ProfileBuilder);

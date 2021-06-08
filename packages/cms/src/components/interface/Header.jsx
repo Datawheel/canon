@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import {hot} from "react-hot-loader/root";
 import {Icon, Intent} from "@blueprintjs/core";
 
 import Button from "../fields/Button";
@@ -383,4 +382,4 @@ const mapDispatchToProps = dispatch => ({
   setStatus: status => dispatch(setStatus(status))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(hot(Header));
+export default connect(mapStateToProps, mapDispatchToProps)(Header);

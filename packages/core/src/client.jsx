@@ -1,8 +1,5 @@
 /* eslint react/display-name:0 */
 
-import {setConfig} from "react-hot-loader";
-setConfig({logLevel: "error", showReactDomPatchNotification: false});
-
 import React from "react";
 import {hydrate} from "react-dom";
 import {loadableReady} from "@loadable/component";

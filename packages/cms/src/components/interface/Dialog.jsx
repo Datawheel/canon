@@ -1,5 +1,4 @@
 import React, {Component, Fragment} from "react";
-import {hot} from "react-hot-loader/root";
 
 import Portal from "./Portal";
 import Button from "../fields/Button";
@@ -126,4 +125,4 @@ Dialog.defaultProps = {
   titleHidden: false
 };
 
-export default hot(Dialog);
+export default Dialog;

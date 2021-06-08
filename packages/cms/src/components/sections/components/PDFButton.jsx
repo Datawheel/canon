@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {hot} from "react-hot-loader/root";
 import {withNamespaces} from "react-i18next";
 
 import axios from "axios";
@@ -85,4 +84,4 @@ PDFButton.contextTypes = {
   router: PropTypes.object
 };
 
-export default withNamespaces()(hot(PDFButton));
+export default withNamespaces()(PDFButton);

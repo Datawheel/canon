@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 
 import Button from "../../fields/Button";
 
@@ -58,4 +57,4 @@ class DialogFooter extends Component {
   }
 }
 
-export default hot(DialogFooter);
+export default DialogFooter;

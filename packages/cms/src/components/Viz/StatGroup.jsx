@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 
 import Stat from "../sections/components/Stat";
 import Parse from "../sections/components/Parse";
@@ -52,4 +51,4 @@ class StatGroup extends Component {
   }
 }
 
-export default hot(StatGroup);
+export default StatGroup;

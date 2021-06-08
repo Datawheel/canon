@@ -7,30 +7,35 @@ const postCSSPath = require.resolve("./postcss");
 delete require.cache[postCSSPath];
 const postCSS = require(postCSSPath);
 
-const production = process.env.NODE_ENV === "production";
+module.exports = commonLoaders;
 
-const cssLoaders = [
-  {
+/**
+ * @param {object} props
+ * @param {boolean} props.extract
+ * @param {boolean} props.server
+ * @param {"development" | "production"} props.mode
+ */
+function commonLoaders(props) {
+
+  props = Object.assign({
+    extract: false
+  }, props);
+
+  const production = props.mode === "production";
+
+  const cssLoaders = [{
     loader: "css-loader",
     options: {
       modules: "global",
       sourceMap: !production
     }
-  },
-  {
+  }, {
     loader: "postcss-loader",
     options: {
       plugins: postCSS,
       sourceMap: !production
     }
-  }
-];
-
-module.exports = props => {
-
-  props = Object.assign({
-    extract: false
-  }, props);
+  }];
 
   const babelPresets = [
     [require.resolve("@babel/preset-env"), {
@@ -77,8 +82,12 @@ module.exports = props => {
     );
   }
   else {
+    if (!props.server) {
+      babelPlugins.push(
+        require.resolve("react-refresh/babel")
+      );
+    }
     babelPlugins.push(
-      require.resolve("react-hot-loader/babel"),
       require.resolve("@babel/plugin-transform-react-inline-elements")
     );
   }
@@ -138,4 +147,4 @@ module.exports = props => {
         : [MiniCssExtractPlugin.loader].concat(cssLoaders)
     }
   ];
-};
+}

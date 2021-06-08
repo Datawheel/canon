@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 import {ProfileSearch, ProfileTile} from "@datawheel/canon-cms";
 // import axios from "axios";
 
@@ -88,4 +87,4 @@ class Search extends Component {
   }
 }
 
-export default hot(Search);
+export default Search;

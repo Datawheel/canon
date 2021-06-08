@@ -3,7 +3,6 @@ import cn from "classnames";
 import LoadingScreen from "components/Loading";
 import debounce from "lodash/debounce";
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
 import ButtonTooltip from "../components/ButtonTooltip";
@@ -255,4 +254,4 @@ function mapDispatch(dispatch, props) {
   };
 }
 
-export default hot(withNamespaces()(connect(mapState, mapDispatch)(Vizbuilder)));
+export default withNamespaces()(connect(mapState, mapDispatch)(Vizbuilder));

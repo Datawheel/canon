@@ -1,5 +1,4 @@
 import React, {Component, Fragment} from "react";
-import {hot} from "react-hot-loader/root";
 import {Icon} from "@blueprintjs/core";
 import "./Dropdown.css";
 
@@ -115,4 +114,4 @@ Dropdown.defaultProps = {
   namespace: "cms"
 };
 
-export default hot(Dropdown);
+export default Dropdown;

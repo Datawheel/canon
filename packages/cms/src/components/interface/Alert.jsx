@@ -1,5 +1,4 @@
 import React, {Component, Fragment} from "react";
-import {hot} from "react-hot-loader/root";
 import {Icon} from "@blueprintjs/core";
 
 import Portal from "./Portal";
@@ -144,4 +143,4 @@ Alert.defaultProps = {
   autoFocusButton: "confirm"    // also accepts "cancel", or null/false (if you must)
 };
 
-export default hot(Alert);
+export default Alert;

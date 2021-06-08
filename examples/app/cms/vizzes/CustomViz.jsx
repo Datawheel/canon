@@ -1,6 +1,5 @@
 import axios from "axios";
 import React, {Component, Fragment} from "react";
-import {hot} from "react-hot-loader/root";
 import {Icon} from "@blueprintjs/core";
 import "./CustomViz.css";
 
@@ -154,4 +153,4 @@ class CustomViz extends Component {
   }
 }
 
-export default hot(CustomViz);
+export default CustomViz;

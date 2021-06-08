@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from "react";
 import PropTypes from "prop-types";
-import {hot} from "react-hot-loader/root";
 import {Icon} from "@blueprintjs/core";
 
 import {AnchorLink} from "@datawheel/canon-core";
@@ -273,4 +272,4 @@ Subnav.contextTypes = {
   print: PropTypes.bool
 };
 
-export default hot(Subnav);
+export default Subnav;

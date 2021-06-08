@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from "react";
 import PropTypes from "prop-types";
-import {hot} from "react-hot-loader/root";
 import {Helmet} from "react-helmet-async";
 import {strip} from "d3plus-text";
 
@@ -125,5 +124,5 @@ Docs.contextTypes = {
   router: PropTypes.object
 };
 
-export default hot(Docs);
+export default Docs;
 export {PACKAGES};

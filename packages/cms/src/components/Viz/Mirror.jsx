@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 
 import "./Mirror.css";
 
@@ -34,4 +33,4 @@ Mirror.defaultProps = {
   inUse: false
 };
 
-export default hot(Mirror);
+export default Mirror;

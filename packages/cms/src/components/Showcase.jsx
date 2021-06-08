@@ -1,5 +1,4 @@
 import React, {Component, Fragment} from "react";
-import {hot} from "react-hot-loader/root";
 import Clipboard from "react-clipboard.js";
 
 import {AnchorLink} from "@datawheel/canon-core";
@@ -45,12 +44,12 @@ tokens.map((t, i) => {
   // add the value of any aliased tokens as a third item in the array
   let aliasedVar = null;
   if (t[1].indexOf("var(--") !== -1) {
-    aliasedVar = t[1].replace("var(--", "").replace(")", "")
-  };
+    aliasedVar = t[1].replace("var(--", "").replace(")", "");
+  }
   tokens[i][2] = styles[[aliasedVar]];
 
   // group into colors
-  if (t[0].indexOf("color") !== -1 || t[1].indexOf("#") === 0 || (t[2] && t[2].indexOf("#") === 0)) {
+  if (t[0].indexOf("color") !== -1 || t[1].indexOf("#") === 0 || t[2] && t[2].indexOf("#") === 0) {
     groupedTokens[0].tokens.push(t);
   }
   // group into typography
@@ -62,7 +61,7 @@ tokens.map((t, i) => {
     groupedTokens[2].tokens.push(t);
   }
   // group into measurements
-  else (groupedTokens[3].tokens.push(t));
+  else groupedTokens[3].tokens.push(t);
 });
 
 // base directory to use for component links
@@ -97,7 +96,7 @@ class Showcase extends Component {
     this.setState({currentView: newView});
 
     const {router} = this.props;
-    const path = this.props.location.pathname.split('/')[0];
+    const path = this.props.location.pathname.split("/")[0];
     router.push(`/${path}/${newView === "design tokens" ? "tokens" : newView}`);
   }
 
@@ -122,7 +121,7 @@ class Showcase extends Component {
   setFilter(e) {
     const filter = typeof e === "string" ? e : e.target.value;
 
-    let filteredTokens = [];
+    const filteredTokens = [];
 
     groupedTokens.forEach((g, i) => {
       filteredTokens[i] = Object.assign({}, g);
@@ -406,7 +405,7 @@ class Showcase extends Component {
               labelHidden
             />
           </h1>
-          
+
           <FilterSearch
             label={`filter ${currentView}`}
             fontSize="sm"
@@ -438,7 +437,7 @@ class Showcase extends Component {
               </Fragment> : ""
             )}
             {/* list of tokens */}
-            {currentView === "design tokens" && 
+            {currentView === "design tokens" &&
               <ul className="showcase-nav-list u-margin-top-md">
                 {filteredTokens.map(group => group.tokens && group.tokens.length
                   ? <li className="showcase-nav-item" key={`${group.name}-nav-nav`}>
@@ -510,31 +509,31 @@ class Showcase extends Component {
           {currentView === "design tokens" && filteredTokens.map(group => group.tokens && group.tokens.length
             ? <li className="showcase-list-group showcase-item" key={`${group.name}-token-group`}>
               {/* group title */}
-                <h2 id={toKebabCase(group.name)} className="showcase-list-heading display u-font-md" key={`${group.name}-token-title`}>
-                  {group.name}
-                </h2>
-                {/* group components */}
-                <ul className="showcase-nested-list" key={`${group.name}-token-list`}>
-                  {group.tokens.map(token => 
-                    <Clipboard
-                      className="showcase-token u-font-xxs"
-                      data-clipboard-text={`var(--${token[0]})`}
-                      component="li"
-                      onSuccess={() => this.updateStatus("variable copied!")}
-                    >
-                      {this.getTokenColor(token) &&
+              <h2 id={toKebabCase(group.name)} className="showcase-list-heading display u-font-md" key={`${group.name}-token-title`}>
+                {group.name}
+              </h2>
+              {/* group components */}
+              <ul className="showcase-nested-list" key={`${group.name}-token-list`}>
+                {group.tokens.map(token =>
+                  <Clipboard
+                    className="showcase-token u-font-xxs"
+                    data-clipboard-text={`var(--${token[0]})`}
+                    component="li"
+                    onSuccess={() => this.updateStatus("variable copied!")}
+                  >
+                    {this.getTokenColor(token) &&
                         <span className="showcase-token-swatch" style={{backgroundColor: this.getTokenColor(token)}} />
+                    }
+                    <span className="showcase-token-label">{token[0]}</span>
+                    <span className="showcase-token-value">
+                      {token[1]}
+                      {token[2] &&
+                          <span className="showcase-token-alias u-font-xxs"> ({token[2]})</span>
                       }
-                      <span className="showcase-token-label">{token[0]}</span> 
-                      <span className="showcase-token-value">
-                        {token[1]}
-                        {token[2] &&
-                          <span className="showcase-token-alias u-font-xxs"> ({token[2]})</span> 
-                        }
-                      </span>
-                    </Clipboard>
-                  )}
-                </ul>
+                    </span>
+                  </Clipboard>
+                )}
+              </ul>
             </li> : ""
           )}
         </ul>
@@ -546,4 +545,4 @@ class Showcase extends Component {
   }
 }
 
-export default hot(Showcase);
+export default Showcase;

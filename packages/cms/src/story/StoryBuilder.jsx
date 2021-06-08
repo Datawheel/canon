@@ -1,6 +1,5 @@
 import {connect} from "react-redux";
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 import {NonIdealState} from "@blueprintjs/core";
 import StoryEditor from "./StoryEditor";
 import StorySectionEditor from "./StorySectionEditor";
@@ -47,4 +46,4 @@ const mapDispatchToProps = dispatch => ({
   setStatus: status => dispatch(setStatus(status))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(hot(StoryBuilder));
+export default connect(mapStateToProps, mapDispatchToProps)(StoryBuilder);

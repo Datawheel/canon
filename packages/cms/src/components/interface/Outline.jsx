@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import {hot} from "react-hot-loader/root";
 import {Icon} from "@blueprintjs/core";
 
 import sectionIconLookup from "../../utils/sectionIconLookup";
@@ -92,7 +91,7 @@ class Outline extends Component {
   }
 
   /** avoids duplication */
-  renderNode = (node, nodes, sectionKey, tree, i) => (
+  renderNode = (node, nodes, sectionKey, tree, i) =>
     <li className="cms-outline-item" key={node.id}>
       <a
         className={`cms-outline-link${this.getSelectedClass(node, nodes, sectionKey)}`}
@@ -132,7 +131,7 @@ class Outline extends Component {
         }
       </div>
     </li>
-  );
+  ;
 
   render() {
     const {tree, isOpen} = this.props;
@@ -178,4 +177,4 @@ const mapDispatchToProps = dispatch => ({
   deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(hot(Outline));
+export default connect(mapStateToProps, mapDispatchToProps)(Outline);

@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 import {withNamespaces} from "react-i18next";
 import Tile from "../fields/ProfileTile";
 
@@ -27,4 +26,4 @@ class Related extends Component {
 
 }
 
-export default hot(withNamespaces()(Related));
+export default withNamespaces()(Related);

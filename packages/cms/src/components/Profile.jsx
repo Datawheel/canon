@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 import {connect} from "react-redux";
 import {fetchData} from "@datawheel/canon-core";
 import PropTypes from "prop-types";
@@ -66,4 +65,4 @@ export default connect(state => ({
   formatters: state.data.formatters,
   locale: state.i18n.locale,
   profile: state.data.profile
-}))(hot(Profile));
+}))(Profile);

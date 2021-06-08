@@ -2,7 +2,6 @@ import axios from "axios";
 import {connect} from "react-redux";
 import {withNamespaces} from "react-i18next";
 import React, {Component, Fragment} from "react";
-import {hot} from "react-hot-loader/root";
 import {isAuthenticated} from "@datawheel/canon-core";
 import PropTypes from "prop-types";
 import {Dialog, Icon} from "@blueprintjs/core";
@@ -402,5 +401,5 @@ const mapDispatchToProps = dispatch => ({
 });
 
 export default withNamespaces()(
-  connect(mapStateToProps, mapDispatchToProps)(hot(ProfileRenderer))
+  connect(mapStateToProps, mapDispatchToProps)(ProfileRenderer)
 );

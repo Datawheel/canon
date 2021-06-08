@@ -14,9 +14,9 @@ importers:
       shelljs: ^0.8.4
   examples:
     dependencies:
-      '@datawheel/canon-cms': 'link:../packages/cms'
-      '@datawheel/canon-core': 'link:../packages/core'
-      '@datawheel/canon-logiclayer': 'link:../packages/logiclayer'
+      '@datawheel/canon-cms': link:../packages/cms
+      '@datawheel/canon-core': link:../packages/core
+      '@datawheel/canon-logiclayer': link:../packages/logiclayer
       axios: 0.21.1
       d3plus-react: 1.0.0_prop-types@15.7.2+react@16.14.0
       d3plus-text: 1.0.1
@@ -24,8 +24,8 @@ importers:
       prop-types: 15.7.2
       react: 16.14.0
     specifiers:
-      '@datawheel/canon-cms': 'workspace:*'
-      '@datawheel/canon-core': 'workspace:*'
+      '@datawheel/canon-cms': workspace:*
+      '@datawheel/canon-core': workspace:*
       '@datawheel/canon-logiclayer': '*'
       axios: ^0.21.1
       d3plus-react: ^1.0.0
@@ -75,20 +75,21 @@ importers:
       node-yaml: 3.2.0
       promise-throttle: 1.1.2
       puppeteer: 8.0.0
+      puppeteer-cluster: 0.22.0_puppeteer@8.0.0
       react-ace: 6.6.0
       react-clipboard.js: 2.0.16
       react-sizeme: 2.6.12
       react-table: 6.10.3
       sharp: 0.28.1
     devDependencies:
-      '@datawheel/canon-core': 'link:../core'
-      '@datawheel/canon-logiclayer': 'link:../logiclayer'
+      '@datawheel/canon-core': link:../core
+      '@datawheel/canon-logiclayer': link:../logiclayer
     specifiers:
       '@blueprintjs/core': ^3.38.1
       '@blueprintjs/datetime': ^3.18.1
       '@blueprintjs/select': ^3.13.2
-      '@datawheel/canon-core': 'workspace:^0.21.0'
-      '@datawheel/canon-logiclayer': 'workspace:^0.5.0'
+      '@datawheel/canon-core': workspace:^0.21.0
+      '@datawheel/canon-logiclayer': workspace:^0.5.0
       '@datawheel/olap-client': ^2.0.0-alpha.2
       '@google-cloud/storage': 5.3.0
       '@google-cloud/translate': ^6.0.3
@@ -126,6 +127,7 @@ importers:
       node-yaml: ^3.1.1
       promise-throttle: ^1.0.0
       puppeteer: ^8.0.0
+      puppeteer-cluster: ^0.22.0
       react-ace: ^6.2.0
       react-clipboard.js: ^2.0.7
       react-sizeme: ^2.6.7
@@ -163,6 +165,7 @@ importers:
       '@loadable/server': 5.14.2_8acb66d1a6b50fdcbb1ee88dfc57f1db
       '@loadable/webpack-plugin': 5.14.2_webpack@4.44.2
       '@nuxtjs/friendly-errors-webpack-plugin': 2.1.0_webpack@4.44.2
+      '@pmmmwh/react-refresh-webpack-plugin': 0.4.3_9ee2048269496b6d26a9cb97a289159b
       '@researchgate/react-intersection-observer': 1.3.5_react-dom@16.13.1+react@16.13.1
       axios: 0.21.1
       babel-eslint: 10.1.0
@@ -233,9 +236,9 @@ importers:
       react: 16.13.1
       react-dom: 16.13.1_react@16.13.1
       react-helmet-async: 1.0.7_react-dom@16.13.1+react@16.13.1
-      react-hot-loader: 4.13.0_react-dom@16.13.1+react@16.13.1
       react-i18next: 9.0.10_i18next@10.6.0+react@16.13.1
       react-redux: 5.1.2_react@16.13.1+redux@4.0.5
+      react-refresh: 0.10.0
       react-router: 3.2.3_react@16.13.1
       react-router-redux: 4.0.8
       react-scroll: 1.8.1_react-dom@16.13.1+react@16.13.1
@@ -247,7 +250,7 @@ importers:
       terser-webpack-plugin: 4.2.3_webpack@4.44.2
       url-loader: 2.3.0_file-loader@4.3.0+webpack@4.44.2
       urllite: 0.5.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       webpack-bundle-analyzer: 3.9.0
       webpack-cli: 3.3.12_webpack@4.44.2
       webpack-dev-middleware: 3.7.3_webpack@4.44.2
@@ -286,6 +289,7 @@ importers:
       '@loadable/server': ^5.13.2
       '@loadable/webpack-plugin': ^5.13.0
       '@nuxtjs/friendly-errors-webpack-plugin': ^2.1.0
+      '@pmmmwh/react-refresh-webpack-plugin': ^0.4.3
       '@researchgate/react-intersection-observer': ^1.2.0
       axios: ^0.21.1
       babel-eslint: ^10.0.3
@@ -356,9 +360,9 @@ importers:
       react: 16.13.1
       react-dom: 16.13.1
       react-helmet-async: ^1.0.7
-      react-hot-loader: ^4.12.11
       react-i18next: ^9.0.1
       react-redux: ^5.1.1
+      react-refresh: ^0.10.0
       react-router: 3.2.3
       react-router-redux: ^4.0.8
       react-scroll: ^1.7.13
@@ -390,10 +394,10 @@ importers:
       sequelize: 4.44.4
       yn: 4.0.0
     devDependencies:
-      '@datawheel/canon-core': 'link:../core'
+      '@datawheel/canon-core': link:../core
     specifiers:
       '@blueprintjs/core': ^3.28.1
-      '@datawheel/canon-core': 'workspace:^0.21.0'
+      '@datawheel/canon-core': workspace:^0.21.0
       axios: ^0.21.1
       d3-array: ^2.11.0
       d3-collection: ^1.0.4
@@ -438,7 +442,7 @@ importers:
     devDependencies:
       '@blueprintjs/core': 3.38.2_react-dom@16.14.0+react@16.14.0
       '@blueprintjs/select': 3.15.4_react-dom@16.14.0+react@16.14.0
-      '@datawheel/canon-core': 'link:../core'
+      '@datawheel/canon-core': link:../core
       '@types/i18next': 12.1.0
       '@types/react-router': 3.0.24
       lodash: 4.17.20
@@ -447,7 +451,7 @@ importers:
     specifiers:
       '@blueprintjs/core': ^3.22.3
       '@blueprintjs/select': ^3.11.0
-      '@datawheel/canon-core': 'workspace:^0.21.0'
+      '@datawheel/canon-core': workspace:^0.21.0
       '@datawheel/olap-client': ^1.3.2
       '@types/i18next': ^12.1.0
       '@types/react-router': ^3.0.20
@@ -466,7 +470,7 @@ importers:
       react-viewport-list: ^1.3.3
       reselect: ^4.0.0
       shorthash: ^0.0.2
-lockfileVersion: 5.1
+lockfileVersion: 5.2
 packages:
   /@babel/code-frame/7.12.13:
     dependencies:
@@ -1472,7 +1476,7 @@ packages:
     dependencies:
       core-js: 2.6.12
       regenerator-runtime: 0.13.7
-    deprecated: "\U0001F6A8 This package has been deprecated in favor of separate inclusion of a polyfill and regenerator-runtime (when needed). See the @babel/polyfill docs (https://babeljs.io/docs/en/babel-polyfill) for more information."
+    deprecated: 🚨 This package has been deprecated in favor of separate inclusion of a polyfill and regenerator-runtime (when needed). See the @babel/polyfill docs (https://babeljs.io/docs/en/babel-polyfill) for more information.
     dev: false
     resolution:
       integrity: sha512-X0pi0V6gxLi6lFZpGmeNa4zxtwEmCs42isWLNjZZDE0Y8yVfgu0T2OAHlzBbdYlqbW/YXVvoBHpATEM+goCj8g==
@@ -1896,7 +1900,7 @@ packages:
   /@loadable/webpack-plugin/5.14.2_webpack@4.44.2:
     dependencies:
       make-dir: 3.1.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
     engines:
       node: '>=8'
@@ -1934,7 +1938,7 @@ packages:
       error-stack-parser: 2.0.6
       string-width: 2.1.1
       strip-ansi: 4.0.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
     engines:
       node: '>=8.0.0'
@@ -2070,6 +2074,44 @@ packages:
     dev: false
     resolution:
       integrity: sha512-RpG0NJd7OKSkWptiFhy1xCLkThs5YoDIKM21lEtDmUvSpbaIEfrxzckWLUGDFfF8RydSyngo44gDv8m2hHruUg==
+  /@pmmmwh/react-refresh-webpack-plugin/0.4.3_9ee2048269496b6d26a9cb97a289159b:
+    dependencies:
+      ansi-html: 0.0.7
+      error-stack-parser: 2.0.6
+      html-entities: 1.4.0
+      native-url: 0.2.6
+      react-refresh: 0.10.0
+      schema-utils: 2.7.1
+      source-map: 0.7.3
+      webpack: 4.44.2_webpack-cli@3.3.12
+      webpack-hot-middleware: 2.25.0
+    dev: false
+    engines:
+      node: '>= 10.x'
+    peerDependencies:
+      '@types/webpack': 4.x
+      react-refresh: '>=0.8.3 <0.10.0'
+      sockjs-client: ^1.4.0
+      type-fest: ^0.13.1
+      webpack: '>=4.43.0 <6.0.0'
+      webpack-dev-server: 3.x
+      webpack-hot-middleware: 2.x
+      webpack-plugin-serve: 0.x || 1.x
+    peerDependenciesMeta:
+      '@types/webpack':
+        optional: true
+      sockjs-client:
+        optional: true
+      type-fest:
+        optional: true
+      webpack-dev-server:
+        optional: true
+      webpack-hot-middleware:
+        optional: true
+      webpack-plugin-serve:
+        optional: true
+    resolution:
+      integrity: sha512-br5Qwvh8D2OQqSXpd1g/xqXKnK0r+Jz6qVKBbWmpUcrbGOxUrf39V5oZ1876084CGn18uMdR5uvPqBv9UqtBjQ==
   /@popperjs/core/2.6.0:
     dev: false
     resolution:
@@ -2927,14 +2969,14 @@ packages:
     dependencies:
       follow-redirects: 1.5.10
       is-buffer: 2.0.5
-    deprecated: 'Critical security vulnerability fixed in v0.21.1. For more information, see https://github.com/axios/axios/pull/3410'
+    deprecated: Critical security vulnerability fixed in v0.21.1. For more information, see https://github.com/axios/axios/pull/3410
     dev: false
     resolution:
       integrity: sha512-0BfJq4NSfQXd+SkFdrvFbG7addhYSBA2mQwISr46pD6E5iqkWg02RAs8vyTT/j0RTnoYmeXauBuSv1qKwR179g==
   /axios/0.19.2:
     dependencies:
       follow-redirects: 1.5.10
-    deprecated: 'Critical security vulnerability fixed in v0.21.1. For more information, see https://github.com/axios/axios/pull/3410'
+    deprecated: Critical security vulnerability fixed in v0.21.1. For more information, see https://github.com/axios/axios/pull/3410
     dev: false
     resolution:
       integrity: sha512-fjgm5MvRHLhx+osE2xoekY70AhARk3a6hkN+3Io1jc00jtquGvxYlKlsFUhmUET0V5te6CcZI7lcv2Ym61mjHA==
@@ -2998,7 +3040,7 @@ packages:
       loader-utils: 1.4.0
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
     engines:
       node: '>= 8.9'
@@ -3055,7 +3097,7 @@ packages:
     resolution:
       integrity: sha1-dclcMrdI4IUNEMKxaPa9vpiRrOg=
   /bcrypt-nodejs/0.0.3:
-    deprecated: 'bcrypt-nodejs is no longer actively maintained. Please use bcrypt or bcryptjs. See https://github.com/kelektiv/node.bcrypt.js/wiki/bcrypt-vs-brypt.js to learn more about these two options'
+    deprecated: bcrypt-nodejs is no longer actively maintained. Please use bcrypt or bcryptjs. See https://github.com/kelektiv/node.bcrypt.js/wiki/bcrypt-vs-brypt.js to learn more about these two options
     dev: false
     resolution:
       integrity: sha1-xgkX8m3CNWYVZsaBBhwwPCsohCs=
@@ -4052,12 +4094,12 @@ packages:
     resolution:
       integrity: sha512-1sCb0wBXnBIL16pfFG1Gkvei6UzvKyTNYpiC41yrdjEv0UoJoq9E/abTMzyYJ6JpTkAj15dLjbqifIzEBDVvog==
   /core-js/1.2.7:
-    deprecated: 'core-js@<3 is no longer maintained and not recommended for usage due to the number of issues. Please, upgrade your dependencies to the actual version of core-js@3.'
+    deprecated: core-js@<3 is no longer maintained and not recommended for usage due to the number of issues. Please, upgrade your dependencies to the actual version of core-js@3.
     dev: false
     resolution:
       integrity: sha1-ZSKUwUZR2yj6k70tX/KYOk8IxjY=
   /core-js/2.6.12:
-    deprecated: 'core-js@<3 is no longer maintained and not recommended for usage due to the number of issues. Please, upgrade your dependencies to the actual version of core-js@3.'
+    deprecated: core-js@<3 is no longer maintained and not recommended for usage due to the number of issues. Please, upgrade your dependencies to the actual version of core-js@3.
     dev: false
     requiresBuild: true
     resolution:
@@ -4279,7 +4321,7 @@ packages:
       postcss-value-parser: 4.1.0
       schema-utils: 2.7.1
       semver: 6.3.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
     engines:
       node: '>= 8.9.0'
@@ -4960,7 +5002,7 @@ packages:
   /debug/3.2.6:
     dependencies:
       ms: 2.1.3
-    deprecated: 'Debug versions >=3.2.0 <3.2.7 || >=4 <4.3.1 have a low-severity ReDos regression when used in a Node.js environment. It is recommended you upgrade to 3.2.7 or 4.3.1. (https://github.com/visionmedia/debug/issues/797)'
+    deprecated: Debug versions >=3.2.0 <3.2.7 || >=4 <4.3.1 have a low-severity ReDos regression when used in a Node.js environment. It is recommended you upgrade to 3.2.7 or 4.3.1. (https://github.com/visionmedia/debug/issues/797)
     dev: false
     resolution:
       integrity: sha512-mel+jf7nrtEl5Pn1Qx46zARXKDpBbvzezse7p7LqINmdoIk8PYP5SySaxEmYv6TZ0JyEKA1hsCId6DIhgITtWQ==
@@ -5220,10 +5262,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-2/xPb3ORsQ42nHYiSunXkDjPLBaEj/xTwUO4B7XCZQTRk7EBtTOPaygh10YAAh2OI1Qrp6NWfpAhzswj0ydt9g==
-  /dom-walk/0.1.2:
-    dev: false
-    resolution:
-      integrity: sha512-6QvTW9mrGeIegrFXdtQi9pk7O/nSK6lSdXW2eqUspN5LWD7UTji2Fqw5V2YLjBpHEoU9Xl/eUWNpDeZvoyOv2w==
   /dom4/2.1.6:
     resolution:
       integrity: sha512-JkCVGnN4ofKGbjf5Uvc8mmxaATIErKQKSgACdBXpsQ3fY6DlIpAyWfiBSrGkttATssbDCp3psiAKWXk5gmjycA==
@@ -6129,7 +6167,7 @@ packages:
     dependencies:
       loader-utils: 1.4.0
       schema-utils: 2.7.1
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
     engines:
       node: '>= 8.9.0'
@@ -6671,13 +6709,6 @@ packages:
       node: '>=6'
     resolution:
       integrity: sha512-awConJSVCHVGND6x3tmMaKcQvwXLhjdkmomy2W+Goaui8YPgYgXJZewhg3fWC+DlfqqQuWg8AwqjGTD2nAPVWg==
-  /global/4.4.0:
-    dependencies:
-      min-document: 2.19.0
-      process: 0.11.10
-    dev: false
-    resolution:
-      integrity: sha512-wv/LAoHdRE3BeTGz53FAamhGlPLhlssK45usmGFThIi4XqnBmjKQ16u+RNbP7WvigRZDxUsM0J3gcQ5yicaL0w==
   /globals/11.12.0:
     dev: false
     engines:
@@ -6818,7 +6849,7 @@ packages:
       rimraf: 2.7.1
       semver: 5.7.1
       tapable: 1.1.3
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       webpack-sources: 1.4.3
       write-json-file: 2.3.0
     dev: false
@@ -8640,18 +8671,12 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-wXqjST+SLt7R009ySCglWBCFpjUygmCIfD790/kVbiGmUgfYGuB14PiTd5DwVxSV4NcYHjzMkoj5LjQZwTQLEA==
-  /min-document/2.19.0:
-    dependencies:
-      dom-walk: 0.1.2
-    dev: false
-    resolution:
-      integrity: sha1-e9KC4/WELtKVu3SM3Z8f+iyCRoU=
   /mini-css-extract-plugin/0.12.0_webpack@4.44.2:
     dependencies:
       loader-utils: 1.4.0
       normalize-url: 1.9.1
       schema-utils: 1.0.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       webpack-sources: 1.4.3
     dev: false
     engines:
@@ -8851,6 +8876,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-ONmRUqK7zj7DWX0D9ADe03wbwOBZxNAfF20PlGfCWQcD3+/MakShIHrMqx9YwPTfxDdF1zLeL+RGZiR9kGMLdg==
+  /native-url/0.2.6:
+    dependencies:
+      querystring: 0.2.0
+    dev: false
+    resolution:
+      integrity: sha512-k4bDC87WtgrdD362gZz6zoiXQrl40kYlBmpfmSjwRO1VU0V5ccwJTlxuE72F6m3V0vc1xOf6n3UCP9QyerRqmA==
   /natural-compare/1.4.0:
     dev: false
     resolution:
@@ -9296,7 +9327,7 @@ packages:
     dependencies:
       cssnano: 4.1.10
       last-call-webpack-plugin: 3.0.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
     peerDependencies:
       webpack: ^4.0.0
@@ -9829,7 +9860,7 @@ packages:
     resolution:
       integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==
   /popper.js/1.16.1:
-    deprecated: 'You can find the new Popper v2 at @popperjs/core, this package is dedicated to the legacy v1'
+    deprecated: You can find the new Popper v2 at @popperjs/core, this package is dedicated to the legacy v1
     resolution:
       integrity: sha512-Wb4p1J4zyFTbM+u6WuO4XstYx4Ky9Cewe4DWrel7B0w6VVICvPwdOpotjzcf6eD8TsckVnIMNONQyPIUFOUbCQ==
   /posix-character-classes/0.1.1:
@@ -10932,6 +10963,15 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-l1jNAspIBSFqbT+y+5FosojNpVpF94nlI+wDUpqP9enwOTfHx9f0gh5nB96vl+6yTpsJsypeNrwfzPrKuHB41A==
+  /puppeteer-cluster/0.22.0_puppeteer@8.0.0:
+    dependencies:
+      debug: 4.3.1
+      puppeteer: 8.0.0
+    dev: false
+    peerDependencies:
+      puppeteer: ^1.5.0 || ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0
+    resolution:
+      integrity: sha512-hmydtMwfVM+idFIDzS8OXetnujHGre7RY3BGL+3njy9+r8Dcu3VALkZHfuBEPf6byKssTCgzxU1BvLczifXd5w==
   /puppeteer/8.0.0:
     dependencies:
       debug: 4.3.1
@@ -11118,30 +11158,6 @@ packages:
       react-dom: ^16.6.0
     resolution:
       integrity: sha512-By90p5uxAriGukbyejq2poK41DwTxpNWOpOjN8mIyX/BKrCd3+sXZ5pHUZXjHyjR5OYS7PGsOD9dbM61YxfFmA==
-  /react-hot-loader/4.13.0_react-dom@16.13.1+react@16.13.1:
-    dependencies:
-      fast-levenshtein: 2.0.6
-      global: 4.4.0
-      hoist-non-react-statics: 3.3.2
-      loader-utils: 1.4.0
-      prop-types: 15.7.2
-      react: 16.13.1
-      react-dom: 16.13.1_react@16.13.1
-      react-lifecycles-compat: 3.0.4
-      shallowequal: 1.1.0
-      source-map: 0.7.3
-    dev: false
-    engines:
-      node: '>= 6'
-    peerDependencies:
-      '@types/react': '^15.0.0 || ^16.0.0 || ^17.0.0 '
-      react: '^15.0.0 || ^16.0.0 || ^17.0.0 '
-      react-dom: '^15.0.0 || ^16.0.0 || ^17.0.0 '
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-    resolution:
-      integrity: sha512-JrLlvUPqh6wIkrK2hZDfOyq/Uh/WeVEr8nc7hkn2/3Ul0sx1Kr5y4kOGNacNRoj7RhwLNcQ3Udf1KJXrqc0ZtA==
   /react-i18next/9.0.10_i18next@10.6.0+react@16.13.1:
     dependencies:
       '@babel/runtime': 7.12.13
@@ -11222,6 +11238,12 @@ packages:
       redux: ^2.0.0 || ^3.0.0 || ^4.0.0-0
     resolution:
       integrity: sha512-Ns1G0XXc8hDyH/OcBHOxNgQx9ayH3SPxBnFCOidGKSle8pKihysQw2rG/PmciUQRoclhVBO8HMhiRmGXnDja9Q==
+  /react-refresh/0.10.0:
+    dev: false
+    engines:
+      node: '>=0.10.0'
+    resolution:
+      integrity: sha512-PgidR3wST3dDYKr6b4pJoqQFpPGNKDSCDx4cZoshjXipw3LzO7mG1My2pwEzz2JVkF+inx3xRpDeQLFQGH/hsQ==
   /react-router-redux/4.0.8:
     dev: false
     resolution:
@@ -11661,7 +11683,7 @@ packages:
     resolution:
       integrity: sha1-MrueOcBtZzONyTeMDW1gdFZq0TE=
   /resolve-url/0.2.1:
-    deprecated: 'https://github.com/lydell/resolve-url#deprecated'
+    deprecated: https://github.com/lydell/resolve-url#deprecated
     dev: false
     resolution:
       integrity: sha1-LGN/53yJOv0qZj/iGqkIAGjiBSo=
@@ -12164,7 +12186,7 @@ packages:
     dependencies:
       ip: 1.1.5
       smart-buffer: 1.1.15
-    deprecated: 'If using 2.x branch, please upgrade to at least 2.1.6 to avoid a serious bug with socket data flow and an import issue introduced in 2.1.0'
+    deprecated: If using 2.x branch, please upgrade to at least 2.1.6 to avoid a serious bug with socket data flow and an import issue introduced in 2.1.0
     dev: false
     engines:
       node: '>= 0.10.0'
@@ -12738,7 +12760,7 @@ packages:
       serialize-javascript: 4.0.0
       source-map: 0.6.1
       terser: 4.8.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       webpack-sources: 1.4.3
       worker-farm: 1.7.0
     dev: false
@@ -12758,7 +12780,7 @@ packages:
       serialize-javascript: 5.0.1
       source-map: 0.6.1
       terser: 5.5.1
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       webpack-sources: 1.4.3
     dev: false
     engines:
@@ -13215,7 +13237,7 @@ packages:
     resolution:
       integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==
   /urix/0.1.0:
-    deprecated: 'Please see https://github.com/lydell/urix#deprecated'
+    deprecated: Please see https://github.com/lydell/urix#deprecated
     dev: false
     resolution:
       integrity: sha1-2pN/emLiH+wf0Y1Js1wpNQZ6bHI=
@@ -13233,7 +13255,7 @@ packages:
       loader-utils: 1.4.0
       mime: 2.5.0
       schema-utils: 2.7.1
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
     engines:
       node: '>= 8.9.0'
@@ -13468,7 +13490,7 @@ packages:
       loader-utils: 1.4.0
       supports-color: 6.1.0
       v8-compile-cache: 2.2.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       yargs: 13.3.2
     dev: false
     engines:
@@ -13484,7 +13506,7 @@ packages:
       mime: 2.5.0
       mkdirp: 0.5.5
       range-parser: 1.2.1
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       webpack-log: 2.0.0
     dev: false
     engines:
@@ -13518,7 +13540,7 @@ packages:
     dev: false
     resolution:
       integrity: sha512-lgTS3Xhv1lCOKo7SA5TjKXMjpSM4sBjNV5+q2bqesbSPs5FjGmU6jjtBSkX9b4qW87vDIsCIlUPOEhbZrMdjeQ==
-  /webpack/4.44.2_93ca2875a658e9d1552850624e6b91c7:
+  /webpack/4.44.2_webpack-cli@3.3.12:
     dependencies:
       '@webassemblyjs/ast': 1.9.0
       '@webassemblyjs/helper-module-context': 1.9.0
@@ -13549,7 +13571,6 @@ packages:
       node: '>=6.11.5'
     hasBin: true
     peerDependencies:
-      webpack: '*'
       webpack-cli: '*'
       webpack-command: '*'
     peerDependenciesMeta:
@@ -13568,7 +13589,7 @@ packages:
       pretty-time: 1.1.0
       std-env: 2.2.1
       text-table: 0.2.0
-      webpack: 4.44.2_93ca2875a658e9d1552850624e6b91c7
+      webpack: 4.44.2_webpack-cli@3.3.12
       wrap-ansi: 6.2.0
     dev: false
     engines:
