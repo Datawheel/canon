@@ -34,7 +34,7 @@ class VisualizationEditorUI extends Component {
     let object = {};
     // Bug: The deepclone used in VariableEditor erroneously logic_simple from NULL to {}
     // Therefore, detect the blank object as another expression of NULLness
-    const configIsEmptyObject = simpleConfig.constructor === Object && Object.keys(simpleConfig).length === 0;
+    const configIsEmptyObject = simpleConfig && simpleConfig.constructor === Object && Object.keys(simpleConfig).length === 0;
     if (simpleConfig && !configIsEmptyObject) {
       object = Object.assign({}, simpleConfig);
       this.setState({object}, this.firstBuild.bind(this));

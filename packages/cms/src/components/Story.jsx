@@ -4,7 +4,6 @@ import {connect} from "react-redux";
 import {fetchData} from "@datawheel/canon-core";
 import {Helmet} from "react-helmet-async";
 import "./Story.css";
-import stripP from "../utils/formatters/stripP";
 import stripHTML from "../utils/formatters/stripHTML";
 import Section from "./sections/Section";
 import Hero from "./sections/Hero";
@@ -23,8 +22,23 @@ class Story extends Component {
         acc[fName] = n => f(n, libs, acc);
         return acc;
       }, {}),
-      router
+      router,
+      onTabSelect: this.onTabSelect.bind(this)
     };
+  }
+
+  onTabSelect(id, index) {
+    this.updateQuery({[`tabsection-${id}`]: index});
+  }
+
+  updateQuery(obj) {
+    const {router} = this.props;
+    const {location} = router;
+    const {basename, pathname, query} = location;
+    const newQuery = {...query, ...obj};
+    const queryString = Object.entries(newQuery).map(([key, val]) => `${key}=${val}`).join("&");
+    const newPath = `${basename}${pathname}?${queryString}`;
+    if (queryString) router.replace(newPath);
   }
 
   render() {
@@ -56,7 +70,8 @@ class Story extends Component {
 
 Story.childContextTypes = {
   formatters: PropTypes.object,
-  router: PropTypes.object
+  router: PropTypes.object,
+  onTabSelect: PropTypes.func
 };
 
 Story.need = [

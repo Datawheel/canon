@@ -56,7 +56,7 @@ class Tabs extends Component {
    */
   updateTabs(panelIndex) {
     const {id} = this.props.contents;
-    this.context.onTabSelect(id, panelIndex);
+    if (this.context.onTabSelect) this.context.onTabSelect(id, panelIndex);
     this.setState({panelIndex});
   }
 
