@@ -89,8 +89,8 @@
     "sharp": "^0.28.1"
   },
   "devDependencies": {
-    "@datawheel/canon-core": "workspace:^",
-    "@datawheel/canon-logiclayer": "workspace:^"
+    "@datawheel/canon-core": "workspace:*",
+    "@datawheel/canon-logiclayer": "workspace:*"
   },
   "peerDependencies": {
     "@datawheel/canon-core": "^0.21.0"
