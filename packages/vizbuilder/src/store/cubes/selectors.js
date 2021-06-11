@@ -1,4 +1,4 @@
-import sort from "fast-sort";
+import {sort} from "fast-sort";
 import groupBy from "lodash/groupBy";
 import keyBy from "lodash/keyBy";
 import {createSelector} from "reselect";

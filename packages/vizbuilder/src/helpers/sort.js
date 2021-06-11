@@ -1,4 +1,4 @@
-import sort from "fast-sort";
+import {sort} from "fast-sort";
 import {findFirstNumber} from "./find";
 import {areKindaNumeric} from "./validation";
 
