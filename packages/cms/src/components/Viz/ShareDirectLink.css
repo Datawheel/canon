@@ -1,6 +1,6 @@
 @import "../../css/mixins.css";
 
-.clipboard-label {
+.cp-input-label.clipboard-label {
   /* position children */
   display: flex;
   position: relative;
@@ -10,7 +10,7 @@
   transition: border-color 0.2s ease-out;
 
   /* text input with link text */
-  & .clipboard-input {
+  & .cp-input.clipboard-input {
     @add-mixin overflow-ellipsis;
     /* offset icon (left) */
     padding-left: 1.75em;
