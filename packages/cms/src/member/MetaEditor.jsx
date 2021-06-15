@@ -309,8 +309,7 @@ class MetaEditor extends Component {
     const {localeDefault, localeSecondary} = this.props.status;
     const {epoch, imageEnabled, cloudEnabled, sourceData} = this.state;
     const data = this.fetchStringifiedSourceData.bind(this)(sourceData);
-    let skip = ["stem", "imageId", "contentId"];
-    if (!imageEnabled) skip = skip.concat("image");
+    const skip = ["stem", "imageId", "contentId"];
     const keySort = ["id", "slug", "content", "zvalue", "dimension", "hierarchy", "image"];
     const fields = data[0] ? Object.keys(data[0])
       .filter(d => !skip.includes(d))
