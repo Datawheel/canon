@@ -391,7 +391,7 @@ importers:
 
   packages/logiclayer:
     specifiers:
-      '@blueprintjs/core': ^3.28.1
+      '@blueprintjs/core': ^3.45.0
       '@datawheel/canon-core': workspace:^
       axios: ^0.21.1
       d3-array: ^2.11.0
@@ -402,7 +402,7 @@ importers:
       sequelize: ^4.13.10
       yn: ^4.0.0
     dependencies:
-      '@blueprintjs/core': 3.38.2
+      '@blueprintjs/core': 3.45.0
       axios: 0.21.1
       d3-array: 2.11.0
       d3-collection: 1.0.7
@@ -1670,26 +1670,6 @@ packages:
       to-fast-properties: 2.0.0
     dev: false
 
-  /@blueprintjs/core/3.38.2:
-    resolution: {integrity: sha512-YOTZ8UkaKCjP/g8fm9e2py5/9TvAWHwhhDQAH30NV53FD5oBOjYu0+mUU1hRys9TrBflvA3cQn8EgHRP1y/K9A==}
-    hasBin: true
-    peerDependencies:
-      react: ^15.3.0 || 16 || 17
-      react-dom: ^15.3.0 || 16 || 17
-    dependencies:
-      '@blueprintjs/icons': 3.24.0
-      '@types/dom4': 2.0.1
-      classnames: 2.2.6
-      dom4: 2.1.6
-      normalize.css: 8.0.1
-      popper.js: 1.16.1
-      react-lifecycles-compat: 3.0.4
-      react-popper: 1.3.7
-      react-transition-group: 2.9.0
-      resize-observer-polyfill: 1.5.1
-      tslib: 1.13.0
-    dev: false
-
   /@blueprintjs/core/3.38.2_react-dom@16.14.0+react@16.14.0:
     resolution: {integrity: sha512-YOTZ8UkaKCjP/g8fm9e2py5/9TvAWHwhhDQAH30NV53FD5oBOjYu0+mUU1hRys9TrBflvA3cQn8EgHRP1y/K9A==}
     hasBin: true
@@ -1772,6 +1752,7 @@ packages:
     dependencies:
       classnames: 2.2.6
       tslib: 1.13.0
+    dev: true
 
   /@blueprintjs/icons/3.26.1:
     resolution: {integrity: sha512-qxAnqhzt5WqYuWN+7p3Pk7bOrhj56YXzD8n79Met8+VIQ14IpKnxr7YAYmNB5X/dVweqXpEk6tKyUjnDjBhulw==}
@@ -4142,17 +4123,6 @@ packages:
     dependencies:
       loose-envify: 1.4.0
       object-assign: 4.1.1
-    dev: false
-
-  /create-react-context/0.3.0_prop-types@15.7.2:
-    resolution: {integrity: sha512-dNldIoSuNSvlTJ7slIKC/ZFGKexBMBrrcc+TTe1NdmROnaASuLPvqpwj9v4XS4uXZ8+YPu0sNmShX2rXI5LNsw==}
-    peerDependencies:
-      prop-types: ^15.0.0
-      react: ^0.14.0 || ^15.0.0 || ^16.0.0
-    dependencies:
-      gud: 1.0.0
-      prop-types: 15.7.2
-      warning: 4.0.3
     dev: false
 
   /create-react-context/0.3.0_prop-types@15.7.2+react@16.14.0:
@@ -10740,20 +10710,6 @@ packages:
       popper.js: 1.16.1
       prop-types: 15.7.2
       react: 16.13.1
-      typed-styles: 0.0.7
-      warning: 4.0.3
-    dev: false
-
-  /react-popper/1.3.7:
-    resolution: {integrity: sha512-nmqYTx7QVjCm3WUZLeuOomna138R1luC4EqkW3hxJUrAe+3eNz3oFCLYdnPwILfn0mX1Ew2c3wctrjlUMYYUww==}
-    peerDependencies:
-      react: 0.14.x || ^15.0.0 || ^16.0.0
-    dependencies:
-      '@babel/runtime': 7.12.13
-      create-react-context: 0.3.0_prop-types@15.7.2
-      deep-equal: 1.1.1
-      popper.js: 1.16.1
-      prop-types: 15.7.2
       typed-styles: 0.0.7
       warning: 4.0.3
     dev: false

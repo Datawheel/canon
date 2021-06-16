@@ -14,7 +14,7 @@
     "start": "canon-start"
   },
   "dependencies": {
-    "@blueprintjs/core": "^3.28.1",
+    "@blueprintjs/core": "^3.45.0",
     "axios": "^0.21.1",
     "d3-array": "^2.11.0",
     "d3-collection": "^1.0.4",
