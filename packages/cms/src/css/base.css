@@ -11,7 +11,7 @@ html:root       { font-size: var(--body-font-scale-sm);
   min-height: 100vh; /* extend background on short pages */
 
   /* RESETS */
-  & * {
+  & *:not([class^="ace"]) {
     position: relative;
   }
 

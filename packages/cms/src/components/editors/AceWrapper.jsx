@@ -22,11 +22,16 @@ export default class AceWrapper extends Component {
     const {isFullscreen} = this.state;
 
     if (typeof window !== "undefined") {
+
+      require("ace-builds");
+      require("ace-builds/webpack-resolver");
       const Ace = require("react-ace").default;
-      require("brace/mode/javascript");
+      require("ace-builds/src-noconflict/mode-javascript");
+      require("ace-builds/src-noconflict/theme-monokai");
 
       const options = {
-        fontSize: "14px"
+        fontSize: "14px",
+        useWorker: "false"
         // enableBasicAutocompletion: true,
         // enableLiveAutocompletion: true
       };
@@ -51,6 +56,7 @@ export default class AceWrapper extends Component {
           <Ace
             width="100%"
             height="100%"
+            theme="monokai"
             ref={editor => this.editor = editor}
             wrapEnabled={false}
             tabSize={2}

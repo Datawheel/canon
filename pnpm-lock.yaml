@@ -40,17 +40,17 @@ importers:
 
   packages/cms:
     specifiers:
-      '@blueprintjs/core': ^3.38.1
-      '@blueprintjs/datetime': ^3.18.1
-      '@blueprintjs/select': ^3.13.2
+      '@blueprintjs/core': ^3.45.0
+      '@blueprintjs/datetime': ^3.23.4
+      '@blueprintjs/select': ^3.16.4
       '@datawheel/canon-core': workspace:^
       '@datawheel/canon-logiclayer': workspace:^
       '@datawheel/olap-client': ^2.0.0-beta.1
       '@google-cloud/storage': 5.3.0
       '@google-cloud/translate': ^6.0.3
+      ace-builds: ^1.4.12
       axios: ^0.21.1
       base58: ^2.0.1
-      brace: ^0.11.1
       buble: ^0.19.3
       d3-array: ^2.11.0
       d3-collection: ^1.0.7
@@ -83,21 +83,21 @@ importers:
       promise-throttle: ^1.0.0
       puppeteer: ^8.0.0
       puppeteer-cluster: ^0.22.0
-      react-ace: ^6.2.0
+      react-ace: 9.4.1
       react-clipboard.js: ^2.0.7
       react-sizeme: ^2.6.7
       react-table: 6.10.3
       sharp: ^0.28.1
     dependencies:
-      '@blueprintjs/core': 3.38.2
-      '@blueprintjs/datetime': 3.20.4
-      '@blueprintjs/select': 3.15.4
+      '@blueprintjs/core': 3.45.0
+      '@blueprintjs/datetime': 3.23.4
+      '@blueprintjs/select': 3.16.4
       '@datawheel/olap-client': 2.0.0-beta.2
       '@google-cloud/storage': 5.3.0
       '@google-cloud/translate': 6.1.0
+      ace-builds: 1.4.12
       axios: 0.21.1
       base58: 2.0.1
-      brace: 0.11.1
       buble: 0.19.8
       d3-array: 2.11.0
       d3-collection: 1.0.7
@@ -130,7 +130,7 @@ importers:
       promise-throttle: 1.1.2
       puppeteer: 8.0.0
       puppeteer-cluster: 0.22.0_puppeteer@8.0.0
-      react-ace: 6.6.0
+      react-ace: 9.4.1
       react-clipboard.js: 2.0.16
       react-sizeme: 2.6.12
       react-table: 6.10.3
@@ -438,19 +438,19 @@ importers:
       '@blueprintjs/core': ^3.22.3
       '@blueprintjs/select': ^3.11.0
       '@datawheel/canon-core': workspace:^
-      '@datawheel/olap-client': ^2.0.0-beta.1
+      '@datawheel/olap-client': ^2.0.0-beta.2
       '@types/i18next': ^12.1.0
       '@types/react-router': ^3.0.20
-      classnames: ^2.2.6
+      classnames: ^2.3.1
       d3-array: ^2.11.0
-      d3plus-common: ^1.0.2
+      d3plus-common: ^1.0.4
       d3plus-format: ^1.0.0
       d3plus-react: ^1.0.0
-      fast-sort: ^1.5.3
-      form-urldecoded: 0.0.6
-      form-urlencoded: ^4.1.3
+      fast-sort: ^3.0.2
+      form-urldecoded: ^1.0.0
+      form-urlencoded: ^6.0.4
       lodash: ^4.17.15
-      memoize-one: ^5.1.1
+      memoize-one: ^5.2.1
       react: ^16.9.0
       react-dom: ^16.9.0
       react-viewport-list: ^1.3.3
@@ -458,15 +458,15 @@ importers:
       shorthash: ^0.0.2
     dependencies:
       '@datawheel/olap-client': 2.0.0-beta.2
-      classnames: 2.2.6
+      classnames: 2.3.1
       d3-array: 2.11.0
-      d3plus-common: 1.0.2
+      d3plus-common: 1.0.4
       d3plus-format: 1.0.0
       d3plus-react: 1.0.0_react@16.14.0
-      fast-sort: 1.6.0
-      form-urldecoded: 0.0.6
-      form-urlencoded: 4.2.1
-      memoize-one: 5.1.1
+      fast-sort: 3.0.2
+      form-urldecoded: 1.2.0
+      form-urlencoded: 6.0.4
+      memoize-one: 5.2.1
       react-viewport-list: 1.3.3_react@16.14.0
       reselect: 4.0.0
       shorthash: 0.0.2
@@ -1632,6 +1632,12 @@ packages:
     dependencies:
       regenerator-runtime: 0.13.7
 
+  /@babel/runtime/7.14.6:
+    resolution: {integrity: sha512-/PCB2uJ7oM44tz8YhC4Z/6PeOKXp4K588f+5M3clr1M4zbqztlo0XEfJ2LEzj/FgwfgGcIdl8n7YYjTCI0BYwg==}
+    engines: {node: '>=6.9.0'}
+    dependencies:
+      regenerator-runtime: 0.13.7
+
   /@babel/template/7.12.13:
     resolution: {integrity: sha512-/7xxiGA57xMo/P2GVvdEumr8ONhFOhfgq2ihK3h1e6THqzTAkHbkXgB0xI9yeTfIUoH3+oAeHhqm/I43OTbbjA==}
     dependencies:
@@ -1728,15 +1734,35 @@ packages:
       tslib: 1.13.0
     dev: true
 
-  /@blueprintjs/datetime/3.20.4:
-    resolution: {integrity: sha512-R7ONjzvtjUiFuDrHOITor2f9YGMyRAQPMs1EXoxhr+eMCjOuSpPO8j8BE6wp5CtR01plnEY/G1bcllK86Y6B9A==}
+  /@blueprintjs/core/3.45.0:
+    resolution: {integrity: sha512-oLknlh+jdvdat+3JrljKGAmtP7KJRKnUqWJOvcGHmAlE2nUZkwzI1jICd2HMncQrukIqQN5ORZK1tswus6BM+Q==}
+    hasBin: true
     peerDependencies:
       react: ^15.3.0 || 16 || 17
       react-dom: ^15.3.0 || 16 || 17
     dependencies:
-      '@blueprintjs/core': 3.38.2
-      classnames: 2.2.6
-      react-day-picker: 7.4.8
+      '@blueprintjs/icons': 3.26.1
+      '@types/dom4': 2.0.1
+      classnames: 2.3.1
+      dom4: 2.1.6
+      normalize.css: 8.0.1
+      popper.js: 1.16.1
+      react-lifecycles-compat: 3.0.4
+      react-popper: 1.3.11
+      react-transition-group: 2.9.0
+      resize-observer-polyfill: 1.5.1
+      tslib: 1.13.0
+    dev: false
+
+  /@blueprintjs/datetime/3.23.4:
+    resolution: {integrity: sha512-tC0DH6jKMLdZjXlAH7UoP3gzTjCm8iYKGY9jMyqPqTj869AJHnqW5NlCZKp+xMiy6FJ53oJjjKdhw6l5p46BZA==}
+    peerDependencies:
+      react: ^15.3.0 || 16 || 17
+      react-dom: ^15.3.0 || 16 || 17
+    dependencies:
+      '@blueprintjs/core': 3.45.0
+      classnames: 2.3.1
+      react-day-picker: 7.4.9
       react-lifecycles-compat: 3.0.4
       tslib: 1.13.0
     dev: false
@@ -1747,14 +1773,10 @@ packages:
       classnames: 2.2.6
       tslib: 1.13.0
 
-  /@blueprintjs/select/3.15.4:
-    resolution: {integrity: sha512-TsDDn5Pp39Bazv1Spu8evALKpBjQ5j+5SOlCBuXokMWcFI99RekG5jI9fYQKsOlyvXGWxazMG/vsIuIf5tXKoA==}
-    peerDependencies:
-      react: ^15.3.0 || 16 || 17
-      react-dom: ^15.3.0 || 16 || 17
+  /@blueprintjs/icons/3.26.1:
+    resolution: {integrity: sha512-qxAnqhzt5WqYuWN+7p3Pk7bOrhj56YXzD8n79Met8+VIQ14IpKnxr7YAYmNB5X/dVweqXpEk6tKyUjnDjBhulw==}
     dependencies:
-      '@blueprintjs/core': 3.38.2
-      classnames: 2.2.6
+      classnames: 2.3.1
       tslib: 1.13.0
     dev: false
 
@@ -1770,6 +1792,17 @@ packages:
       react-dom: 16.14.0_react@16.14.0
       tslib: 1.13.0
     dev: true
+
+  /@blueprintjs/select/3.16.4:
+    resolution: {integrity: sha512-5zBnaiy+1lrOYZPZIYhfYqN9heJJwNpnT214X0jDYaWAOPt/S+v8L50c7JflwV0JEaMgavc/FVVpKEb2ojw88Q==}
+    peerDependencies:
+      react: ^15.3.0 || 16 || 17
+      react-dom: ^15.3.0 || 16 || 17
+    dependencies:
+      '@blueprintjs/core': 3.45.0
+      classnames: 2.3.1
+      tslib: 1.13.0
+    dev: false
 
   /@csstools/convert-colors/1.4.0:
     resolution: {integrity: sha512-5a6wqoJV/xEdbRNKVo6I4hO3VjyDq//8q2f9I6PBAvMesJHFauXDorcNCsr9RzvsZnaWi5NYCcfyqP1QeFHFbw==}
@@ -1900,6 +1933,17 @@ packages:
     dependencies:
       lodash.camelcase: 4.3.0
       protobufjs: 6.10.2
+    dev: false
+
+  /@hypnosphi/create-react-context/0.3.1_prop-types@15.7.2:
+    resolution: {integrity: sha512-V1klUed202XahrWJLLOT3EXNeCpFHCcJntdFGI15ntCwau+jfT386w7OFTMaCqOgXUH1fa0w/I1oZs+i/Rfr0A==}
+    peerDependencies:
+      prop-types: ^15.0.0
+      react: '>=0.14.0'
+    dependencies:
+      gud: 1.0.0
+      prop-types: 15.7.2
+      warning: 4.0.3
     dev: false
 
   /@loadable/babel-plugin/5.13.2_@babel+core@7.12.13:
@@ -2443,6 +2487,10 @@ packages:
     dependencies:
       mime-types: 2.1.28
       negotiator: 0.6.2
+    dev: false
+
+  /ace-builds/1.4.12:
+    resolution: {integrity: sha512-G+chJctFPiiLGvs3+/Mly3apXTcfgE45dT5yp12BcWZ1kUs+gm0qd3/fv4gsz6fVag4mM0moHVpjHDIgph6Psg==}
     dev: false
 
   /acorn-bigint/0.4.0_acorn@6.4.2:
@@ -3182,10 +3230,6 @@ packages:
       balanced-match: 1.0.0
       concat-map: 0.0.1
 
-  /brace/0.11.1:
-    resolution: {integrity: sha1-SJb8ydVE7vRfS7dmDbMg07N5/lg=}
-    dev: false
-
   /braces/2.3.2:
     resolution: {integrity: sha512-aNdbnj9P8PjdXU4ybaWLK2IF3jc/EoDYbC7AazW6to3TRsfXxscC9UXOB5iDiEQrkyIbWp2SLQda4+QAa7nc3w==}
     engines: {node: '>=0.10.0'}
@@ -3628,6 +3672,10 @@ packages:
 
   /classnames/2.2.6:
     resolution: {integrity: sha512-JR/iSQOSt+LQIWwrwEzJ9uk0xfN3mTVYMwt1Ir5mUcSN6pU+V4zQFFaJsclJbPuAUQH+yfWef6tm7l1quW3C8Q==}
+
+  /classnames/2.3.1:
+    resolution: {integrity: sha512-OlQdbZ7gLfGarSqxesMesDa5uz7KFbID8Kpq/SxIoNGDqY8lSYs0D+hhtBXhcdB3rcbXArFr7vlHheLk1voeNA==}
+    dev: false
 
   /clean-stack/2.2.0:
     resolution: {integrity: sha512-4diC9HaTE+KRAMWhDhrGOECgWZxoevMc5TlkObMqNSsVU62PYzXZ/SMTjzyGAFF1YusgxGcSWTEXBhp0CPwQ1A==}
@@ -4644,6 +4692,17 @@ packages:
       windows-locale: 1.1.2
     dev: false
 
+  /d3plus-common/1.0.4:
+    resolution: {integrity: sha512-DTR1cvpimd5FIUOVQEklX8zBtd6Mk0g5U8o5Z0maRQ2QzvSM+5Rpomts4xat9V4OiBRotq8J0hC0j6nSY9P8ug==}
+    dependencies:
+      d3-array: 2.11.0
+      d3-collection: 1.0.7
+      d3-selection: 2.0.0
+      d3-transition: 2.0.0_d3-selection@2.0.0
+      iso639-codes: 1.0.1
+      windows-locale: 1.1.2
+    dev: false
+
   /d3plus-export/1.0.0:
     resolution: {integrity: sha512-xr5G1jJwYQInFam9Gq474r0hOHP0NJJ+QXWgEhCzl6wWBvnKpYCwcpJHGZO2MRlPQtvNWJbr80v4FBkma/jlkA==}
     dependencies:
@@ -5126,7 +5185,7 @@ packages:
   /dom-helpers/3.4.0:
     resolution: {integrity: sha512-LnuPJ+dwqKDIyotW1VzmOZ5TONUN7CwkCR5hrgawTUbkBGYdeoNLZo6nNfGkCrjtE1nXXaj7iMMpDa8/d9WoIA==}
     dependencies:
-      '@babel/runtime': 7.12.13
+      '@babel/runtime': 7.14.6
 
   /dom-serializer/0.2.2:
     resolution: {integrity: sha512-2/xPb3ORsQ42nHYiSunXkDjPLBaEj/xTwUO4B7XCZQTRk7EBtTOPaygh10YAAh2OI1Qrp6NWfpAhzswj0ydt9g==}
@@ -5924,8 +5983,8 @@ packages:
     resolution: {integrity: sha512-QJYT/i0QYoiZBQ71ivxdyTqkwKkQ0oxACXHYxH2zYHJEgzi2LsbjgvtzTbLi1SZcF190Db2YP7I7eTsU2egOlw==}
     dev: false
 
-  /fast-sort/1.6.0:
-    resolution: {integrity: sha512-sjV6dxWdHs14cef7GzJgCWSOagw57cUBYMey+seWeOsU0HgMf2g4Wkdflv65X/8E4UWptUcq9EZ3YqSXUnUy9Q==}
+  /fast-sort/3.0.2:
+    resolution: {integrity: sha512-DIKDkHBt+IubEEU44/kEulX3SbIuufEHIhRfw0MCh7f/HLGWmR/Dk7xg2tapT28pVFqnEV1ZDtl6SeViAyVe4Q==}
     dev: false
 
   /fast-text-encoding/1.0.3:
@@ -6174,24 +6233,24 @@ packages:
       mime-types: 2.1.28
     dev: false
 
-  /form-urldecoded/0.0.6:
-    resolution: {integrity: sha512-NO04S/g53M5F11zvH7guis9cTB/3+J6hrtf42g1OmlbjFCirJ3ZkDkLQ3GG4/pBs3PAGyzmvbFTJw8su4XxiDw==}
-    dev: false
-
   /form-urldecoded/0.1.5:
     resolution: {integrity: sha512-xBRqs/YgRxouoMiGBn5KEDTcMf7xhA6NJ6znC9trCEyiXSzIwpAHaBvGcTntcic2BCMXxuz2iXy+THcTlK2QKg==}
+    dev: false
+
+  /form-urldecoded/1.2.0:
+    resolution: {integrity: sha512-I9u81N5OQ5rFyDdTDeS9l2HSW1xykxFoS32HQmh/azNW5VHoWiHoISbKdINxj63KpfvzeEEce5/MEPTGxArVqw==}
     dev: false
 
   /form-urlencoded/1.4.1:
     resolution: {integrity: sha1-DFQD7xTNdhjZCKF7jh4gpvUKJKY=}
     dev: false
 
-  /form-urlencoded/4.2.1:
-    resolution: {integrity: sha512-0eFJroOH2qaqc/630d4YZpmsyKmh6sfq/1z3YMXvFab0O6teGnf8640C7gufikwbQJFaC6nPlG4d/GiYVN+Dcw==}
-    dev: false
-
   /form-urlencoded/4.5.1:
     resolution: {integrity: sha512-Rkd/RdMaprsMJEGzEbxolwacp78WupH7u369KEyIY3pEZ1fhL6HtyQ1FX+4HSfA1VVhET18UwCUcr5DVaDIaqg==}
+    dev: false
+
+  /form-urlencoded/6.0.4:
+    resolution: {integrity: sha512-39GnqmnZkThJBXiKhBCrBGPKiwFHDgi3lcGO3SfURjXoz9x8quxNRTiIWViYN+QzQXxxl/uyKm+i+0PCj7Aqbw==}
     dev: false
 
   /formidable/1.2.2:
@@ -8208,8 +8267,8 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
-  /memoize-one/5.1.1:
-    resolution: {integrity: sha512-HKeeBpWvqiVJD57ZUAsJNm71eHTykffzcLZVYWiVfQeI1rJtuEaS7hQiEpWfVVk18donPwJEcFKIkCmPJNOhHA==}
+  /memoize-one/5.2.1:
+    resolution: {integrity: sha512-zYiwtZUcYyXKo/np96AGZAckk+FWWsUdJ3cHGGmld7+AhvcWmQyGCYUh1hc4Q/pkOhb65dQR/pqCyK0cOaHz4Q==}
     dev: false
 
   /memory-fs/0.4.1:
@@ -10544,14 +10603,13 @@ packages:
       minimist: 1.2.5
       strip-json-comments: 2.0.1
 
-  /react-ace/6.6.0:
-    resolution: {integrity: sha512-Jehhp8bxa8kqiXk07Jzy+uD5qZMBwo43O+raniGHjdX7Qk93xFkKaAz8LxtUVZPJGlRnV5ODMNj0qHwDSN+PBw==}
+  /react-ace/9.4.1:
+    resolution: {integrity: sha512-vhOFrB5Xy++mcPNc6wc1mwMFP/FZOnYxQPqgRl/dLfkZBbrJf4SAgXaa6PU4AXWu1u5bfxOmRwwHaZPrLb6d9Q==}
     peerDependencies:
-      react: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0
-      react-dom: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0
+      react: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0
+      react-dom: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0
     dependencies:
-      '@babel/polyfill': 7.12.1
-      brace: 0.11.1
+      ace-builds: 1.4.12
       diff-match-patch: 1.0.5
       lodash.get: 4.4.2
       lodash.isequal: 4.5.0
@@ -10569,10 +10627,10 @@ packages:
       prop-types: 15.7.2
     dev: false
 
-  /react-day-picker/7.4.8:
-    resolution: {integrity: sha512-pp0hnxFVoRuBQcRdR1Hofw4CQtOCGVmzCNrscyvS0Q8NEc+UiYLEDqE5dk37bf0leSnBW4lheIt0CKKhuKzDVw==}
+  /react-day-picker/7.4.9:
+    resolution: {integrity: sha512-CcXf0p7p6gTYnG0+n/4wNGljZuQDXl4HhgcxsXB0nX+8D4LnRho9EclPA/aLz4WlvvVpfY+AEgj2ylgPj4nm/g==}
     peerDependencies:
-      react: ~0.13.x || ~0.14.x || ^15.0.0 || ^16.0.0
+      react: ~0.13.x || ~0.14.x || ^15.0.0 || ^16.0.0 || ^17.0.0
     dependencies:
       prop-types: 15.7.2
     dev: false
@@ -10638,6 +10696,20 @@ packages:
 
   /react-lifecycles-compat/3.0.4:
     resolution: {integrity: sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==}
+
+  /react-popper/1.3.11:
+    resolution: {integrity: sha512-VSA/bS+pSndSF2fiasHK/PTEEAyOpX60+H5EPAjoArr8JGm+oihu4UbrqcEBpQibJxBVCpYyjAX7abJ+7DoYVg==}
+    peerDependencies:
+      react: 0.14.x || ^15.0.0 || ^16.0.0 || ^17.0.0
+    dependencies:
+      '@babel/runtime': 7.14.6
+      '@hypnosphi/create-react-context': 0.3.1_prop-types@15.7.2
+      deep-equal: 1.1.1
+      popper.js: 1.16.1
+      prop-types: 15.7.2
+      typed-styles: 0.0.7
+      warning: 4.0.3
+    dev: false
 
   /react-popper/1.3.7:
     resolution: {integrity: sha512-nmqYTx7QVjCm3WUZLeuOomna138R1luC4EqkW3hxJUrAe+3eNz3oFCLYdnPwILfn0mX1Ew2c3wctrjlUMYYUww==}
