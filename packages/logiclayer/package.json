@@ -2,7 +2,7 @@
   "name": "@datawheel/canon-logiclayer",
   "sideEffects": false,
   "description": "API logic using mondrian-rest-client.",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": "Dave Landry",
   "license": "MIT",
   "scripts": {
