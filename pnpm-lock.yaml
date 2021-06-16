@@ -164,8 +164,8 @@ importers:
       '@babel/preset-env': ^7.11.5
       '@babel/preset-react': ^7.10.4
       '@babel/runtime': ^7.10.2
-      '@blueprintjs/core': ^3.18.0
-      '@blueprintjs/icons': ^3.18.0
+      '@blueprintjs/core': ^3.45.0
+      '@blueprintjs/icons': ^3.26.1
       '@loadable/babel-plugin': ^5.13.2
       '@loadable/component': ^5.13.2
       '@loadable/server': ^5.13.2
@@ -288,8 +288,8 @@ importers:
       '@babel/preset-env': 7.12.13_@babel+core@7.12.13
       '@babel/preset-react': 7.12.13_@babel+core@7.12.13
       '@babel/runtime': 7.12.13
-      '@blueprintjs/core': 3.38.2_react-dom@16.13.1+react@16.13.1
-      '@blueprintjs/icons': 3.24.0
+      '@blueprintjs/core': 3.45.0_react-dom@16.13.1+react@16.13.1
+      '@blueprintjs/icons': 3.26.1
       '@loadable/babel-plugin': 5.13.2_@babel+core@7.12.13
       '@loadable/component': 5.14.1_react@16.13.1
       '@loadable/server': 5.14.2_8acb66d1a6b50fdcbb1ee88dfc57f1db
@@ -1690,28 +1690,6 @@ packages:
       tslib: 1.13.0
     dev: false
 
-  /@blueprintjs/core/3.38.2_react-dom@16.13.1+react@16.13.1:
-    resolution: {integrity: sha512-YOTZ8UkaKCjP/g8fm9e2py5/9TvAWHwhhDQAH30NV53FD5oBOjYu0+mUU1hRys9TrBflvA3cQn8EgHRP1y/K9A==}
-    hasBin: true
-    peerDependencies:
-      react: ^15.3.0 || 16 || 17
-      react-dom: ^15.3.0 || 16 || 17
-    dependencies:
-      '@blueprintjs/icons': 3.24.0
-      '@types/dom4': 2.0.1
-      classnames: 2.2.6
-      dom4: 2.1.6
-      normalize.css: 8.0.1
-      popper.js: 1.16.1
-      react: 16.13.1
-      react-dom: 16.13.1_react@16.13.1
-      react-lifecycles-compat: 3.0.4
-      react-popper: 1.3.7_react@16.13.1
-      react-transition-group: 2.9.0_react-dom@16.13.1+react@16.13.1
-      resize-observer-polyfill: 1.5.1
-      tslib: 1.13.0
-    dev: false
-
   /@blueprintjs/core/3.38.2_react-dom@16.14.0+react@16.14.0:
     resolution: {integrity: sha512-YOTZ8UkaKCjP/g8fm9e2py5/9TvAWHwhhDQAH30NV53FD5oBOjYu0+mUU1hRys9TrBflvA3cQn8EgHRP1y/K9A==}
     hasBin: true
@@ -1750,6 +1728,28 @@ packages:
       react-lifecycles-compat: 3.0.4
       react-popper: 1.3.11
       react-transition-group: 2.9.0
+      resize-observer-polyfill: 1.5.1
+      tslib: 1.13.0
+    dev: false
+
+  /@blueprintjs/core/3.45.0_react-dom@16.13.1+react@16.13.1:
+    resolution: {integrity: sha512-oLknlh+jdvdat+3JrljKGAmtP7KJRKnUqWJOvcGHmAlE2nUZkwzI1jICd2HMncQrukIqQN5ORZK1tswus6BM+Q==}
+    hasBin: true
+    peerDependencies:
+      react: ^15.3.0 || 16 || 17
+      react-dom: ^15.3.0 || 16 || 17
+    dependencies:
+      '@blueprintjs/icons': 3.26.1
+      '@types/dom4': 2.0.1
+      classnames: 2.3.1
+      dom4: 2.1.6
+      normalize.css: 8.0.1
+      popper.js: 1.16.1
+      react: 16.13.1
+      react-dom: 16.13.1_react@16.13.1
+      react-lifecycles-compat: 3.0.4
+      react-popper: 1.3.11_react@16.13.1
+      react-transition-group: 2.9.0_react-dom@16.13.1+react@16.13.1
       resize-observer-polyfill: 1.5.1
       tslib: 1.13.0
     dev: false
@@ -1943,6 +1943,18 @@ packages:
     dependencies:
       gud: 1.0.0
       prop-types: 15.7.2
+      warning: 4.0.3
+    dev: false
+
+  /@hypnosphi/create-react-context/0.3.1_prop-types@15.7.2+react@16.13.1:
+    resolution: {integrity: sha512-V1klUed202XahrWJLLOT3EXNeCpFHCcJntdFGI15ntCwau+jfT386w7OFTMaCqOgXUH1fa0w/I1oZs+i/Rfr0A==}
+    peerDependencies:
+      prop-types: ^15.0.0
+      react: '>=0.14.0'
+    dependencies:
+      gud: 1.0.0
+      prop-types: 15.7.2
+      react: 16.13.1
       warning: 4.0.3
     dev: false
 
@@ -4143,18 +4155,6 @@ packages:
       warning: 4.0.3
     dev: false
 
-  /create-react-context/0.3.0_prop-types@15.7.2+react@16.13.1:
-    resolution: {integrity: sha512-dNldIoSuNSvlTJ7slIKC/ZFGKexBMBrrcc+TTe1NdmROnaASuLPvqpwj9v4XS4uXZ8+YPu0sNmShX2rXI5LNsw==}
-    peerDependencies:
-      prop-types: ^15.0.0
-      react: ^0.14.0 || ^15.0.0 || ^16.0.0
-    dependencies:
-      gud: 1.0.0
-      prop-types: 15.7.2
-      react: 16.13.1
-      warning: 4.0.3
-    dev: false
-
   /create-react-context/0.3.0_prop-types@15.7.2+react@16.14.0:
     resolution: {integrity: sha512-dNldIoSuNSvlTJ7slIKC/ZFGKexBMBrrcc+TTe1NdmROnaASuLPvqpwj9v4XS4uXZ8+YPu0sNmShX2rXI5LNsw==}
     peerDependencies:
@@ -5015,9 +5015,9 @@ packages:
     resolution: {integrity: sha512-yd9c5AdiqVcR+JjcwUQb9DkhJc8ngNr0MahEBGvDiJw8puWab2yZlh+nkasOnZP+EGTAP6rRp2JzJhJZzvNF8g==}
     dependencies:
       is-arguments: 1.1.0
-      is-date-object: 1.0.2
-      is-regex: 1.1.2
-      object-is: 1.1.4
+      is-date-object: 1.0.4
+      is-regex: 1.1.3
+      object-is: 1.1.5
       object-keys: 1.1.1
       regexp.prototype.flags: 1.3.1
 
@@ -6436,7 +6436,7 @@ packages:
     dependencies:
       function-bind: 1.1.1
       has: 1.0.3
-      has-symbols: 1.0.1
+      has-symbols: 1.0.2
 
   /get-stream/4.1.0:
     resolution: {integrity: sha512-GMat4EJ5161kIy2HevLlr4luNjBgvmj413KaQA7jt4V8B4RDsfpHk7WQ9GVqfYyyx8OS/L66Kox+rJRNklLK7w==}
@@ -6729,6 +6729,11 @@ packages:
 
   /has-symbols/1.0.1:
     resolution: {integrity: sha512-PLcsoqu++dmEIZB+6totNFKq/7Do+Z0u4oT0zKOJNl3lYK6vGwwu2hjHs+68OEZbTjiUE9bgOABXbP/GvrS0Kg==}
+    engines: {node: '>= 0.4'}
+    dev: false
+
+  /has-symbols/1.0.2:
+    resolution: {integrity: sha512-chXa79rL/UC2KlX17jo3vRGz0azaWEx5tGqZg5pO3NUyEJVB17dMruQlzCCOfUvElghKcm5194+BCRvi2Rv/Gw==}
     engines: {node: '>= 0.4'}
 
   /has-unicode/2.0.1:
@@ -7381,6 +7386,11 @@ packages:
   /is-date-object/1.0.2:
     resolution: {integrity: sha512-USlDT524woQ08aoZFzh3/Z6ch9Y/EWXEHQ/AaRN0SkKq4t2Jw2R2339tSXmwuVoY7LLlBCbOIlx2myP/L5zk0g==}
     engines: {node: '>= 0.4'}
+    dev: false
+
+  /is-date-object/1.0.4:
+    resolution: {integrity: sha512-/b4ZVsG7Z5XVtIxs/h9W8nvfLgSAyKYdtGWQLbqy6jA1icmgjf8WCoTKgeS4wy5tYaPePouzFMANbnj94c2Z+A==}
+    engines: {node: '>= 0.4'}
 
   /is-descriptor/0.1.6:
     resolution: {integrity: sha512-avDYr0SB3DwO9zsMov0gKCESFYqCnE4hq/4z3TdUlukEy5t9C0YRq7HLrsN52NAcqXKaepeCD0n+B0arnVG3Hg==}
@@ -7544,6 +7554,14 @@ packages:
     dependencies:
       call-bind: 1.0.2
       has-symbols: 1.0.1
+    dev: false
+
+  /is-regex/1.1.3:
+    resolution: {integrity: sha512-qSVXFz28HM7y+IWX6vLCsexdlvzT1PJNFSBuaQLQ5o0IEw8UDYW6/2+eCMVyIsbM8CNLX2a/QWmSpyxYEHY7CQ==}
+    engines: {node: '>= 0.4'}
+    dependencies:
+      call-bind: 1.0.2
+      has-symbols: 1.0.2
 
   /is-relative/1.0.0:
     resolution: {integrity: sha512-Kw/ReK0iqwKeu0MITLFuj0jbPAmEiOsIwyIXvvbfa6QfmN9pkD1M+8pdk7Rl/dTKbH34/XBFMbgD4iMJhLQbGA==}
@@ -8840,8 +8858,8 @@ packages:
     resolution: {integrity: sha512-i3Bp9iTqwhaLZBxGkRfo5ZbE07BQRT7MGu8+nNgwW9ItGp1TzCTw2DLEoWwjClxBjOFI/hWljTAmYGCEwmtnOw==}
     dev: false
 
-  /object-is/1.1.4:
-    resolution: {integrity: sha512-1ZvAZ4wlF7IyPVOcE1Omikt7UpaFlOQq0HlSti+ZvDH3UiD2brwGMwDbyV43jao2bKJ+4+WdPJHSd7kgzKYVqg==}
+  /object-is/1.1.5:
+    resolution: {integrity: sha512-3cyDsyHgtmi7I7DfSSI2LDp6SK2lwvtbg0p0R1e0RvTqF5ceGx+K2dfSjm1bKDMVCFEDAQvy+o8c6a7VujOddw==}
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
@@ -10711,6 +10729,21 @@ packages:
       warning: 4.0.3
     dev: false
 
+  /react-popper/1.3.11_react@16.13.1:
+    resolution: {integrity: sha512-VSA/bS+pSndSF2fiasHK/PTEEAyOpX60+H5EPAjoArr8JGm+oihu4UbrqcEBpQibJxBVCpYyjAX7abJ+7DoYVg==}
+    peerDependencies:
+      react: 0.14.x || ^15.0.0 || ^16.0.0 || ^17.0.0
+    dependencies:
+      '@babel/runtime': 7.14.6
+      '@hypnosphi/create-react-context': 0.3.1_prop-types@15.7.2+react@16.13.1
+      deep-equal: 1.1.1
+      popper.js: 1.16.1
+      prop-types: 15.7.2
+      react: 16.13.1
+      typed-styles: 0.0.7
+      warning: 4.0.3
+    dev: false
+
   /react-popper/1.3.7:
     resolution: {integrity: sha512-nmqYTx7QVjCm3WUZLeuOomna138R1luC4EqkW3hxJUrAe+3eNz3oFCLYdnPwILfn0mX1Ew2c3wctrjlUMYYUww==}
     peerDependencies:
@@ -10721,21 +10754,6 @@ packages:
       deep-equal: 1.1.1
       popper.js: 1.16.1
       prop-types: 15.7.2
-      typed-styles: 0.0.7
-      warning: 4.0.3
-    dev: false
-
-  /react-popper/1.3.7_react@16.13.1:
-    resolution: {integrity: sha512-nmqYTx7QVjCm3WUZLeuOomna138R1luC4EqkW3hxJUrAe+3eNz3oFCLYdnPwILfn0mX1Ew2c3wctrjlUMYYUww==}
-    peerDependencies:
-      react: 0.14.x || ^15.0.0 || ^16.0.0
-    dependencies:
-      '@babel/runtime': 7.12.13
-      create-react-context: 0.3.0_prop-types@15.7.2+react@16.13.1
-      deep-equal: 1.1.1
-      popper.js: 1.16.1
-      prop-types: 15.7.2
-      react: 16.13.1
       typed-styles: 0.0.7
       warning: 4.0.3
     dev: false
