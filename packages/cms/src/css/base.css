@@ -11,8 +11,25 @@ html:root       { font-size: var(--body-font-scale-sm);
   min-height: 100vh; /* extend background on short pages */
 
   /* RESETS */
-  & *:not([class^="ace"]) {
+  & * {
     position: relative;
+  }
+
+  /* fixes previous reset with react-ace component */
+  & .ace_text-input,
+  & .ace_gutter,
+  & .ace_gutter-cell,
+  & .ace_scroller,
+  & .ace_content,
+  & .ace_layer,
+  & .ace_cursor,
+  & .ace_print-margin,
+  & .ace_scrollbar,
+  & .ace_scrollbar-inner {
+    position: absolute;
+  }
+  & .ace_tooltip {
+    position: fixed;
   }
 
   & code {
