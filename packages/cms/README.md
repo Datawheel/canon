@@ -298,6 +298,7 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 |`CANON_CMS_DEEPSEARCH_API`|Server location of Deepsearch API|`undefined`|
 |`CANON_CMS_HTACCESS_USER`|Authentication user for PDF generation on .htaccess protected pages|`undefined`|
 |`CANON_CMS_HTACCESS_PW`|Authentication password for PDF generation on .htaccess protected pages|`undefined`|
+|`CANON_CMS_PDF_DISABLE`|Disable the PDF generation endpoint|`undefined`|
 |`FLICKR_API_KEY`|Used to configure Flickr Authentication|`undefined`|
 |`GOOGLE_APPLICATION_CREDENTIALS`|Path to JSON token file for Cloud Storage|`undefined`|
 |`CANON_CONST_STORAGE_BUCKET`|Name of Google Cloud Storage Bucket|`undefined`|
@@ -699,6 +700,10 @@ pdf: {
 
 ...
 ```
+
+#### Disabling PDF Routes
+
+If needed for security/environment reasons, the pdf generation endpoints can be disabled by setting `CANON_CMS_PDF_DISABLE` to `true`.
 
 ---
 
