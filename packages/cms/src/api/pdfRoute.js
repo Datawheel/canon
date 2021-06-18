@@ -94,6 +94,7 @@ const generate = async(path, userOptions = {}, viewportOptions = {}) => {
  */
 const verify = async(db, path) => {
   if (!path) return false;
+  path = path.split("?")[0];
   const params = path
     .split("/")
     .filter(d =>
