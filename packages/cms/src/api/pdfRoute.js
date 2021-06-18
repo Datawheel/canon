@@ -117,7 +117,9 @@ const verify = async(db, path) => {
   }
   // If no profile was found, eject
   if (!pid) return false;
+  // Get all profile-slugs associated with this profile
   const allMeta = await db.profile_meta.findAll({where: {profile_id: pid}}).catch(catcher);
+  if (!allMeta) return false;
   for (const meta of allMeta) {
     const {slug, dimension, levels, cubeName} = meta;
     const slugLoc = params.indexOf(slug);
