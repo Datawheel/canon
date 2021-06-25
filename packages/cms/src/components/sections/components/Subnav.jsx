@@ -46,7 +46,6 @@ class Subnav extends Component {
     };
     this.subnav = React.createRef();
     this.scrollBind = this.handleScroll.bind(this);
-    this.toggleButton = React.createRef();
   }
 
   /** when tabbing out of the nav group, collapse it */
@@ -60,15 +59,6 @@ class Subnav extends Component {
         this.setState({openSlug: false});
       }
     }, 85); // register the click before closing
-  }
-
-  /** when clicking a subtitle, refocus the button to prevent the nav from losing focus and collapsing */
-  onFocusButton() {
-    setTimeout(() => {
-      if (this.toggleButton.current) {
-        this.toggleButton.current.focus();
-      }
-    }, 0);
   }
 
   componentDidMount() {
@@ -126,7 +116,7 @@ class Subnav extends Component {
   /** crawl up the tree from the title and grab the section wrapper */
   getSectionWrapper(slug) {
     let elem = document.getElementById(slug);
-    while (elem.className && !elem.className.includes("cp-section ") && elem.parentNode) elem = elem.parentNode;
+    while (elem && elem.className && !elem.className.includes("cp-section ") && elem.parentNode) elem = elem.parentNode;
     return elem;
   }
 
@@ -216,11 +206,9 @@ class Subnav extends Component {
             {sections.map(section =>
               <li className={`cp-subnav-item ${openSlug === section.slug || currSection.slug === section.slug ? "is-active" : "is-inactive"}`} key={section.slug}
                 onBlur={e => this.onBlur(e)}
-                onClick={() => this.onFocusButton()}
               >
                 <AnchorLink
                   onFocus={() => this.setState({openSlug: section.slug})}
-                  ref={this.toggleButton}
                   className={`cp-subnav-link ${sections.length >= 5 ? "u-font-xs" : "u-font-sm" }`}
                   to={section.slug}
                 >
@@ -240,11 +228,9 @@ class Subnav extends Component {
             {(currSection ? currSection.children : []).map(section =>
               <li className={`cp-subnav-item ${openSlug === section.slug || currSubSection.slug === section.slug ? "is-active" : "is-inactive"}`} key={section.slug}
                 onBlur={e => this.onBlur(e)}
-                onClick={() => this.onFocusButton()}
               >
                 <AnchorLink
                   onFocus={() => this.setState({openSlug: section.slug})}
-                  ref={this.toggleButton}
                   className={`cp-subnav-link ${sections.length >= 5 ? "u-font-xs" : "u-font-sm" }`}
                   to={section.slug}
                 >

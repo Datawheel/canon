@@ -2,20 +2,20 @@
 
 .cms .ace_editor {
   background: var(--black);
-  color: color(var(--light-3) a(0.875));
+  color: color(#CFDAE2 a(0.875));
 
   /* current line */
   & .ace_marker-layer .ace_active-line,
   & .ace_gutter .ace_gutter-active-line {
-    background-color: var(--dark-2);
+    background-color: #2A2F3B;
     /* hide visual artifcats */
     overflow: hidden;
-    box-shadow: 1px 0 1px var(--dark-2);
+    box-shadow: 1px 0 1px #2A2F3B;
   }
 
   /* selected text */
   & .ace_marker-layer .ace_selection {
-    background: color(var(--gray) a(0.25));
+    background: color(#AEBDCC a(0.25));
   }
 
   /* shows matching bracket; not always visible */
@@ -24,13 +24,13 @@
     border: none;
     border-radius: 0;
     margin-top: 1px;
-    background-color: color(var(--gray) a(0.125));
+    background-color: color(#AEBDCC a(0.125));
   }
 
   /* gutter with line numbers & errors */
   & .ace_gutter {
-    background-color: color(var(--dark-3) a(0.5));
-    color: color(var(--dark-1) a(0.5));
+    background-color: color(#20242E a(0.5));
+    color: color(#8A97AE a(0.5));
 
     /* (!) */
     & .ace_info {
@@ -38,7 +38,7 @@
       transition: color 0.15s ease-out;
 
       &:hover {
-        color: var(--light-3);
+        color: #CFDAE2;
       }
 
       &:before {
@@ -53,13 +53,13 @@
 
   /* the cursor/caret */
   & .ace_cursor {
-    color: var(--light-3);
+    color: #CFDAE2;
   }
 
   /* when double clicking a word */
   & .ace_marker-layer .ace_selected-word {
     background: none;
-    border: 1px dotted var(--dark-1);
+    border: 1px dotted #8A97AE;
   }
 
   /* functions, etc */
@@ -78,7 +78,7 @@
 
   /* */ /* */
   & .ace_comment {
-    color: var(--dark-1);
+    color: #8A97AE;
   }
 
   /* return, etc */
@@ -96,7 +96,7 @@
   /* , : ; . */
   & .ace_punctuation,
   & .ace_punctuation.ace_tag {
-    color: var(--dark-1);
+    color: #8A97AE;
   }
 
   /* numerals & such */
@@ -128,7 +128,7 @@
     background: none;
     border: none;
     box-shadow: none;
-    color: var(--dark-1);
+    color: #8A97AE;
     cursor: default;
     transition: color 0.15s ease-out;
 
@@ -154,26 +154,26 @@
   /* indentation indicator */
   & .ace_indent-guide {
     background: none;
-    border-right: 1px solid color(var(--gray) a(0.125));
+    border-right: 1px solid color(#AEBDCC a(0.125));
     margin-left: -1px;
   }
   /* line length helper */
   & .ace_print-margin {
     width: 1px;
     background: none;
-    border-right: 1px dashed var(--dark-2);
+    border-right: 1px dashed #2A2F3B;
   }
 
   /* 🤷‍ */
   & .ace_invisible {
-    color: var(--dark-1);
+    color: #8A97AE;
   }
   & .ace_variable.ace_parameter {
     font-style: italic;
     color: var(--accent-dark);
   }
   &.ace_multiselect .ace_selection.ace_start {
-    box-shadow: 0 0 3px 0px var(--dark-3);
+    box-shadow: 0 0 3px 0px #20242E;
   }
   & .ace_marker-layer .ace_step {
     background: var(--accent-black);
