@@ -22,7 +22,7 @@ const letters = {
 
 const measureString = str => typeof str === "string" ? sum(str.split("").map(l => letters[l] || l.toUpperCase() === l ? 8 : 6)) : 0;
 
-const defaultCellFormat = (d, val) => isNaN(val) || d.column.id.includes("Year") ? val : abbreviate(val);
+const defaultCellFormat = (d, val) => isNaN(val) || d.column.id.includes("Year") || val === "" || val === " " ? val : abbreviate(val);
 
 class Table extends Component {
   constructor(props) {
@@ -109,7 +109,7 @@ class Table extends Component {
     const {data, headerFormat, cellFormat} = config;
     const col = typeof obj === "string" ? obj : obj.accessor;
     const onClick = typeof obj === "object" ? obj.onClick : undefined;
-    const header = obj.Header ? obj.Header : obj.accessor;
+    const header = obj.Header ? obj.Header : col;
     const title = headerFormat ? headerFormat(header) : header;
     const {print} = this.context;
 
