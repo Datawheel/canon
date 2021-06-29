@@ -31,8 +31,8 @@ module.exports = async function(options) {
     monitor: true
   });
 
-  cluster.on("taskerror", (err, data) => {
-    const report = {status: "ERROR", error: err.message, job: data};
+  cluster.on("taskerror", (error, job) => {
+    const report = {status: "ERROR", error: error.message, job};
     reporter.countResult(report);
     reporter.log(JSON.stringify(report));
   });

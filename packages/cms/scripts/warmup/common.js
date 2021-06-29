@@ -4,10 +4,23 @@ const fs = require("fs");
 const path = require("path");
 
 class Reporter {
-  constructor(output) {
-    this.remainingStartTime = null;
-    this.remainingTotalAmount = 0;
 
+  /** @type {number} */
+  errorCount;
+
+  /** @type {WorkReport[]} */
+  failures;
+
+  /** @type {string} */
+  outputPath;
+
+  /** @type {number} */
+  successCount;
+
+  /** @type {fs.WriteStream} */
+  writer;
+
+  constructor(output) {
     this.resetCounters();
     output && this.setOutput(output);
   }
@@ -33,7 +46,6 @@ class Reporter {
 
   /**
    * @param {string} profile
-   * @param {import("./worker_pool").WorkResult[]} results
    * @returns {Promise<void>}
    */
   writeReport(profile) {
@@ -51,6 +63,7 @@ class Reporter {
   }
 
   /**
+   * @param {string} char
    */
   printLine(char = "-") {
     const widthSpace = process.stdout.columns * 1 || 80;
@@ -58,6 +71,9 @@ class Reporter {
     process.stdout.write(`${line}\n`);
   }
 
+  /**
+   * @param {WorkReport} report
+   */
   countResult(report) {
     report.status === "ERROR" && this.errorCount++;
     report.status === "SUCCESS" && this.successCount++;
@@ -70,6 +86,9 @@ class Reporter {
     this.successCount = 0;
   }
 
+  /**
+   * @param {string} profile
+   */
   printCount(profile) {
     let profileStatus = "";
     if (this.errorCount > 0) {
@@ -107,7 +126,7 @@ class Reporter {
 }
 
 /**
- * @param {WorkResultData} reports
+ * @param {WorkReport[]} reports
  */
 function transposeResults(reports) {
   const selectors = new Map([["", [""].slice(0, 0)]]);
@@ -122,8 +141,13 @@ function transposeResults(reports) {
   };
 
   for (const report of reports) {
-    for (const selector of report.result.test_na) {
-      getReference(selector).push(report.data.url);
+    const {test_na} = report.result;
+
+    if (test_na && test_na.length > 0) {
+      const {url} = report.job;
+      for (const selector of test_na) {
+        getReference(selector).push(url);
+      }
     }
   }
 
@@ -148,3 +172,11 @@ module.exports = {
   parseHeaders,
   transposeResults
 };
+
+/**
+ * @typedef WorkReport
+ * @prop {string} [error]
+ * @prop {Record<string, string>} job
+ * @prop {any} [result]
+ * @prop {"SUCCESS" | "FAILURE" | "ERROR"} status
+ */
