@@ -28,7 +28,8 @@ module.exports = async function(options) {
   const cluster = await Cluster.launch({
     concurrency: Cluster.CONCURRENCY_PAGE,
     maxConcurrency: parseInt(options.workers, 10),
-    monitor: true
+    monitor: true,
+    timeout: maxTimeoutPerPage
   });
 
   cluster.on("taskerror", (error, job) => {
@@ -46,7 +47,7 @@ module.exports = async function(options) {
 
     credentials && await page.authenticate(credentials);
 
-    await page.goto(job.url, {waitUntil: "load"});
+    await page.goto(job.url, {waitUntil: "load", timeout: maxTimeoutPerPage});
 
     // Wait for the Profile to load completely
     await page.waitForSelector("#Profile", {timeout: maxTimeoutPerPage});

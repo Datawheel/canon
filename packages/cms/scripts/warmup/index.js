@@ -37,6 +37,7 @@ Arguments:
                     These variables will be replaced:
                     - ':profile' for the profile name
                     - ':page' for the page slug
+    -d, --debug     Prints some extra variables for debugging purposes.
     -H, --header    Set a header for all requests. Multiple headers are allowed
                     but each must be preceeded by the flag, like in curl.
                     The 'Host' header can't be modified.
@@ -66,6 +67,7 @@ Arguments:
  * @property {string[]} _ The list of string operands passed by the user.
  * The first one is the subscript that will be executed.
  * @property {string} base The root url to use as template in the generation.
+ * @property {boolean} debug Prints some extra variables for debugging purposes.
  * @property {string} db The full connection URI string to connect to the database.
  * @property {string} db-host The host and port where to connect to the database.
  * @property {string} db-name The name of the database where the info is stored.
@@ -85,6 +87,7 @@ Arguments:
 const options = getopts(process.argv.slice(2), {
   alias: {
     base: "b",
+    debug: "d",
     header: "H",
     help: "h",
     input: "i",
@@ -102,7 +105,7 @@ const options = getopts(process.argv.slice(2), {
     "timeout": 20,
     "workers": "2"
   },
-  boolean: ["help", "verbose"],
+  boolean: ["debug", "help", "verbose"],
   string: [
     "base",
     "db",
@@ -140,6 +143,10 @@ async function cli(options) {
   }
   else {
     console.log(title);
+
+    if (options.debug) {
+      console.debug("Options:", options);
+    }
 
     if (options._.includes("list")) {
       const list = require("./list");
