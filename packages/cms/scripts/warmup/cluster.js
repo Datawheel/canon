@@ -28,7 +28,8 @@ module.exports = async function(options) {
   const cluster = await Cluster.launch({
     concurrency: Cluster.CONCURRENCY_PAGE,
     maxConcurrency: parseInt(options.workers, 10),
-    monitor: true
+    monitor: true,
+    timeout: maxTimeoutPerPage
   });
 
   cluster.on("taskerror", (error, job) => {
