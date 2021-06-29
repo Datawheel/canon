@@ -109,7 +109,7 @@ class Table extends Component {
     const {data, headerFormat, cellFormat} = config;
     const col = typeof obj === "string" ? obj : obj.accessor;
     const onClick = typeof obj === "object" ? obj.onClick : undefined;
-    const header = obj.Header ? obj.Header : obj.accessor;
+    const header = obj.Header ? obj.Header : col;
     const title = headerFormat ? headerFormat(header) : header;
     const {print} = this.context;
 
