@@ -1,12 +1,9 @@
-import axios from "axios";
 import {connect} from "react-redux";
 import {withNamespaces} from "react-i18next";
 import React, {Component, Fragment} from "react";
 import {isAuthenticated} from "@datawheel/canon-core";
 import PropTypes from "prop-types";
 import {Dialog, Icon} from "@blueprintjs/core";
-
-import libs from "../utils/libs";
 
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
@@ -16,7 +13,6 @@ import Subnav from "./sections/components/Subnav";
 import Mirror from "./Viz/Mirror";
 import isIE from "../utils/isIE.js";
 import mortarEval from "../utils/mortarEval";
-import hashCode from "../utils/hashCode.js";
 import deepClone from "../utils/deepClone.js";
 import prepareProfile from "../utils/prepareProfile";
 import funcifyFormatterByLocale from "../utils/funcifyFormatterByLocale";

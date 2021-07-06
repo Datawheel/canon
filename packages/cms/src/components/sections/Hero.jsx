@@ -1,4 +1,5 @@
 import React, {Component, Fragment} from "react";
+import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
 import {nest} from "d3-collection";
 import PropTypes from "prop-types";
@@ -95,7 +96,7 @@ class Hero extends Component {
   }
 
   render() {
-    const {contents, loading, sources, profile} = this.props;
+    const {contents, loading, sources, profile, t} = this.props;
     const {images, creditsVisible, clickedIndex} = this.state;
     const {searchProps} = this.context;
 
@@ -197,7 +198,7 @@ class Hero extends Component {
                   <span className="u-visually-hidden">
                     {creditsVisible ? "view " : "hide "}
                   </span>
-                  image credits
+                  {t("CMS.Profile.image credits")}
                 </Button>
 
                 {creditsVisible
@@ -213,7 +214,7 @@ class Hero extends Component {
                         {/* author */}
                         {img.author
                           ? <p className="cp-hero-credits-text">
-                            Photograph by <span className="cp-hero-credits-name heading">
+                            {t("CMS.Profile.Photograph by")} <span className="cp-hero-credits-name heading">
                               {img.author}
                             </span>
                           </p> : ""
@@ -274,6 +275,6 @@ Hero.contextTypes = {
   searchProps: PropTypes.object
 };
 
-export default connect(state => ({
+export default withNamespaces()(connect(state => ({
   locale: state.i18n.locale
-}))(Hero);
+}))(Hero));

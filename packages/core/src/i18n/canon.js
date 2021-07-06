@@ -50,7 +50,9 @@ export default {
     "Profile": {
       "Data Appendix": "Data Appendix",
       "Data Appendix Description": "These data tables represent the underlying datasets used to power each visualization featured in this report.",
-      "Download Page as PDF": "Download Page as PDF"
+      "Download Page as PDF": "Download Page as PDF",
+      "image credits": "image credits",
+      "Photograph by": "Photograph by"
     },
     "Search": {
       "All": "All",
