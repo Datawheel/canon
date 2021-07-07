@@ -244,9 +244,10 @@ class ProfileSearch extends Component {
 
   resetSearch() {
     this.setState({
-      query: "",
-      results: false
-    });
+      filterProfiles: false,
+      query: ""
+    },
+    this.onFilterLevel.bind(this, false));
   }
 
   onFocus() {
