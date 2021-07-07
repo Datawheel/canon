@@ -272,6 +272,7 @@ class Hero extends Component {
             filters={true}
             inputFontSize="lg"
             display="grid"
+            showExamples={true}
             {...searchProps}
           />
         </Dialog>
