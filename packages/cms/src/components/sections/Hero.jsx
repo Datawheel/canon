@@ -78,21 +78,32 @@ class Hero extends Component {
   }
 
   spanifyTitle(title) {
+
     const {profile} = this.props;
     const {variables} = profile;
+
     // stories don't have variables
-    if (!variables) return title;
-    const {name1, name2} = variables;
-    // some titles have <> signs in them. encode them, so the span doesn't break.
-    const fixHTML = d => d ? d.replace(/\</g, "&lt;").replace(/\>/g, "&gt;") : d;
-    if (title) {
-      return title
-        .replace(name1, `<span class="cp-hero-heading-dimension" title=${fixHTML(name1)} onClick=titleClick(0)>${fixHTML(name1)}</span>`)
-        .replace(name2, `<span class="cp-hero-heading-dimension" title=${fixHTML(name2)} onClick=titleClick(1)>${fixHTML(name2)}</span>`);
+    if (variables && title) {
+
+      const names = [variables.name1, variables.name2];
+
+      // must swap names completely out, longest to shortest, to protect against
+      // titles within other titles (ie. "Brazil Nuts from Brazil")
+      const swappedTitle = names.sort((a, b) => b.length - a.length)
+        .reduce((t, name) => t.replace(name, `{{name${names.indexOf(name) + 1}}}`), title);
+
+      // some titles have <> signs in them. encode them, so the span doesn't break.
+      const fixHTML = d => d ? d.replace(/\</g, "&lt;").replace(/\>/g, "&gt;") : d;
+
+      return swappedTitle.replace(/\{\{name([0-2])\}\}/g, (str, i) => {
+        const name = names[i - 1];
+        return `<span class="cp-hero-heading-dimension" title=${fixHTML(name)} onClick=titleClick(${i - 1})>${fixHTML(name)}</span>`;
+      });
+
     }
-    else {
-      return title;
-    }
+
+    return title;
+
   }
 
   render() {
@@ -261,6 +272,7 @@ class Hero extends Component {
             filters={true}
             inputFontSize="lg"
             display="grid"
+            showExamples={true}
             {...searchProps}
           />
         </Dialog>
