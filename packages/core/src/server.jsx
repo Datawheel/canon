@@ -206,11 +206,18 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                     .replace("script><script", "script>\n<script")
                     .replace(/\n/g, "\n    ");
 
+                  const cssOrder = ["normalize", "blueprint", "canon"];
+                  const cssRegex = RegExp(`(?:${ cssOrder.join("|") })`);
+
                   styleTags = extractor
                     .getStyleTags()
                     .replace(/\.css/g, `.css?v${__TIMESTAMP__}`)
                     .split("\n")
-                    .sort((a, b) => a.includes("normalize") ? -1 : a.includes("canon") && !b.includes("normalize") ? -1 : 1)
+                    .sort((a, b) => {
+                      const aIndex = cssRegex.test(a) ? cssOrder.indexOf(a.match(cssRegex)[0]) : cssOrder.length;
+                      const bIndex = cssRegex.test(b) ? cssOrder.indexOf(b.match(cssRegex)[0]) : cssOrder.length;
+                      return aIndex - bIndex;
+                    })
                     .join("\n    ");
 
                 }
