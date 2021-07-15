@@ -20,6 +20,7 @@ const letters = {
   " ": 4
 };
 
+/** */
 function spanify(html, cell, onClick) {
   return <span className={`cp-table-cell-inner cp-table-cell-inner-${onClick ? "clickable" : "static"}`} onClick={onClick ? onClick.bind(this, cell.original) : undefined} dangerouslySetInnerHTML={{__html: html}} />;
 }
@@ -160,6 +161,17 @@ class Table extends Component {
       accessor: d => d[col],
       minWidth,
       maxWidth: minWidth < 100 ? minWidth : undefined,
+
+      /** react-table v6 has extremely strange behavior in this Cell callback - it attempts to choose between two options:
+          * 1. if Cell is a purely functional component, run Cell(props), i.e., execute the function.
+          * 2. if Cell is a react component, run React.createElement(comp, props), i.e. instantiate a component and pass it props
+          * The problem is: react-table uses String(component).includes('.createElement') to determine which one Cell is.
+          * On Dev, it is 1 - because there is no "createElement" in this function.
+          * On Prod, it can be 2! - if "return <span>" is run here, the transpiling creates a React.createElement, and switches it to type 2.
+          * The result is that the cell function isn't run - but this Cell callback must be run for cellStyles to be applied.
+          * To get around this - move a spanify function out of scope to trick react-table into using #1 for rendering.
+        **/
+
       Cell: cell => {
         if (obj.cellStyle) {
           try {
@@ -171,17 +183,6 @@ class Table extends Component {
           }
         }
         const html = formatValue(cell, cell.value);
-
-        /** react-table v6 has extremely strange behavior in this Cell callback - it attempts to choose between two options:
-          * 1. if Cell is a purely functional component, run Cell(props), i.e., execute the function.
-          * 2. if Cell is a react component, run React.createElement(comp, props), i.e. instantiate a component and pass it props
-          * The problem is: react-table uses String(component).includes('.createElement') to determine which one Cell is.
-          * On Dev, it is 1 - because there is no "createElement" in this function.
-          * On Prod, it can be 2! - if "return <span>" is run here, the transpiling creates a React.createElement, and switches it to type 2.
-          * The result is that the cell function isn't run - but this Cell callback must be run for cellStyles to be applied.
-          * To get around this - move a spanify function out of scope to trick react-table into using #1 for rendering.
-        **/
-
         const span = spanify.bind(this)(html, cell, onClick);
         return span;
       }
