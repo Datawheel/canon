@@ -21,7 +21,8 @@ class PDFButton extends Component {
 
       const {router} = this.context;
       const {location} = router;
-      const {pathname, query} = location;
+      const {query} = location;
+      const pathname = this.props.pathname || location.pathname;
       const {filename, pdfOptions, viewportOptions} = this.props;
 
       const queryString = Object.entries({...query, print: true}).map(([key, val]) => `${key}=${val}`).join("&");
