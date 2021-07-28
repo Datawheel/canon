@@ -80,6 +80,12 @@ export default {
       "rows": "rows"
     }
   },
+  "GDPR": {
+    "accept": "Accept",
+    "desc": "By continuing to visit this site, you accept to the use of cookies by {{services}} for statistical purposes.",
+    "more": "Read More",
+    "reject": "Reject"
+  },
   "Loading": {
     "description": "Loading {{progress}} of {{total}} datasets",
     "title": "Please Wait"
