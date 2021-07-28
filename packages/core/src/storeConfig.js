@@ -37,6 +37,7 @@ export default function storeConfig(initialState, history, reduxMiddleware = fal
     location: (state = {}) => state,
     mailgun: (state = false) => state,
     routing: routerReducer,
+    services: (state = []) => state,
     social: (state = []) => state
   }, appReducers));
 
