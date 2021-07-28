@@ -146,7 +146,10 @@ class Table extends Component {
     }, [measureString(title) + sortIconWidth]);
 
     const columnWidth = max(values) + padding;
-    const minWidth = min([200, max([padding * 2, columnWidth])]);
+    const calculatedMinWidth = min([200, max([padding * 2, columnWidth])]);
+    const minWidth = obj.minWidth !== undefined ? obj.minWidth : calculatedMinWidth;
+    const maxWidth = obj.maxWidth !== undefined ? obj.maxWidth : calculatedMinWidth < 100 ? calculatedMinWidth : undefined;
+    const width = obj.width;
 
     return Object.assign({}, {
       Header: print
@@ -160,7 +163,8 @@ class Table extends Component {
       id: col,
       accessor: d => d[col],
       minWidth,
-      maxWidth: minWidth < 100 ? minWidth : undefined,
+      maxWidth,
+      width,
 
       /** react-table v6 has extremely strange behavior in this Cell callback - it attempts to choose between two options:
           * 1. if Cell is a purely functional component, run Cell(props), i.e., execute the function.
