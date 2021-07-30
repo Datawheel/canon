@@ -5,7 +5,7 @@ const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 const TRANSLATE_API = "/api/translate";
 
-/** 
+/**
  * To help translations, varswap in the currently selected member so the context makes sense
  * but preserve the original variable so it can be changed back. For example:
  * Welcome to {{nameOfCountry}} ====> Welcome to <c id="{{nameOfCountry}}" class="v">China</c>
@@ -31,7 +31,7 @@ const spanify = (s, config) => {
   return s.replace(varmatch, varspan);
 };
 
-/** 
+/**
  * When the translation returns, it is filled with custom spans (see spanify)
  * Turn these back into original variables and discard the member translations:
  * Beinvenudo a <c id="{{nameOfCountry}}" class="v">Chine</c> ====> Beinvenudo a {{nameOfCountry}}
@@ -88,9 +88,9 @@ async function translateContent(obj, config, translationFunction) {
       else {
         // if the translation worked, turn it back into text
         if (resp && !resp.error) {
-          translated[key] = varify(resp.translated);  
+          translated[key] = varify(resp.translated);
         }
-        // If for some reason the remote translation failed, bubble up 
+        // If for some reason the remote translation failed, bubble up
         // the remote error and don't mutate the key
         else {
           if (!error) error = resp.error;
@@ -104,7 +104,7 @@ async function translateContent(obj, config, translationFunction) {
     }
   }
   return {
-    error, 
+    error,
     translated
   };
 }
