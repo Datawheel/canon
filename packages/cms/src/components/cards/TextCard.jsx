@@ -248,7 +248,7 @@ class TextCard extends Component {
           minData.content = minData.content.map(d => d.locale === localeSecondary ? {...d, ...resp.translated} : d);
           this.setState({alertObj: false, minData});
           Toast.show({icon: "translate", intent: Intent.SUCCESS, message: "Translation Complete!", timeout: 1000});
-          this.editor.wrappedInstance.reload();
+          this.editor.reload();
         }
         // catch non-remote errors here
       }).catch(e => {

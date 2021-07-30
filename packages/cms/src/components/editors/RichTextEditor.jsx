@@ -108,4 +108,4 @@ const mapStateToProps = state => ({
   selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []
 });
 
-export default connect(mapStateToProps, null, null, {withRef: true})(RichTextEditor);
+export default connect(mapStateToProps, null, null, {forwardRef: true})(RichTextEditor);
