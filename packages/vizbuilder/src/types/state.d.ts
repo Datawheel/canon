@@ -9,6 +9,7 @@ interface GeneralState {
   location: any;
   mailgun: any;
   routing: any;
+  services: any;
   social: any;
   instances: any;
   vizbuilder: VizbuilderState;
