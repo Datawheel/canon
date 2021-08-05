@@ -60,5 +60,8 @@ module.exports = [
   require("postcss-flexbugs-fixes")(),
   require("postcss-url")({
     url: asset => `${assetBase}${asset.url}`
+  }),
+  require("postcss-combine-duplicated-selectors")({
+    removeDuplicatedValues: true
   })
 ];

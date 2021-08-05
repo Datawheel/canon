@@ -224,6 +224,7 @@ importers:
       pg: ^6.4.2
       pixrem: ^5.0.0
       postcss-color-function: ^4.1.0
+      postcss-combine-duplicated-selectors: ^9.4.0
       postcss-conditionals: ^2.1.0
       postcss-css-variables: ^0.13.0
       postcss-each: ^0.10.0
@@ -348,6 +349,7 @@ importers:
       pg: 6.4.2
       pixrem: 5.0.0
       postcss-color-function: 4.1.0
+      postcss-combine-duplicated-selectors: 9.4.0
       postcss-conditionals: 2.1.0
       postcss-css-variables: 0.13.0
       postcss-each: 0.10.0
@@ -9584,6 +9586,14 @@ packages:
       postcss-value-parser: 3.3.1
     dev: false
 
+  /postcss-combine-duplicated-selectors/9.4.0:
+    resolution: {integrity: sha512-rMnO1H3wgR1T6QSlK3i8Slz9p3xD+0yOi4J7qwh/5PGR3z8jbgYvRlNKAIvXDtGBQbJKoWs4df5skL3a/fdUEA==}
+    engines: {node: ^10.0.0 || ^12.0.0 || >=14.0.0}
+    dependencies:
+      postcss: 7.0.36
+      postcss-selector-parser: 6.0.6
+    dev: false
+
   /postcss-conditionals/2.1.0:
     resolution: {integrity: sha1-TR9iqlQEWM56t3n3FlaQHI+Okpo=}
     dependencies:
@@ -10167,6 +10177,14 @@ packages:
       util-deprecate: 1.0.2
     dev: false
 
+  /postcss-selector-parser/6.0.6:
+    resolution: {integrity: sha512-9LXrvaaX3+mcv5xkg5kFwqSzSH1JIObIx51PrndZwlmznwXRfxMddDvo9gve3gVR8ZTKgoFDdWkbRFmEhT4PMg==}
+    engines: {node: '>=4'}
+    dependencies:
+      cssesc: 3.0.0
+      util-deprecate: 1.0.2
+    dev: false
+
   /postcss-simple-vars/2.0.0:
     resolution: {integrity: sha1-0KEJGw2iK3lQcCj3siuXbApguNU=}
     dependencies:
@@ -10262,6 +10280,15 @@ packages:
 
   /postcss/7.0.35:
     resolution: {integrity: sha512-3QT8bBJeX/S5zKTTjTCIjRF3If4avAT6kqxcASlTWEtAFCb9NH0OUxNDfgZSWdP5fJnBYCMEWkIFfWeugjzYMg==}
+    engines: {node: '>=6.0.0'}
+    dependencies:
+      chalk: 2.4.2
+      source-map: 0.6.1
+      supports-color: 6.1.0
+    dev: false
+
+  /postcss/7.0.36:
+    resolution: {integrity: sha512-BebJSIUMwJHRH0HAQoxN4u1CN86glsrwsW0q7T+/m44eXOUAxSNdHRkNZPYz5vVUbg17hFgOQDE7fZk7li3pZw==}
     engines: {node: '>=6.0.0'}
     dependencies:
       chalk: 2.4.2
