@@ -320,17 +320,18 @@ module.exports = function(app) {
       sort: "relevance"
     }).then(resp => resp.body).catch(catcher);
     const photos = result.photos.photo;
-    const payload = [];
-    for (const photo of photos) {
-      const sizeObj = await flickr.photos.getSizes({photo_id: photo.id}).then(resp => resp.body).catch(catcher);
-      const small = sizeObj.sizes.size.find(d => d.label === "Small 320");
+    const fetches = photos.reduce((acc, d) => acc.concat(flickr.photos.getSizes({photo_id: d.id})), []);
+    const results = await Promise.all(fetches).then(results => results).catch(catcher);
+    const payload = results.reduce((acc, d, i) => {
+      const small = d.body.sizes.size.find(s => s.label === "Small 320");
       if (small) {
-        payload.push({
-          id: photo.id,
+        acc.push({
+          id: photos[i].id,
           source: small.source
         });
       }
-    }
+      return acc;
+    }, []);
     return res.json(payload);
   });
 
