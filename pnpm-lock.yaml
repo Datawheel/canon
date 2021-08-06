@@ -84,6 +84,7 @@ importers:
       puppeteer: ^8.0.0
       puppeteer-cluster: ^0.22.0
       react-ace: 9.4.1
+      react-beautiful-dnd: ^13.1.0
       react-clipboard.js: ^2.0.7
       react-sizeme: ^2.6.7
       react-table: 6.10.3
@@ -131,6 +132,7 @@ importers:
       puppeteer: 8.0.0
       puppeteer-cluster: 0.22.0_puppeteer@8.0.0
       react-ace: 9.4.1
+      react-beautiful-dnd: 13.1.0
       react-clipboard.js: 2.0.16
       react-sizeme: 2.6.12
       react-table: 6.10.3
@@ -4230,6 +4232,12 @@ packages:
     hasBin: true
     dependencies:
       postcss: 7.0.35
+    dev: false
+
+  /css-box-model/1.2.1:
+    resolution: {integrity: sha512-a7Vr4Q/kd/aw96bnJG332W9V9LkJO69JRcaCYDUqjp6/z0w6VcZjgAcTbgFxEPfBgdnAwlh3iwu+hLopa+flJw==}
+    dependencies:
+      tiny-invariant: 1.1.0
     dev: false
 
   /css-color-converter/1.1.1:
@@ -10614,6 +10622,10 @@ packages:
     engines: {node: '>=0.4.x'}
     dev: false
 
+  /raf-schd/4.0.3:
+    resolution: {integrity: sha512-tQkJl2GRWh83ui2DiPTJz9wEiMN20syf+5oKfB03yYP7ioZcJwsIK8FjrtLwH1m7C7e+Tt2yYBlrOpdT+dyeIQ==}
+    dev: false
+
   /randombytes/2.1.0:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
     dependencies:
@@ -10672,6 +10684,23 @@ packages:
       lodash.get: 4.4.2
       lodash.isequal: 4.5.0
       prop-types: 15.7.2
+    dev: false
+
+  /react-beautiful-dnd/13.1.0:
+    resolution: {integrity: sha512-aGvblPZTJowOWUNiwd6tNfEpgkX5OxmpqxHKNW/4VmvZTNTbeiq7bA3bn5T+QSF2uibXB0D1DmJsb1aC/+3cUA==}
+    peerDependencies:
+      react: ^16.8.5 || ^17.0.0
+      react-dom: ^16.8.5 || ^17.0.0
+    dependencies:
+      '@babel/runtime': 7.14.8
+      css-box-model: 1.2.1
+      memoize-one: 5.2.1
+      raf-schd: 4.0.3
+      react-redux: 7.2.4
+      redux: 4.1.0
+      use-memo-one: 1.1.2
+    transitivePeerDependencies:
+      - react-native
     dev: false
 
   /react-clipboard.js/2.0.16:
@@ -10798,6 +10827,26 @@ packages:
       typed-styles: 0.0.7
       warning: 4.0.3
     dev: true
+
+  /react-redux/7.2.4:
+    resolution: {integrity: sha512-hOQ5eOSkEJEXdpIKbnRyl04LhaWabkDPV+Ix97wqQX3T3d2NQ8DUblNXXtNMavc7DpswyQM6xfaN4HQDKNY2JA==}
+    peerDependencies:
+      react: ^16.8.3 || ^17
+      react-dom: '*'
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.14.8
+      '@types/react-redux': 7.1.18
+      hoist-non-react-statics: 3.3.2
+      loose-envify: 1.4.0
+      prop-types: 15.7.2
+      react-is: 16.13.1
+    dev: false
 
   /react-redux/7.2.4_react-dom@16.13.1+react@16.13.1:
     resolution: {integrity: sha512-hOQ5eOSkEJEXdpIKbnRyl04LhaWabkDPV+Ix97wqQX3T3d2NQ8DUblNXXtNMavc7DpswyQM6xfaN4HQDKNY2JA==}
@@ -12356,6 +12405,10 @@ packages:
     resolution: {integrity: sha512-NB6Dk1A9xgQPMoGqC5CVXn123gWyte215ONT5Pp5a0yt4nlEoO1ZWeCwpncaekPHXO60i47ihFnZPiRPjRMq4Q==}
     dev: false
 
+  /tiny-invariant/1.1.0:
+    resolution: {integrity: sha512-ytxQvrb1cPc9WBEI/HSeYYoGD0kWnGEOR8RY6KomWLBVhqz0RgTwVO9dLrGz7dC+nN9llyI7OKAgRq8Vq4ZBSw==}
+    dev: false
+
   /to-absolute-glob/2.0.2:
     resolution: {integrity: sha1-GGX0PZ50sIItufFFt4z/fQ98hJs=}
     engines: {node: '>=0.10.0'}
@@ -12748,6 +12801,12 @@ packages:
     resolution: {integrity: sha1-G3u5yj+w25Ug3hE0ZrvPfMNBRRo=}
     dependencies:
       xtend: 4.0.2
+    dev: false
+
+  /use-memo-one/1.1.2:
+    resolution: {integrity: sha512-u2qFKtxLsia/r8qG0ZKkbytbztzRb317XCkT7yP8wxL0tZ/CzK2G+WWie5vWvpyeP7+YoPIwbJoIHJ4Ba4k0oQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0
     dev: false
 
   /use/3.1.1:
