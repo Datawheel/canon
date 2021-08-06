@@ -1,5 +1,6 @@
 const path = require("path"),
-      shell = require("shelljs");
+      shell = require("shelljs"),
+      yn = require("yn");
 
 let everDetect = false;
 
@@ -20,6 +21,7 @@ module.exports = function(config) {
   const LANGUAGES = process.env.CANON_LANGUAGES || LANGUAGE_DEFAULT;
   store.env = {
     CANON_API: process.env.CANON_API || "http://localhost:3300",
+    CANON_GDPR: yn(process.env.CANON_GDPR) || false,
     CANON_LANGUAGES: LANGUAGES,
     CANON_LANGUAGE_DEFAULT: LANGUAGE_DEFAULT,
     CANON_LOGINS: process.env.CANON_LOGINS || false,

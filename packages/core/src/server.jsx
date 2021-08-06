@@ -13,6 +13,8 @@ import {initialState as appInitialState} from "$app/store";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 import pretty from "pretty";
 import maybeRedirect from "./helpers/maybeRedirect";
+import {servicesAvailable, servicesBody, servicesScript} from "./helpers/services";
+import yn from "yn";
 
 import CanonProvider from "./CanonProvider";
 
@@ -23,71 +25,7 @@ const appDir = process.cwd();
 const statsFile = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets/loadable-stats.json");
 const production = process.env.NODE_ENV === "production";
 
-const tagManagerHead = process.env.CANON_GOOGLE_TAG_MANAGER === undefined ? ""
-  : `
-    <!-- Google Tag Manager -->
-    <script>
-      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','${process.env.CANON_GOOGLE_TAG_MANAGER}');
-    </script>
-    <!-- End Google Tag Manager -->
-    `;
-
-const tagManagerBody = process.env.CANON_GOOGLE_TAG_MANAGER === undefined ? ""
-  : `
-    <!-- Google Tag Manager (noscript) -->
-    <noscript>
-      <iframe src="https://www.googletagmanager.com/ns.html?id=${process.env.CANON_GOOGLE_TAG_MANAGER}" height="0" width="0" style="display:none;visibility:hidden"></iframe>
-    </noscript>
-    <!-- End Google Tag Manager (noscript) -->
-    `;
-
-const analtyicsScript = process.env.CANON_GOOGLE_ANALYTICS === undefined ? ""
-  : `
-    <!-- Google Analytics -->
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-      ${process.env.CANON_GOOGLE_ANALYTICS.split(",").map((key, i) => `ga('create', '${key}', 'auto', 'tracker${i + 1}');`).join("\n      ")}
-      ${process.env.CANON_GOOGLE_ANALYTICS.split(",").map((key, i) => `ga('tracker${i + 1}.send', 'pageview');`).join("\n      ")}
-    </script>
-    <!-- End Google Analytics -->
-    `;
-
-const pixelScript = process.env.CANON_FACEBOOK_PIXEL === undefined ? ""
-  : `
-    <!-- Facebook Pixel -->
-    <script> !function(f,b,e,v,n,t,s) {if(f.fbq)return;n=f.fbq=function(){
-      n.callMethod? n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0; t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window,document,'script', 'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', '${process.env.CANON_FACEBOOK_PIXEL}'); fbq('track', 'PageView');
-    </script>
-    <!-- End Facebook Pixel -->
-    `;
-
-const hotjarScript = process.env.CANON_HOTJAR === undefined ? ""
-  : `
-    <!-- Hotjar -->
-    <script>
-      (function(h,o,t,j,a,r){
-        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-        h._hjSettings={hjid:${process.env.CANON_HOTJAR},hjsv:6};
-        a=o.getElementsByTagName('head')[0];
-        r=o.createElement('script');r.async=1;
-        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-        a.appendChild(r);
-      })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
-    </script>
-    <!-- End Hotjar -->
-    `;
-
+const GDPR = yn(process.env.CANON_GDPR) && servicesScript.length;
 const BASE_URL = process.env.CANON_BASE_URL || "/";
 const basename = BASE_URL.replace(/^[A-z]{4,5}\:\/{2}[A-z0-9\.\-]{1,}\:{0,}[0-9]{0,4}/g, "");
 const baseTag = process.env.CANON_BASE_URL === undefined ? ""
@@ -119,7 +57,14 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
 
     const location = req.url.replace(BASE_URL, "");
     const history = createMemoryHistory({basename, entries: [location]});
-    const store = configureStore({i18n: {locale, resources}, location: windowLocation, ...defaultStore}, history, reduxMiddleware);
+
+    const store = configureStore({
+      i18n: {locale, resources},
+      location: windowLocation,
+      services: servicesAvailable,
+      ...defaultStore
+    }, history, reduxMiddleware);
+
     const routes = createRoutes(store);
     const rtl = ["ar", "he"].includes(locale);
 
@@ -255,7 +200,7 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                 return res.status(status).send(`<!doctype html>
 <html dir="${ rtl ? "rtl" : "ltr" }" ${htmlAttrs}${defaultAttrs}>
   <head>
-    ${tagManagerHead}${pixelScript}${baseTag}
+    ${baseTag}
     ${ pretty(header.title.toString()).replace(/\n/g, "\n    ") }
 
     ${ pretty(header.meta.toString()).replace(/\n/g, "\n    ") }
@@ -264,19 +209,33 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
 
     ${styleTags}
 
-    ${hotjarScript}
   </head>
   <body>
-    ${tagManagerBody}
+    ${servicesBody}
     <div id="React-Container">${ componentHTML }</div>
 
     <script>
+
       window.__SSR__ = true;
       window.__APP_NAME__ = "${ req.i18n.options.defaultNS }";
       window.__HELMET_DEFAULT__ = ${serialize(headerConfig)};
       window.__INITIAL_STATE__ = ${serialize(initialState)};
+      ${GDPR ? `
+      if (typeof window !== "undefined") {
+
+        /** Cookies EU banner v2.0.1 by Alex-D - alex-d.github.io/Cookies-EU-banner/ - MIT License */
+        !function(e,t){"use strict";"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?module.exports=t():e.CookiesEuBanner=t()}(window,function(){"use strict";var i,u=window.document;return(i=function(e,t,o,n){if(!(this instanceof i))return new i(e);this.cookieTimeout=33696e6,this.bots=/bot|crawler|spider|crawling/i,this.cookieName="hasConsent",this.trackingCookiesNames=["__utma","__utmb","__utmc","__utmt","__utmv","__utmz","_ga","_gat","_gid"],this.launchFunction=e,this.waitAccept=t||!1,this.useLocalStorage=o||!1,this.init()}).prototype={init:function(){var e=this.bots.test(navigator.userAgent),t=navigator.doNotTrack||navigator.msDoNotTrack||window.doNotTrack;return e||!(null==t||t&&"yes"!==t&&1!==t&&"1"!==t)||!1===this.hasConsent()?(this.removeBanner(0),!1):!0===this.hasConsent()?(this.launchFunction(),!0):(this.showBanner(),void(this.waitAccept||this.setConsent(!0)))},showBanner:function(){var e=this,t=u.getElementById.bind(u),o=t("cookies-eu-banner"),n=t("cookies-eu-reject"),i=t("cookies-eu-accept"),s=t("cookies-eu-more"),a=void 0===o.dataset.waitRemove?0:parseInt(o.dataset.waitRemove),c=this.addClickListener,r=e.removeBanner.bind(e,a);o.style.display="block",s&&c(s,function(){e.deleteCookie(e.cookieName)}),i&&c(i,function(){r(),e.setConsent(!0),e.launchFunction()}),n&&c(n,function(){r(),e.setConsent(!1),e.trackingCookiesNames.map(e.deleteCookie)})},setConsent:function(e){if(this.useLocalStorage)return localStorage.setItem(this.cookieName,e);this.setCookie(this.cookieName,e)},hasConsent:function(){function e(e){return-1<u.cookie.indexOf(t+"="+e)||localStorage.getItem(t)===e}var t=this.cookieName;return!!e("true")||!e("false")&&null},setCookie:function(e,t){var o=new Date;o.setTime(o.getTime()+this.cookieTimeout),u.cookie=e+"="+t+";expires="+o.toGMTString()+";path=/"},deleteCookie:function(e){var t=u.location.hostname.replace(/^www\./,""),o="; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/";u.cookie=e+"=; domain=."+t+o,u.cookie=e+"="+o},addClickListener:function(e,t){if(e.attachEvent)return e.attachEvent("onclick",t);e.addEventListener("click",t)},removeBanner:function(e){setTimeout(function(){var e=u.getElementById("cookies-eu-banner");e&&e.parentNode&&e.parentNode.removeChild(e)},e)}},i});
+
+        var cookiesBanner = new CookiesEuBanner(function() {` : ""}
+          ${servicesScript}
+        ${GDPR ? `}, ${yn(process.env.CANON_GDPR_WAIT)});
+
+      }
+
+      // use the following command to reset your cookie:
+      // cookiesBanner.deleteCookie(cookiesBanner.cookieName);
+      ` : ""}
     </script>
-    ${analtyicsScript}
 
     ${scriptTags}
 

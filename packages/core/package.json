@@ -3,7 +3,7 @@
   "sideEffects": [
     "*.css"
   ],
-  "version": "0.22.2",
+  "version": "0.23.2",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "./src/index.js",
   "types": "./types/index.d.ts",
@@ -113,6 +113,7 @@
     "pg": "^6.4.2",
     "pixrem": "^5.0.0",
     "postcss-color-function": "^4.1.0",
+    "postcss-combine-duplicated-selectors": "^9.4.0",
     "postcss-conditionals": "^2.1.0",
     "postcss-css-variables": "^0.13.0",
     "postcss-each": "^0.10.0",
@@ -132,7 +133,7 @@
     "react-dom": "16.13.1",
     "react-helmet-async": "^1.0.7",
     "react-i18next": "^9.0.1",
-    "react-redux": "^5.1.1",
+    "react-redux": "^7.2.4",
     "react-refresh": "^0.10.0",
     "react-router": "3.2.3",
     "react-router-redux": "^4.0.8",
