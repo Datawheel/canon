@@ -292,7 +292,8 @@ class Navbar extends Component {
         selected: currentTab === "stories" ? true : false,
         dropdown: true
       },
-      {title: "Metadata"}
+      {title: "Metadata"},
+      {title: "dnd"}
     ];
 
     return {currEntity, currTree, navLinks, currEntityHidden};
