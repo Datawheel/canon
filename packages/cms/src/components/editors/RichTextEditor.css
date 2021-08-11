@@ -90,7 +90,7 @@
   /* theming */
   background-color: var(--light-2);
   border: 1px solid var(--light-3);
-  box-shadow: 1px 0 1em color(var(--black) a(0.5));
+  box-shadow: 1px 0 1em rgba(var(--black-RGB), 0.5);
   color: var(--dark-3);
   padding: 0.5em 1em;
   white-space: nowrap;

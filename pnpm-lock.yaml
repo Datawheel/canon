@@ -223,7 +223,6 @@ importers:
       passport-twitter: ^1.0.4
       pg: ^6.4.2
       pixrem: ^5.0.0
-      postcss-color-function: ^4.1.0
       postcss-combine-duplicated-selectors: ^9.4.0
       postcss-conditionals: ^2.1.0
       postcss-css-variables: ^0.13.0
@@ -348,7 +347,6 @@ importers:
       passport-twitter: 1.0.4
       pg: 6.4.2
       pixrem: 5.0.0
-      postcss-color-function: 4.1.0
       postcss-combine-duplicated-selectors: 9.4.0
       postcss-conditionals: 2.1.0
       postcss-css-variables: 0.13.0
@@ -3118,10 +3116,6 @@ packages:
       object.assign: 4.1.2
     dev: false
 
-  /balanced-match/0.1.0:
-    resolution: {integrity: sha1-tQS9BYabOSWd0MXvw12EMXbczEo=}
-    dev: false
-
   /balanced-match/1.0.0:
     resolution: {integrity: sha1-ibTRmasr7kneFk6gK4nORi1xt2c=}
 
@@ -3761,11 +3755,6 @@ packages:
     resolution: {integrity: sha1-s3gt/4u1R04Yuba/D9/ngvh3doA=}
     dev: false
 
-  /clone/1.0.4:
-    resolution: {integrity: sha1-2jCcwmPfFZlMaIypAheco8fNfH4=}
-    engines: {node: '>=0.8'}
-    dev: false
-
   /clone/2.1.2:
     resolution: {integrity: sha1-G39Ln1kfHo+DZwQBYANFoCiHQ18=}
     engines: {node: '>=0.8'}
@@ -3841,25 +3830,11 @@ packages:
   /color-name/1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
 
-  /color-string/0.3.0:
-    resolution: {integrity: sha1-J9RvtnAlxcL6JZk7+/V55HhBuZE=}
-    dependencies:
-      color-name: 1.1.4
-    dev: false
-
   /color-string/1.5.5:
     resolution: {integrity: sha512-jgIoum0OfQfq9Whcfc2z/VhCNcmQjWbey6qBX0vqt7YICflUmBCh9E9CiQD5GSJ+Uehixm3NUwHVhqUAWRivZg==}
     dependencies:
       color-name: 1.1.4
       simple-swizzle: 0.2.2
-    dev: false
-
-  /color/0.11.4:
-    resolution: {integrity: sha1-bXtcdPtl6EHNSHkq0e1eB7kE12Q=}
-    dependencies:
-      clone: 1.0.4
-      color-convert: 1.9.3
-      color-string: 0.3.0
     dev: false
 
   /color/3.1.3:
@@ -4237,15 +4212,6 @@ packages:
     dependencies:
       color-convert: 0.5.3
       color-name: 1.1.4
-    dev: false
-
-  /css-color-function/1.3.3:
-    resolution: {integrity: sha1-jtJMLAIFBzM5+voAS8jBQfzLKC4=}
-    dependencies:
-      balanced-match: 0.1.0
-      color: 0.11.4
-      debug: 3.2.7
-      rgb: 0.1.0
     dev: false
 
   /css-color-keywords/1.0.0:
@@ -9524,15 +9490,6 @@ packages:
       postcss-value-parser: 4.1.0
     dev: false
 
-  /postcss-color-function/4.1.0:
-    resolution: {integrity: sha512-2/fuv6mP5Lt03XbRpVfMdGC8lRP1sykme+H1bR4ARyOmSMB8LPSjcL6EAI1iX6dqUF+jNEvKIVVXhan1w/oFDQ==}
-    dependencies:
-      css-color-function: 1.3.3
-      postcss: 6.0.23
-      postcss-message-helpers: 2.0.0
-      postcss-value-parser: 3.3.1
-    dev: false
-
   /postcss-color-functional-notation/2.0.1:
     resolution: {integrity: sha512-ZBARCypjEDofW4P6IdPVTLhDNXPRn8T2s1zHbZidW6rPaaZvcnCS2soYFIQJrMZSxiePJ2XIYTlcb2ztr/eT2g==}
     engines: {node: '>=6.0.0'}
@@ -9842,10 +9799,6 @@ packages:
       postcss: 7.0.35
       postcss-selector-parser: 3.1.2
       vendors: 1.0.4
-    dev: false
-
-  /postcss-message-helpers/2.0.0:
-    resolution: {integrity: sha1-pPL0+rbk/gAvCu0ABHjN9S+bpg4=}
     dev: false
 
   /postcss-minify-font-values/4.0.2:
@@ -11287,11 +11240,6 @@ packages:
 
   /rgb-regex/1.0.1:
     resolution: {integrity: sha1-wODWiC3w4jviVKR16O3UGRX+rrE=}
-    dev: false
-
-  /rgb/0.1.0:
-    resolution: {integrity: sha1-vieykej+/+rBvZlylyG/pA/AN7U=}
-    hasBin: true
     dev: false
 
   /rgba-regex/1.0.0:

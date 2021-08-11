@@ -140,7 +140,7 @@
 
     @mixin dark-mode {
       box-shadow: none;
-      background-color: color(var(--gray) a(0.01));
+      background-color: rgba(var(--gray-RGB), 0.01);
 
       & ~ .cms-card-heading > [class*="cms-card-heading-"] {
         color: var(--accent);

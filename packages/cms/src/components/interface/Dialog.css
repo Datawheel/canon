@@ -82,7 +82,7 @@
 
   & .cms-dialog-overlay {
     @mixin overlay-theme;
-    background-color: color(var(--black) a(0.95));
+    background-color: rgba(var(--black-RGB), 0.95);
   }
 }
 
