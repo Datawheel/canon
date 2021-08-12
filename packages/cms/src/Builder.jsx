@@ -9,6 +9,7 @@ import {isAuthenticated} from "@datawheel/canon-core";
 import ProfileBuilder from "./profile/ProfileBuilder";
 import StoryBuilder from "./story/StoryBuilder";
 import MetaEditor from "./member/MetaEditor";
+import Dnd from "./dnd/Dnd";
 import AuthForm from "./components/interface/AuthForm";
 import Navbar from "./components/interface/Navbar";
 
@@ -90,7 +91,7 @@ class Builder extends Component {
   }
 
   componentWillUnmount() {
-    // When the user leaves the page to view the front-end profile, clear the back/reload blocker that was 
+    // When the user leaves the page to view the front-end profile, clear the back/reload blocker that was
     // only meant for the CMS (prevents the popup from erroneously occuring when the user tries to leave the front-end)
     if (typeof window !== "undefined") {
       window.onbeforeunload = () => undefined;
@@ -157,6 +158,7 @@ class Builder extends Component {
     if (currentTab === "metadata") Builder = MetaEditor;
     if (currentTab === "profiles") Builder = ProfileBuilder;
     if (currentTab === "stories")  Builder = StoryBuilder;
+    if (currentTab === "dnd") Builder = Dnd;
 
     if (!Builder) return null;
 

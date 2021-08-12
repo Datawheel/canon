@@ -187,6 +187,9 @@ class Navbar extends Component {
     else if (pathObj.tab === "metadata") {
       this.props.setStatus({pathObj: newPathObj});
     }
+    else if (pathObj.tab === "dnd") {
+      this.props.setStatus({pathObj: newPathObj});
+    }
   }
 
   formatLabel(str) {
@@ -212,7 +215,8 @@ class Navbar extends Component {
     const currentTab = pathObj.tab;
 
     let currEntity, currEntityHidden, currTree;
-    if (currentTab === "metadata") currEntity = "metadata"; // done
+    if (currentTab === "metadata") currEntity = "metadata";
+    if (currentTab === "dnd") currEntity = "dnd";
 
     // get entity title and sections
     if (currentTab === "profiles") {
@@ -340,7 +344,7 @@ class Navbar extends Component {
             {currEntity === "metadata" || !hasClicked
               // metadata; render as h1 with no controls
               ? <h1 className="cms-navbar-title-heading u-font-lg">
-                {currEntity === "metadata" ? "Metadata editor" : `Choose a ${currEntity}`}
+                {currEntity === "metadata" ? "Metadata editor" : currEntity === "dnd" ? "Dnd" : `Choose a ${currEntity}`}
               </h1>
               // profile/story; render as button to collapse outline
               : <Fragment>

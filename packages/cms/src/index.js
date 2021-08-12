@@ -12,6 +12,7 @@ export {default as Search} from "./components/fields/Search.jsx";
 export {default as ProfileSearch} from "./components/fields/ProfileSearch.jsx";
 export {default as ProfileColumns} from "./components/fields/ProfileColumns.jsx";
 export {default as ProfileTile} from "./components/fields/ProfileTile.jsx";
+export {default as Dnd} from "./dnd/Dnd";
 
 // Elements to be used by Custom Sections
 export {default as PDFButton} from "./components/sections/components/PDFButton.jsx";
