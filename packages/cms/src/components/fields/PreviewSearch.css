@@ -24,7 +24,7 @@
     color: var(--dark-2);
 
     @mixin dark-mode {
-      background-color: color(var(--black) a(0.75));
+      background-color: rgba(var(--black-RGB), 0.75);
       border-color: var(--black);
       color: var(--light-1);
     }

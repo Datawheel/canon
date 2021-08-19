@@ -130,7 +130,7 @@
 .showcase-token-list .showcase-nested-list {
   column-width: 22rem;
   column-gap: var(--gutter-xl);
-  column-rule: 1px solid color(var(--gray) a(0.125));
+  column-rule: 1px solid rgba(var(--gray-RGB), 0.125);
 
   & > * {
     break-inside: avoid;
@@ -148,7 +148,7 @@
     top: 0; right: calc(0px - var(--gutter-md)); bottom: 0; left: calc(0px - var(--gutter-md));
     content: "";
     display: block;
-    background-color: color(var(--gray) a(0.125));
+    background-color: rgba(var(--gray-RGB), 0.125);
     opacity: 0;
     transition: opacity 0.05s ease-out;
   }
@@ -160,7 +160,7 @@
   bottom: -1px;
   width: 0.75em;
   left: calc(0px - var(--gutter-md));
-  border: 1px solid color(var(--gray) a(0.125));
+  border: 1px solid rgba(var(--gray-RGB), 0.125);
 }
 .showcase-token-label {
   font-weight: var(--heading-font-weight);

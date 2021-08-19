@@ -15,7 +15,7 @@
 # VSCode: https://marketplace.visualstudio.com/items?itemName=jaspernorth.vscode-pigments
 
 # GOTCHAS:
-# 1. When aliasing variables in this file (i.e., `section-text-color: "var(--dark-2)"`), these variables will be replaced in css files, but NOT in js files.
+# Make sure there are no more than 1 empty line at the end of the file, or style.yml will not be recognized and your build will fail. ¯\_(ツ)_/¯
 
 # Finally, if you encounter any bugs, are confused by anything, or wish things were better/different, let @perpetualgrimace know!
 
@@ -40,6 +40,19 @@ accent:       "#FFCD33"
 accent-light: "#FFD65B"
 accent-dark:  "#C4960B"
 accent-black: "#7F6516"
+
+# RGB versions of colors for use with alpha channels
+white-RGB: 255, 255, 255
+light-1-RGB: 248, 249, 250
+light-2-RGB: 236, 239, 241
+light-3-RGB: 207, 218, 226
+gray-RGB: 174, 189, 204
+dark-1-RGB: 138, 151, 174
+dark-2-RGB: 42, 47, 59
+dark-3-RGB: 32, 36, 46
+black-RGB: 24, 26, 33
+
+accent-light-RGB: 255, 214, 91
 
 
 ########################################
@@ -80,7 +93,8 @@ body-font-scale-xl:         "125%"   # 1rem = 20px (min-width: 1400px)
 
 # measurements
 nav-height:                 "50px"
-subnav-height:              "var(--nav-height)"
+test-height: "100px"
+subnav-height:              "var(--test-height)"
 container-width:            "80rem" # 1280px
 hero-container-width:       "var(--container-width)"
 
@@ -134,8 +148,6 @@ hero-heading-size:          "var(--font-xxl)"
 hero-subhead-color:         "var(--white)"
 hero-subhead-size:          "var(--font-md)"
 hero-stat-value-color:      "var(--accent)"
-hero-stat-column-count:     "4"
-hero-stat-column-width:     "10rem"
 hero-viz-width:             "20rem"
 
 # sections
@@ -147,7 +159,7 @@ section-heading-color:      "var(--dark-3)"
 sticky-section-offset:      "50px" # px value required here unfortunately
 sticky-section-height:      "var(--nav-height)"
 sticky-section-bg-color:    "var(--white)"
-sticky-section-shadow:      "0 1px 0.375rem color(var(--black) a(0.125))"
+sticky-section-shadow:      "0 1px 0.375rem rgba(var(--black-RGB), 0.125)"
 # handle grouped SingleColumn sections with flex-basis
 singlecolumn-column-count:  "3"
 singlecolumn-min-width:     "20rem"
@@ -155,13 +167,6 @@ singlecolumn-min-width:     "20rem"
 multicolumn-column-count:   "3"
 multicolumn-column-width:   "20rem"
 multicolumn-column-gap:     "var(--gutter-xl)"
-# InfoCard
-infocard-viz-min-width:     "10rem"
-infocard-border-radius:     "4px"
-infocard-border-width:      "1px"
-infocard-border-color:      "var(--light-2)"
-infocard-header-bg-color:   "var(--light-1)"
-infocard-main-bg-color:     "var(--white)"
 # Grouping (intro) section
 grouping-bg-color:          "var(--accent-light)"
 grouping-text-color:        "var(--black)"
@@ -175,7 +180,7 @@ grouping-stat-value-color:  "var(--white)"
 # buttons
 button-border-radius:       "2px"
 button-border-width:        "1px"
-button-bg-color:            "color(var(--white) a(0.5))"
+button-bg-color:            "rgba(var(--white-RGB), 0.5)"
 button-border-color:        "var(--light-3)"
 button-color:               "var(--accent-black)"
 button-padding:             "0.5em 1.25em"
@@ -201,11 +206,28 @@ select-bg-color:            "var(--light-1)"
 # visualizations
 viz-aspect-ratio:           "50%"  # set as padding-top on .cp-viz-container, then .cp-viz fills the height
 viz-min-height:             "40vh" # prevent visualizations from getting too squishy
+
 # percentage bar visualization
 percentage-bar-height:      "var(--gutter-xs)"
 percentage-bar-bg-color:    "var(--light-2)"
 percentage-bar-color:       "var(--accent-dark)"
 percentage-bar-radius:      "0.5em"
+percentage-bar-stroke-color: "var(--light-1)"
+percentage-bar-stroke-width: "2px"
+
+# (react-)table visualization
+table-height:               "60vh" # height of table body
+table-hgroup-bg-color:      "var(--light-2)" # top heading in a group of nested headings
+table-hgroup-border-color:  "var(--light-3)"
+table-hgroup-text-color:    "var(--dark-3)"
+table-thead-bg-color:       "var(--dark-1)" # primary table headings
+table-thead-border-color:   "rgba(var(--dark-2-RGB), 0.25)"
+table-thead-text-color:     "var(--light-1)"
+table-cell-bg-color:        "var(--white)" # table cells
+table-cell-border-color:    "var(--light-2)"
+table-cell-text-color:      "var(--dark-3)"
+table-nested-cell-bg-color: "var(--light-1)" # nested/pivoted cells
+table-icon-color:           "var(--dark-2)" # dotted cell resize handle, pivot triangle
 
 # stats
 stat-label-font-size:       "var(--font-sm)"

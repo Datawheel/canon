@@ -112,7 +112,6 @@
     "passport-twitter": "^1.0.4",
     "pg": "^6.4.2",
     "pixrem": "^5.0.0",
-    "postcss-color-function": "^4.1.0",
     "postcss-combine-duplicated-selectors": "^9.4.0",
     "postcss-conditionals": "^2.1.0",
     "postcss-css-variables": "^0.13.0",

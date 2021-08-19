@@ -1,5 +1,9 @@
 @import "../../css/mixins.css";
 
+:root {
+  --varswap-RGB: 185, 226, 140;
+}
+
 .cms-variable {
   color: inherit;
   display: block;
@@ -84,8 +88,8 @@
 
 /* vars printed by varSwap helper function */
 .cms-var-highlight {
-  background-color: color(var(--type-string) a(0.125));
-  outline: 1px dotted color(var(--type-string) a(0.333));
+  background-color: rgba(var(--varswap-RGB), 0.125);
+  outline: 1px dotted rgba(var(--varswap-RGB), 0.333);
   /* reset <var> */
   font-weight: inherit;
   font-style: inherit;

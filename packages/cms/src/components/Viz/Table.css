@@ -105,7 +105,7 @@ NOTE: ripped from ReactTable
   }
 
   &:focus {
-    background-color: color(var(--white) a(0.125));
+    background-color: rgba(var(--white-RGB), 0.125);
     outline: 2px solid var(--accent);
     outline-offset: -2px;
 
@@ -133,7 +133,7 @@ NOTE: ripped from ReactTable
   /* interactions */
   &.-sort-desc, &.-sort-asc,
   &.rt-th.rt-th:hover {
-    background-color: color(var(--table-thead-bg-color) a(0.875));
+    background-color: rgba(var(--dark-1-RGB), 0.875);
 
     & .cp-table-header-icon {
       opacity: 1;
