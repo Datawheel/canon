@@ -21,11 +21,10 @@ Usage: npx canon-cms-ingest <command> [args]
 Commands:
     help      Shows this information.
     list      List profiles and ids
-    ingest    Runs a translation operation
-              - Required: profile
+    run       Runs a translation operation
+                - Required: profile
 
 Arguments:
-    -h, --help      Shows this information.
     -p, --profile   The profile id to ingest
 `;
 
@@ -35,13 +34,20 @@ async function doIngest(options) {
     profile
   } = options;
 
-  console.log("Ingestion Complete.");
+  console.log("ingesting", profile);
+
+  console.log("Ingestion Complete");
+  process.exit(0);
+}
+
+/** */
+async function doList() {
+  console.log("List goes here");
   process.exit(0);
 }
 
 const options = getopts(process.argv.slice(2), {
   alias: {
-    help: "h",
     profile: "p"
   },
   default: {
@@ -49,18 +55,20 @@ const options = getopts(process.argv.slice(2), {
   }
 });
 
-const action = options._[0] || "run";
+const action = options._[0] || "help";
 
-if (options.help) {
-  console.log(helpText);
-  process.exit(0);
-}
-
-if (action === "run") {
-  if (!options.target || !options.profile || !options.base) {
-    console.log("Missing parameters! (try --help)");
-  }
-  else {
+switch (action) {
+  case "list":
+    doList();
+    break;
+  case "run":
+    if (!options.profile) {
+      console.log("Missing profile parameter! (try canon-cms-ingest help)");
+      process.exit(0);
+    }
     doIngest(options);
-  }
+    break;
+  default:  // includes "help"
+    console.log(helpText);
+    process.exit(0);
 }
