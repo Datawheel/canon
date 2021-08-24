@@ -4,6 +4,7 @@ const path = require("path");
 const catcher = e => console.log("error: ", e);
 
 const loadModels = (db, modelPath) => {
+  console.log(__dirname, modelPath);
   const folder = path.join(__dirname, modelPath);
   fs.readdirSync(folder)
     .filter(file => file && file.indexOf(".") !== 0)

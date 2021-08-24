@@ -1,9 +1,9 @@
 #! /usr/bin/env node
 
 /* Imports */
-const axios = require("axios");
 const getopts = require("getopts");
 const loadModels = require("../translation/loadModels");
+const populateSearch = require("../../src/utils/populateSearch");
 const Sequelize = require("sequelize");
 
 /* DB */
@@ -16,8 +16,6 @@ const db = new Sequelize(name, user, pw, {host, dialect: "postgres", operatorsAl
 const helpText = `Canon CMS / Search Ingestion Script
 Usage: npx canon-cms-ingest <command> [args]
 
-*** Remember, the CMS server must be running! ***
-
 Commands:
     help      Shows this information.
     list      List profiles and ids
@@ -25,33 +23,75 @@ Commands:
                 - Required: profile
 
 Arguments:
-    -p, --profile   The profile id to ingest
+    -p, --profile     The profile id to ingest
+    -s, --slugs       Generate new slugs (warning: can update/break permalinks)
+    -a, --all         Include members with null values for the given Measure (rarely used)
 `;
+
+/** */
+async function getModels() {
+  console.log("Initializing Models...");
+  await loadModels(db, "../../src/db").catch(e => {
+    console.log("Failed to load models, exiting...");
+    console.log(e);
+    process.exit(0);
+  });
+}
 
 /** */
 async function doIngest(options) {
   const {
-    profile
+    profile,
+    slugs,
+    all
   } = options;
-
-  console.log("ingesting", profile);
-
+  await getModels();
+  const meta = await db.profile_meta.findOne({where: {id: profile}}).then(d => d).catch(() => false);
+  if (!meta) {
+    console.log("Error - Dimension not found. Exiting.");
+    process.exit(0);
+  }
+  const {slug, dimension, levels, measure, cubeName} = meta;
+  const profileData = {dimension, levels, measure, cubeName};
+  console.log(`Running populateSearch for ${slug}`);
+  await populateSearch(profileData, db, false, slugs, all);
   console.log("Ingestion Complete");
   process.exit(0);
 }
 
 /** */
 async function doList() {
-  console.log("List goes here");
+  await getModels();
+  const meta = await db.profile_meta.findAll().then(d => d).catch(() => []);
+  let longest = 0;
+  const pairs = meta.reduce((acc, d) => {
+    d = d.toJSON();
+    const pid = d.profile_id;
+    if (!acc[pid]) acc[pid] = [];
+    const slug = `${d.slug} (${d.dimension}/${d.cubeName})`;
+    const {id} = d;
+    if (slug.length > longest) longest = slug.length;
+    acc[pid].push({slug, id});
+    return acc;
+  }, {});
+  const spacing = longest + 2;
+  console.log(Array(spacing + 5).join("-"));
+  console.log("Profile Dimensions");
+  Object.keys(pairs).forEach(pid => {
+    console.log(Array(spacing + 5).join("-"));
+    pairs[pid].forEach(d => {
+      const spaces = spacing - d.slug.length;
+      console.log(d.slug, Array(spaces).join(" "), d.id);
+    });
+  });
   process.exit(0);
 }
 
 const options = getopts(process.argv.slice(2), {
   alias: {
-    profile: "p"
-  },
-  default: {
-    source: process.env.CANON_LANGUAGE_DEFAULT
+    profile: "p",
+    slugs: "s",
+    all: "a"
   }
 });
 
