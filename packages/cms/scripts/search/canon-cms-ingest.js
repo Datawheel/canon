@@ -19,7 +19,7 @@ Usage: npx canon-cms-ingest <command> [args]
 Commands:
     help      Shows this information.
     list      List dimensions and ids
-    run       Runs a translation operation
+    run       Runs a search ingest
                 - Required: dimension
 
 Arguments:
