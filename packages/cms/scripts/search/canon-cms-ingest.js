@@ -18,12 +18,12 @@ Usage: npx canon-cms-ingest <command> [args]
 
 Commands:
     help      Shows this information.
-    list      List profiles and ids
+    list      List dimensions and ids
     run       Runs a translation operation
-                - Required: profile
+                - Required: dimension
 
 Arguments:
-    -p, --profile     The profile id to ingest
+    -d, --dimension   The dimension id to ingest
     -s, --slugs       Generate new slugs (warning: can update/break permalinks)
     -a, --all         Include members with null values for the given Measure (rarely used)
 `;
@@ -41,18 +41,18 @@ async function getModels() {
 /** */
 async function doIngest(options) {
   const {
-    profile,
+    dimension,
     slugs,
     all
   } = options;
   await getModels();
-  const meta = await db.profile_meta.findOne({where: {id: profile}}).then(d => d).catch(() => false);
+  const meta = await db.profile_meta.findOne({where: {id: dimension}}).then(d => d).catch(() => false);
   if (!meta) {
     console.log("Error - Dimension not found. Exiting.");
     process.exit(0);
   }
-  const {slug, dimension, levels, measure, cubeName} = meta;
-  const profileData = {dimension, levels, measure, cubeName};
+  const {slug, dimension: dimName, levels, measure, cubeName} = meta;
+  const profileData = {dimName, levels, measure, cubeName};
   console.log(`Running populateSearch for ${slug}`);
   await populateSearch(profileData, db, false, slugs, all);
   console.log("Ingestion Complete");
@@ -89,7 +89,7 @@ async function doList() {
 
 const options = getopts(process.argv.slice(2), {
   alias: {
-    profile: "p",
+    dimension: "d",
     slugs: "s",
     all: "a"
   }
@@ -102,7 +102,7 @@ switch (action) {
     doList();
     break;
   case "run":
-    if (!options.profile) {
+    if (!options.dimension) {
       console.log("Missing profile parameter! (try canon-cms-ingest help)");
       process.exit(0);
     }

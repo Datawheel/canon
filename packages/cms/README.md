@@ -18,6 +18,7 @@ Content Management System for Canon sites.
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
 * [Advanced Selector Techniques](#advanced-selector-techniques)
 * [Automatic Translations](#automatic-translations)
+* [Command Line Reingest](#command-line-reingest)
 * [Authentication](#authentication)
 * [Profile Caching](#profile-caching)
 * [Frequently Asked Questions](#frequently-asked-questions)
@@ -1039,7 +1040,38 @@ npx canon-cms-translate -b http://localhost:3300 -p 1 -t es
 
 Similar to the CMS itself, translation should not be enabled on the production server. As such, the translation endpoint route itself will **not be registered** unless `NODE_ENV=development` or `CANON_CMS_ENABLE=true` (or both). Additionally, the translation route is placed behind the canon `isAuthenticated` middleware, so users must be logged in for translation to work.
 
+---
 
+## Command Line Reingest
+
+When a user adds a dimension to a profile, the CMS communicates with Tesseract to ingest all relevant members into its search table. In the UI of the CMS, this list can be updated by clicking the reingest button for that dimension.
+
+In some cases, this re-ingestion may need to occur on a more regular basis. For this, use the reingest command line tool:
+
+```sh
+Canon CMS / Search Ingestion Script
+Usage: npx canon-cms-ingest <command> [args]
+
+Commands:
+    help      Shows this information.
+    list      List dimensions and ids
+    run       Runs a translation operation
+                - Required: dimension
+
+Arguments:
+    -d, --dimension   The dimension id to ingest
+    -s, --slugs       Generate new slugs (warning: can update/break permalinks)
+    -a, --all         Include members with null values for the given Measure (rarely used)
+```
+
+### Explanation
+
+Ingests are performed on a *dimension* level, not a profile one. For example, for a bilateral profile like product/country, there are single ids for each dimension (product and country). You can view a list of these by running `npx canon-cms-ingest list`. Then use the id found there to feed into the `-d` argument.
+
+Example usage:
+```
+npx canon-cms-ingest run -d 1
+```
 ---
 
 ## Authentication
