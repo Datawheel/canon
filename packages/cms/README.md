@@ -18,6 +18,7 @@ Content Management System for Canon sites.
 * [Advanced Visualization Techniques](#advanced-visualization-techniques)
 * [Advanced Selector Techniques](#advanced-selector-techniques)
 * [Automatic Translations](#automatic-translations)
+* [Command Line Reingest](#command-line-reingest)
 * [Authentication](#authentication)
 * [Profile Caching](#profile-caching)
 * [Frequently Asked Questions](#frequently-asked-questions)
@@ -1039,6 +1040,72 @@ npx canon-cms-translate -b http://localhost:3300 -p 1 -t es
 
 Similar to the CMS itself, translation should not be enabled on the production server. As such, the translation endpoint route itself will **not be registered** unless `NODE_ENV=development` or `CANON_CMS_ENABLE=true` (or both). Additionally, the translation route is placed behind the canon `isAuthenticated` middleware, so users must be logged in for translation to work.
 
+---
+
+## Command Line Reingest
+
+When a user adds a dimension to a profile, the CMS communicates with Tesseract to ingest all relevant members into its search table. In the UI of the CMS, this list can be updated by clicking the reingest button for that dimension.
+
+In some cases, this re-ingestion may need to occur on a more regular basis. For this, use the reingest command line tool.
+
+### Env Vars
+
+The script requires environment variables from the main installation to be in scope when the script is run. The best way is just to use all of them, but specifically, only these are required:
+
+```
+CANON_DB_NAME
+CANON_DB_USER
+CANON_DB_PW
+CANON_DB_HOST
+CANON_LANGUAGE_DEFAULT
+CANON_LANGUAGES
+CANON_CMS_CUBES
+```
+
+Your installation may require some more:
+
+```
+OLAP_PROXY_SECRET
+CANON_CMS_MINIMUM_ROLE
+```
+
+You may want to set the following to `true` for additional debug data:
+
+```
+CANON_CMS_LOGGING
+```
+
+### Usage
+
+Help command:
+```sh
+Canon CMS / Search Ingestion Script
+Usage: npx canon-cms-ingest <command> [args]
+
+Commands:
+    help      Shows this information.
+    list      List dimensions and ids
+    run       Runs a search ingest
+                - Required: dimension
+
+Arguments:
+    -d, --dimension   The dimension id to ingest
+    -s, --slugs       Generate new slugs (warning: can update/break permalinks)
+    -a, --all         Include members with null values for the given Measure (rarely used)
+```
+
+Example usage:
+```
+npx canon-cms-ingest run -d 1
+```
+
+### Notes
+
+Ingests are performed on a *dimension* level, not a profile one. For example, for a bilateral profile like product/country, there are single ids for each dimension (product and country). You can view a list of these by running `npx canon-cms-ingest list`. Then use the id found there to feed into the `-d` argument.
+
+For the sake of permalinks, the ingest preserves slugs by default, even if the underlying data has changed its name. Use the `-s` switch to override this and generate slugs from scratch.
+
+Additionally, the ingest script will not ingest any members who have a null value for the dimension's measure. Use the `-a` switch to override this and include all possible members, including null measures.
 
 ---
 
