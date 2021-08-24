@@ -589,6 +589,7 @@ import {ProfileSearch} from "@datawheel/canon-cms";
   filterProfileTitle={(content, meta) => content.label} // profile title used for filters (allows for grouping profiles with matching labels)
   filterQueryArgs={false} // enables filters to update the query string
   formatResults={resp => resp} // callback function to modify the JSON response used for rendering
+  ignoredTerms={[]} // array of ignored terms that will be removed before call /profilesearch endpoint. For example: ["of","the", ...]. Defaults []. You can find a list per language in here: https://countwordsfree.com/stopwords
   inputFontSize={"xxl"} // the CSS size for the input box ("sm", "md", "lg", "xl", "xxl")
   joiner={"&"} // the character used when joining titles in multi-dimensional profiles
   limit={10} // how many results to show

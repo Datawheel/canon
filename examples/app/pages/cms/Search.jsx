@@ -80,6 +80,7 @@ class Search extends Component {
           renderTile={(result, i, tileProps) => <ProfileTile key={`r-${i}`} {...tileProps} data={result} />}
           // renderTile={(result, i, tileProps) => <div>Ceci n'est pas une tuile.</div>}
           showExamples={true}
+          ignoredTerms={["of", "the"]}
         />
       </div>
     );
