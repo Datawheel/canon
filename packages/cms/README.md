@@ -1068,6 +1068,10 @@ Arguments:
 
 Ingests are performed on a *dimension* level, not a profile one. For example, for a bilateral profile like product/country, there are single ids for each dimension (product and country). You can view a list of these by running `npx canon-cms-ingest list`. Then use the id found there to feed into the `-d` argument.
 
+For the sake of permalinks, the ingest preserves slugs by default, even if the underlying data has changed its name. Use the `-s` switch to override this and generate slugs from scratch.
+
+Additionally, the ingest script will not ingest any members who have a null value for the dimension's measure. Use the `-a` switch to override this and include all possible members, including null measures.
+
 Example usage:
 ```
 npx canon-cms-ingest run -d 1
