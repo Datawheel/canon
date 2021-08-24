@@ -76,7 +76,7 @@ class ProfileSearch extends Component {
       filterLevels: props.defaultLevels,
       id: uuid(),
       // Build ignored terms regex just once, only if something is passed, default []
-      ignoredTermsRegex: props.ignoredTerms && props.ignoredTerms.length > 0 ? new RegExp(props.ignoredTerms.join("|"), "ig") : false,
+      ignoredTermsRegex: props.ignoredTerms && props.ignoredTerms.length > 0 ? new RegExp(`\\b(${props.ignoredTerms.join("|")})\\b`, "ig") : false,
       loading: false,
       profiles: false,
       query: props.defaultQuery,
