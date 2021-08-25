@@ -46,6 +46,7 @@ module.exports = [
     preserve: false
   }),
   require("postcss-css-variables")({
+    preserve: true,
     variables
   }),
   require("postcss-map")({
