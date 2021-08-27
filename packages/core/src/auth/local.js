@@ -40,12 +40,12 @@ module.exports = function(app) {
       db.users.findOne({where: {email}, raw: true})
         .then(user => {
 
-          if (user === null) done(null, false, {message: "Incorrect credentials."});
-
-          const hashedPassword = bcrypt.hashSync(password, user.salt);
-
-          if (user.password === hashedPassword) done(null, user);
-          done(null, false, {message: "Incorrect credentials."});
+          if (!user) done(null, false, {message: "Incorrect credentials."});
+          else {
+            const hashedPassword = bcrypt.hashSync(password, user.salt);
+            if (user.password === hashedPassword) done(null, user);
+            else done(null, false, {message: "Incorrect credentials."});
+          }
 
           return user;
 

@@ -18,33 +18,39 @@ LANGUAGES.sort(a => a === envLoc ? -1 : 1);
 const {OLAP_PROXY_SECRET, CANON_CMS_MINIMUM_ROLE} = process.env;
 const CANON_CMS_CUBES = process.env.CANON_CMS_CUBES || "localhost";
 
-/**
+let client;
+
+const getClient = async() => {
+
+  /**
  * There is not a fully-featured way for olap-client to know the difference between a
  * Tesseract and a Mondrian Client. Tesseract is more modern/nice in its HTTP codes/responses,
  * so attempt Tesseract first, and on failure, assume mondrian.
  */
-const client = new Client();
+  client = new Client();
 
-const config = {url: CANON_CMS_CUBES};
-if (OLAP_PROXY_SECRET) {
-  const jwtPayload = {sub: "server", status: "valid"};
-  if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
-  const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
-  config.headers = {"x-tesseract-jwt-token": apiToken};
-}
+  const config = {url: CANON_CMS_CUBES};
+  if (OLAP_PROXY_SECRET) {
+    const jwtPayload = {sub: "server", status: "valid"};
+    if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+    const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
+    config.headers = {"x-tesseract-jwt-token": apiToken};
+  }
 
-Client.dataSourceFromURL(config).then(
-  datasource => {
+  const datasource = await Client.dataSourceFromURL(config).catch(err => {
+    if (verbose) console.error(`Tesseract not detected: ${err.message}`);
+    return false;
+  });
+  if (datasource) {
     if (verbose) console.log(`Initializing Tesseract at ${CANON_CMS_CUBES}`);
     client.setDataSource(datasource);
-  },
-  err => {
+  }
+  else {
+    if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
     const ds = new MondrianDataSource(config);
     client.setDataSource(ds);
-    if (verbose) console.error(`Tesseract not detected: ${err.message}`);
-    if (verbose) console.log(`Initializing Mondrian at ${CANON_CMS_CUBES}`);
   }
-);
+};
 
 const catcher = e => {
   if (verbose) {
@@ -92,6 +98,8 @@ const formatter = (members, data, dimension, level) => {
 };
 
 const populateSearch = async(profileData, db, metaLookup = false, newSlugs = false, includeAllMembers = false) => {
+
+  if (!client) await getClient();
 
   const dbQuery = db.search.sequelize.query.bind(db.search.sequelize);
 

@@ -41,6 +41,19 @@ accent-light: "#FFD65B"
 accent-dark:  "#C4960B"
 accent-black: "#7F6516"
 
+# RGB versions of colors for use with alpha channels
+white-RGB: 255, 255, 255
+light-1-RGB: 248, 249, 250
+light-2-RGB: 236, 239, 241
+light-3-RGB: 207, 218, 226
+gray-RGB: 174, 189, 204
+dark-1-RGB: 138, 151, 174
+dark-2-RGB: 42, 47, 59
+dark-3-RGB: 32, 36, 46
+black-RGB: 24, 26, 33
+
+accent-light-RGB: 255, 214, 91
+
 
 ########################################
 # admin panel
@@ -146,7 +159,7 @@ section-heading-color:      "var(--dark-3)"
 sticky-section-offset:      "50px" # px value required here unfortunately
 sticky-section-height:      "var(--nav-height)"
 sticky-section-bg-color:    "var(--white)"
-sticky-section-shadow:      "0 1px 0.375rem color(var(--black) a(0.125))"
+sticky-section-shadow:      "0 1px 0.375rem rgba(var(--black-RGB), 0.125)"
 # handle grouped SingleColumn sections with flex-basis
 singlecolumn-column-count:  "3"
 singlecolumn-min-width:     "20rem"
@@ -167,7 +180,7 @@ grouping-stat-value-color:  "var(--white)"
 # buttons
 button-border-radius:       "2px"
 button-border-width:        "1px"
-button-bg-color:            "color(var(--white) a(0.5))"
+button-bg-color:            "rgba(var(--white-RGB), 0.5)"
 button-border-color:        "var(--light-3)"
 button-color:               "var(--accent-black)"
 button-padding:             "0.5em 1.25em"
@@ -208,7 +221,7 @@ table-hgroup-bg-color:      "var(--light-2)" # top heading in a group of nested 
 table-hgroup-border-color:  "var(--light-3)"
 table-hgroup-text-color:    "var(--dark-3)"
 table-thead-bg-color:       "var(--dark-1)" # primary table headings
-table-thead-border-color:   "color(var(--dark-2) a(0.25))"
+table-thead-border-color:   "rgba(var(--dark-2-RGB), 0.25)"
 table-thead-text-color:     "var(--light-1)"
 table-cell-bg-color:        "var(--white)" # table cells
 table-cell-border-color:    "var(--light-2)"

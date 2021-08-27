@@ -38,13 +38,13 @@ class Login extends Component {
     this.setState({submitted: true});
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
 
     const {auth, mailgun, t} = this.props;
     const {email, submitted} = this.state;
     const Toast = this.context.toast.current;
 
-    if (submitted && !auth.loading) {
+    if (submitted && !auth.loading && prevProps.auth !== auth) {
 
       if (auth.error === WRONG_PW) {
         Toast.show({

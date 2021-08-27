@@ -75,6 +75,8 @@ class ProfileSearch extends Component {
       filterProfiles: props.defaultProfiles,
       filterLevels: props.defaultLevels,
       id: uuid(),
+      // Build ignored terms regex just once, only if something is passed, default []
+      ignoredTermsRegex: props.ignoredTerms && props.ignoredTerms.length > 0 ? new RegExp(`\\b(${props.ignoredTerms.join("|")})\\b`, "ig") : false,
       loading: false,
       profiles: false,
       query: props.defaultQuery,
@@ -190,11 +192,20 @@ class ProfileSearch extends Component {
 
   onChange(e) {
 
-    const {filterCubes, filterLevels, filterProfiles, timeout} = this.state;
+    const {filterCubes, filterLevels, filterProfiles, ignoredTermsRegex, timeout} = this.state;
     const {filterQueryArgs, limit, minQueryLength, showExamples, formatResults, locale} = this.props;
 
     let query = e ? e.target.value : this.state.query;
     if (query.length < minQueryLength) query = "";
+
+    // Filter ignored terms from user string
+    let filteredQuery = query.trim();
+    if (ignoredTermsRegex && filteredQuery !== "") {
+      filteredQuery = filteredQuery.replace(ignoredTermsRegex, "");
+    }
+
+    // Remove multiples spaces with just one -caused by the ignore terms regex and trim it
+    filteredQuery = filteredQuery.replace(/\s\s+/g, " ").trim();
 
     clearTimeout(timeout);
 
@@ -216,7 +227,7 @@ class ProfileSearch extends Component {
     }
     else {
 
-      let url = `/api/profilesearch?query=${query}&limit=${limit}&locale=${locale}`;
+      let url = `/api/profilesearch?query=${filteredQuery}&limit=${limit}&locale=${locale}`;
       if (filterProfiles) url += `&profile=${filterProfiles}`;
       if (filterLevels) url += `&hierarchy=${filterLevels}`;
       if (filterCubes) url += `&cubeName=${filterCubes}`;
@@ -521,6 +532,7 @@ ProfileSearch.defaultProps = {
   },
   filterQueryArgs: false,
   formatResults: resp => resp,
+  ignoredTerms: [], // By default ignore nothing
   inputFontSize: "xxl",
   joiner: " & ",
   limit: 10,

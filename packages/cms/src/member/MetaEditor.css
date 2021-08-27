@@ -132,7 +132,7 @@
   }
 
   /* theming */
-  & .rt-tbody .rt-tr.-even .rt-td { background-color: color(var(--white) a(0.5)); }
+  & .rt-tbody .rt-tr.-even .rt-td { background-color: rgba(var(--white-RGB), 0.5); }
   & .rt-tbody                     { @mixin font-xxs; }
   & .-pageJump > input            { @mixin cms-text-input-style; }
   & .-pageJump > *                { margin: 0 0.125em; }
@@ -151,7 +151,7 @@
     & .rt-thead.-headerGroups .rt-th { background-color: var(--dark-3); }
     & .rt-thead.-header .rt-th       { background-color: var(--dark-2); }
     & .rt-tbody .rt-tr.-odd .rt-td   { background-color: transparent; }
-    & .rt-tbody .rt-tr.-even .rt-td  { background-color: color(var(--dark-3) a(0.5)); }
+    & .rt-tbody .rt-tr.-even .rt-td  { background-color: rgba(var(--dark-3-RGB), 0.5); }
     & .rt-resizer                    { border-left-color: var(--light-3); }
 
     /* keep editable text visible */

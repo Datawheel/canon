@@ -1,8 +1,15 @@
 @import "../../css/mixins.css";
 
+:root {
+  --ace-light-RGB: 207, 218, 226;
+  --ace-gray-RGB: 174, 189, 204;
+  --ace-dark-RGB: 138, 151, 174;
+  --ace-black-RGB: 32, 36, 46;
+}
+
 .cms .ace_editor {
   background: var(--black);
-  color: color(#CFDAE2 a(0.875));
+  color: rgba(var(--ace-light-RGB), 0.875);
 
   /* current line */
   & .ace_marker-layer .ace_active-line,
@@ -15,7 +22,7 @@
 
   /* selected text */
   & .ace_marker-layer .ace_selection {
-    background: color(#AEBDCC a(0.25));
+    background: rgba(var(--ace-gray-RGB), 0.25);
   }
 
   /* shows matching bracket; not always visible */
@@ -24,13 +31,13 @@
     border: none;
     border-radius: 0;
     margin-top: 1px;
-    background-color: color(#AEBDCC a(0.125));
+    background-color: rgba(var(--ace-gray-RGB), 0.125);
   }
 
   /* gutter with line numbers & errors */
   & .ace_gutter {
-    background-color: color(#20242E a(0.5));
-    color: color(#8A97AE a(0.5));
+    background-color: rgba(var(--ace-black-RGB), 0.5);
+    color: rgba(var(--ace-dark-RGB), 0.5);
 
     /* (!) */
     & .ace_info {
@@ -154,7 +161,7 @@
   /* indentation indicator */
   & .ace_indent-guide {
     background: none;
-    border-right: 1px solid color(#AEBDCC a(0.125));
+    border-right: 1px solid rgba(var(--ace-gray-RGB), 0.125);
     margin-left: -1px;
   }
   /* line length helper */

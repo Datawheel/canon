@@ -135,5 +135,5 @@ strong, [class] > strong,
 .cms ::selection,
 .cp ::selection {
   color: var(--black);
-  background-color: color(var(--accent-light) a(0.75));
+  background-color: rgba(var(--accent-light-RGB), 0.75);
 }

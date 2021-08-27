@@ -160,8 +160,8 @@
   @mixin min-sm {
     background-color: var(--dark-2);
     box-shadow:
-      0 0.25em 0.5em color(var(--black) a(0.125)),
-      0 0.5em 1em color(var(--black) a(0.125));
+      0 0.25em 0.5em rgba(var(--black-RGB), 0.125),
+      0 0.5em 1em rgba(var(--black-RGB), 0.125);
     transition:
       opacity 0.2s ease-out,
       transform 0.2s ease-out;
@@ -217,7 +217,7 @@
       top: var(--nav-height);
       height: var(--subnav-height);
       background-color: var(--hero-bg-color);
-      box-shadow: 0 1px 0.25rem color(var(--black) a(0.333));
+      box-shadow: 0 1px 0.25rem rgba(var(--black-RGB), 0.333);
     }
 
     /* overflow list */
