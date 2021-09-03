@@ -2,11 +2,15 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import "./Dnd.css";
 import "@asseinfo/react-kanban/dist/styles.css";
-import {default as board} from "./board.js";
+import Board from "react-trello";
+import {kanban, trello} from "./board.js";
+
 
 class Dnd extends Component {
 
   render() {
+
+    return <Board data={trello} />;
 
     if (typeof window !== "undefined") {
       const Board = require("@asseinfo/react-kanban").default;
@@ -18,8 +22,8 @@ class Dnd extends Component {
             allowRemoveCard
             onColumnRemove={console.log}
             onCardRemove={console.log}
-            onLaneRename={console.log}
-            initialBoard={board}
+            onColumnRename={console.log}
+            initialBoard={kanban}
             allowAddCard={{on: "top"}}
             onNewCardConfirm={draftCard => ({
               id: new Date().getTime(),
