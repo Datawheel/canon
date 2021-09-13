@@ -1,49 +1,39 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import "./Dnd.css";
-import "@asseinfo/react-kanban/dist/styles.css";
 import Board from "react-trello";
-import {kanban, trello} from "./board.js";
+import {trello} from "./board.js";
+import {newEntity} from "../actions/profiles";
 
+import "./Dnd.css";
 
 class Dnd extends Component {
 
+  cardAdd(cardId, metadata, laneId) {
+    console.log(cardId, metadata, laneId);
+  }
+
   render() {
 
-    return <Board data={trello} />;
+    return <Board
+      data={trello}
+      editable={true}
+      canAddLanes={true}
+      onCardAdd={this.cardAdd.bind(this)}
+    />;
 
-    if (typeof window !== "undefined") {
-      const Board = require("@asseinfo/react-kanban").default;
-      return (
-        <div id="dnd-container">
-          <Board
-            allowRemoveColumn
-            allowRenameColumn
-            allowRemoveCard
-            onColumnRemove={console.log}
-            onCardRemove={console.log}
-            onColumnRename={console.log}
-            initialBoard={kanban}
-            allowAddCard={{on: "top"}}
-            onNewCardConfirm={draftCard => ({
-              id: new Date().getTime(),
-              ...draftCard
-            })}
-            onCardNew={console.log}
-          />
-        </div>
-      );
-    }
-    else {
-      return "Loading";
-    }
   }
 
 }
 
-export default connect(state => ({
+const mapStateToProps = (state, ownProps) => ({
+  variables: state.cms.variables,
+  status: state.cms.status,
+  profile: state.cms.profiles.find(p => p.id === ownProps.id),
+  formatters: state.cms.formatters
+});
 
-  /*
-  stories: state.data.stories
-  */
-}))(Dnd);
+const mapDispatchToProps = dispatch => ({
+  newEntity: (type, payload) => dispatch(newEntity(type, payload))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dnd);

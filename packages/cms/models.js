@@ -3,6 +3,8 @@ const models = {
   author_content: require.resolve("./src/db/author_content.js"),
   formatter: require.resolve("./src/db/formatter.js"),
   generator: require.resolve("./src/db/generator.js"),
+  generator_batch: require.resolve("./src/db/generator_batch.js"),
+  generator_new: require.resolve("./src/db/generator_new.js"),
   image: require.resolve("./src/db/image.js"),
   image_content: require.resolve("./src/db/image_content.js"),
   materializer: require.resolve("./src/db/materializer.js"),

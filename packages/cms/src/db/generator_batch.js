@@ -36,6 +36,6 @@ module.exports = function(sequelize, db) {
     }
   );
 
-  return g;
+  return b;
 
 };

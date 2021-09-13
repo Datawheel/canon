@@ -40,7 +40,6 @@ importers:
 
   packages/cms:
     specifiers:
-      '@asseinfo/react-kanban': ^2.1.0
       '@blueprintjs/core': ^3.45.0
       '@blueprintjs/datetime': ^3.23.4
       '@blueprintjs/select': ^3.16.4
@@ -91,7 +90,6 @@ importers:
       react-trello: ^2.2.11
       sharp: ^0.28.1
     dependencies:
-      '@asseinfo/react-kanban': 2.1.0
       '@blueprintjs/core': 3.45.0
       '@blueprintjs/datetime': 3.23.4
       '@blueprintjs/select': 3.16.4
@@ -485,17 +483,6 @@ importers:
       react-dom: 16.14.0_react@16.14.0
 
 packages:
-
-  /@asseinfo/react-kanban/2.1.0:
-    resolution: {integrity: sha512-obMttjVf5e8wCvZTr+mBw7bVG6yHaM2kPnCQ2Yk6jsqJC4OAsTUPIvQTtA2mHnoi4mxMQ8bi+TVvUNzSwFrJUg==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0
-      react-dom: ^16.8.0 || ^17.0.0
-    dependencies:
-      react-beautiful-dnd: 13.1.0
-    transitivePeerDependencies:
-      - react-native
-    dev: false
 
   /@babel/code-frame/7.12.13:
     resolution: {integrity: sha512-HV1Cm0Q3ZrpCR93tkWOYiuYIgLxZXZFVG2VgK+MBWjUqZTundupbfx2aXarXuw5Ko5aMcjtJgbSs4vUGBS5v6g==}
@@ -4384,12 +4371,6 @@ packages:
     hasBin: true
     dependencies:
       postcss: 7.0.35
-    dev: false
-
-  /css-box-model/1.2.1:
-    resolution: {integrity: sha512-a7Vr4Q/kd/aw96bnJG332W9V9LkJO69JRcaCYDUqjp6/z0w6VcZjgAcTbgFxEPfBgdnAwlh3iwu+hLopa+flJw==}
-    dependencies:
-      tiny-invariant: 1.1.0
     dev: false
 
   /css-color-converter/1.1.1:
@@ -10796,10 +10777,6 @@ packages:
     engines: {node: '>=0.4.x'}
     dev: false
 
-  /raf-schd/4.0.3:
-    resolution: {integrity: sha512-tQkJl2GRWh83ui2DiPTJz9wEiMN20syf+5oKfB03yYP7ioZcJwsIK8FjrtLwH1m7C7e+Tt2yYBlrOpdT+dyeIQ==}
-    dev: false
-
   /randombytes/2.1.0:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
     dependencies:
@@ -10858,23 +10835,6 @@ packages:
       lodash.get: 4.4.2
       lodash.isequal: 4.5.0
       prop-types: 15.7.2
-    dev: false
-
-  /react-beautiful-dnd/13.1.0:
-    resolution: {integrity: sha512-aGvblPZTJowOWUNiwd6tNfEpgkX5OxmpqxHKNW/4VmvZTNTbeiq7bA3bn5T+QSF2uibXB0D1DmJsb1aC/+3cUA==}
-    peerDependencies:
-      react: ^16.8.5 || ^17.0.0
-      react-dom: ^16.8.5 || ^17.0.0
-    dependencies:
-      '@babel/runtime': 7.14.8
-      css-box-model: 1.2.1
-      memoize-one: 5.2.1
-      raf-schd: 4.0.3
-      react-redux: 7.2.4
-      redux: 4.1.0
-      use-memo-one: 1.1.2
-    transitivePeerDependencies:
-      - react-native
     dev: false
 
   /react-clipboard.js/2.0.16:
@@ -11039,26 +10999,6 @@ packages:
       react-is: 16.13.1
       react-lifecycles-compat: 3.0.4
       redux: 4.1.1
-    dev: false
-
-  /react-redux/7.2.4:
-    resolution: {integrity: sha512-hOQ5eOSkEJEXdpIKbnRyl04LhaWabkDPV+Ix97wqQX3T3d2NQ8DUblNXXtNMavc7DpswyQM6xfaN4HQDKNY2JA==}
-    peerDependencies:
-      react: ^16.8.3 || ^17
-      react-dom: '*'
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.14.8
-      '@types/react-redux': 7.1.18
-      hoist-non-react-statics: 3.3.2
-      loose-envify: 1.4.0
-      prop-types: 15.7.2
-      react-is: 16.13.1
     dev: false
 
   /react-redux/7.2.4_react-dom@16.13.1+react@16.13.1:
@@ -12692,10 +12632,6 @@ packages:
     resolution: {integrity: sha512-NB6Dk1A9xgQPMoGqC5CVXn123gWyte215ONT5Pp5a0yt4nlEoO1ZWeCwpncaekPHXO60i47ihFnZPiRPjRMq4Q==}
     dev: false
 
-  /tiny-invariant/1.1.0:
-    resolution: {integrity: sha512-ytxQvrb1cPc9WBEI/HSeYYoGD0kWnGEOR8RY6KomWLBVhqz0RgTwVO9dLrGz7dC+nN9llyI7OKAgRq8Vq4ZBSw==}
-    dev: false
-
   /to-absolute-glob/2.0.2:
     resolution: {integrity: sha1-GGX0PZ50sIItufFFt4z/fQ98hJs=}
     engines: {node: '>=0.10.0'}
@@ -13108,12 +13044,6 @@ packages:
     resolution: {integrity: sha1-G3u5yj+w25Ug3hE0ZrvPfMNBRRo=}
     dependencies:
       xtend: 4.0.2
-    dev: false
-
-  /use-memo-one/1.1.2:
-    resolution: {integrity: sha512-u2qFKtxLsia/r8qG0ZKkbytbztzRb317XCkT7yP8wxL0tZ/CzK2G+WWie5vWvpyeP7+YoPIwbJoIHJ4Ba4k0oQ==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0
     dev: false
 
   /use/3.1.1:
