@@ -1,19 +1,26 @@
 const trello = {
-  lanes: [
+  columns: [
     {
-      id: "lane1",
-      title: "Planned Tasks",
-      label: "2/2",
+      id: 1,
+      title: "Backlog",
       cards: [
-        {id: "Card1", title: "Write Blog", description: "Can AI make memes", label: "30 mins", draggable: false},
-        {id: "Card2", title: "Pay Rent", description: "Transfer via NEFT", label: "5 mins", metadata: {sha: "be312a1"}}
+        {
+          id: 1,
+          title: "Add card",
+          description: "Add capability to add a card in a column"
+        }
       ]
     },
     {
-      id: "lane2",
-      title: "Completed",
-      label: "0/0",
-      cards: []
+      id: 2,
+      title: "Doing",
+      cards: [
+        {
+          id: 2,
+          title: "Drag-n-drop support",
+          description: "Move a card between the columns"
+        }
+      ]
     }
   ]
 };

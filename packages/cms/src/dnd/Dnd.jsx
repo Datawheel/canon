@@ -1,9 +1,9 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
-import Board from "react-trello";
 import {trello} from "./board.js";
 import {newEntity} from "../actions/profiles";
 
+import "@asseinfo/react-kanban/dist/styles.css";
 import "./Dnd.css";
 
 class Dnd extends Component {
@@ -14,12 +14,30 @@ class Dnd extends Component {
 
   render() {
 
-    return <Board
-      data={trello}
-      editable={true}
-      canAddLanes={true}
-      onCardAdd={this.cardAdd.bind(this)}
-    />;
+    if (typeof window !== "undefined") {
+      const Board = require("@asseinfo/react-kanban").default;
+
+      return <div id="dnd-container">
+        <Board
+          initialBoard={trello}
+          allowRemoveColumn
+          allowRenameColumn
+          allowRemoveCard
+          onColumnRemove={console.log}
+          onCardRemove={console.log}
+          onLaneRename={console.log}
+          allowAddCard={{on: "top"}}
+          onNewCardConfirm={draftCard => ({
+            id: new Date().getTime(),
+            ...draftCard
+          })}
+          onCardNew={console.log}
+        />
+      </div>;
+    }
+    else {
+      return "Loading...";
+    }
 
   }
 
