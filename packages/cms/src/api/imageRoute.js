@@ -46,7 +46,7 @@ const getParentMemberWithImage = async(db, member, meta) => {
       const parents = resp.data.data.reverse();
       for (const parent of parents) {
         let parentMember = await db.search.findOne({
-          where: {dimension, id: parent.value},
+          where: {dimension, id: parent.value, cubeName},
           include: imageInclude
         }).catch(catcher);
         if (parentMember) {
