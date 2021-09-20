@@ -794,7 +794,10 @@ module.exports = function(app) {
         {association: "content", attributes: ["name", "title", "image", "twitter", "bio", "locale"]}
       ]}
     ]}).catch(catcher);
-    stories = stories.map(story => extractLocaleContent(story.toJSON(), locale, "story"));
+    const now = Date.now();
+    stories = stories
+      .map(story => extractLocaleContent(story.toJSON(), locale, "story"))
+      .filter(story => story.date < now);
     return res.json(stories.sort(sorter));
   });
 
