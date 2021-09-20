@@ -15,6 +15,13 @@ import CanonProvider from "./CanonProvider";
 
 import serialize from "serialize-javascript";
 
+const adobeAnalyticsHead = process.env.CANON_ADOBE_ANALYTICS === undefined ? ""
+  : `
+    <!-- Adobe Launch Analytics -->
+    <script src="${process.env.CANON_ADOBE_ANALYTICS}" async defer></script>
+    <!-- End Adobe Launch Analytics -->
+    `;
+
 const tagManagerHead = process.env.CANON_GOOGLE_TAG_MANAGER === undefined ? ""
   : `
     <!-- Google Tag Manager -->
@@ -156,7 +163,7 @@ export default function(defaultStore = {}, headerConfig, reduxMiddleware = false
             res.status(status).send(`<!doctype html>
 <html dir="${ rtl ? "rtl" : "ltr" }" ${htmlAttrs}${defaultAttrs}>
   <head>
-    ${tagManagerHead}${pixelScript}${baseTag}
+    ${adobeAnalyticsHead}${tagManagerHead}${pixelScript}${baseTag}
     ${ pretty(header.title.toString()).replace(/\n/g, "\n    ") }
 
     ${ pretty(header.meta.toString()).replace(/\n/g, "\n    ") }
