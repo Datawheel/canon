@@ -451,6 +451,31 @@ By setting the following environment variables:
 export CANON_LOGINS=true
 ```
 
+and adding the canon-core models to your canon.js configuration file:
+
+```js
+module.exports = {
+  db: [
+    {
+      host: process.env.CANON_DB_HOST || "localhost",
+      name: process.env.CANON_DB_NAME,
+      user: process.env.CANON_DB_USER,
+      pass: process.env.CANON_DB_PW,
+      tables: [
+        require("@datawheel/canon-cms/models"),
+        require("@datawheel/canon-core/models")     # add this line
+      ]
+    }
+  ],
+  express: {
+    bodyParser: {
+      json: {limit: "1000mb"}
+    }
+  }
+};
+
+```
+
 Canon will automatically instantiate a "users" table in the specified database to enable full user management. At this point, all that is needed in your application is to use the Login and Signup components exported by Canon:
 
 ```jsx
