@@ -466,12 +466,7 @@ module.exports = {
         require("@datawheel/canon-core/models")     # add this line
       ]
     }
-  ],
-  express: {
-    bodyParser: {
-      json: {limit: "1000mb"}
-    }
-  }
+  ]
 };
 
 ```
