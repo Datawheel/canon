@@ -96,7 +96,7 @@ const fixSelector = (selector, dynamic) => {
 // Perform a local varswap
 module.exports = (rawProfile, variables, formatterFunctions, locale, query = {}) => {
   let profile = sortProfile(extractLocaleContent(rawProfile, locale, "profile"));
-  
+
   profile.sections.forEach(section => {
     section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
   });
@@ -118,7 +118,7 @@ module.exports = (rawProfile, variables, formatterFunctions, locale, query = {})
       }
     }
   });
-  
+
   profile = varSwapRecursive(profile, formatterFunctions, variables, query);
   // If the user provided selectors in the query, then the user has changed a dropdown.
   // This means that OTHER dropdowns on the page need to be set to match. To accomplish
@@ -127,7 +127,9 @@ module.exports = (rawProfile, variables, formatterFunctions, locale, query = {})
   profile.sections.forEach(section => {
     section.selectors.forEach(selector => {
       const {name, options} = selector;
-      const selections = query[name] !== undefined ? query[name].split(",") : false;
+      // Parse out the queries into arrays. Though they should be strings like "state25,state36", also support
+      // when the query is already an array, which happens when it comes from Selector.jsx
+      const selections = query[name] !== undefined ? typeof query[name] === "string" ? query[name].split(",") : Array.isArray(query[name]) ? query[name] : false : false;
       // If the user provided a selector in the query, AND if it's actually an option
       // However, remember that a multi-select with a blank query param is valid
       const isBlankMulti = selector.type === "multi" && selections.length === 1 && selections[0] === "";
@@ -141,5 +143,5 @@ module.exports = (rawProfile, variables, formatterFunctions, locale, query = {})
   // remove these from the top-level objects before returning the profile (remember, they are kept down in _rawProfile)
   delete profile.allSelectors;
   delete profile.allMaterializers;
-  return profile;   
+  return profile;
 };
