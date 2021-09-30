@@ -47,8 +47,9 @@ const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}, 
   if (obj.allSelectors) {
     selectors = obj.allSelectors.map(s => {
       const selector = {};
-      // If the option provided in the query is one of the available options for this selector
-      const selections = query[s.name] !== undefined ? query[s.name].split(",") : false;
+      // Parse out the queries into arrays. Though they should be strings like "state25,state36", also support
+      // when the query is already an array, which happens when it comes from Selector.jsx
+      const selections = query[s.name] !== undefined ? typeof query[s.name] === "string" ? query[s.name].split(",") : Array.isArray(query[s.name]) ? query[s.name] : false : false;
       let options = [];
       if (s.dynamic) {
         // Dynamic selectors don't actually have options, only a dynamic field that points to a variable.
