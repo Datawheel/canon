@@ -191,7 +191,7 @@
       }
     }
 
-    &.inputFontSize-sm, @mixin max-sm {
+    &.inputFontSize-sm {
       & .cms-profilesearch-icon {
         width: 0.35em;
         left: 0.22em;
