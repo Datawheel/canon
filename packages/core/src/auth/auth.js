@@ -41,7 +41,12 @@ module.exports = function(app) {
     })
   );
 
-  app.get("/auth/isAuthenticated", isAuthenticated, (req, res) => res.json({...req.user, authenticated: true}));
+  app.get("/auth/isAuthenticated", isAuthenticated, (req, res) => {
+    const sanitizedUser = {...req.user, authenticated: true};
+    delete sanitizedUser.password;
+    delete sanitizedUser.salt;
+    return res.json(sanitizedUser);
+  });
 
   app.get("/auth/logout", (req, res) => {
     req.logout();
