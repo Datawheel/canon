@@ -27,20 +27,27 @@ class Toolbox extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const oldSlugs = prevProps.status.previews ? prevProps.status.previews.map(p => p.slug).join() : prevProps.status.previews;
-    const newSlugs = this.props.status.previews ? this.props.status.previews.map(p => p.slug).join() : this.props.status.previews;
-    const oldIDs = prevProps.status.previews ? prevProps.status.previews.map(p => p.id).join() : prevProps.status.previews;
-    const newIDs = this.props.status.previews ? this.props.status.previews.map(p => p.id).join() : this.props.status.previews;
-    const changedSinglePreview = oldSlugs === newSlugs && oldIDs !== newIDs;
-    const changedEntireProfile = oldSlugs !== newSlugs;
-    const changedLocale = prevProps.status.localeSecondary !== this.props.status.localeSecondary;
+    const {type} = this.props;
+    if (type === "profile") {
+      const oldSlugs = prevProps.status.previews ? prevProps.status.previews.map(p => p.slug).join() : prevProps.status.previews;
+      const newSlugs = this.props.status.previews ? this.props.status.previews.map(p => p.slug).join() : this.props.status.previews;
+      const oldIDs = prevProps.status.previews ? prevProps.status.previews.map(p => p.id).join() : prevProps.status.previews;
+      const newIDs = this.props.status.previews ? this.props.status.previews.map(p => p.id).join() : this.props.status.previews;
+      const changedSinglePreview = oldSlugs === newSlugs && oldIDs !== newIDs;
+      const changedEntireProfile = oldSlugs !== newSlugs;
+      const changedLocale = prevProps.status.localeSecondary !== this.props.status.localeSecondary;
 
-    // TODO: This can be streamlined to make use of a caching system (see NavBar.jsx and profiles.js)
-    // When a profile is loaded, save its current previews and variables (all we have is variables right now) and
-    // Responsibly reload them when changing entire profile. For now, deal with the more heavy reload
-    if (changedSinglePreview || changedEntireProfile || changedLocale) {
-      this.props.fetchVariables();
+      // TODO: This can be streamlined to make use of a caching system (see NavBar.jsx and profiles.js)
+      // When a profile is loaded, save its current previews and variables (all we have is variables right now) and
+      // Responsibly reload them when changing entire profile. For now, deal with the more heavy reload
+      if (changedSinglePreview || changedEntireProfile || changedLocale) {
+        this.props.fetchVariables();
+      }
     }
+    if (type === "story") {
+      if (prevProps.id !== this.props.id) this.props.fetchVariables();
+    }
+
     // Detect Deletions
     const {justDeleted} = this.props.status;
     if (JSON.stringify(prevProps.status.justDeleted) !== JSON.stringify(justDeleted)) {
@@ -101,14 +108,12 @@ class Toolbox extends Component {
 
   render() {
     const {view, query} = this.state;
-    const {children, toolboxVisible} = this.props;
+    const {children, toolboxVisible, type} = this.props;
     const {profile, variables} = this.props;
     const formattersAll = this.props.formatters;
     const {localeDefault, localeSecondary, dialogOpen} = this.props.status;
 
-    const dataLoaded = profile;
-
-    if (!dataLoaded) return null;
+    if (!profile) return null;
 
     const varsLoaded = variables;
     const defLoaded = localeSecondary || variables && !localeSecondary && variables[localeDefault];
@@ -127,7 +132,7 @@ class Toolbox extends Component {
       .map(d => Object.assign({}, {type: "generator"}, d))
       .filter(this.filterFunc.bind(this));
 
-    if (this.props.status.profilesLoaded) generators = [attrGen].concat(generators);
+    if (type === "profile" && this.props.status.profilesLoaded) generators = [attrGen].concat(generators);
 
     const materializers = profile.materializers
       .sort((a, b) => a.ordering - b.ordering)
@@ -249,6 +254,7 @@ class Toolbox extends Component {
                   type="generator"
                   readOnly={i === 0}
                   compact={view === "lite"}
+                  parentType={type}
                   usePortalForAlert
                 />
               )}
@@ -270,6 +276,7 @@ class Toolbox extends Component {
                   type="materializer"
                   showReorderButton={materializers[materializers.length - 1].id !== m.id}
                   compact={view === "lite"}
+                  parentType={type}
                   usePortalForAlert
                 />
               )}
@@ -287,6 +294,7 @@ class Toolbox extends Component {
                   key={s.id}
                   minData={s}
                   compact={view === "lite"}
+                  parentType={type}
                   usePortalForAlert
                 />
               )}
@@ -320,7 +328,7 @@ class Toolbox extends Component {
 const mapStateToProps = (state, ownProps) => ({
   variables: state.cms.variables,
   status: state.cms.status,
-  profile: state.cms.profiles.find(p => p.id === ownProps.id),
+  profile: state.cms[ownProps.type === "profile" ? "profiles" : "stories"].find(p => p.id === ownProps.id),
   formatters: state.cms.formatters
 });
 
