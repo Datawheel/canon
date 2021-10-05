@@ -27,9 +27,9 @@ const profileReqFull = {
 const storyReqFull = {
   include: [
     {association: "content", separate: true},
-    {association: "generators", separate: true},
-    {association: "materializers", separate: true},
-    {association: "selectors", separate: true},
+    {association: "storygenerators", separate: true},
+    {association: "storymaterializers", separate: true},
+    {association: "storyselectors", separate: true},
     {association: "authors", include: [{association: "content", separate: true}], separate: true},
     {association: "descriptions", include: [{association: "content", separate: true}], separate: true},
     {association: "footnotes", include: [{association: "content", separate: true}], separate: true},
