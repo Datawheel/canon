@@ -116,12 +116,9 @@ function commonLoaders(props) {
         presets: babelPresets,
         plugins: babelPlugins
       },
-      exclude: [
-        path.join(rootDir, "node_modules/mapbox-gl")
-      ],
       include: [
         path.join(rootDir, "app"),
-        path.join(rootDir, "node_modules"),
+        path.join(rootDir, "node_modules/@datawheel"),
         path.join(rootDir, "../packages"),
         path.join(rootDir, "utils"),
         path.resolve(rootDir, "canon.js")
