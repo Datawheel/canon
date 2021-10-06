@@ -3,7 +3,7 @@
   "sideEffects": [
     "*.css"
   ],
-  "version": "0.24.2",
+  "version": "0.25.0",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "./src/index.js",
   "types": "./types/index.d.ts",
@@ -80,6 +80,7 @@
     "d3-array": "^2.11.0",
     "d3-selection": "^2.0.0",
     "d3plus-common": "^1.0.2",
+    "d3plus-text": "^1.0.2",
     "dom4": "^2.1.5",
     "es6-promise": "^4.1.0",
     "express": "^4.16.2",
