@@ -460,7 +460,7 @@ module.exports = function(app) {
     const {variables} = req.body;
     const materializer = await db.story_materializer.findOne({where: {story_id: pid}}).catch(catcher);
     if (!materializer) return res.json({});
-    return res.json(await runMaterializers(req, variables, materializer.profile_id, true));
+    return res.json(await runMaterializers(req, variables, materializer.story_id, true));
   });
 
   /* Main API Route to fetch a profile, given a list of slug/id pairs

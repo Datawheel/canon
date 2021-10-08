@@ -380,7 +380,7 @@ export function fetchVariables(config) {
       let paramString = previews.reduce((acc, p, i) => `${acc}&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`, "");
       if (config.id && ["generator", "materializer", "story_generator", "story_materializer"].includes(config.type)) paramString += `&${config.type}=${config.id}`;
       if (config.type.includes("generator")) {
-        // If given an id, clear that generator. If not given an, this is a first run, clear everything.
+        // If given an id, clear that generator. If not given an id, this is a first run, clear everything.
         const gids = config.id ? [config.id] : thisProfile.generators.map(d => d.id);
         for (const gid of gids) {
           if (variables[thisLocale]._genStatus[gid]) {
