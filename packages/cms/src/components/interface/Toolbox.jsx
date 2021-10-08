@@ -41,11 +41,11 @@ class Toolbox extends Component {
       // When a profile is loaded, save its current previews and variables (all we have is variables right now) and
       // Responsibly reload them when changing entire profile. For now, deal with the more heavy reload
       if (changedSinglePreview || changedEntireProfile || changedLocale) {
-        this.props.fetchVariables();
+        this.props.fetchVariables({type: "generator"});
       }
     }
     if (parentType === "story") {
-      if (prevProps.id !== this.props.id) this.props.fetchVariables({parentType: "story"});
+      if (prevProps.id !== this.props.id) this.props.fetchVariables({type: "story_generator"});
     }
 
     // Detect Deletions
@@ -64,14 +64,7 @@ class Toolbox extends Component {
 
   addItem(type) {
     const {parentType} = this.props;
-    let payload;
-    if (parentType === "story") {
-      if (["generator", "materializer", "selector"].includes(type)) type = `story_${type}`;
-      payload = {story_id: this.props.profile.id};
-    }
-    else {
-      payload = {profile_id: this.props.profile.id};
-    }
+    const payload = parentType === "story" ? {story_id: this.props.profile.id} : {profile_id: this.props.profile.id};
     this.props.newEntity(type, payload);
   }
 
@@ -113,6 +106,10 @@ class Toolbox extends Component {
         this.props.setStatus({dialogOpen: {type: "materializer", id: Number(id), force: true}});
       }
     });
+  }
+
+  maybePrepend(d) {
+    return `${this.props.parentType === "story" ? "story_" : ""}${d}`;
   }
 
   render() {
@@ -179,6 +176,8 @@ class Toolbox extends Component {
     }
 
     const fullView = view === "lite" || view === "detail";
+
+
 
     return (
       <aside className={`cms-toolbox ${toolboxVisible ? "is-visible" : "is-hidden"}${dialogOpen ? " has-open-dialog" : ""}`}>
@@ -252,16 +251,16 @@ class Toolbox extends Component {
           {(showGenerators || dialogOpen) &&
             <Deck
               title="Generators"
-              entity="generator"
+              entity={this.maybePrepend.bind(this)("generator")}
               description="Variables constructed from JSON data calls."
-              addItem={this.addItem.bind(this, "generator")}
+              addItem={this.addItem.bind(this, this.maybePrepend.bind(this)("generator"))}
               cards={generators.map((g, i) =>
                 <VariableCard
                   key={g.id}
                   minData={g}
-                  context="generator"
+                  context={this.maybePrepend.bind(this)("generator")}
                   hidden={!fullView}
-                  type="generator"
+                  type={this.maybePrepend.bind(this)("generator")}
                   readOnly={i === 0}
                   compact={view === "lite"}
                   parentType={parentType}
@@ -274,16 +273,16 @@ class Toolbox extends Component {
           {(showMaterializers || dialogOpen) &&
             <Deck
               title="Materializers"
-              entity="materializer"
+              entity={this.maybePrepend.bind(this)("materializer")}
               description="Variables constructed from other variables. No API calls needed."
-              addItem={this.addItem.bind(this, "materializer")}
+              addItem={this.addItem.bind(this, this.maybePrepend.bind(this)("materializer"))}
               cards={materializers.map(m =>
                 <VariableCard
                   key={m.id}
                   minData={m}
-                  context="materializer"
+                  context={this.maybePrepend.bind(this)("materializer")}
                   hidden={!fullView}
-                  type="materializer"
+                  type={this.maybePrepend.bind(this)("materializer")}
                   showReorderButton={materializers[materializers.length - 1].id !== m.id}
                   compact={view === "lite"}
                   parentType={parentType}
@@ -296,9 +295,9 @@ class Toolbox extends Component {
           { fullView && showSelectors &&
             <Deck
               title="Selectors"
-              entity="selector"
+              entity={this.maybePrepend.bind(this)("selector")}
               description="Profile-wide Selectors."
-              addItem={this.addItem.bind(this, "selector")}
+              addItem={this.addItem.bind(this, this.maybePrepend.bind(this)("selector"))}
               cards={selectors.map(s =>
                 <SelectorCard
                   key={s.id}

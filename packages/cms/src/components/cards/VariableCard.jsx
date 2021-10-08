@@ -17,7 +17,10 @@ import {setStatus} from "../../actions/status";
 
 import "./VariableCard.css";
 
+const isGenMat = d => ["generator", "materializer", "story_generator", "story_materializer"].includes(d);
+
 class VariableCard extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
@@ -44,14 +47,18 @@ class VariableCard extends Component {
     const {type, minData} = this.props;
     const {id} = minData;
 
-    const didUpdate = this.props.status.justUpdated && this.props.status.justUpdated.type === type && this.props.status.justUpdated.id === this.props.minData.id && JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
+    const didUpdate =
+      this.props.status.justUpdated &&
+      this.props.status.justUpdated.type === type &&
+      this.props.status.justUpdated.id === this.props.minData.id &&
+      JSON.stringify(this.props.status.justUpdated) !== JSON.stringify(prevProps.status.justUpdated);
     if (didUpdate) {
       const Toast = this.context.toast.current;
       const {status} = this.props.status.justUpdated;
       if (status === "SUCCESS") {
         Toast.show({icon: "saved", intent: Intent.SUCCESS, message: "Saved!", timeout: 1000});
         // If a gen/mat was saved, re-run fetchvariables for just this one gen/mat.
-        if (type === "generator" || type === "materializer") {
+        if (isGenMat(type)) {
           const config = {type, id: minData.id};
           this.props.fetchVariables(config);
           // Unlike other cards, who can simply set dialogOpen:false in status.js in redux, a gen/mat may have
@@ -73,7 +80,7 @@ class VariableCard extends Component {
     // If diffCounter incremented, it means a variables update completed, either from this card saving,
     // or from ANOTHER card saving. If it was this card, we need to update the front panel, if it was another card,
     // we may need to update whether this card contains a duplicate. Either way, format the display.
-    if (type === "generator" || type === "materializer") {
+    if (isGenMat(type)) {
       const variablesChanged = prevProps.status.diffCounter !== this.props.status.diffCounter;
       if (variablesChanged) this.formatDisplay.bind(this)();
     }
@@ -95,27 +102,27 @@ class VariableCard extends Component {
     let dupes = [];
     let size = 0;
     let duration = false;
-    if (type === "generator") {
+    if (type === "generator" || type === "story_generator") {
       displayData = variables._genStatus[id];
       if (localeSecondary) {
         secondaryDisplayData = secondaryVariables._genStatus[id];
       }
       if (variables._genStatus.durations) duration = variables._genStatus.durations[id];
     }
-    else if (type === "materializer") {
+    else if (type === "materializer" || type === "story_materalizer") {
       displayData = variables._matStatus[id];
       if (localeSecondary) {
         secondaryDisplayData = secondaryVariables._matStatus[id];
       }
     }
-    if (type === "generator" || type === "materializer") {
-      const status = type === "generator" ? "_genStatus" : "_matStatus";
+    if (isGenMat(type)) {
+      const status = type === "generator" || type === "story_generator" ? "_genStatus" : "_matStatus";
       const theseVars = variables[status][id];
       if (theseVars) {
         const otherGens = Object.keys(variables._genStatus).reduce((acc, _id) =>
-          type === "materializer" || String(id) !== String(_id) ? Object.assign({}, acc, variables._genStatus[_id]) : acc, {});
+          type === "materializer" || type === "story_materializer" || String(id) !== String(_id) ? Object.assign({}, acc, variables._genStatus[_id]) : acc, {});
         const otherMats = Object.keys(variables._matStatus).reduce((acc, _id) =>
-          type === "generator" || String(id) !== String(_id) ? Object.assign({}, acc, variables._matStatus[_id]) : acc, {});
+          type === "generator" || type === "story_generator" || String(id) !== String(_id) ? Object.assign({}, acc, variables._matStatus[_id]) : acc, {});
         const thoseVars = {...otherGens, ...otherMats};
         dupes = dupes.concat(Object.keys(theseVars).reduce((acc, k) => k !== "error" && thoseVars[k] !== undefined ? acc.concat(k) : acc, []));
         size = JSON.stringify(theseVars).length;

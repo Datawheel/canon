@@ -307,7 +307,7 @@ export function fetchVariables(config) {
     dispatch({type: "VARIABLES_FETCH", data: "Generators"});
     const {localeDefault, localeSecondary, currentPid, currentStoryPid} = getStore().cms.status;
     const {auth} = getStore();
-    const isStory = config && config.parentType === "story";
+    const isStory = config.type.includes("story_");
     const previews = isStory ? [] : getStore().cms.status.previews;
 
     const thisProfile = isStory
@@ -370,11 +370,10 @@ export function fetchVariables(config) {
       if (!variables[thisLocale]._genStatus.durations) variables[thisLocale]._genStatus.durations = {};
       variables[thisLocale]._genStatus.durations.attributes = durationByLocale[thisLocale];
       let paramString = previews.reduce((acc, p, i) => `${acc}&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`, "");
-      if (config && (config.type === "materializer" || config.type === "generator")) paramString += `&${config.type}=${config.id}`;
-      if (isStory) paramString += "&parentType=story";
-      if (!config || config && config.type === "generator") {
-        // If given a config, clear that generator. If not given a config, this is a first run, clear everything.
-        const gids = config ? [config.id] : thisProfile.generators.map(d => d.id);
+      if (config.id && ["generator", "materializer", "story_generator", "story_materializer"].includes(config.type)) paramString += `&${config.type}=${config.id}`;
+      if (config.type.includes("generator")) {
+        // If given an id, clear that generator. If not given an, this is a first run, clear everything.
+        const gids = config.id ? [config.id] : thisProfile.generators.map(d => d.id);
         for (const gid of gids) {
           if (variables[thisLocale]._genStatus[gid]) {
             Object.keys(variables[thisLocale]._genStatus[gid]).forEach(k => {
@@ -383,7 +382,8 @@ export function fetchVariables(config) {
           }
           delete variables[thisLocale]._genStatus[gid];
         }
-        const gen = await axios.post(`${getStore().env.CANON_API}/api/generators/${thisID}?locale=${thisLocale}${paramString}`, {attributes}).catch(catcher);
+        const endpoint = isStory ? "story_generators" : "generators";
+        const gen = await axios.post(`${getStore().env.CANON_API}/api/${endpoint}/${thisID}?locale=${thisLocale}${paramString}`, {attributes}).catch(catcher);
         variables[thisLocale] = assign({}, variables[thisLocale], gen.data);
       }
       dispatch({type: "VARIABLES_FETCH", data: "Materializers"});
@@ -394,7 +394,8 @@ export function fetchVariables(config) {
         });
         delete variables[thisLocale]._matStatus[mid];
       });
-      const mat = await axios.post(`${getStore().env.CANON_API}/api/materializers/${thisID}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).catch(catcher);
+      const endpoint = isStory ? "story_materializers" : "materializers";
+      const mat = await axios.post(`${getStore().env.CANON_API}/api/${endpoint}/${thisID}?locale=${thisLocale}${paramString}`, {variables: variables[thisLocale]}).catch(catcher);
       variables[thisLocale] = assign({}, variables[thisLocale], mat.data);
       const diffCounter = getStore().cms.status.diffCounter + 1;
       dispatch({type: "VARIABLES_SET", data: {variables}});

@@ -413,18 +413,20 @@ module.exports = function(app) {
 
   };
 
-  app.get("/api/generators/:pid", async(req, res) =>
-    req.params.parentType === "story"
-      ? res.json(await runStoryGenerators(req, req.params.pid, req.query.generator))
-      : res.json(await runGenerators(req, req.params.pid, req.query.generator)));
-  app.post("/api/generators/:pid", async(req, res) =>
-    req.params.parentType === "story"
-      ? res.json(await runStoryGenerators(req, req.params.pid, req.query.generator, req.body.attributes))
-      : res.json(await runGenerators(req, req.params.pid, req.query.generator, req.body.attributes)));
+  app.get("/api/story_generators/:pid", async(req, res) => res.json(await runStoryGenerators(req, req.params.pid, req.query.story_generator)));
+  app.post("/api/story_generators/:pid", async(req, res) => res.json(await runStoryGenerators(req, req.params.pid, req.query.story_generator, req.body.attributes)));
+  app.get("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator)));
+  app.post("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator, req.body.attributes)));
 
-  const runMaterializers = async(req, variables, pid) => {
+  const runMaterializers = async(req, variables, pid, isStory) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
-    let materializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
+    let materializers;
+    if (isStory) {
+      materializers = await db.story_materializer.findAll({where: {story_id: pid}}).catch(catcher);
+    }
+    else {
+      materializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
+    }
     materializers = materializers
       .map(m => m.toJSON())
       .filter(m => !m.allowed || m.allowed === "always" || variables[m.allowed]);
@@ -451,6 +453,14 @@ module.exports = function(app) {
     const materializer = await db.materializer.findOne({where: {profile_id: pid}}).catch(catcher);
     if (!materializer) return res.json({});
     return res.json(await runMaterializers(req, variables, materializer.profile_id));
+  });
+
+  app.post("/api/story_materializers/:pid", async(req, res) => {
+    const {pid} = req.params;
+    const {variables} = req.body;
+    const materializer = await db.story_materializer.findOne({where: {story_id: pid}}).catch(catcher);
+    if (!materializer) return res.json({});
+    return res.json(await runMaterializers(req, variables, materializer.profile_id, true));
   });
 
   /* Main API Route to fetch a profile, given a list of slug/id pairs

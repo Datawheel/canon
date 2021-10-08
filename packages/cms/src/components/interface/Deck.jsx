@@ -24,7 +24,7 @@ export default class Deck extends Component {
     const entity = this.props.entity || title.toLowerCase();
 
     let inToolbox = false;
-    if (entity === "generator" || entity === "materializer" || entity === "formatter" || entity === "selector") {
+    if (["generator", "materializer", "formatter", "selector", "story_generator", "story_materializer", "story_selector"].includes(entity)) {
       inToolbox = true;
     }
 
@@ -38,7 +38,7 @@ export default class Deck extends Component {
             <span className="u-visually-hidden"> ({isOpen ? "collapse" : "open"} section)</span>
             <Icon className="cms-deck-button-icon" icon="caret-down" />
           </button>
-          {(cards && cards.length > 0 && addItem) || inToolbox === true
+          {cards && cards.length > 0 && addItem || inToolbox === true
             ? <Button onClick={addItem} className="cms-deck-heading-add-button" fontSize="xxs" namespace="cms" icon="plus">
               add {entity === "description" ? "paragraph" : entity}
             </Button>
