@@ -26,6 +26,12 @@ class Toolbox extends Component {
     };
   }
 
+  componentDidMount() {
+    const {parentType} = this.props;
+    const type = `${parentType === "story" ? "story_" : ""}generator`;
+    this.props.fetchVariables({type});
+  }
+
   componentDidUpdate(prevProps) {
     const {parentType} = this.props;
     if (parentType === "profile") {

@@ -296,6 +296,14 @@ export function resetPreviews() {
   };
 }
 
+/** */
+export function clearPreviews() {
+  return async function(dispatch) {
+    const previews = [];
+    dispatch({type: "STATUS_SET", data: {previews}});
+  };
+}
+
 /**
  * Certain events in the Editors, such as saving a generator, can change the resulting
  * variables object. In order to ensure that this new variables object is passed down to
