@@ -27,8 +27,8 @@ class Toolbox extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {type} = this.props;
-    if (type === "profile") {
+    const {parentType} = this.props;
+    if (parentType === "profile") {
       const oldSlugs = prevProps.status.previews ? prevProps.status.previews.map(p => p.slug).join() : prevProps.status.previews;
       const newSlugs = this.props.status.previews ? this.props.status.previews.map(p => p.slug).join() : this.props.status.previews;
       const oldIDs = prevProps.status.previews ? prevProps.status.previews.map(p => p.id).join() : prevProps.status.previews;
@@ -44,8 +44,8 @@ class Toolbox extends Component {
         this.props.fetchVariables();
       }
     }
-    if (type === "story") {
-      if (prevProps.id !== this.props.id) this.props.fetchVariables();
+    if (parentType === "story") {
+      if (prevProps.id !== this.props.id) this.props.fetchVariables({parentType: "story"});
     }
 
     // Detect Deletions
@@ -63,7 +63,16 @@ class Toolbox extends Component {
   }
 
   addItem(type) {
-    this.props.newEntity(type, {profile_id: this.props.profile.id});
+    const {parentType} = this.props;
+    let payload;
+    if (parentType === "story") {
+      if (["generator", "materializer", "selector"].includes(type)) type = `story_${type}`;
+      payload = {story_id: this.props.profile.id};
+    }
+    else {
+      payload = {profile_id: this.props.profile.id};
+    }
+    this.props.newEntity(type, payload);
   }
 
   filter(e) {
@@ -108,7 +117,7 @@ class Toolbox extends Component {
 
   render() {
     const {view, query} = this.state;
-    const {children, toolboxVisible, type} = this.props;
+    const {children, toolboxVisible, parentType} = this.props;
     const {profile, variables} = this.props;
     const formattersAll = this.props.formatters;
     const {localeDefault, localeSecondary, dialogOpen} = this.props.status;
@@ -132,7 +141,7 @@ class Toolbox extends Component {
       .map(d => Object.assign({}, {type: "generator"}, d))
       .filter(this.filterFunc.bind(this));
 
-    if (type === "profile" && this.props.status.profilesLoaded) generators = [attrGen].concat(generators);
+    if (parentType === "profile" && this.props.status.profilesLoaded) generators = [attrGen].concat(generators);
 
     const materializers = profile.materializers
       .sort((a, b) => a.ordering - b.ordering)
@@ -254,7 +263,7 @@ class Toolbox extends Component {
                   type="generator"
                   readOnly={i === 0}
                   compact={view === "lite"}
-                  parentType={type}
+                  parentType={parentType}
                   usePortalForAlert
                 />
               )}
@@ -276,7 +285,7 @@ class Toolbox extends Component {
                   type="materializer"
                   showReorderButton={materializers[materializers.length - 1].id !== m.id}
                   compact={view === "lite"}
-                  parentType={type}
+                  parentType={parentType}
                   usePortalForAlert
                 />
               )}
@@ -294,7 +303,7 @@ class Toolbox extends Component {
                   key={s.id}
                   minData={s}
                   compact={view === "lite"}
-                  parentType={type}
+                  parentType={parentType}
                   usePortalForAlert
                 />
               )}
@@ -324,6 +333,10 @@ class Toolbox extends Component {
     );
   }
 }
+
+Toolbox.defaultProps = {
+  parentType: "profile"
+};
 
 const mapStateToProps = (state, ownProps) => ({
   variables: state.cms.variables,

@@ -35,7 +35,7 @@ axios.interceptors.response.use(d => {
   return d;
 }, e => Promise.reject(e));
 
-const getConfig = () => {
+const getConfig = (opt = {}) => {
   const config = {};
   if (OLAP_PROXY_SECRET) {
     const jwtPayload = {sub: "server", status: "valid"};
@@ -43,7 +43,7 @@ const getConfig = () => {
     const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
     config.headers = {"x-tesseract-jwt-token": apiToken};
   }
-  return config;
+  return {...config, ...opt};
 };
 
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "canon";
@@ -233,6 +233,68 @@ module.exports = function(app) {
     return attr;
   };
 
+  const createGeneratorFetch = (req, locale, r, attr) => {
+    // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
+    const origin = `${ req.protocol }://${ req.headers.host }`;
+    let url = urlSwap(r, {...req.params, ...cache, ...attr, ...canonVars, locale});
+    if (url.indexOf("http") !== 0) {
+      url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
+    }
+
+    const config = getConfig({timeout: GENERATOR_TIMEOUT});
+
+    return axios.get(url, config)
+      .then(resp => {
+        if (verbose) console.log("Variable Loaded:", url);
+        return resp;
+      })
+      .catch(() => {
+        if (verbose) console.log("Variable Error:", url);
+        return {};
+      });
+  };
+
+  const runStoryGenerators = async(req, pid, id, smallAttr = {}) => {
+    const locale = req.query.locale ? req.query.locale : envLoc;
+    const genObj = id ? {where: {id}} : {where: {story_id: pid}};
+    let generators = await db.story_generator.findAll(genObj).catch(catcher);
+    generators = generators
+      .map(g => g.toJSON())
+      .filter(g => !g.allowed || g.allowed === "always" || smallAttr[g.allowed]);
+    if (id && generators.length === 0) return {};
+
+    const formatterFunctions = await formatters4eval(db, locale);
+
+    const requests = Array.from(new Set(generators.map(g => g.api)));
+    const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, req, locale, url, smallAttr)));
+    const results = await Promise.all(fetches).catch(catcher);
+
+    // Seed the return variables with the stripped-down attr object
+    let returnVariables = {...smallAttr};
+    const genStatus = {};
+    const durations = {};
+    results.forEach((r, i) => {
+      // For every API result, find ONLY the generators that depend on this data
+      const requiredGenerators = generators.filter(g => g.api === requests[i]);
+      // Build the return object using a reducer, one generator at a time
+      returnVariables = requiredGenerators.reduce((acc, g) => {
+        const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions, locale, smallAttr);
+        if (typeof evalResults.vars !== "object") evalResults.vars = {};
+        // genStatus is used to track the status of each individual generator
+        genStatus[g.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
+        durations[g.id] = r.requestDuration;
+        // Fold the generated variables into the accumulating returnVariables
+        return {...acc, ...evalResults.vars};
+      }, returnVariables);
+    });
+    // Set genstatus for all ids
+    returnVariables._genStatus = genStatus;
+    // Inject a special, hard-coded attr genstatus for the front-end
+    returnVariables._genStatus.attributes = smallAttr;
+    returnVariables._genStatus.durations = durations;
+    return returnVariables;
+  };
+
   const runGenerators = async(req, pid, id, smallAttr) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
     const dims = collate(req.query);
@@ -278,34 +340,10 @@ module.exports = function(app) {
       .filter(g => !g.allowed || g.allowed === "always" || smallAttr[g.allowed]);
     if (id && generators.length === 0) return {};
 
-    /** */
-    function createGeneratorFetch(r, attr) {
-      // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
-      const origin = `${ req.protocol }://${ req.headers.host }`;
-      let url = urlSwap(r, {...req.params, ...cache, ...attr, ...canonVars, locale});
-      if (url.indexOf("http") !== 0) {
-        url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
-      }
-
-      const config = getConfig();
-
-      config.timeout = GENERATOR_TIMEOUT;
-
-      return axios.get(url, config)
-        .then(resp => {
-          if (verbose) console.log("Variable Loaded:", url);
-          return resp;
-        })
-        .catch(() => {
-          if (verbose) console.log("Variable Error:", url);
-          return {};
-        });
-    }
-
     const formatterFunctions = await formatters4eval(db, locale);
 
     const requests = Array.from(new Set(generators.map(g => g.api)));
-    const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, url, smallAttr)));
+    const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, req, locale, url, smallAttr)));
     const results = await Promise.all(fetches).catch(catcher);
     // Inject cms_search-level slugs into the payload to help with making front-end links
     for (let i = 0; i < requests.length; i++) {
@@ -375,8 +413,14 @@ module.exports = function(app) {
 
   };
 
-  app.get("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator)));
-  app.post("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator, req.body.attributes)));
+  app.get("/api/generators/:pid", async(req, res) =>
+    req.params.parentType === "story"
+      ? res.json(await runStoryGenerators(req, req.params.pid, req.query.generator))
+      : res.json(await runGenerators(req, req.params.pid, req.query.generator)));
+  app.post("/api/generators/:pid", async(req, res) =>
+    req.params.parentType === "story"
+      ? res.json(await runStoryGenerators(req, req.params.pid, req.query.generator, req.body.attributes))
+      : res.json(await runGenerators(req, req.params.pid, req.query.generator, req.body.attributes)));
 
   const runMaterializers = async(req, variables, pid) => {
     const locale = req.query.locale ? req.query.locale : envLoc;

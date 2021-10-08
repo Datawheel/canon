@@ -86,7 +86,7 @@ class ProfileBuilder extends Component {
 
             <Toolbox
               id={currentPid}
-              type="profile"
+              parentType="profile"
               toolboxVisible={toolboxVisible}
             >
               <div className="cms-toolbox-collapse-wrapper u-hide-below-lg">

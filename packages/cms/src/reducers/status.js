@@ -1,11 +1,11 @@
 export default (status = {}, action) => {
-  
+
   const success = action && action.data && action.data.id ? {id: action.data.id, status: "SUCCESS"} : {};
   const error = action && action.data && action.data.id ? {id: action.data.id, status: "ERROR"} : {};
-  
+
   switch (action.type) {
     // Basic assign
-    case "STATUS_SET": 
+    case "STATUS_SET":
       return Object.assign({}, status, action.data);
     // Report loading completion of stories and profiles
     case "PROFILES_GET":
@@ -15,105 +15,105 @@ export default (status = {}, action) => {
     case "FORMATTER_GET":
       return Object.assign({}, status, {formattersLoaded: true});
     // Creation Detection
-    case "PROFILE_NEW": 
+    case "PROFILE_NEW":
       return Object.assign({}, status, {justCreated: {type: "profile", id: action.data.id}});
-    case "PROFILE_DUPLICATE": 
+    case "PROFILE_DUPLICATE":
       return Object.assign({}, status, {justCreated: {type: "profile", id: action.data.id}});
-    case "PROFILE_TRANSLATE": 
+    case "PROFILE_TRANSLATE":
       return Object.assign({}, status, {translationCounter: action.translationCounter});
     case "TRANSLATE_START":
       return Object.assign({}, status, {translationError: false});
-    case "TRANSLATE_ERROR": 
+    case "TRANSLATE_ERROR":
       return Object.assign({}, status, {translationCounter: action.translationCounter, translationError: action.error});
-    case "SECTION_NEW": 
+    case "SECTION_NEW":
       return Object.assign({}, status, {justCreated: {type: "section", id: action.data.id, profile_id: action.data.profile_id}});
-    case "SECTION_DUPLICATE": 
+    case "SECTION_DUPLICATE":
       return Object.assign({}, status, {justCreated: {type: "section", id: action.data.id, profile_id: action.data.profile_id}});
-    case "STORY_NEW": 
+    case "STORY_NEW":
       return Object.assign({}, status, {justCreated: {type: "story", id: action.data.id}});
-    case "STORYSECTION_NEW": 
+    case "STORYSECTION_NEW":
       return Object.assign({}, status, {justCreated: {type: "storysection", id: action.data.id, story_id: action.data.story_id}});
     // When toolbox items are added, force them open for editing. When they are updated, close them.
-    case "GENERATOR_NEW": 
+    case "GENERATOR_NEW":
       return Object.assign({}, status, {dialogOpen: {type: "generator", id: action.data.id, force: true}});
-    case "GENERATOR_DUPLICATE": 
+    case "GENERATOR_DUPLICATE":
       return Object.assign({}, status, {dialogOpen: {type: "generator", id: action.data.id, force: true}});
-    // Generator and Materializers do not include the same {dialogOpen: false} that other UPDATE reducers do. 
+    // Generator and Materializers do not include the same {dialogOpen: false} that other UPDATE reducers do.
     // This is because in the case where a generator is only shown using forceOpen (from output view)
     // We don't want it to disappear before it gets a chance to fetchVariables. See VariableCard.jsx for the dialogOpen:false
-    case "GENERATOR_UPDATE": 
+    case "GENERATOR_UPDATE":
       return Object.assign({}, status, {justUpdated: {type: "generator", ...success}});
-    case "MATERIALIZER_NEW": 
+    case "MATERIALIZER_NEW":
       return Object.assign({}, status, {dialogOpen: {type: "materializer", id: action.data.id, force: true}});
-    case "MATERIALIZER_DUPLICATE": 
+    case "MATERIALIZER_DUPLICATE":
       return Object.assign({}, status, {dialogOpen: {type: "materializer", id: action.data.id, force: true}});
-    case "MATERIALIZER_UPDATE": 
+    case "MATERIALIZER_UPDATE":
       return Object.assign({}, status, {justUpdated: {type: "materializer", ...success}});
-    case "SELECTOR_NEW": 
+    case "SELECTOR_NEW":
       return Object.assign({}, status, {dialogOpen: {type: "selector", id: action.data.id, force: true}});
-    case "SELECTOR_DUPLICATE": 
+    case "SELECTOR_DUPLICATE":
       return Object.assign({}, status, {dialogOpen: {type: "selector", id: action.data.id, force: true}});
-    case "SELECTOR_UPDATE": 
+    case "SELECTOR_UPDATE":
       return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "selector", ...success}});
-    case "SELECTOR_DELETE": 
+    case "SELECTOR_DELETE":
       return Object.assign({}, status, {dialogOpen: false});
-    case "FORMATTER_NEW": 
+    case "FORMATTER_NEW":
       return Object.assign({}, status, {dialogOpen: {type: "formatter", id: action.data.id, force: true}});
     // Updating a formatter means that some formatter logic changed. Bump the diffcounter.
-    case "FORMATTER_UPDATE": 
+    case "FORMATTER_UPDATE":
       return Object.assign({}, status, {dialogOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "formatter", ...success}});
-    case "FORMATTER_DELETE": 
+    case "FORMATTER_DELETE":
       return Object.assign({}, status, {dialogOpen: false, diffCounter: action.diffCounter});
     case "VARIABLES_FETCH":
       return Object.assign({}, status, {fetchingVariables: action.data});
     case "VARIABLES_FETCHED":
       return Object.assign({}, status, {fetchingVariables: false});
-    // Updating variables or saving a section or meta means that anything that depends on variables, such as TextCards 
+    // Updating variables or saving a section or meta means that anything that depends on variables, such as TextCards
     // Or the tree, needs to know something changed. Instead of running an expensive stringify on variables,
     // Just increment a counter that the various cards can subscribe to.
-    case "VARIABLES_DIFF": 
+    case "VARIABLES_DIFF":
       const newStatus = {};
       if (action.data.diffCounter) newStatus.diffCounter = action.data.diffCounter;
       return Object.assign({}, status, newStatus);
     // Updating sections could mean the title was updated. Bump a "diffcounter" that the Navbar tree can listen for to jigger a render
-    case "SECTION_UPDATE": 
+    case "SECTION_UPDATE":
       return Object.assign({}, status, {dialogOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "section", ...success}});
     // Section-wide translations update a ton of content in one go. This requires a massive TextCard-wide "jigger" to update their content
-    case "SECTION_TRANSLATE": 
+    case "SECTION_TRANSLATE":
       return Object.assign({}, status, {translationCounter: action.translationCounter});
     // When the user adds a new dimension, set a status that we are waiting for members to finish populating
-    case "STORYSECTION_UPDATE": 
+    case "STORYSECTION_UPDATE":
       return Object.assign({}, status, {dialogOpen: false, diffCounter: action.diffCounter, justUpdated: {type: "storysection", ...success}});
     // When the user adds a new dimension, set a status that we are waiting for members to finish populating
-    case "SEARCH_LOADING": 
+    case "SEARCH_LOADING":
       return Object.assign({}, status, {searchLoading: true});
-    // When the dimension modify returns, 
-    case "DIMENSION_MODIFY": 
+    // When the dimension modify returns,
+    case "DIMENSION_MODIFY":
       return Object.assign({}, status, {diffCounter: action.diffCounter, searchLoading: false});
-    case "DIMENSION_DELETE": 
+    case "DIMENSION_DELETE":
       return Object.assign({}, status, {diffCounter: action.diffCounter});
     // Deleting a profile requires resetting currentNode/Pid. It will be reset when the jsx picks a new node automatically
     // We need to set justDeleted so that the NavBar can listen for disappearing nodes, and automatically open a new one.
-    case "PROFILE_DELETE": 
+    case "PROFILE_DELETE":
       return Object.assign({}, status, {justDeleted: {type: "profile", id: action.data.id}, currentPid: false});
-    case "SECTION_DELETE": 
+    case "SECTION_DELETE":
       return Object.assign({}, status, {justDeleted: {type: "section", id: action.data.id, parent_id: action.data.parent_id}});
-    case "GENERATOR_DELETE": 
+    case "GENERATOR_DELETE":
       return Object.assign({}, status, {
         justDeleted: {type: "generator", id: action.data.id, parent_id: action.data.parent_id},
         dialogOpen: false
       });
-    case "MATERIALIZER_DELETE": 
+    case "MATERIALIZER_DELETE":
       return Object.assign({}, status, {
         justDeleted: {type: "materializer", id: action.data.id, parent_id: action.data.parent_id},
         dialogOpen: false
       });
-    case "STORY_DELETE": 
+    case "STORY_DELETE":
       return Object.assign({}, status, {justDeleted: {type: "story", id: action.data.id}, currentStoryPid: false});
-    case "STORYSECTION_DELETE": 
+    case "STORYSECTION_DELETE":
       return Object.assign({}, status, {justDeleted: {type: "storysection", id: action.data.id, parent_id: action.data.parent_id}});
     // Section Preview
-    case "SECTION_PREVIEW_FETCH": 
+    case "SECTION_PREVIEW_FETCH":
       return Object.assign({}, status, {fetchingSectionPreview: true});
     case "SECTION_PREVIEW_SET":
       return Object.assign({}, status, {sectionPreview: action.data, fetchingSectionPreview: false});
@@ -166,7 +166,7 @@ export default (status = {}, action) => {
     // Update Events
     // When an update attempt starts, clear the justUpdated variable, which will then be refilled with SUCCESS or ERROR.
     // This is to ensure that subsequent error messages freshly fire, even if they are the "same" error
-    case "CLEAR_UPDATED": 
+    case "CLEAR_UPDATED":
       return Object.assign({}, status, {justUpdated: false});
     // Note: some of the update event cases are written above
     case "PROFILE_UPDATE":

@@ -338,6 +338,10 @@ class VariableCard extends Component {
   }
 }
 
+VariableCard.defaultProps = {
+  parentType: "profile"
+};
+
 VariableCard.contextTypes = {
   toast: PropTypes.object
 };

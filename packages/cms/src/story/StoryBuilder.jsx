@@ -10,9 +10,17 @@ import {setStatus} from "../actions/status";
 
 class StoryBuilder extends Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      toolboxVisible: true
+    };
+  }
+
   render() {
 
-    const {pathObj, storiesLoaded, currentStoryPid, toolboxVisible} = this.props.status;
+    const {pathObj, storiesLoaded, currentStoryPid} = this.props.status;
+    const {toolboxVisible} = this.state;
 
     const type = pathObj.storysection ? "storysection" : pathObj.story ? "story" : null;
     const editorTypes = {story: StoryEditor, storysection: StorySectionEditor};
@@ -33,7 +41,7 @@ class StoryBuilder extends Component {
             }
             <Toolbox
               id={currentStoryPid}
-              type="story"
+              parentType="story"
               toolboxVisible={toolboxVisible}
             >
               <div className="cms-toolbox-collapse-wrapper u-hide-below-lg">

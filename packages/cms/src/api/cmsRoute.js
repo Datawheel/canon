@@ -746,7 +746,22 @@ module.exports = function(app) {
     return res.json({id: req.query.id, parent_id: row.profile_id, generators});
   });
 
+  app.delete("/api/cms/story_generator/delete", isEnabled, async(req, res) => {
+    const row = await db.story_generator.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.generator.destroy({where: {id: req.query.id}});
+    const generators = await db.story_generator.findAll({where: {story_id: row.story_id}}).catch(catcher);
+    return res.json({id: req.query.id, parent_id: row.story_id, generators});
+  });
+
   app.delete("/api/cms/materializer/delete", isEnabled, async(req, res) => {
+    const row = await db.materializer.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.materializer.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.materializer.destroy({where: {id: req.query.id}}).catch(catcher);
+    const materializers = await db.materializer.findAll({where: {profile_id: row.profile_id}, order: [["ordering", "ASC"]]}).catch(catcher);
+    return res.json({id: req.query.id, parent_id: row.profile_id, materializers});
+  });
+
+  app.delete("/api/cms/story_materializer/delete", isEnabled, async(req, res) => {
     const row = await db.materializer.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.materializer.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.materializer.destroy({where: {id: req.query.id}}).catch(catcher);
