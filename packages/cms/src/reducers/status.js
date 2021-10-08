@@ -35,27 +35,51 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {justCreated: {type: "storysection", id: action.data.id, story_id: action.data.story_id}});
     // When toolbox items are added, force them open for editing. When they are updated, close them.
     case "GENERATOR_NEW":
-      return Object.assign({}, status, {dialogOpen: {type: "generator", id: action.data.id, force: true}});
+      return Object.assign({}, status, {dialogOpen: {parentType: "profile", type: "generator", id: action.data.id, force: true}});
     case "GENERATOR_DUPLICATE":
-      return Object.assign({}, status, {dialogOpen: {type: "generator", id: action.data.id, force: true}});
+      return Object.assign({}, status, {dialogOpen: {parentType: "profile", type: "generator", id: action.data.id, force: true}});
     // Generator and Materializers do not include the same {dialogOpen: false} that other UPDATE reducers do.
     // This is because in the case where a generator is only shown using forceOpen (from output view)
     // We don't want it to disappear before it gets a chance to fetchVariables. See VariableCard.jsx for the dialogOpen:false
     case "GENERATOR_UPDATE":
-      return Object.assign({}, status, {justUpdated: {type: "generator", ...success}});
+      return Object.assign({}, status, {justUpdated: {parentType: "profile", type: "generator", ...success}});
     case "MATERIALIZER_NEW":
-      return Object.assign({}, status, {dialogOpen: {type: "materializer", id: action.data.id, force: true}});
+      return Object.assign({}, status, {dialogOpen: {parentType: "profile", type: "materializer", id: action.data.id, force: true}});
     case "MATERIALIZER_DUPLICATE":
-      return Object.assign({}, status, {dialogOpen: {type: "materializer", id: action.data.id, force: true}});
+      return Object.assign({}, status, {dialogOpen: {parentType: "profile", type: "materializer", id: action.data.id, force: true}});
     case "MATERIALIZER_UPDATE":
-      return Object.assign({}, status, {justUpdated: {type: "materializer", ...success}});
+      return Object.assign({}, status, {justUpdated: {parentType: "profile", type: "materializer", ...success}});
     case "SELECTOR_NEW":
-      return Object.assign({}, status, {dialogOpen: {type: "selector", id: action.data.id, force: true}});
+      return Object.assign({}, status, {dialogOpen: {parentType: "profile", type: "selector", id: action.data.id, force: true}});
     case "SELECTOR_DUPLICATE":
-      return Object.assign({}, status, {dialogOpen: {type: "selector", id: action.data.id, force: true}});
+      return Object.assign({}, status, {dialogOpen: {parentType: "profile", type: "selector", id: action.data.id, force: true}});
     case "SELECTOR_UPDATE":
-      return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "selector", ...success}});
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {parentType: "profile", type: "selector", ...success}});
     case "SELECTOR_DELETE":
+      return Object.assign({}, status, {dialogOpen: false});
+    // When toolbox items are added, force them open for editing. When they are updated, close them.
+    case "STORY_GENERATOR_NEW":
+      return Object.assign({}, status, {dialogOpen: {parentType: "story", type: "generator", id: action.data.id, force: true}});
+    case "STORY_GENERATOR_DUPLICATE":
+      return Object.assign({}, status, {dialogOpen: {parentType: "story", type: "generator", id: action.data.id, force: true}});
+    // Generator and Materializers do not include the same {dialogOpen: false} that other UPDATE reducers do.
+    // This is because in the case where a generator is only shown using forceOpen (from output view)
+    // We don't want it to disappear before it gets a chance to fetchVariables. See VariableCard.jsx for the dialogOpen:false
+    case "STORY_GENERATOR_UPDATE":
+      return Object.assign({}, status, {justUpdated: {parentType: "story", type: "generator", ...success}});
+    case "STORY_MATERIALIZER_NEW":
+      return Object.assign({}, status, {dialogOpen: {parentType: "story", type: "materializer", id: action.data.id, force: true}});
+    case "STORY_MATERIALIZER_DUPLICATE":
+      return Object.assign({}, status, {dialogOpen: {parentType: "story", type: "materializer", id: action.data.id, force: true}});
+    case "STORY_MATERIALIZER_UPDATE":
+      return Object.assign({}, status, {justUpdated: {parentType: "story", type: "materializer", ...success}});
+    case "STORY_SELECTOR_NEW":
+      return Object.assign({}, status, {dialogOpen: {parentType: "story", type: "selector", id: action.data.id, force: true}});
+    case "STORY_SELECTOR_DUPLICATE":
+      return Object.assign({}, status, {dialogOpen: {parentType: "story", type: "selector", id: action.data.id, force: true}});
+    case "STORY_SELECTOR_UPDATE":
+      return Object.assign({}, status, {dialogOpen: false, justUpdated: {parentType: "story", type: "selector", ...success}});
+    case "STORY_SELECTOR_DELETE":
       return Object.assign({}, status, {dialogOpen: false});
     case "FORMATTER_NEW":
       return Object.assign({}, status, {dialogOpen: {type: "formatter", id: action.data.id, force: true}});
@@ -100,12 +124,22 @@ export default (status = {}, action) => {
       return Object.assign({}, status, {justDeleted: {type: "section", id: action.data.id, parent_id: action.data.parent_id}});
     case "GENERATOR_DELETE":
       return Object.assign({}, status, {
-        justDeleted: {type: "generator", id: action.data.id, parent_id: action.data.parent_id},
+        justDeleted: {parentType: "profile", type: "generator", id: action.data.id, parent_id: action.data.parent_id},
         dialogOpen: false
       });
     case "MATERIALIZER_DELETE":
       return Object.assign({}, status, {
-        justDeleted: {type: "materializer", id: action.data.id, parent_id: action.data.parent_id},
+        justDeleted: {parentType: "profile", type: "materializer", id: action.data.id, parent_id: action.data.parent_id},
+        dialogOpen: false
+      });
+    case "STORY_GENERATOR_DELETE":
+      return Object.assign({}, status, {
+        justDeleted: {parentType: "story", type: "generator", id: action.data.id, parent_id: action.data.parent_id},
+        dialogOpen: false
+      });
+    case "STORY_MATERIALIZER_DELETE":
+      return Object.assign({}, status, {
+        justDeleted: {parentType: "story", type: "materializer", id: action.data.id, parent_id: action.data.parent_id},
         dialogOpen: false
       });
     case "STORY_DELETE":
@@ -182,13 +216,19 @@ export default (status = {}, action) => {
     case "STORYSECTION_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "storysection", ...error}});
     case "GENERATOR_ERROR":
-      return Object.assign({}, status, {justUpdated: {type: "generator", ...error}});
+      return Object.assign({}, status, {justUpdated: {parentType: "profile", type: "generator", ...error}});
     case "MATERIALIZER_ERROR":
-      return Object.assign({}, status, {justUpdated: {type: "materializer", ...error}});
+      return Object.assign({}, status, {justUpdated: {parentType: "profile", type: "materializer", ...error}});
+    case "STORY_GENERATOR_ERROR":
+      return Object.assign({}, status, {justUpdated: {parentType: "story", type: "generator", ...error}});
+    case "STORY_MATERIALIZER_ERROR":
+      return Object.assign({}, status, {justUpdated: {parentType: "story", type: "materializer", ...error}});
     case "FORMATTER_ERROR":
       return Object.assign({}, status, {justUpdated: {type: "formatter", ...error}});
     case "SELECTOR_ERROR":
-      return Object.assign({}, status, {justUpdated: {type: "selector", ...error}});
+      return Object.assign({}, status, {justUpdated: {parentType: "profile", type: "selector", ...error}});
+    case "STORY_SELECTOR_ERROR":
+      return Object.assign({}, status, {justUpdated: {parentType: "story", type: "selector", ...error}});
     case "SECTION_SUBTITLE_UPDATE":
       return Object.assign({}, status, {dialogOpen: false, justUpdated: {type: "section_subtitle", ...success}});
     case "SECTION_SUBTITLE_ERROR":

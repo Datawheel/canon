@@ -163,6 +163,7 @@ class Toolbox extends Component {
     const showFormatters = formattersAll.length === 0 || formatters.length > 0;
     const showSelectors = profile.selectors.length === 0 || selectors.length > 0;
 
+
     let outputResults = [];
     const outputCutoff = 200;
     let isCutoff = false;
@@ -341,7 +342,7 @@ Toolbox.defaultProps = {
 const mapStateToProps = (state, ownProps) => ({
   variables: state.cms.variables,
   status: state.cms.status,
-  profile: state.cms[ownProps.type === "profile" ? "profiles" : "stories"].find(p => p.id === ownProps.id),
+  profile: state.cms[ownProps.parentType === "profile" ? "profiles" : "stories"].find(p => p.id === ownProps.id),
   formatters: state.cms.formatters
 });
 
