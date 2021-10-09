@@ -4,7 +4,7 @@ import {Icon} from "@blueprintjs/core";
 
 import varSwapRecursive from "../../utils/varSwapRecursive";
 
-import {getProfiles, newProfile, deleteProfile, setVariables, clearPreviews, resetPreviews} from "../../actions/profiles";
+import {getProfiles, newProfile, deleteProfile, setVariables, resetPreviews} from "../../actions/profiles";
 import {getStories, newStory, deleteStory} from "../../actions/stories";
 import {setStatus} from "../../actions/status";
 
@@ -182,8 +182,7 @@ class Navbar extends Component {
       }
     }
     else if (pathObj.tab === "stories") {
-      this.props.clearPreviews();
-      this.props.setStatus({currentStoryPid: Number(pathObj.story), pathObj: newPathObj});
+      this.props.setStatus({currentStoryPid: Number(pathObj.story), pathObj: newPathObj, previews: null});
     }
     else if (pathObj.tab === "metadata") {
       this.props.setStatus({pathObj: newPathObj});
@@ -495,7 +494,6 @@ const mapDispatchToProps = dispatch => ({
   newProfile: () => dispatch(newProfile()),
   deleteProfile: id => dispatch(deleteProfile(id)),
   resetPreviews: () => dispatch(resetPreviews()),
-  clearPreviews: () => dispatch(clearPreviews()),
   // Stories
   getStories: () => dispatch(getStories()),
   newStory: () => dispatch(newStory()),

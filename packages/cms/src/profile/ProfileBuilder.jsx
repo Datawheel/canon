@@ -36,8 +36,9 @@ class ProfileBuilder extends Component {
     const oldMeta = JSON.stringify(prevProps.profiles.map(p => JSON.stringify(p.meta)));
     const newMeta = JSON.stringify(this.props.profiles.map(p => JSON.stringify(p.meta)));
     const changedMeta = oldMeta !== newMeta;
+    const changedFromStories = prevProps.status.pathObj.tab === "stories" && this.props.status.pathObj.tab === "profiles";
 
-    if (currentPid && changedMeta) {
+    if (currentPid && (changedMeta || changedFromStories)) {
       console.log("Meta Changed: Resetting Previews");
       this.props.resetPreviews();
     }
@@ -78,7 +79,7 @@ class ProfileBuilder extends Component {
           <div className={`cms-editor${toolboxVisible ? " cms-multicolumn-editor" : ""}`} id="item-editor">
             {Editor && currentPid
               ? <Editor id={id}>
-                <Header dimensions={previews}/>
+                <Header dimensions={previews || []}/>
                 <DimensionBuilder />
               </Editor>
               : <NonIdealState title="No Profile Selected" description="Please select a Profile from the menu above." visual="path-search" />

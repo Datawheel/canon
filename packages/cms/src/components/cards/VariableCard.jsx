@@ -329,7 +329,7 @@ class VariableCard extends Component {
               <Icon className="cms-card-error-icon" icon="warning-sign" /> Warning: Remove <pre className="cms-console-warning">console.log</pre>.
             </p>
           }
-          {duration &&
+          {Boolean(duration) &&
             <p className={`cms-card-error cms-card-status-${status} u-font-xxs u-margin-top-xs`}>
               <Icon className="cms-card-error-icon" icon="time" /> {`Duration: ${duration} ms.`}
             </p>

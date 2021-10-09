@@ -16,7 +16,7 @@ const initialState = {
     diffCounter: 0,
     translationCounter: 0,
     translationError: false,
-    previews: [],
+    previews: null,
     query: {},
     pathObj: {}
   },

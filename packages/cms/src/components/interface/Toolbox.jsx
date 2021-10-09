@@ -28,8 +28,7 @@ class Toolbox extends Component {
 
   componentDidMount() {
     const {parentType} = this.props;
-    const type = `${parentType === "story" ? "story_" : ""}generator`;
-    this.props.fetchVariables({type});
+    if (parentType === "story") this.props.fetchVariables({type: "story_generator"});
   }
 
   componentDidUpdate(prevProps) {
