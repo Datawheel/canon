@@ -43,6 +43,7 @@ module.exports = function(app) {
         // CITE profile
 
       case 4:
+        return res.json({});
         const citeParams = {
           cube: "dimension_cite",
           drilldowns: "CITE",
