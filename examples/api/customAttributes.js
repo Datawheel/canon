@@ -40,6 +40,11 @@ module.exports = function(app) {
           isDepartmentOrProvince
         });
 
+      case 3:
+        return res.json({
+          sample: "data"
+        });
+
         // CITE profile
 
       case 4:

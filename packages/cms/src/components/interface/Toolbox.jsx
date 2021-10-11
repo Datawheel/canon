@@ -13,6 +13,8 @@ import ConsoleVariable from "../variables/ConsoleVariable";
 import {fetchVariables, newEntity} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
+import {PARENT_TYPES} from "../../utils/consts/cms";
+
 import "./Toolbox.css";
 
 class Toolbox extends Component {
@@ -28,12 +30,12 @@ class Toolbox extends Component {
 
   componentDidMount() {
     const {parentType} = this.props;
-    if (parentType === "story") this.props.fetchVariables({type: "story_generator"});
+    if (parentType === PARENT_TYPES.STORY) this.props.fetchVariables({type: "story_generator"});
   }
 
   componentDidUpdate(prevProps) {
     const {parentType} = this.props;
-    if (parentType === "profile") {
+    if (parentType === PARENT_TYPES.PROFILE) {
       const oldSlugs = prevProps.status.previews ? prevProps.status.previews.map(p => p.slug).join() : prevProps.status.previews;
       const newSlugs = this.props.status.previews ? this.props.status.previews.map(p => p.slug).join() : this.props.status.previews;
       const oldIDs = prevProps.status.previews ? prevProps.status.previews.map(p => p.id).join() : prevProps.status.previews;
@@ -49,7 +51,7 @@ class Toolbox extends Component {
         this.props.fetchVariables({type: "generator"});
       }
     }
-    if (parentType === "story") {
+    if (parentType === PARENT_TYPES.STORY) {
       if (prevProps.id !== this.props.id) this.props.fetchVariables({type: "story_generator"});
     }
 
@@ -69,7 +71,7 @@ class Toolbox extends Component {
 
   addItem(type) {
     const {parentType} = this.props;
-    const payload = parentType === "story" ? {story_id: this.props.profile.id} : {profile_id: this.props.profile.id};
+    const payload = parentType === PARENT_TYPES.STORY ? {story_id: this.props.profile.id} : {profile_id: this.props.profile.id};
     this.props.newEntity(type, payload);
   }
 
@@ -114,7 +116,7 @@ class Toolbox extends Component {
   }
 
   maybePrepend(d) {
-    return `${this.props.parentType === "story" ? "story_" : ""}${d}`;
+    return `${this.props.parentType === PARENT_TYPES.STORY ? "story_" : ""}${d}`;
   }
 
   render() {
@@ -143,7 +145,7 @@ class Toolbox extends Component {
       .map(d => Object.assign({}, {type: "generator"}, d))
       .filter(this.filterFunc.bind(this));
 
-    if (parentType === "profile" && this.props.status.profilesLoaded) generators = [attrGen].concat(generators);
+    if (parentType === PARENT_TYPES.PROFILE && this.props.status.profilesLoaded) generators = [attrGen].concat(generators);
 
     const materializers = profile.materializers
       .sort((a, b) => a.ordering - b.ordering)
@@ -164,7 +166,6 @@ class Toolbox extends Component {
     const showMaterializers = profile.materializers.length === 0 || materializers.length > 0;
     const showFormatters = formattersAll.length === 0 || formatters.length > 0;
     const showSelectors = profile.selectors.length === 0 || selectors.length > 0;
-
 
     let outputResults = [];
     const outputCutoff = 200;
@@ -340,7 +341,7 @@ class Toolbox extends Component {
 }
 
 Toolbox.defaultProps = {
-  parentType: "profile"
+  parentType: PARENT_TYPES.PROFILE
 };
 
 const mapStateToProps = (state, ownProps) => ({

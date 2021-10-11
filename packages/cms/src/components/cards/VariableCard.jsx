@@ -15,9 +15,13 @@ import Card from "./Card";
 import {deleteEntity, duplicateEntity, updateEntity, fetchVariables} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
+import {GENERATOR_TYPES} from "../../utils/consts/cms";
+
 import "./VariableCard.css";
 
-const isGenMat = d => ["generator", "materializer", "story_generator", "story_materializer"].includes(d);
+const isGenMat = d => Object.values(GENERATOR_TYPES).includes(d);
+const isGen = d => [GENERATOR_TYPES.GENERATOR, GENERATOR_TYPES.STORY_GENERATOR].includes(d);
+const isMat = d => [GENERATOR_TYPES.MATERIALIZER, GENERATOR_TYPES.STORY_MATERIALIZER].includes(d);
 
 class VariableCard extends Component {
 
@@ -102,21 +106,21 @@ class VariableCard extends Component {
     let dupes = [];
     let size = 0;
     let duration = false;
-    if (type === "generator" || type === "story_generator") {
+    if (isGen(type)) {
       displayData = variables._genStatus[id];
       if (localeSecondary) {
         secondaryDisplayData = secondaryVariables._genStatus[id];
       }
       if (variables._genStatus.durations) duration = variables._genStatus.durations[id];
     }
-    else if (type === "materializer" || type === "story_materalizer") {
+    else if (isMat(type)) {
       displayData = variables._matStatus[id];
       if (localeSecondary) {
         secondaryDisplayData = secondaryVariables._matStatus[id];
       }
     }
     if (isGenMat(type)) {
-      const status = type === "generator" || type === "story_generator" ? "_genStatus" : "_matStatus";
+      const status = isGen(type) ? "_genStatus" : "_matStatus";
       const theseVars = variables[status][id];
       if (theseVars) {
         const otherGens = Object.keys(variables._genStatus).reduce((acc, _id) =>
