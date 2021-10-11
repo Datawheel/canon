@@ -40,7 +40,8 @@ const storyReqFull = {
         {association: "subtitles", include: [{association: "content", separate: true}], separate: true},
         {association: "descriptions", include: [{association: "content", separate: true}], separate: true},
         {association: "stats", include: [{association: "content", separate: true}], separate: true},
-        {association: "visualizations", separate: true}
+        {association: "visualizations", separate: true},
+        {association: "selectors"}
       ]
     }
   ]
@@ -63,7 +64,8 @@ const storysectionReqFull = {
     {association: "subtitles", include: [{association: "content", separate: true}], separate: true},
     {association: "descriptions", include: [{association: "content", separate: true}], separate: true},
     {association: "stats", include: [{association: "content", separate: true}], separate: true},
-    {association: "visualizations", separate: true}
+    {association: "visualizations", separate: true},
+    {association: "selectors"}
   ]
 };
 

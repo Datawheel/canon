@@ -123,7 +123,7 @@ const sortStorySection = (db, storysection) => {
   storysection.stats = flatSort(db.storysection_stat, storysection.stats);
   storysection.descriptions = flatSort(db.storysection_description, storysection.descriptions);
   // ordering is nested in section_selector - bubble for top-level sorting
-  storysection.selectors = bubbleSortSelectors(db.storysection_selector, storysection.selectors);
+  storysection.selectors = bubbleSortSelectors(db.storysection_selector, storysection.selectors, "storysection_selector");
   return storysection;
 };
 

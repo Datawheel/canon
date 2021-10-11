@@ -6,6 +6,7 @@ import Deck from "../components/interface/Deck";
 import TextCard from "../components/cards/TextCard";
 import Loading from "components/Loading";
 import VisualizationCard from "../components/cards/VisualizationCard";
+import SelectorUsage from "../components/interface/SelectorUsage";
 import deepClone from "../utils/deepClone";
 
 import {newEntity, updateEntity} from "../actions/profiles";

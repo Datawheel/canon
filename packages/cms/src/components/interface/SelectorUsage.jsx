@@ -9,6 +9,8 @@ import scaffoldDynamic from "../../utils/selectors/scaffoldDynamic";
 import {newEntity, deleteEntity, swapEntity} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
+import {SELECTOR_TYPES} from "../../utils/consts/cms";
+
 import "./SelectorUsage.css";
 
 class SelectorUsage extends Component {
@@ -22,13 +24,19 @@ class SelectorUsage extends Component {
   }
 
   removeItem(id) {
-    const {minData} = this.props;
-    this.props.deleteEntity("section_selector", {section_id: minData.id, selector_id: id});
+    const {minData, type} = this.props;
+    const payload = type === SELECTOR_TYPES.STORYSECTION_SELECTOR
+      ? {storysection_id: minData.id, story_selector_id: id}
+      : {section_id: minData.id, selector_id: id};
+    this.props.deleteEntity(type, payload);
   }
 
   addItem(id) {
-    const {minData} = this.props;
-    this.props.newEntity("section_selector", {section_id: minData.id, selector_id: id});
+    const {minData, type} = this.props;
+    const payload = type === SELECTOR_TYPES.STORYSECTION_SELECTOR
+      ? {storysection_id: minData.id, story_selector_id: id}
+      : {section_id: minData.id, selector_id: id};
+    this.props.newEntity(type, payload);
   }
 
   onChange(name, e) {
@@ -40,7 +48,8 @@ class SelectorUsage extends Component {
   }
 
   swapSelector(id) {
-    this.props.swapEntity("section_selector", id);
+    const {type} = this.props;
+    this.props.swapEntity(type, id);
   }
 
   render() {
@@ -59,7 +68,7 @@ class SelectorUsage extends Component {
       if (selector.dynamic) {
         if (validateDynamic(variables[selector.dynamic]) === "valid") {
           return {...selector, options: scaffoldDynamic(variables[selector.dynamic])};
-        } 
+        }
         else return {...selector, options: []};
       }
       else return selector;
@@ -103,12 +112,12 @@ class SelectorUsage extends Component {
             </ul>
             : <p className="u-font-xs">All available selectors have been activated</p>
           }
-          {(showMore || inactiveSelectors.length > inactiveSelectorsVisible.length) && 
-            <Button 
+          {(showMore || inactiveSelectors.length > inactiveSelectorsVisible.length) &&
+            <Button
               fontSize="xxs"
               onClick={() => this.setState({showMore: !this.state.showMore})}
             >
-              {showMore ? "Hide Full List" : "Show Full List..."} 
+              {showMore ? "Hide Full List" : "Show Full List..."}
             </Button>
           }
         </div>
@@ -184,10 +193,16 @@ class SelectorUsage extends Component {
   }
 }
 
-const mapStateToProps = state => ({
+SelectorUsage.defaultProps = {
+  type: SELECTOR_TYPES.SECTION_SELECTOR
+};
+
+const mapStateToProps = (state, ownProps) => ({
   variables: state.cms.variables,
   status: state.cms.status,
-  allSelectors: state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors
+  allSelectors: ownProps.type === SELECTOR_TYPES.STORYSECTION_SELECTOR
+    ? state.cms.stories.find(p => p.id === state.cms.status.currentStoryPid).selectors
+    : state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors
 });
 
 const mapDispatchToProps = dispatch => ({

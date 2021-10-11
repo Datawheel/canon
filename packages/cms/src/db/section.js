@@ -22,7 +22,7 @@ module.exports = function(sequelize, db) {
       type: {
         type: db.STRING,
         defaultValue: "TextViz"
-      }, 
+      },
       ordering: db.INTEGER,
       allowed: {
         type: db.STRING,
@@ -36,7 +36,7 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         defaultValue: ""
       }
-    }, 
+    },
     {
       tableName: "canon_cms_section",
       freezeTableName: true,

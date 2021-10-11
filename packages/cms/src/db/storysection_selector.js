@@ -7,7 +7,7 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         autoIncrement: true
       },
-      section_id: {
+      storysection_id: {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {

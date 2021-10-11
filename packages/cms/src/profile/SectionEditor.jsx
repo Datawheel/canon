@@ -24,6 +24,8 @@ import ProfileRenderer from "../components/ProfileRenderer.jsx";
 import {newEntity, updateEntity} from "../actions/profiles";
 import {setStatus} from "../actions/status";
 
+import {PARENT_TYPES, SELECTOR_TYPES} from "../utils/consts/cms";
+
 import "./SectionEditor.css";
 
 const buttonGroupProps = {
@@ -269,7 +271,7 @@ class SectionEditor extends Component {
                 key={s.id}
                 minData={s}
                 fields={["subtitle"]}
-                type="section_subtitle"
+                type={"section_subtitle"}
                 showReorderButton={minData.subtitles[minData.subtitles.length - 1].id !== s.id}
               />
             )}
@@ -280,6 +282,7 @@ class SectionEditor extends Component {
           <Deck title="Selector activation" entity="selectorUsage">
             <SelectorUsage
               key="selector-usage"
+              type={SELECTOR_TYPES.SECTION_SELECTOR}
               minData={minData}
             />
           </Deck>
