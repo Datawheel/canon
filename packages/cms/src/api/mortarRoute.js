@@ -821,6 +821,58 @@ module.exports = function(app) {
   app.get("/api/profile", async(req, res) => await fetchProfile(req, res));
   app.post("/api/profile", async(req, res) => await fetchProfile(req, res));
 
+  const fetchStory = async(req, res) => {
+    // take an arbitrary-length query of slugs and ids and turn them into objects
+    req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
+    const {id} = req.params;
+    const locale = req.query.locale || envLoc;
+    let returnObject = {};
+    let variables = {};
+
+    if (verbose) console.log("\n\nFetching Variables for pid:", id);
+    const generatorVariables = await runStoryGenerators(req, id);
+    variables = await runMaterializers(req, generatorVariables, id, true);
+
+    delete variables._genStatus;
+    delete variables._matStatus;
+
+    const formatterFunctions = await formatters4eval(db, locale);
+    if (verbose) console.log("Variables Loaded, starting varSwap...");
+
+    let story;
+    const reqObj = Object.assign({}, storyReq, {where: {id}});
+    const rawStory = await db.story.findOne(reqObj).catch(catcher);
+    if (rawStory) {
+      variables._rawStory = rawStory.toJSON();
+      // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
+      // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
+      // which power the actual rendered dropdowns on the front-end profile page.
+      let allSelectors = await db.story_selector.findAll({where: {story_id: id}}).catch(catcher);
+      allSelectors = allSelectors.map(d => d.toJSON());
+      variables._rawStory.allSelectors = allSelectors;
+      let allMaterializers = await db.story_materializer.findAll({where: {story_id: id}}).catch(catcher);
+      allMaterializers = allMaterializers
+        .map(d => {
+          d = d.toJSON();
+          // make use of varswap for its buble transpiling, so the front end can run es5 code.
+          d = varSwapRecursive(d, formatterFunctions, variables);
+          return d;
+        })
+        .sort((a, b) => a.ordering - b.ordering);
+      variables._rawStory.allMaterializers = allMaterializers;
+      story = prepareStory(variables._rawStory, variables, formatterFunctions, locale, req.query);
+    }
+    else {
+      if (verbose) console.error(`Story not found for id: ${id}`);
+      return res.json({error: `Story not found for id: ${id}`, errorCode: 404});
+    }
+    returnObject = Object.assign({}, returnObject, story);
+    if (verbose) console.log("varSwap complete, sending json...");
+    return res.json(returnObject);
+  };
+
+  app.get("/api/story/:id", async(req, res) => await fetchStory(req, res));
+
   // Endpoint for getting a story
   app.get("/api/story/:id", async(req, res) => {
     const {id} = req.params;
