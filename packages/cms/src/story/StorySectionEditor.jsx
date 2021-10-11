@@ -11,6 +11,8 @@ import deepClone from "../utils/deepClone";
 
 import {newEntity, updateEntity} from "../actions/profiles";
 
+import {SELECTOR_TYPES} from "../utils/consts/cms";
+
 class StorySectionEditor extends Component {
 
   constructor(props) {
@@ -54,11 +56,21 @@ class StorySectionEditor extends Component {
 
   render() {
 
-    const {minData, children} = this.props;
+    const {allSelectors, minData, children, variables} = this.props;
+    const {localeDefault, localeSecondary} = this.props.status;
 
     const minDataState = this.state.minData;
 
     if (!minData || !minDataState) return <Loading />;
+
+    const dataLoaded = minData && minDataState;
+    const varsLoaded = variables;
+    const defLoaded = localeSecondary || variables && !localeSecondary && variables[localeDefault];
+    const locLoaded = !localeSecondary || variables && localeSecondary && variables[localeDefault] && variables[localeSecondary];
+
+    if (!dataLoaded) return <Loading />;
+
+    const allLoaded = dataLoaded && varsLoaded && defLoaded && locLoaded;
 
     const typeOptions = minData.types.map(t =>
       <option key={t} value={t}>{t}</option>
@@ -120,6 +132,16 @@ class StorySectionEditor extends Component {
           )}
         />
 
+        {allSelectors && allSelectors.length > 0 && allLoaded &&
+          <Deck title="Selector activation" entity="selectorUsage">
+            <SelectorUsage
+              key="selector-usage"
+              type={SELECTOR_TYPES.STORYSECTION_SELECTOR}
+              minData={minData}
+            />
+          </Deck>
+        }
+
         {/* Stats */}
         <Deck
           title="Stats"
@@ -173,8 +195,10 @@ class StorySectionEditor extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
+  variables: state.cms.variables,
   status: state.cms.status,
-  minData: state.cms.stories.find(p => p.id === state.cms.status.currentStoryPid).storysections.find(s => s.id === ownProps.id)
+  minData: state.cms.stories.find(p => p.id === state.cms.status.currentStoryPid).storysections.find(s => s.id === ownProps.id),
+  allSelectors: state.cms.stories.find(p => p.id === state.cms.status.currentStoryPid).selectors
 });
 
 const mapDispatchToProps = dispatch => ({
