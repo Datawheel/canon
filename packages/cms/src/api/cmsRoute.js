@@ -55,15 +55,15 @@ const flatSort = (conn, array) => {
   return array;
 };
 
-const bubbleSortSelectors = (conn, selectors) => {
+const bubbleSortSelectors = (conn, selectors, accessor = "section_selector") => {
   selectors = selectors
-    .map(s => Object.assign({}, s, {ordering: s.section_selector.ordering}))
+    .map(s => Object.assign({}, s, {ordering: s[accessor].ordering}))
     .sort(sorter);
   selectors.forEach((o, i) => {
     if (o.ordering !== i) {
       o.ordering = i;
-      o.section_selector.ordering = i;
-      conn.update({ordering: i}, {where: {id: o.section_selector.id}}).catch(catcher);
+      o[accessor].ordering = i;
+      conn.update({ordering: i}, {where: {id: o[accessor].id}}).catch(catcher);
     }
   });
   return selectors;
@@ -776,6 +776,13 @@ module.exports = function(app) {
     return res.json({id: row.id, parent_id: row.profile_id, selectors});
   });
 
+  app.delete("/api/cms/story_selector/delete", isEnabled, async(req, res) => {
+    const row = await db.story_selector.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.story_selector.destroy({where: {id: req.query.id}});
+    const selectors = await db.story_selector.findAll({where: {story_id: row.story_id}}).catch(catcher);
+    return res.json({id: row.id, parent_id: row.story_id, selectors});
+  });
+
   app.delete("/api/cms/section_selector/delete", isEnabled, async(req, res) => {
     const {selector_id, section_id} = req.query; // eslint-disable-line camelcase
     const row = await db.section_selector.findOne({where: {selector_id, section_id}}).catch(catcher);
@@ -790,6 +797,22 @@ module.exports = function(app) {
       rows = section.selectors;
     }
     return res.json({parent_id: row.section_id, selectors: rows});
+  });
+
+  app.delete("/api/cms/storysection_selector/delete", isEnabled, async(req, res) => {
+    const {story_selector_id, storysection_id} = req.query; // eslint-disable-line camelcase
+    const row = await db.storysection_selector.findOne({where: {story_selector_id, storysection_id}}).catch(catcher);
+    await db.storysection_selector.update({ordering: sequelize.literal("ordering -1")}, {where: {storysection_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.storysection_selector.destroy({where: {story_selector_id, storysection_id}});
+    const reqObj = {where: {id: row.storysection_id}, include: [{association: "selectors"}]};
+    let storysection = await db.storysection.findOne(reqObj).catch(catcher);
+    let rows = [];
+    if (storysection) {
+      storysection = storysection.toJSON();
+      storysection.selectors = bubbleSortSelectors(db.storysection_selector, storysection.selectors, "storysection_selector");
+      rows = storysection.selectors;
+    }
+    return res.json({parent_id: row.storysection_id, selectors: rows});
   });
 
   app.delete("/api/cms/profile/delete", isEnabled, async(req, res) => {

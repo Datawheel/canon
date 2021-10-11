@@ -6,7 +6,7 @@ module.exports = function(sequelize, db) {
         type: db.INTEGER,
         primaryKey: true,
         autoIncrement: true
-      },    
+      },
       slug: {
         type: db.STRING,
         defaultValue: ""
@@ -24,7 +24,7 @@ module.exports = function(sequelize, db) {
         defaultValue: "TextViz"
       },
       ordering: db.INTEGER
-    }, 
+    },
     {
       tableName: "canon_cms_storysection",
       freezeTableName: true,
@@ -38,7 +38,8 @@ module.exports = function(sequelize, db) {
     s.hasMany(models.storysection_stat, {foreignKey: "storysection_id", sourceKey: "id", as: "stats"});
     s.hasMany(models.storysection_subtitle, {foreignKey: "storysection_id", sourceKey: "id", as: "subtitles"});
     s.hasMany(models.storysection_visualization, {foreignKey: "storysection_id", sourceKey: "id", as: "visualizations"});
-  };  
+    s.belongsToMany(models.story_selector, {through: "storysection_selector", foreignKey: "storysection_id", otherKey: "story_selector_id", as: "selectors"});
+  };
 
   return s;
 

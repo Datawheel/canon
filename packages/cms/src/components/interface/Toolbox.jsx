@@ -269,7 +269,6 @@ class Toolbox extends Component {
                   type={this.maybePrepend.bind(this)("generator")}
                   readOnly={i === 0}
                   compact={view === "lite"}
-                  parentType={parentType}
                   usePortalForAlert
                 />
               )}
@@ -291,7 +290,6 @@ class Toolbox extends Component {
                   type={this.maybePrepend.bind(this)("materializer")}
                   showReorderButton={materializers[materializers.length - 1].id !== m.id}
                   compact={view === "lite"}
-                  parentType={parentType}
                   usePortalForAlert
                 />
               )}
@@ -302,7 +300,7 @@ class Toolbox extends Component {
             <Deck
               title="Selectors"
               entity={this.maybePrepend.bind(this)("selector")}
-              description="Profile-wide Selectors."
+              description={`${parentType === PARENT_TYPES.PROFILE ? "Profile" : "Story"}-wide Selectors.`}
               addItem={this.addItem.bind(this, this.maybePrepend.bind(this)("selector"))}
               cards={selectors.map(s =>
                 <SelectorCard
@@ -310,6 +308,7 @@ class Toolbox extends Component {
                   minData={s}
                   compact={view === "lite"}
                   parentType={parentType}
+                  type={this.maybePrepend.bind(this)("selector")}
                   usePortalForAlert
                 />
               )}
@@ -347,7 +346,7 @@ Toolbox.defaultProps = {
 const mapStateToProps = (state, ownProps) => ({
   variables: state.cms.variables,
   status: state.cms.status,
-  profile: state.cms[ownProps.parentType === "profile" ? "profiles" : "stories"].find(p => p.id === ownProps.id),
+  profile: state.cms[ownProps.parentType === PARENT_TYPES.PROFILE ? "profiles" : "stories"].find(p => p.id === ownProps.id),
   formatters: state.cms.formatters
 });
 
