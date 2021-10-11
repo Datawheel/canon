@@ -57,7 +57,7 @@ class SelectorUsage extends Component {
     const {currentValues, showMore} = this.state;
     const {localeDefault} = this.props.status;
     const variables = this.props.variables[localeDefault];
-    const {minData, allSelectors} = this.props;
+    const {minData, allSelectors, type} = this.props;
 
     if (!minData) return null;
 
@@ -172,7 +172,7 @@ class SelectorUsage extends Component {
                   {i !== activeSelectors.length - 1 &&
                     <div className="cms-reorder">
                       <Button
-                        onClick={this.swapSelector.bind(this, s.section_selector.id)}
+                        onClick={this.swapSelector.bind(this, s[type].id)}
                         className="cms-reorder-button"
                         namespace="cms"
                         icon="swap-vertical"

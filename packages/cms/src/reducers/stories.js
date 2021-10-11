@@ -198,6 +198,23 @@ export default (stories = [], action) => {
     case "STORYSECTION_VISUALIZATION_SWAP":
       return swapStorysectionEntity(stories, action.data, "visualizations");
 
+    // Section Selectors
+    case "STORYSECTION_SELECTOR_NEW":
+      return stories.map(p =>
+        Object.assign({}, p, {storysections: p.storysections.map(s =>
+          s.id === action.data.storysection_selector.storysection_id ? Object.assign({}, s, {selectors: s.selectors
+            .map(sel => sel.ordering >= action.data.ordering ? Object.assign({}, sel, {ordering: sel.ordering + 1}) : sel)
+            .concat([action.data])
+            .sort(sorter)}) : s)}));
+    case "STORYSECTION_SELECTOR_DELETE":
+      return stories.map(p =>
+        Object.assign({}, p, {storysections: p.storysections.map(s =>
+          s.id === action.data.parent_id ? Object.assign({}, s, {selectors: action.data.selectors}) : s)}));
+    case "STORYSECTION_SELECTOR_SWAP":
+      return stories.map(p =>
+        Object.assign({}, p, {storysections: p.storysections.map(s =>
+          s.id === action.data.parent_id ? Object.assign({}, s, {selectors: action.data.selectors}) : s)}));
+
     default: return stories;
 
   }
