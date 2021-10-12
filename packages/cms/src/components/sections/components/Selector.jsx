@@ -64,6 +64,8 @@ class Selector extends Component {
     const slug = `${name}-${id}`;
     const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label}), {});
 
+    return null;
+
     // multi select
     if (type === "multi") {
       return <div className={ `bp3-fill ${type === "multi" ? "" : "bp3-select"}` }>

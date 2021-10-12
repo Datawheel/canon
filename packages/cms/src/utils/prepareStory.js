@@ -1,7 +1,7 @@
 /**
- * prepareProfile is part of an effort to move varSwap local. A great deal of "profile preparation" was occuring serverside,
+ * prepareStory is part of an effort to move varSwap local. A great deal of "profile preparation" was occuring serverside,
  * including the sql get, bubbling up language content, sorting, and varswapping. In order for profiles to be able to varswap
- * locally, they need to do all this themselves.
+ * locally, they need to do all this themselves. TODO: Make the server-side version use this too (deduplicate)
  */
 
 const validateDynamic = require("./selectors/validateDynamic");
@@ -10,29 +10,28 @@ const varSwapRecursive = require("./varSwapRecursive");
 const deepClone = require("../utils/deepClone");
 
 const sorter = (a, b) => a.ordering - b.ordering;
-const selectsorter = (a, b) => a.section_selector && b.section_selector ? a.section_selector.ordering - b.section_selector.ordering : 0;
+const selectsorter = (a, b) => a.storysection_selector && b.storysection_selector ? a.storysection_selector.ordering - b.storysection_selector.ordering : 0;
 
-const sortProfile = profile => {
-  profile.meta.sort(sorter);
-  if (profile.sections) {
-    profile.sections.sort(sorter);
-    profile.sections.forEach(section => {
-      if (section.subtitles) section.subtitles.sort(sorter);
-      if (section.selectors) section.selectors.sort(selectsorter);
-      if (section.stats) section.stats.sort(sorter);
-      if (section.descriptions) section.descriptions.sort(sorter);
-      if (section.visualizations) section.visualizations.sort(sorter);
+const sortStory = story => {
+  if (story.storysections) {
+    story.storysections.sort(sorter);
+    story.storysections.forEach(storysection => {
+      if (storysection.subtitles) storysection.subtitles.sort(sorter);
+      if (storysection.selectors) storysection.selectors.sort(selectsorter);
+      if (storysection.stats) storysection.stats.sort(sorter);
+      if (storysection.descriptions) storysection.descriptions.sort(sorter);
+      if (storysection.visualizations) storysection.visualizations.sort(sorter);
     });
   }
-  return profile;
+  return story;
 };
 
 /**
- * Lang-specific content is stored in secondary tables, and are part of profiles as an
- * array called "content," which contains objects of region-specific translated keys.
- * We don't want the front end to have to even know about this sub-table or sub-array.
- * Therefore, bubble up the appropriate content to the top-level of the object
- */
+  * Lang-specific content is stored in secondary tables, and are part of profiles as an
+  * array called "content," which contains objects of region-specific translated keys.
+  * We don't want the front end to have to even know about this sub-table or sub-array.
+  * Therefore, bubble up the appropriate content to the top-level of the object
+  */
 
 const bubbleUp = (obj, locale) => {
   const fieldSet = [];
@@ -81,8 +80,8 @@ const extractLocaleContent = (sourceObj, locale, mode) => {
 };
 
 /* Some of the section-level selectors are dynamic. This means that their "options" field isn't truly
- * populated, it's just a reference to a user-defined variable. Scaffold out the dynamic selectors
- * into "real ones" so that all the ensuing logic can treat them as if they were normal. */
+  * populated, it's just a reference to a user-defined variable. Scaffold out the dynamic selectors
+  * into "real ones" so that all the ensuing logic can treat them as if they were normal. */
 const fixSelector = (selector, dynamic) => {
   if (validateDynamic(dynamic) === "valid") {
     selector.options = scaffoldDynamic(dynamic);
@@ -94,38 +93,20 @@ const fixSelector = (selector, dynamic) => {
 };
 
 // Perform a local varswap
-module.exports = (rawProfile, variables, formatterFunctions, locale, query = {}) => {
-  let profile = sortProfile(extractLocaleContent(rawProfile, locale, "profile"));
+module.exports = (rawStory, variables, formatterFunctions, locale, query = {}) => {
+  let story = sortStory(extractLocaleContent(rawStory, locale, "story"));
 
-  profile.sections.forEach(section => {
-    section.selectors = section.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
+  story.storysections.forEach(storysection => {
+    storysection.selectors = storysection.selectors.map(selector => selector.dynamic ? fixSelector(selector, variables[selector.dynamic]) : selector);
   });
 
-  // Before sending the profiles down to be varswapped, remember that some sections have groupings. If a grouping
-  // has been set to NOT be visible, then its "virtual children" should not be visible either. Copy the outer grouping's
-  // visible prop down to the child sections so they get hidden in the same manner.
-  let latestGrouping = {};
-  profile.sections.forEach(section => {
-    if (section.type === "Grouping") {
-      latestGrouping = section;
-    }
-    else {
-      // Get the visibility of the parent group
-      const parentGroupingAllowed = !latestGrouping.allowed || latestGrouping.allowed === "always" || variables[latestGrouping.allowed];
-      // If the parent group is invisible, copy its allowed setting down into this section.
-      if (!parentGroupingAllowed) {
-        section.allowed = latestGrouping.allowed;
-      }
-    }
-  });
-
-  profile = varSwapRecursive(profile, formatterFunctions, variables, query);
+  story = varSwapRecursive(story, formatterFunctions, variables, query);
   // If the user provided selectors in the query, then the user has changed a dropdown.
   // This means that OTHER dropdowns on the page need to be set to match. To accomplish
   // this, hijack the "default" property on any matching selector so the dropdowns "start"
   // where we want them to.
-  profile.sections.forEach(section => {
-    section.selectors.forEach(selector => {
+  story.storysections.forEach(storysection => {
+    storysection.selectors.forEach(selector => {
       const {name, options} = selector;
       // Parse out the queries into arrays. Though they should be strings like "state25,state36", also support
       // when the query is already an array, which happens when it comes from Selector.jsx
@@ -138,10 +119,10 @@ module.exports = (rawProfile, variables, formatterFunctions, locale, query = {})
       }
     });
   });
-  profile.variables = variables;
-  // By cloning rawProfile, allSelectors and allMaterializers have needlessly made their way out to the main, swapped profile.
-  // remove these from the top-level objects before returning the profile (remember, they are kept down in _rawProfile)
-  delete profile.allSelectors;
-  delete profile.allMaterializers;
-  return profile;
+  story.variables = variables;
+  // By cloning rawStory, allSelectors and allMaterializers have needlessly made their way out to the main, swapped story.
+  // remove these from the top-level objects before returning the story (remember, they are kept down in _rawStory)
+  delete story.allSelectors;
+  delete story.allMaterializers;
+  return story;
 };

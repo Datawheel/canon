@@ -6,6 +6,7 @@ const PromiseThrottle = require("promise-throttle"),
       libs = require("../utils/libs"), /*leave this! needed for the variable functions.*/ //eslint-disable-line
       mortarEval = require("../utils/mortarEval"),
       prepareProfile = require("../utils/prepareProfile"),
+      prepareStory = require("../utils/prepareStory"),
       sequelize = require("sequelize"),
       urlSwap = require("../utils/urlSwap"),
       varSwapRecursive = require("../utils/varSwapRecursive"),
@@ -112,6 +113,7 @@ const storyReq = {
     {association: "footnotes", separate: true,
       include: [{association: "content", separate: true}]
     },
+    {association: "selectors"},
     {
       association: "storysections", separate: true,
       include: [
@@ -125,7 +127,8 @@ const storyReq = {
         {association: "subtitles", separate: true,
           include: [{association: "content", separate: true}]
         },
-        {association: "visualizations", separate: true}
+        {association: "visualizations", separate: true},
+        {association: "selectors"}
       ]
     }
   ]
@@ -840,7 +843,8 @@ module.exports = function(app) {
     if (verbose) console.log("Variables Loaded, starting varSwap...");
 
     let story;
-    const reqObj = Object.assign({}, storyReq, {where: {id}});
+    // Using a Sequelize OR when the two OR columns are of different types causes a Sequelize error, necessitating this workaround.
+    const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
     const rawStory = await db.story.findOne(reqObj).catch(catcher);
     if (rawStory) {
       variables._rawStory = rawStory.toJSON();
@@ -872,24 +876,6 @@ module.exports = function(app) {
   };
 
   app.get("/api/story/:id", async(req, res) => await fetchStory(req, res));
-
-  // Endpoint for getting a story
-  app.get("/api/story/:id", async(req, res) => {
-    const {id} = req.params;
-    const locale = req.query.locale ? req.query.locale : envLoc;
-    // Using a Sequelize OR when the two OR columns are of different types causes a Sequelize error, necessitating this workaround.
-    const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
-    let story = await db.story.findOne(reqObj).catch(catcher);
-    if (!story) {
-      if (verbose) console.error(`Story not found for id: ${id}`);
-      return res.json({error: `Story not found for id: ${id}`, errorCode: 404});
-    }
-    story = sortStory(extractLocaleContent(story.toJSON(), locale, "story"));
-    // varSwapRecursive takes any column named "logic" and transpiles it to es5 for IE.
-    // Do a naive varswap (with no formatters and no variables) just to access the transpile for vizes.
-    story = varSwapRecursive(story, {}, {});
-    return res.json(story);
-  });
 
   // Endpoint for getting all stories
   app.get("/api/story", async(req, res) => {
