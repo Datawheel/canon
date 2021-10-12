@@ -119,7 +119,8 @@ class VariableEditor extends Component {
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
       // With its corresponding value. Same goes for locale
       const lookup = {locale: localeDefault};
-      previews.forEach((p, i) => {
+      const thesePreviews = previews || [];
+      thesePreviews.forEach((p, i) => {
         if (i === 0) {
           lookup.id = p.id;
         }
