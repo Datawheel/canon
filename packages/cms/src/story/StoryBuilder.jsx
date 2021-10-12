@@ -1,6 +1,7 @@
 import {connect} from "react-redux";
 import React, {Component} from "react";
-import {NonIdealState, Button} from "@blueprintjs/core";
+import {NonIdealState} from "@blueprintjs/core";
+import Button from "../components/fields/Button";
 import StoryEditor from "./StoryEditor";
 import StorySectionEditor from "./StorySectionEditor";
 import Toolbox from "../components/interface/Toolbox";
