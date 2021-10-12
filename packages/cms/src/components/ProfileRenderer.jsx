@@ -130,7 +130,7 @@ class ProfileRenderer extends Component {
         const newProfile = prepareProfile(variables._rawProfile, matVars, formatterFunctions, locale, selectors);
         this.setState({profile: {...profile, ...newProfile}});
       }
-      // If forceMats is not true, no phone-home is required. Using the locally stored _rawProfile and the now-combined
+      // If forceMats is not true, no materializers required. Using the locally stored _rawProfile and the now-combined
       // old and new variables, you have all that you need to make the profile update.
       else {
         const newProfile = prepareProfile(variables._rawProfile, Object.assign({}, variables, newVariables), formatterFunctions, locale, selectors);
