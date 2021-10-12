@@ -172,7 +172,7 @@ class SelectorCard extends Component {
         title: minData.name === "" ? "Add a title" : minData.name,
         onEdit: this.openEditor.bind(this),
         onDelete: this.maybeDelete.bind(this),
-        onDuplicate: this.maybeDuplicate.bind(this),
+        onDuplicate: type.includes("story") ? null : this.maybeDuplicate.bind(this),
         // reorder
         reorderProps: parentArray ? {
           item: minData,

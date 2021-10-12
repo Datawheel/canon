@@ -346,7 +346,8 @@ export function fetchVariables(config) {
         durationByLocale[thisLocale] = 0;
       }
       else {
-        const theseAttributes = attify(previews.map(d => d.searchObj), thisLocale);
+        const thesePreviews = previews || [];
+        const theseAttributes = attify(thesePreviews.map(d => d.searchObj), thisLocale);
         if (getStore().env.CANON_LOGINS && auth.user) {
           const {password, salt, ...user} = auth.user; // eslint-disable-line
           theseAttributes.user = user;
@@ -369,7 +370,8 @@ export function fetchVariables(config) {
       const attributes = attributesByLocale[thisLocale];
       if (!variables[thisLocale]._genStatus.durations) variables[thisLocale]._genStatus.durations = {};
       variables[thisLocale]._genStatus.durations.attributes = durationByLocale[thisLocale];
-      let paramString = previews.reduce((acc, p, i) => `${acc}&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`, "");
+      const thesePreviews = previews || [];
+      let paramString = thesePreviews.reduce((acc, p, i) => `${acc}&slug${i + 1}=${p.slug}&id${i + 1}=${p.id}`, "");
       if (config.id && ["generator", "materializer", "story_generator", "story_materializer"].includes(config.type)) paramString += `&${config.type}=${config.id}`;
       if (config.type.includes("generator")) {
         let gids = [];

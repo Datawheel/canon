@@ -827,7 +827,14 @@ module.exports = function(app) {
   const fetchStory = async(req, res) => {
     // take an arbitrary-length query of slugs and ids and turn them into objects
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
-    const {id} = req.params;
+    let {id} = req.params;
+    // Using a Sequelize OR when the two OR columns are of different types causes a Sequelize error, necessitating this workaround.
+    const thisStory = await db.story.findOne(!isNaN(id) ? {where: {id}} : {where: {slug: id}}).catch(catcher);
+    if (!thisStory) {
+      if (verbose) console.error(`Story not found for id: ${id}`);
+      return res.json({error: `Story not found for id: ${id}`, errorCode: 404});
+    }
+    id = thisStory.id;
     const locale = req.query.locale || envLoc;
     let returnObject = {};
     let variables = {};
@@ -843,7 +850,7 @@ module.exports = function(app) {
     if (verbose) console.log("Variables Loaded, starting varSwap...");
 
     let story;
-    // Using a Sequelize OR when the two OR columns are of different types causes a Sequelize error, necessitating this workaround.
+
     const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
     const rawStory = await db.story.findOne(reqObj).catch(catcher);
     if (rawStory) {
