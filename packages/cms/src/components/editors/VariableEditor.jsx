@@ -18,14 +18,18 @@ import "./VariableEditor.css";
 
 const preMessage = {
   generator: <Fragment>You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</Fragment>,
+  story_generator: <Fragment>You have access to the variable <strong>resp</strong>, which represents the response to the above API call.</Fragment>,
   materializer: <Fragment>You have access to all variables previously created by generators</Fragment>,
+  story_materializer: <Fragment>You have access to all variables previously created by generators</Fragment>,
   visualization: <Fragment>You have access to all variables previously created by generators and materializers.</Fragment>,
   formatter: <Fragment>You have access to the variable <code>n</code>, which represents the string to be formatted.</Fragment>
 };
 
 const postMessage = {
   generator: <Fragment>Be sure to return an <strong>object</strong> with the variables you want stored as keys.</Fragment>,
+  story_generator: <Fragment>Be sure to return an <strong>object</strong> with the variables you want stored as keys.</Fragment>,
   materalizer: <Fragment>Be sure to return an <strong>object</strong> with the variables you want stored as keys.</Fragment>,
+  story_materalizer: <Fragment>Be sure to return an <strong>object</strong> with the variables you want stored as keys.</Fragment>,
   visualization: <Fragment>Be sure to return a valid config object for a visualization</Fragment>,
   formatter: <Fragment>Be sure to return a <strong>string</strong> that represents your formatted content.</Fragment>
 };
@@ -47,7 +51,7 @@ class VariableEditor extends Component {
     const {data, type} = this.props;
     // If simple has been used in the past and this is a generator, we MUST fetch the payload from the
     // API so that the results for the variables can be filled in.
-    if (type === "generator") {
+    if (type.includes("generator")) {
       const maybePreview = () => data.simple ? this.previewPayload(true) : null;
       this.setState({data}, maybePreview);
     }
@@ -115,7 +119,8 @@ class VariableEditor extends Component {
       // Use urlSwap to swap ANY instances of variables between brackets (e.g. <varname>)
       // With its corresponding value. Same goes for locale
       const lookup = {locale: localeDefault};
-      previews.forEach((p, i) => {
+      const thesePreviews = previews || [];
+      thesePreviews.forEach((p, i) => {
         if (i === 0) {
           lookup.id = p.id;
         }
@@ -190,7 +195,7 @@ class VariableEditor extends Component {
     // If we are enabling simple mode
     else {
       // If it's a generator, then we need a payload before we can switch over.
-      if (type === "generator") {
+      if (type.includes("generator")) {
         this.previewPayload.bind(this)(true);
       }
       // However it's a visualization, no payload is needed. Enable simple mode and switch without an API call.
@@ -226,7 +231,7 @@ class VariableEditor extends Component {
 
     // add the UI mode toggle to footer
     let modeSwitcher = null;
-    if (type === "generator" || type.includes("visualization")) {
+    if (type.includes("generator") || type.includes("visualization")) {
       modeSwitcher =
         <Switch
           checked={simple}
@@ -242,7 +247,7 @@ class VariableEditor extends Component {
       <Fragment>
         <div className="cms-variable-editor" key="e">
           {/* name & description fields */}
-          {(type === "generator" || type === "materializer" || type === "formatter") &&
+          {(type.includes("generator") || type.includes("materializer") || type === "formatter") &&
             <div className="cms-field-group">
               <TextInput
                 label="Name"
@@ -261,7 +266,7 @@ class VariableEditor extends Component {
             </div>
           }
 
-          {type === "generator" && <Fragment key="gf">
+          {type.includes("generator") && <Fragment key="gf">
             <TextButtonGroup
               namespace="cms"
               inputProps={{
@@ -287,7 +292,7 @@ class VariableEditor extends Component {
 
           <div className={`cms-variable-editor-group u-margin-top-off ${simple ? "ui-mode" : "js-mode"}`}>
 
-            {type === "generator" ? modeSwitcher : ""}
+            {type.includes("generator") ? modeSwitcher : ""}
 
             {/* json */}
             {payload &&
@@ -302,7 +307,7 @@ class VariableEditor extends Component {
             }
 
             {simple
-              ? type === "generator"
+              ? type.includes("generator")
                 ? payload
                   ? <VariableEditorUI
                     key="simp-gen"
@@ -347,11 +352,11 @@ class VariableEditor extends Component {
           }
 
           {/* visibility */}
-          {["generator", "materializer", "visualization"].includes(type) &&
+          {["generator", "materializer", "story_generator", "story_materializer", "visualization"].includes(type) &&
             <VisibleSelector
               type="generator"
-              hideCustom={["generator", "materializer"].includes(type)}
-              variables={["generator"].includes(type) ? magicVariables : variables}
+              hideCustom={["generator", "materializer", "story_generator", "story_materializer"].includes(type)}
+              variables={["generator", "story_generator"].includes(type) ? magicVariables : variables}
               value={data.allowed !== undefined ? data.allowed : "always"}
               onChange={this.changeData.bind(this, "allowed")}
             />

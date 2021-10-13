@@ -6,6 +6,7 @@ const PromiseThrottle = require("promise-throttle"),
       libs = require("../utils/libs"), /*leave this! needed for the variable functions.*/ //eslint-disable-line
       mortarEval = require("../utils/mortarEval"),
       prepareProfile = require("../utils/prepareProfile"),
+      prepareStory = require("../utils/prepareStory"),
       sequelize = require("sequelize"),
       urlSwap = require("../utils/urlSwap"),
       varSwapRecursive = require("../utils/varSwapRecursive"),
@@ -35,7 +36,7 @@ axios.interceptors.response.use(d => {
   return d;
 }, e => Promise.reject(e));
 
-const getConfig = () => {
+const getConfig = (opt = {}) => {
   const config = {};
   if (OLAP_PROXY_SECRET) {
     const jwtPayload = {sub: "server", status: "valid"};
@@ -43,7 +44,7 @@ const getConfig = () => {
     const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
     config.headers = {"x-tesseract-jwt-token": apiToken};
   }
-  return config;
+  return {...config, ...opt};
 };
 
 const LANGUAGE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "canon";
@@ -112,6 +113,7 @@ const storyReq = {
     {association: "footnotes", separate: true,
       include: [{association: "content", separate: true}]
     },
+    {association: "selectors"},
     {
       association: "storysections", separate: true,
       include: [
@@ -125,21 +127,14 @@ const storyReq = {
         {association: "subtitles", separate: true,
           include: [{association: "content", separate: true}]
         },
-        {association: "visualizations", separate: true}
+        {association: "visualizations", separate: true},
+        {association: "selectors"}
       ]
     }
   ]
 };
 
 const sorter = (a, b) => a.ordering - b.ordering;
-
-const sortStory = story => {
-  ["descriptions", "footnotes", "authors", "storysections"].forEach(type => story[type].sort(sorter));
-  story.storysections.forEach(storysection => {
-    ["descriptions", "stats", "subtitles", "visualizations"].forEach(type => storysection[type].sort(sorter));
-  });
-  return story;
-};
 
 /**
  * Lang-specific content is stored in secondary tables, and are part of profiles as an
@@ -233,6 +228,68 @@ module.exports = function(app) {
     return attr;
   };
 
+  const createGeneratorFetch = (req, locale, r, attr) => {
+    // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
+    const origin = `${ req.protocol }://${ req.headers.host }`;
+    let url = urlSwap(r, {...req.params, ...cache, ...attr, ...canonVars, locale});
+    if (url.indexOf("http") !== 0) {
+      url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
+    }
+
+    const config = getConfig({timeout: GENERATOR_TIMEOUT});
+
+    return axios.get(url, config)
+      .then(resp => {
+        if (verbose) console.log("Variable Loaded:", url);
+        return resp;
+      })
+      .catch(() => {
+        if (verbose) console.log("Variable Error:", url);
+        return {};
+      });
+  };
+
+  const runStoryGenerators = async(req, pid, id, smallAttr = {}) => {
+    const locale = req.query.locale ? req.query.locale : envLoc;
+    const genObj = id ? {where: {id}} : {where: {story_id: pid}};
+    let generators = await db.story_generator.findAll(genObj).catch(catcher);
+    generators = generators
+      .map(g => g.toJSON())
+      .filter(g => !g.allowed || g.allowed === "always" || smallAttr[g.allowed]);
+    if (id && generators.length === 0) return {};
+
+    const formatterFunctions = await formatters4eval(db, locale);
+
+    const requests = Array.from(new Set(generators.map(g => g.api)));
+    const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, req, locale, url, smallAttr)));
+    const results = await Promise.all(fetches).catch(catcher);
+
+    // Seed the return variables with the stripped-down attr object
+    let returnVariables = {...smallAttr};
+    const genStatus = {};
+    const durations = {};
+    results.forEach((r, i) => {
+      // For every API result, find ONLY the generators that depend on this data
+      const requiredGenerators = generators.filter(g => g.api === requests[i]);
+      // Build the return object using a reducer, one generator at a time
+      returnVariables = requiredGenerators.reduce((acc, g) => {
+        const evalResults = mortarEval("resp", r.data, g.logic, formatterFunctions, locale, smallAttr);
+        if (typeof evalResults.vars !== "object") evalResults.vars = {};
+        // genStatus is used to track the status of each individual generator
+        genStatus[g.id] = evalResults.error ? {error: evalResults.error} : evalResults.vars;
+        durations[g.id] = r.requestDuration;
+        // Fold the generated variables into the accumulating returnVariables
+        return {...acc, ...evalResults.vars};
+      }, returnVariables);
+    });
+    // Set genstatus for all ids
+    returnVariables._genStatus = genStatus;
+    // Inject a special, hard-coded attr genstatus for the front-end
+    returnVariables._genStatus.attributes = smallAttr;
+    returnVariables._genStatus.durations = durations;
+    return returnVariables;
+  };
+
   const runGenerators = async(req, pid, id, smallAttr) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
     const dims = collate(req.query);
@@ -278,34 +335,10 @@ module.exports = function(app) {
       .filter(g => !g.allowed || g.allowed === "always" || smallAttr[g.allowed]);
     if (id && generators.length === 0) return {};
 
-    /** */
-    function createGeneratorFetch(r, attr) {
-      // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
-      const origin = `${ req.protocol }://${ req.headers.host }`;
-      let url = urlSwap(r, {...req.params, ...cache, ...attr, ...canonVars, locale});
-      if (url.indexOf("http") !== 0) {
-        url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
-      }
-
-      const config = getConfig();
-
-      config.timeout = GENERATOR_TIMEOUT;
-
-      return axios.get(url, config)
-        .then(resp => {
-          if (verbose) console.log("Variable Loaded:", url);
-          return resp;
-        })
-        .catch(() => {
-          if (verbose) console.log("Variable Error:", url);
-          return {};
-        });
-    }
-
     const formatterFunctions = await formatters4eval(db, locale);
 
     const requests = Array.from(new Set(generators.map(g => g.api)));
-    const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, url, smallAttr)));
+    const fetches = requests.map(url => throttle.add(createGeneratorFetch.bind(this, req, locale, url, smallAttr)));
     const results = await Promise.all(fetches).catch(catcher);
     // Inject cms_search-level slugs into the payload to help with making front-end links
     for (let i = 0; i < requests.length; i++) {
@@ -375,12 +408,20 @@ module.exports = function(app) {
 
   };
 
+  app.get("/api/story_generators/:pid", async(req, res) => res.json(await runStoryGenerators(req, req.params.pid, req.query.story_generator)));
+  app.post("/api/story_generators/:pid", async(req, res) => res.json(await runStoryGenerators(req, req.params.pid, req.query.story_generator, req.body.attributes)));
   app.get("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator)));
   app.post("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator, req.body.attributes)));
 
-  const runMaterializers = async(req, variables, pid) => {
+  const runMaterializers = async(req, variables, pid, isStory) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
-    let materializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
+    let materializers;
+    if (isStory) {
+      materializers = await db.story_materializer.findAll({where: {story_id: pid}}).catch(catcher);
+    }
+    else {
+      materializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
+    }
     materializers = materializers
       .map(m => m.toJSON())
       .filter(m => !m.allowed || m.allowed === "always" || variables[m.allowed]);
@@ -407,6 +448,14 @@ module.exports = function(app) {
     const materializer = await db.materializer.findOne({where: {profile_id: pid}}).catch(catcher);
     if (!materializer) return res.json({});
     return res.json(await runMaterializers(req, variables, materializer.profile_id));
+  });
+
+  app.post("/api/story_materializers/:pid", async(req, res) => {
+    const {pid} = req.params;
+    const {variables} = req.body;
+    const materializer = await db.story_materializer.findOne({where: {story_id: pid}}).catch(catcher);
+    if (!materializer) return res.json({});
+    return res.json(await runMaterializers(req, variables, materializer.story_id, true));
   });
 
   /* Main API Route to fetch a profile, given a list of slug/id pairs
@@ -767,23 +816,65 @@ module.exports = function(app) {
   app.get("/api/profile", async(req, res) => await fetchProfile(req, res));
   app.post("/api/profile", async(req, res) => await fetchProfile(req, res));
 
-  // Endpoint for getting a story
-  app.get("/api/story/:id", async(req, res) => {
-    const {id} = req.params;
-    const locale = req.query.locale ? req.query.locale : envLoc;
+  const fetchStory = async(req, res) => {
+    // take an arbitrary-length query of slugs and ids and turn them into objects
+    req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
+    let {id} = req.params;
     // Using a Sequelize OR when the two OR columns are of different types causes a Sequelize error, necessitating this workaround.
-    const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
-    let story = await db.story.findOne(reqObj).catch(catcher);
-    if (!story) {
+    const thisStory = await db.story.findOne(!isNaN(id) ? {where: {id}} : {where: {slug: id}}).catch(catcher);
+    if (!thisStory) {
       if (verbose) console.error(`Story not found for id: ${id}`);
       return res.json({error: `Story not found for id: ${id}`, errorCode: 404});
     }
-    story = sortStory(extractLocaleContent(story.toJSON(), locale, "story"));
-    // varSwapRecursive takes any column named "logic" and transpiles it to es5 for IE.
-    // Do a naive varswap (with no formatters and no variables) just to access the transpile for vizes.
-    story = varSwapRecursive(story, {}, {});
-    return res.json(story);
-  });
+    id = thisStory.id;
+    const locale = req.query.locale || envLoc;
+    let returnObject = {};
+    let variables = {};
+
+    if (verbose) console.log("\n\nFetching Variables for pid:", id);
+    const generatorVariables = await runStoryGenerators(req, id);
+    variables = await runMaterializers(req, generatorVariables, id, true);
+
+    delete variables._genStatus;
+    delete variables._matStatus;
+
+    const formatterFunctions = await formatters4eval(db, locale);
+    if (verbose) console.log("Variables Loaded, starting varSwap...");
+
+    let story;
+
+    const reqObj = !isNaN(id) ? Object.assign({}, storyReq, {where: {id}}) : Object.assign({}, storyReq, {where: {slug: id}});
+    const rawStory = await db.story.findOne(reqObj).catch(catcher);
+    if (rawStory) {
+      variables._rawStory = rawStory.toJSON();
+      // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
+      // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
+      // which power the actual rendered dropdowns on the front-end profile page.
+      let allSelectors = await db.story_selector.findAll({where: {story_id: id}}).catch(catcher);
+      allSelectors = allSelectors.map(d => d.toJSON());
+      variables._rawStory.allSelectors = allSelectors;
+      let allMaterializers = await db.story_materializer.findAll({where: {story_id: id}}).catch(catcher);
+      allMaterializers = allMaterializers
+        .map(d => {
+          d = d.toJSON();
+          // make use of varswap for its buble transpiling, so the front end can run es5 code.
+          d = varSwapRecursive(d, formatterFunctions, variables);
+          return d;
+        })
+        .sort((a, b) => a.ordering - b.ordering);
+      variables._rawStory.allMaterializers = allMaterializers;
+      story = prepareStory(variables._rawStory, variables, formatterFunctions, locale, req.query);
+    }
+    else {
+      if (verbose) console.error(`Story not found for id: ${id}`);
+      return res.json({error: `Story not found for id: ${id}`, errorCode: 404});
+    }
+    returnObject = Object.assign({}, returnObject, story);
+    if (verbose) console.log("varSwap complete, sending json...");
+    return res.json(returnObject);
+  };
+
+  app.get("/api/story/:id", async(req, res) => await fetchStory(req, res));
 
   // Endpoint for getting all stories
   app.get("/api/story", async(req, res) => {
@@ -794,7 +885,10 @@ module.exports = function(app) {
         {association: "content", attributes: ["name", "title", "image", "twitter", "bio", "locale"]}
       ]}
     ]}).catch(catcher);
-    stories = stories.map(story => extractLocaleContent(story.toJSON(), locale, "story"));
+    const now = Date.now();
+    stories = stories
+      .map(story => extractLocaleContent(story.toJSON(), locale, "story"))
+      .filter(story => story.visible && story.date < now);
     return res.json(stories.sort(sorter));
   });
 

@@ -55,15 +55,15 @@ const flatSort = (conn, array) => {
   return array;
 };
 
-const bubbleSortSelectors = (conn, selectors) => {
+const bubbleSortSelectors = (conn, selectors, accessor = "section_selector") => {
   selectors = selectors
-    .map(s => Object.assign({}, s, {ordering: s.section_selector.ordering}))
+    .map(s => Object.assign({}, s, {ordering: s[accessor].ordering}))
     .sort(sorter);
   selectors.forEach((o, i) => {
     if (o.ordering !== i) {
       o.ordering = i;
-      o.section_selector.ordering = i;
-      conn.update({ordering: i}, {where: {id: o.section_selector.id}}).catch(catcher);
+      o[accessor].ordering = i;
+      conn.update({ordering: i}, {where: {id: o[accessor].id}}).catch(catcher);
     }
   });
   return selectors;
@@ -122,6 +122,8 @@ const sortStorySection = (db, storysection) => {
   storysection.visualizations = flatSort(db.storysection_visualization, storysection.visualizations);
   storysection.stats = flatSort(db.storysection_stat, storysection.stats);
   storysection.descriptions = flatSort(db.storysection_description, storysection.descriptions);
+  // ordering is nested in section_selector - bubble for top-level sorting
+  storysection.selectors = bubbleSortSelectors(db.storysection_selector, storysection.selectors, "storysection_selector");
   return storysection;
 };
 
@@ -344,6 +346,12 @@ module.exports = function(app) {
           selector.section_selector = newObj.toJSON();
           return res.json(selector);
         }
+        if (ref === "storysection_selector") {
+          let story_selector = await db.story_selector.findOne({where: {id: req.body.story_selector_id}}).catch(catcher);  // eslint-disable-line
+          story_selector = story_selector.toJSON(); // eslint-disable-line
+          story_selector.storysection_selector = newObj.toJSON();
+          return res.json(story_selector);
+        }
         else {
           return res.json(newObj);
         }
@@ -472,6 +480,7 @@ module.exports = function(app) {
     {elements: ["profile"], parent: null},
     {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
     {elements: ["materializer"], parent: "profile_id"},
+    {elements: ["story_materializer"], parent: "story_id"},
     {elements: ["section_subtitle", "section_description", "section_stat", "section_visualization"], parent: "section_id"},
     {elements: ["storysection_subtitle", "storysection_description", "storysection_stat", "storysection_visualization"], parent: "storysection_id"}
   ];
@@ -563,6 +572,24 @@ module.exports = function(app) {
       rows = section.selectors;
     }
     return res.json({parent_id: original.section_id, selectors: rows});
+  });
+
+  app.post("/api/cms/storysection_selector/swap", isEnabled, async(req, res) => {
+    const {id} = req.body;
+    const original = await db.storysection_selector.findOne({where: {id}}).catch(catcher);
+    const otherWhere = {ordering: original.ordering + 1, storysection_id: original.storysection_id};
+    const other = await db.storysection_selector.findOne({where: otherWhere}).catch(catcher);
+    await db.storysection_selector.update({ordering: sequelize.literal("ordering + 1")}, {where: {id}}).catch(catcher);
+    await db.storysection_selector.update({ordering: sequelize.literal("ordering - 1")}, {where: {id: other.id}}).catch(catcher);
+    const reqObj = {where: {id: original.storysection_id}, include: [{association: "selectors"}]};
+    let storysection = await db.storysection.findOne(reqObj).catch(catcher);
+    let rows = [];
+    if (storysection) {
+      storysection = storysection.toJSON();
+      storysection.selectors = bubbleSortSelectors(db.storysection_selector, storysection.selectors, "storysection_selector");
+      rows = storysection.selectors;
+    }
+    return res.json({parent_id: original.storysection_id, selectors: rows});
   });
 
   /* DUPLICATES */
@@ -746,7 +773,22 @@ module.exports = function(app) {
     return res.json({id: req.query.id, parent_id: row.profile_id, generators});
   });
 
+  app.delete("/api/cms/story_generator/delete", isEnabled, async(req, res) => {
+    const row = await db.story_generator.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.generator.destroy({where: {id: req.query.id}});
+    const generators = await db.story_generator.findAll({where: {story_id: row.story_id}}).catch(catcher);
+    return res.json({id: req.query.id, parent_id: row.story_id, generators});
+  });
+
   app.delete("/api/cms/materializer/delete", isEnabled, async(req, res) => {
+    const row = await db.materializer.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.materializer.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.materializer.destroy({where: {id: req.query.id}}).catch(catcher);
+    const materializers = await db.materializer.findAll({where: {profile_id: row.profile_id}, order: [["ordering", "ASC"]]}).catch(catcher);
+    return res.json({id: req.query.id, parent_id: row.profile_id, materializers});
+  });
+
+  app.delete("/api/cms/story_materializer/delete", isEnabled, async(req, res) => {
     const row = await db.materializer.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.materializer.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.materializer.destroy({where: {id: req.query.id}}).catch(catcher);
@@ -759,6 +801,13 @@ module.exports = function(app) {
     await db.selector.destroy({where: {id: req.query.id}});
     const selectors = await db.selector.findAll({where: {profile_id: row.profile_id}}).catch(catcher);
     return res.json({id: row.id, parent_id: row.profile_id, selectors});
+  });
+
+  app.delete("/api/cms/story_selector/delete", isEnabled, async(req, res) => {
+    const row = await db.story_selector.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.story_selector.destroy({where: {id: req.query.id}});
+    const selectors = await db.story_selector.findAll({where: {story_id: row.story_id}}).catch(catcher);
+    return res.json({id: row.id, parent_id: row.story_id, selectors});
   });
 
   app.delete("/api/cms/section_selector/delete", isEnabled, async(req, res) => {
@@ -775,6 +824,22 @@ module.exports = function(app) {
       rows = section.selectors;
     }
     return res.json({parent_id: row.section_id, selectors: rows});
+  });
+
+  app.delete("/api/cms/storysection_selector/delete", isEnabled, async(req, res) => {
+    const {story_selector_id, storysection_id} = req.query; // eslint-disable-line camelcase
+    const row = await db.storysection_selector.findOne({where: {story_selector_id, storysection_id}}).catch(catcher);
+    await db.storysection_selector.update({ordering: sequelize.literal("ordering -1")}, {where: {storysection_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.storysection_selector.destroy({where: {story_selector_id, storysection_id}});
+    const reqObj = {where: {id: row.storysection_id}, include: [{association: "selectors"}]};
+    let storysection = await db.storysection.findOne(reqObj).catch(catcher);
+    let rows = [];
+    if (storysection) {
+      storysection = storysection.toJSON();
+      storysection.selectors = bubbleSortSelectors(db.storysection_selector, storysection.selectors, "storysection_selector");
+      rows = storysection.selectors;
+    }
+    return res.json({parent_id: row.storysection_id, selectors: rows});
   });
 
   app.delete("/api/cms/profile/delete", isEnabled, async(req, res) => {

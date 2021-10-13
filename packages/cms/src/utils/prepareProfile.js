@@ -1,7 +1,7 @@
 /**
  * prepareProfile is part of an effort to move varSwap local. A great deal of "profile preparation" was occuring serverside,
  * including the sql get, bubbling up language content, sorting, and varswapping. In order for profiles to be able to varswap
- * locally, they need to do all this themselves. TODO: Make the server-side version use this too (deduplicate)
+ * locally, they need to do all this themselves.
  */
 
 const validateDynamic = require("./selectors/validateDynamic");

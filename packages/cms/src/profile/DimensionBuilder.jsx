@@ -62,8 +62,8 @@ class DimensionBuilder extends Component {
                 />
               ) : []}
               <PreviewSearch
-                label={previews[i] ? previews[i].name || previews[i].id || "search profiles..." : "search profiles..."}
-                previewing={previews[i] ? previews[i].name || previews[i].id : false}
+                label={previews && previews[i] ? previews[i].name || previews[i].id || "search profiles..." : "search profiles..."}
+                previewing={previews && previews[i] ? previews[i].name || previews[i].id : false}
                 fontSize="xxs"
                 group={group}
                 index={i}

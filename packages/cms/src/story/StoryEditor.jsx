@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 import Button from "../components/fields/Button";
 import Deck from "../components/interface/Deck";
 import TextCard from "../components/cards/TextCard";
+import Select from "../components/fields/Select";
 import Loading from "components/Loading";
 import {DatePicker} from "@blueprintjs/datetime";
 import deepClone from "../utils/deepClone";
@@ -41,6 +42,14 @@ class StoryEditor extends Component {
     return str.replace(/^\s+|\s+$/gm, "").replace(/[^a-zA-ZÀ-ž0-9-\ _]/g, "");
   }
 
+  changeVisibility(e) {
+    const {minData} = this.state;
+    minData.visible = e.target.value;
+    const payload = {id: minData.id, visible: minData.visible};
+    this.setState({minData});
+    this.props.updateEntity("story", payload);
+  }
+
   changeField(field, e) {
     const {minData} = this.state;
     minData[field] = field === "slug" ? this.urlPrep(e.target.value) : e.target.value;
@@ -53,8 +62,8 @@ class StoryEditor extends Component {
 
   save() {
     const {minData} = this.state;
-    const {id, slug, date} = minData;
-    const payload = {id, slug, date};
+    const {id, slug, date, image} = minData;
+    const payload = {id, slug, date, image};
     this.props.updateEntity("story", payload);
   }
 
@@ -82,10 +91,10 @@ class StoryEditor extends Component {
             key="title-card"
             minData={minData}
             fields={["title", "subtitle"]}
-            plainFields={["image"]}
             type="story"
           />}
         >
+
           <div className="cms-editor-header">
             {/* change slug */}
             <label className="bp3-label cms-slug">
@@ -93,6 +102,14 @@ class StoryEditor extends Component {
               <div className="bp3-input-group">
                 <input className="bp3-input" type="text" value={minDataState.slug} onChange={this.changeField.bind(this, "slug")}/>
                 <Button namespace="cms" onClick={this.save.bind(this)}>Rename</Button>
+              </div>
+            </label>
+
+            <label className="bp3-label cms-slug">
+              Static Hero Image Path
+              <div className="bp3-input-group">
+                <input className="bp3-input" type="text" value={minDataState.image} onChange={this.changeField.bind(this, "image")}/>
+                <Button namespace="cms" onClick={this.save.bind(this)}>Set</Button>
               </div>
             </label>
 
@@ -110,6 +127,18 @@ class StoryEditor extends Component {
                 }
               </div>
             </div>
+            <Select
+              label="Story Visibility"
+              className="cms-profile-visible-selector"
+              namespace="cms"
+              fontSize="xs"
+              inline
+              value={minData.visible}
+              onChange={this.changeVisibility.bind(this)}
+            >
+              <option key="true" value={true}>Visible</option>
+              <option key="false" value={false}>Hidden</option>
+            </Select>
           </div>
         </Deck>
 

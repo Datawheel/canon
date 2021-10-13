@@ -27,17 +27,21 @@ const profileReqFull = {
 const storyReqFull = {
   include: [
     {association: "content", separate: true},
+    {association: "generators", separate: true},
+    {association: "materializers", separate: true},
+    {association: "selectors", separate: true},
     {association: "authors", include: [{association: "content", separate: true}], separate: true},
     {association: "descriptions", include: [{association: "content", separate: true}], separate: true},
     {association: "footnotes", include: [{association: "content", separate: true}], separate: true},
     {
-      association: "storysections", separate: true, 
+      association: "storysections", separate: true,
       include: [
         {association: "content", separate: true},
         {association: "subtitles", include: [{association: "content", separate: true}], separate: true},
         {association: "descriptions", include: [{association: "content", separate: true}], separate: true},
         {association: "stats", include: [{association: "content", separate: true}], separate: true},
-        {association: "visualizations", separate: true}
+        {association: "visualizations", separate: true},
+        {association: "selectors"}
       ]
     }
   ]
@@ -60,7 +64,8 @@ const storysectionReqFull = {
     {association: "subtitles", include: [{association: "content", separate: true}], separate: true},
     {association: "descriptions", include: [{association: "content", separate: true}], separate: true},
     {association: "stats", include: [{association: "content", separate: true}], separate: true},
-    {association: "visualizations", separate: true}
+    {association: "visualizations", separate: true},
+    {association: "selectors"}
   ]
 };
 
@@ -72,6 +77,7 @@ const storysectionReqFull = {
 const cmsTables = [
   "author", "formatter", "generator", "materializer", "profile", "profile_meta",
   "selector", "story", "story_description", "story_footnote", "storysection",
+  "story_generator", "story_materializer", "story_selector", "storysection_selector",
   "storysection_description", "storysection_stat", "storysection_subtitle", "storysection_visualization",
   "section", "section_description", "section_stat", "section_subtitle", "section_visualization", "section_selector"
 ];
@@ -96,10 +102,12 @@ const contentTables = [
 const parentOrderingTables = {
   author: "story_id",
   materializer: "profile_id",
+  story_materializer: "story_id",
   profile_meta: "profile_id",
   section: "profile_id",
   section_description: "section_id",
   section_selector: "section_id",
+  storysection_selector: "storysection_id",
   section_stat: "section_id",
   section_subtitle: "section_id",
   section_visualization: "section_id",

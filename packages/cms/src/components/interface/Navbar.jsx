@@ -166,7 +166,9 @@ class Navbar extends Component {
     if (pathObj.tab === "profiles") {
       const {currentPid, previews} = this.props.status;
       // If the pids match, don't reset any previews or variables
-      if (currentPid === Number(pathObj.profile)) {
+      const sameProfile = currentPid === Number(pathObj.profile);
+      const comingFromStoryTab = this.props.status.pathObj.tab === "stories";
+      if (sameProfile && !comingFromStoryTab) {
         newPathObj.previews = previews;
         this.props.setStatus({pathObj: newPathObj});
       }
@@ -182,7 +184,7 @@ class Navbar extends Component {
       }
     }
     else if (pathObj.tab === "stories") {
-      this.props.setStatus({currentStoryPid: Number(pathObj.story), pathObj: newPathObj});
+      this.props.setStatus({currentStoryPid: Number(pathObj.story), pathObj: newPathObj, previews: null});
     }
     else if (pathObj.tab === "metadata") {
       this.props.setStatus({pathObj: newPathObj});

@@ -224,11 +224,13 @@ VisualizationCard.contextTypes = {
   toast: PropTypes.object
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state, ownProps) => ({
   variables: state.cms.variables,
   status: state.cms.status,
   resources: state.cms.resources,
-  selectors: state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []
+  selectors: ownProps.type.includes("story")
+    ? state.cms.status.currentStoryPid ? state.cms.stories.find(p => p.id === state.cms.status.currentStoryPid).selectors : []
+    : state.cms.status.currentPid ? state.cms.profiles.find(p => p.id === state.cms.status.currentPid).selectors : []
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -40,9 +40,15 @@ module.exports = function(app) {
           isDepartmentOrProvince
         });
 
+      case 3:
+        return res.json({
+          sample: "data"
+        });
+
         // CITE profile
 
       case 4:
+        return res.json({});
         const citeParams = {
           cube: "dimension_cite",
           drilldowns: "CITE",
