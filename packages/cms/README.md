@@ -1,4 +1,4 @@
-# Canon CMS
+# Canon CMS 1.0
 Content Management System for Canon sites.
 
 ## Table of Contents
