@@ -92,7 +92,7 @@ const rowToResult = (row, locale) => {
  * Given a db connection, image id, and image buffer, attempt to upload the image to google cloud.
  * If the upload to cloud fails, store buffer data in psql row
  */
-const uploadImage = async(db, id, imageData) => {
+const uploadImage = async(db, id, imageData, isCustom) => {
   const configs = [
     {type: "splash", res: splashWidth},
     {type: "thumb", res: thumbWidth}
@@ -107,7 +107,11 @@ const uploadImage = async(db, id, imageData) => {
       return false;
     });
     if (writeResult === false) {
-      await db.image.update({[config.type]: buffer}, {where: {id}}).catch(catcher);
+      let payload = {[config.type]: buffer};
+      const customStub = {url: `custom-image-${id}`, author: "", license: null};
+      if (isCustom) payload = {...payload, ...customStub};
+      await db.image.update(payload, {where: {id}}).catch(catcher);
+      await db.image_content.update({meta: ""}, {where: {id}}).catch(catcher);
     }
     else {
       await storage.bucket(bucket).file(file).makePublic().catch(catcher);
@@ -176,12 +180,12 @@ module.exports = function(app) {
       await db.image.update({url: `custom-image-${newImage.id}`}, {where: {id: newImage.id}}).catch(catcher);
       await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);
 
-      await uploadImage(db, newImage.id, imageData).catch(catcher);
+      await uploadImage(db, newImage.id, imageData, true).catch(catcher);
     }
     else {
       const imageRow = await db.image.findOne({where: {id: searchRow.imageId}}).catch(catcher);
       if (imageRow) {
-        await uploadImage(db, imageRow.id, imageData).catch(catcher);
+        await uploadImage(db, imageRow.id, imageData, true).catch(catcher);
       }
     }
     return res.json("OK");
@@ -228,7 +232,7 @@ module.exports = function(app) {
               await db.search.update({imageId: newImage.id}, {where: {contentId}}).catch(catcher);
 
               // Finally, upload splash and thumb version to google cloud, or psql as a fallback
-              await uploadImage(db, newImage.id, imageData).catch(catcher);
+              await uploadImage(db, newImage.id, imageData, false).catch(catcher);
             }
           }
           const newRow = await db.search.findOne({
