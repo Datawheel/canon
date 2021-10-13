@@ -31,7 +31,7 @@ class Hero extends Component {
   constructor(props) {
 
     super(props);
-    const {contents, profile} = props;
+    const {contents, profile, type} = props;
 
     /** Image Metadata
       * A profile is a set of one more slug/id pairs. In multi-variate profiles, these pairs are strictly
@@ -55,6 +55,13 @@ class Hero extends Component {
           });
         }
       }
+    }
+
+    if (type === "story") {
+      images.push({
+        src: profile.image,
+        permalink: ""
+      });
     }
 
     this.state = {
@@ -107,7 +114,7 @@ class Hero extends Component {
   }
 
   render() {
-    const {contents, loading, sources, profile, t} = this.props;
+    const {contents, loading, sources, profile, t, type} = this.props;
     const {images, creditsVisible, clickedIndex} = this.state;
     const {searchProps} = this.context;
 
@@ -196,7 +203,7 @@ class Hero extends Component {
         {images.length
           ? <Fragment>
             {/* credits */}
-            { hasFlickrSource &&
+            { type !== "story" && hasFlickrSource &&
               <div className={`cp-hero-credits ${creditsVisible ? "is-open" : "is-closed"}`}>
                 <Button
                   className="cp-hero-credits-button"

@@ -62,8 +62,8 @@ class StoryEditor extends Component {
 
   save() {
     const {minData} = this.state;
-    const {id, slug, date} = minData;
-    const payload = {id, slug, date};
+    const {id, slug, date, image} = minData;
+    const payload = {id, slug, date, image};
     this.props.updateEntity("story", payload);
   }
 
@@ -91,7 +91,6 @@ class StoryEditor extends Component {
             key="title-card"
             minData={minData}
             fields={["title", "subtitle"]}
-            plainFields={["image"]}
             type="story"
           />}
         >
@@ -103,6 +102,14 @@ class StoryEditor extends Component {
               <div className="bp3-input-group">
                 <input className="bp3-input" type="text" value={minDataState.slug} onChange={this.changeField.bind(this, "slug")}/>
                 <Button namespace="cms" onClick={this.save.bind(this)}>Rename</Button>
+              </div>
+            </label>
+
+            <label className="bp3-label cms-slug">
+              Static Hero Image Path
+              <div className="bp3-input-group">
+                <input className="bp3-input" type="text" value={minDataState.image} onChange={this.changeField.bind(this, "image")}/>
+                <Button namespace="cms" onClick={this.save.bind(this)}>Set</Button>
               </div>
             </label>
 

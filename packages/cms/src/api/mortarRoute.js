@@ -136,14 +136,6 @@ const storyReq = {
 
 const sorter = (a, b) => a.ordering - b.ordering;
 
-const sortStory = story => {
-  ["descriptions", "footnotes", "authors", "storysections"].forEach(type => story[type].sort(sorter));
-  story.storysections.forEach(storysection => {
-    ["descriptions", "stats", "subtitles", "visualizations"].forEach(type => storysection[type].sort(sorter));
-  });
-  return story;
-};
-
 /**
  * Lang-specific content is stored in secondary tables, and are part of profiles as an
  * array called "content," which contains objects of region-specific translated keys.

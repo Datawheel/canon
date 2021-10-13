@@ -130,7 +130,7 @@ class Story extends Component {
       <Fragment>
         <div className="cp-story">
           <Helmet title={titleRaw} />
-          <Hero profile={story} />
+          <Hero profile={story} type="story"/>
           <main className="cp-story-main" id="main">
             {storysections.map((section, i) =>
               <Section

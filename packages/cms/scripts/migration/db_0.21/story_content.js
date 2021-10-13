@@ -22,18 +22,14 @@ module.exports = function(sequelize, db) {
       subtitle: {
         type: db.TEXT,
         defaultValue: ""
-      },
-      image: {
-        type: db.STRING,
-        defaultValue: ""
       }
-    }, 
+    },
     {
       tableName: "canon_cms_story_content",
       freezeTableName: true,
       timestamps: false
     }
-  ); 
+  );
 
   return s;
 
