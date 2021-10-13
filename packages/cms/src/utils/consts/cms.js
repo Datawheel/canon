@@ -15,6 +15,12 @@ module.exports = {
   SELECTOR_TYPES: {
     SECTION_SELECTOR: "section_selector",
     STORYSECTION_SELECTOR: "storysection_selector"
+  },
+
+  SECTION_TYPES: {
+    TEXT: "text",
+    VIZ: "visualization",
+    STAT: "stat"
   }
 
 };
