@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 import Button from "../components/fields/Button";
 import Deck from "../components/interface/Deck";
 import TextCard from "../components/cards/TextCard";
+import Select from "../components/fields/Select";
 import Loading from "components/Loading";
 import {DatePicker} from "@blueprintjs/datetime";
 import deepClone from "../utils/deepClone";
@@ -39,6 +40,14 @@ class StoryEditor extends Component {
   // Strip leading/trailing spaces and URL-breaking characters
   urlPrep(str) {
     return str.replace(/^\s+|\s+$/gm, "").replace(/[^a-zA-ZÀ-ž0-9-\ _]/g, "");
+  }
+
+  changeVisibility(e) {
+    const {minData} = this.state;
+    minData.visible = e.target.value;
+    const payload = {id: minData.id, visible: minData.visible};
+    this.setState({minData});
+    this.props.updateEntity("story", payload);
   }
 
   changeField(field, e) {
@@ -86,6 +95,7 @@ class StoryEditor extends Component {
             type="story"
           />}
         >
+
           <div className="cms-editor-header">
             {/* change slug */}
             <label className="bp3-label cms-slug">
@@ -110,6 +120,18 @@ class StoryEditor extends Component {
                 }
               </div>
             </div>
+            <Select
+              label="Story Visibility"
+              className="cms-profile-visible-selector"
+              namespace="cms"
+              fontSize="xs"
+              inline
+              value={minData.visible}
+              onChange={this.changeVisibility.bind(this)}
+            >
+              <option key="true" value={true}>Visible</option>
+              <option key="false" value={false}>Hidden</option>
+            </Select>
           </div>
         </Deck>
 

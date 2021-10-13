@@ -896,7 +896,7 @@ module.exports = function(app) {
     const now = Date.now();
     stories = stories
       .map(story => extractLocaleContent(story.toJSON(), locale, "story"))
-      .filter(story => story.date < now);
+      .filter(story => story.visible && story.date < now);
     return res.json(stories.sort(sorter));
   });
 

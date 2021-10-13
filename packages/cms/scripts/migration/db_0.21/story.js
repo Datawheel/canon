@@ -19,6 +19,10 @@ module.exports = function(sequelize, db) {
       image: {
         type: db.STRING,
         defaultValue: ""
+      },
+      visible: {
+        type: db.BOOLEAN,
+        defaultValue: true
       }
     },
     {
