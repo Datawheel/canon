@@ -38,7 +38,7 @@ module.exports = function(sequelize, db) {
 
   p.associate = models => {
     p.hasMany(models.search, {foreignKey: "cubeName", sourceKey: "cubeName", as: "members", constraints: false});
-    p.belongsTo(models.profile, {foreignKey: "id", sourceKey: "profile_id", as: "profile"});
+    p.belongsTo(models.profile, {foreignKey: "id", sourceKey: "profile_id", as: "profile", constraints: false});
   };
 
   return p;
