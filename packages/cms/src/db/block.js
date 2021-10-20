@@ -1,4 +1,4 @@
-import {SECTION_TYPES} from "../utils/cms";
+import {SECTION_TYPES} from "../utils/consts/cms";
 
 module.exports = function(sequelize, db) {
 
@@ -9,15 +9,15 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         autoIncrement: true
       },
-
-      /* block metadata */
-      name: {
-        type: db.TEXT,
+      slug: {
+        type: db.STRING,
         defaultValue: ""
       },
-      description: {
-        type: db.TEXT,
-        defaultValue: ""
+
+      /* block metadata */
+      settings: {
+        type: db.JSON,
+        defaultValue: {}
       },
       type: {
         type: db.STRING,
@@ -26,6 +26,14 @@ module.exports = function(sequelize, db) {
       allowed: {
         type: db.STRING,
         defaultValue: "always"
+      },
+      logicAllowed: {
+        type: db.STRING,
+        defaultValue: "return \"always\";"
+      },
+      useLogicAllowed: {
+        type: db.BOOLEAN,
+        defaultValue: false
       },
 
       /* generators */
@@ -37,11 +45,11 @@ module.exports = function(sequelize, db) {
         type: db.TEXT,
         defaultValue: "return {}"
       },
-      logic_simple: {
+      logicSimple: {
         type: db.JSON,
         defaultValue: null
       },
-      simple: {
+      useLogicSimple: {
         type: db.BOOLEAN,
         defaultValue: true
       },

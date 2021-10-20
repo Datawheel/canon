@@ -15,9 +15,17 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         primaryKey: true
       },
-      config: {
+      content: {
         type: db.JSON,
-        defaultValue: "{}"
+        defaultValue: {}
+      },
+      logicContent: {
+        type: db.STRING,
+        defaultValue: "return {}"
+      },
+      useLogicContent: {
+        type: db.BOOLEAN,
+        defaultValue: false
       }
     },
     {

@@ -21,6 +21,27 @@ module.exports = {
     TEXT: "text",
     VIZ: "visualization",
     STAT: "stat"
+  },
+
+  BLOCK_FIELDS: {
+    TITLE: "title",
+    SUBTITLE: "subtitle",
+    VALUE: "value",
+    TOOLTIP: "tooltip",
+    PARAGRAPH: "paragraph",
+    FOOTNOTE: "footnote",
+    AUTHOR: "author",
+    SHORT: "short",
+    TWITTER: "twitter",
+    BIO: "bio",
+    IMAGE: "image"
+  },
+
+  BLOCK_SETTINGS: {
+    NAME: "name",
+    DESCRIPTION: "description",
+    POSITION: "position",
+    ICON: "icon"
   }
 
 };
