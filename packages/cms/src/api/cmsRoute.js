@@ -1,9 +1,9 @@
-const fs = require("fs");
-const path = require("path");
-const sequelize = require("sequelize");
-const shell = require("shelljs");
-const yn = require("yn");
-const Op = sequelize.Op;
+const Op = sequelize.Op,
+      fs = require("fs"),
+      path = require("path"),
+      sequelize = require("sequelize"),
+      shell = require("shelljs"),
+      yn = require("yn");
 
 const populateSearch = require("../utils/populateSearch");
 const {profileReqFull, storyReqFull, sectionReqFull, storysectionReqFull, cmsTables, contentTables, parentOrderingTables} = require("../utils/sequelize/models");

@@ -17,7 +17,9 @@ const PROFILE_MAP = {
 };
 
 const PROFILE_SETTINGS = {
-
+  ALLOWED: "allowed",
+  LOGIC_ALLOWED: "logicAllowed",
+  LOGIC_ALLOWED_ENABLED: "logicAllowedEnabled"
 };
 
 const SECTION_TYPES = getSectionTypes().reduce((acc, d) => ({...acc, [d.toUpperCase()]: d}), {});
@@ -126,14 +128,16 @@ const BLOCK_SETTINGS = {
 };
 
 module.exports = {
-  BLOCK_TYPES,
   BLOCK_FIELDS,
   BLOCK_MAP,
   BLOCK_SETTINGS,
-  PROFILE_TYPES,
+  BLOCK_TYPES,
   PROFILE_FIELDS,
   PROFILE_MAP,
-  SECTION_TYPES,
+  PROFILE_SETTINGS,
+  PROFILE_TYPES,
   SECTION_FIELDS,
-  SECTION_MAP
+  SECTION_MAP,
+  SECTION_SETTINGS,
+  SECTION_TYPES
 };

@@ -1,13 +1,13 @@
 module.exports = function(sequelize, db) {
 
-  const s = sequelize.define("block_block",
+  const s = sequelize.define("block_input",
     {
       id: {
         type: db.INTEGER,
         primaryKey: true,
         autoIncrement: true
       },
-      consumer_id: {
+      block_id: {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {
@@ -22,10 +22,11 @@ module.exports = function(sequelize, db) {
           model: "canon_cms_block",
           key: "id"
         }
-      }
+      },
+      ordering: db.INTEGER
     },
     {
-      tableName: "canon_cms_block_block",
+      tableName: "canon_cms_block_input",
       freezeTableName: true,
       timestamps: false
     }
