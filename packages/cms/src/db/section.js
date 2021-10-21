@@ -1,3 +1,5 @@
+import {SECTION_TYPES} from "../utils/consts/cms";
+
 module.exports = function(sequelize, db) {
 
   const t = sequelize.define("section",
@@ -12,27 +14,20 @@ module.exports = function(sequelize, db) {
         defaultValue: ""
       },
 
+      /* metadata */
+      settings: {
+        type: db.JSON,
+        defaultValue: {}
+      },
       type: {
         type: db.STRING,
-        defaultValue: "TextViz"
-      },
-      ordering: db.INTEGER,
-      allowed: {
-        type: db.STRING,
-        defaultValue: "always"
+        defaultValue: SECTION_TYPES.DEFAULT
       },
       heading: {
         type: db.INTEGER,
         default: 1
       },
-      position: {
-        type: db.STRING,
-        defaultValue: "default"
-      },
-      icon: {
-        type: db.STRING,
-        defaultValue: ""
-      },
+      ordering: db.INTEGER,
 
       /* relations */
       profile_id: {

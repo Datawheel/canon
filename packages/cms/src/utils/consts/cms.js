@@ -16,6 +16,10 @@ const PROFILE_MAP = {
   [PROFILE_TYPES.STORY]: Object.values(PROFILE_FIELDS)
 };
 
+const PROFILE_SETTINGS = {
+
+};
+
 const SECTION_TYPES = getSectionTypes().reduce((acc, d) => ({...acc, [d.toUpperCase()]: d}), {});
 
 const SECTION_FIELDS = {
@@ -24,6 +28,14 @@ const SECTION_FIELDS = {
 };
 
 const SECTION_MAP = Object.values(SECTION_TYPES).reduce((acc, d) => ({...acc, [d]: Object.values(SECTION_FIELDS)}), {});
+
+const SECTION_SETTINGS = {
+  POSITION: "position",
+  ICON: "icon",
+  ALLOWED: "allowed",
+  LOGIC_ALLOWED: "logicAllowed",
+  LOGIC_ALLOWED_ENABLED: "logicAllowedEnabled"
+};
 
 const BLOCK_CONTENT_TYPES = {
   AUTHOR: "author",
@@ -112,19 +124,6 @@ const BLOCK_SETTINGS = {
   LOGIC_ALLOWED: "logicAllowed",
   LOGIC_ALLOWED_ENABLED: "logicAllowedEnabled"
 };
-
-console.log({
-  BLOCK_TYPES,
-  BLOCK_FIELDS,
-  BLOCK_MAP,
-  BLOCK_SETTINGS,
-  PROFILE_TYPES,
-  PROFILE_FIELDS,
-  PROFILE_MAP,
-  SECTION_TYPES,
-  SECTION_FIELDS,
-  SECTION_MAP
-});
 
 module.exports = {
   BLOCK_TYPES,

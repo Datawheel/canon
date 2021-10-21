@@ -15,11 +15,15 @@ module.exports = function(sequelize, db) {
       },
       date: {
         type: db.DATE,
-        defaultValue: "2018-01-01 00:00:00"
+        defaultValue: null
       },
       type: {
         type: db.STRING,
         defaultValue: PROFILE_TYPES.PROFILE
+      },
+      settings: {
+        type: db.JSON,
+        default: {}
       },
       ordering: db.INTEGER
     },
