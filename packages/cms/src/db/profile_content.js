@@ -15,17 +15,9 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         primaryKey: true
       },
-      title: {
-        type: db.STRING,
-        defaultValue: "New Profile"
-      },
-      subtitle: {
-        type: db.TEXT,
-        defaultValue: ""
-      },
-      label: {
-        type: db.STRING,
-        defaultValue: ""
+      content: {
+        type: db.JSON,
+        defaultValue: {}
       }
     },
     {

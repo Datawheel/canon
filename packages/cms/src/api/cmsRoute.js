@@ -1,8 +1,8 @@
+const fs = require("fs");
+const path = require("path");
 const sequelize = require("sequelize");
 const shell = require("shelljs");
 const yn = require("yn");
-const path = require("path");
-const fs = require("fs");
 const Op = sequelize.Op;
 
 const populateSearch = require("../utils/populateSearch");

@@ -1,32 +1,35 @@
 module.exports = function(sequelize, db) {
 
-  const s = sequelize.define("story_description",
+  const s = sequelize.define("block_block",
     {
       id: {
         type: db.INTEGER,
         primaryKey: true,
         autoIncrement: true
-      },      
-      story_id: {
+      },
+      consumer_id: {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {
-          model: "canon_cms_story",
+          model: "canon_cms_block",
           key: "id"
         }
       },
-      ordering: db.INTEGER
-    }, 
+      input_id: {
+        type: db.INTEGER,
+        onDelete: "cascade",
+        references: {
+          model: "canon_cms_block",
+          key: "id"
+        }
+      }
+    },
     {
-      tableName: "canon_cms_story_description",
+      tableName: "canon_cms_block_block",
       freezeTableName: true,
       timestamps: false
     }
   );
-
-  s.associate = models => {
-    s.hasMany(models.story_description_content, {foreignKey: "id", sourceKey: "id", as: "content"});
-  };  
 
   return s;
 

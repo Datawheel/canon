@@ -11,14 +11,7 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         defaultValue: ""
       },
-      profile_id: {
-        type: db.INTEGER,
-        onDelete: "cascade",
-        references: {
-          model: "canon_cms_profile",
-          key: "id"
-        }
-      },
+
       type: {
         type: db.STRING,
         defaultValue: "TextViz"
@@ -28,6 +21,10 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         defaultValue: "always"
       },
+      heading: {
+        type: db.INTEGER,
+        default: 1
+      },
       position: {
         type: db.STRING,
         defaultValue: "default"
@@ -35,6 +32,16 @@ module.exports = function(sequelize, db) {
       icon: {
         type: db.STRING,
         defaultValue: ""
+      },
+
+      /* relations */
+      profile_id: {
+        type: db.INTEGER,
+        onDelete: "cascade",
+        references: {
+          model: "canon_cms_profile",
+          key: "id"
+        }
       }
     },
     {
@@ -46,11 +53,7 @@ module.exports = function(sequelize, db) {
 
   t.associate = models => {
     t.hasMany(models.section_content, {foreignKey: "id", sourceKey: "id", as: "content"});
-    t.hasMany(models.section_visualization, {foreignKey: "section_id", sourceKey: "id", as: "visualizations"});
-    t.hasMany(models.section_stat, {foreignKey: "section_id", sourceKey: "id", as: "stats"});
-    t.hasMany(models.section_subtitle, {foreignKey: "section_id", sourceKey: "id", as: "subtitles"});
-    t.hasMany(models.section_description, {foreignKey: "section_id", sourceKey: "id", as: "descriptions"});
-    t.belongsToMany(models.selector, {through: "section_selector", foreignKey: "section_id", otherKey: "selector_id", as: "selectors"});
+    t.hasMany(models.blocks, {foreignKey: "section_id", sourceKey: "id", as: "blocks"});
   };
 
   return t;

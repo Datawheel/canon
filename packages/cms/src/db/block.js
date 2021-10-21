@@ -2,7 +2,7 @@ import {BLOCK_TYPES} from "../utils/consts/cms";
 
 module.exports = function(sequelize, db) {
 
-  return sequelize.define("block",
+  const block = sequelize.define("block",
     {
       id: {
         type: db.INTEGER,
@@ -21,11 +21,7 @@ module.exports = function(sequelize, db) {
       },
       type: {
         type: db.STRING,
-        defaultValue: BLOCK_TYPES.TEXT
-      },
-      heading: {
-        type: db.INTEGER,
-        default: 1
+        defaultValue: BLOCK_TYPES.PARAGRAPH
       },
       shared: {
         type: db.BOOLEAN,
@@ -67,5 +63,10 @@ module.exports = function(sequelize, db) {
       timestamps: false
     }
   );
+
+  block.associate = models => {
+    block.hasMany(models.block_content, {foreignKey: "id", sourceKey: "id", as: "content"});
+    block.belongsToMany(models.block, {through: "block_block", foreignKey: "consumer_id", otherKey: "input_id", as: "inputs"});
+  };
 
 };

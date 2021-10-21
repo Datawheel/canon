@@ -1,19 +1,29 @@
-const PARENT_TYPES = {
+const getSectionTypes = require("../sections/getSectionTypes");
+
+const PROFILE_TYPES = {
   PROFILE: "profile",
   STORY: "story"
 };
 
-const GENERATOR_TYPES = {
-  GENERATOR: "generator",
-  MATERIALIZER: "materializer",
-  STORY_GENERATOR: "story_generator",
-  STORY_MATERIALIZER: "story_materializer"
+const PROFILE_FIELDS = {
+  TITLE: "title",
+  SUBTITLE: "subtitle",
+  LABEL: "label"
 };
 
-const SELECTOR_TYPES = {
-  SECTION_SELECTOR: "section_selector",
-  STORYSECTION_SELECTOR: "storysection_selector"
+const PROFILE_MAP = {
+  [PROFILE_TYPES.PROFILE]: Object.values(PROFILE_FIELDS),
+  [PROFILE_TYPES.STORY]: Object.values(PROFILE_FIELDS)
 };
+
+const SECTION_TYPES = getSectionTypes().reduce((acc, d) => ({...acc, [d.toUpperCase()]: d}), {});
+
+const SECTION_FIELDS = {
+  TITLE: "title",
+  SHORT: "short"
+};
+
+const SECTION_MAP = Object.values(SECTION_TYPES).reduce((acc, d) => ({...acc, [d]: Object.values(SECTION_FIELDS)}), {});
 
 const BLOCK_CONTENT_TYPES = {
   AUTHOR: "author",
@@ -46,7 +56,6 @@ const BLOCK_FIELDS = {
   SELECTOR_DYNAMIC: "selectorDynamic",
   SELECTOR_NAME: "selectorName",
   SELECTOR_TYPE: "selectorType",
-  SHORT: "short",
   SUBTITLE: "subtitle",
   TITLE: "title",
   TOOLTIP: "tooltip",
@@ -87,30 +96,45 @@ const BLOCK_MAP = {
   ]
 };
 
-Object.values(BLOCK_MAP).forEach(d => [...new Set([...d,
-  BLOCK_FIELDS.LOGIC,
-  BLOCK_FIELDS.LOGIC_ENABLED,
-  BLOCK_FIELDS.LOGIC_SIMPLE,
-  BLOCK_FIELDS.LOGIC_SIMPLE_ENABLED
-])]);
+Object.keys(BLOCK_MAP).forEach(k => {
+  BLOCK_MAP[k] = BLOCK_MAP[k].concat([
+    BLOCK_FIELDS.LOGIC,
+    BLOCK_FIELDS.LOGIC_ENABLED,
+    BLOCK_FIELDS.LOGIC_SIMPLE,
+    BLOCK_FIELDS.LOGIC_SIMPLE_ENABLED
+  ]);
+});
 
 const BLOCK_SETTINGS = {
   NAME: "name",
   DESCRIPTION: "description",
   ALLOWED: "allowed",
   LOGIC_ALLOWED: "logicAllowed",
-  LOGIC_ALLOWED_ENABLED: "logicAllowedEnabled",
-  POSITION: "position",
-  ICON: "icon"
+  LOGIC_ALLOWED_ENABLED: "logicAllowedEnabled"
 };
 
-
-module.exports = {
-  PARENT_TYPES,
-  GENERATOR_TYPES,
-  SELECTOR_TYPES,
+console.log({
   BLOCK_TYPES,
   BLOCK_FIELDS,
   BLOCK_MAP,
-  BLOCK_SETTINGS
+  BLOCK_SETTINGS,
+  PROFILE_TYPES,
+  PROFILE_FIELDS,
+  PROFILE_MAP,
+  SECTION_TYPES,
+  SECTION_FIELDS,
+  SECTION_MAP
+});
+
+module.exports = {
+  BLOCK_TYPES,
+  BLOCK_FIELDS,
+  BLOCK_MAP,
+  BLOCK_SETTINGS,
+  PROFILE_TYPES,
+  PROFILE_FIELDS,
+  PROFILE_MAP,
+  SECTION_TYPES,
+  SECTION_FIELDS,
+  SECTION_MAP
 };

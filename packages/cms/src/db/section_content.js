@@ -15,15 +15,11 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         primaryKey: true
       },
-      title: {
-        type: db.STRING,
-        defaultValue: "New Section"
-      },
-      short: {
-        type: db.STRING,
-        defaultValue: "" 
+      content: {
+        type: db.JSON,
+        defaultValue: {}
       }
-    }, 
+    },
     {
       tableName: "canon_cms_section_content",
       freezeTableName: true,
