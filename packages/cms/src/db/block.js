@@ -1,4 +1,4 @@
-import {SECTION_TYPES} from "../utils/consts/cms";
+import {BLOCK_TYPES} from "../utils/consts/cms";
 
 module.exports = function(sequelize, db) {
 
@@ -21,22 +21,19 @@ module.exports = function(sequelize, db) {
       },
       type: {
         type: db.STRING,
-        defaultValue: SECTION_TYPES.TEXT
+        defaultValue: BLOCK_TYPES.TEXT
       },
-      allowed: {
-        type: db.STRING,
-        defaultValue: "always"
+      heading: {
+        type: db.INTEGER,
+        default: 1
       },
-      logicAllowed: {
-        type: db.STRING,
-        defaultValue: "return \"always\";"
-      },
-      useLogicAllowed: {
+      shared: {
         type: db.BOOLEAN,
-        defaultValue: false
+        default: false
       },
+      ordering: db.INTEGER,
 
-      /* generators */
+      /* generators & vizes */
       api: {
         type: db.TEXT,
         defaultValue: ""
@@ -49,7 +46,7 @@ module.exports = function(sequelize, db) {
         type: db.JSON,
         defaultValue: null
       },
-      useLogicSimple: {
+      logicSimpleEnabled: {
         type: db.BOOLEAN,
         defaultValue: true
       },
