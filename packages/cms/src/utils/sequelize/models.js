@@ -36,7 +36,7 @@ const sectionReqFull = {
  * automatically generate Create, Update, and Delete Routes (as specified later in the get/post methods)
  */
 const cmsTables = [
-  "blocks", "blocks_blocks", "profile", "profile_meta", "section"
+  "block", "block_input", "profile", "profile_meta", "section"
 ];
 
 /**

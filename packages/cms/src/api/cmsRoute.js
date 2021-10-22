@@ -1,19 +1,14 @@
 const Op = sequelize.Op,
-      fs = require("fs"),
-      path = require("path"),
       sequelize = require("sequelize"),
-      shell = require("shelljs"),
       yn = require("yn");
 
 const populateSearch = require("../utils/populateSearch");
-const {profileReqFull, storyReqFull, sectionReqFull, storysectionReqFull, cmsTables, contentTables, parentOrderingTables} = require("../utils/sequelize/models");
+const {profileReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables} = require("../utils/sequelize/models");
 const {translateProfile, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
+const {SECTION_TYPES} = require("../utils/consts/cms");
 
-const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
+const defaultLocale = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
-
-const sectionTypeDir = path.join(__dirname, "../components/sections/");
-const sectionTypeDirCustom = path.join(process.cwd(), "app/cms/sections/");
 
 const cmsCheck = () => process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
 const cmsMinRole = () => process.env.CANON_CMS_MINIMUM_ROLE ? Number(process.env.CANON_CMS_MINIMUM_ROLE) : 1;
@@ -69,28 +64,7 @@ const bubbleSortSelectors = (conn, selectors, accessor = "section_selector") => 
   return selectors;
 };
 
-
-// Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. todo: move it up to the query.
-const sortProfileTree = (db, profiles) => {
-  profiles = profiles.map(p => p.toJSON());
-  profiles = flatSort(db.profile, profiles);
-  profiles.forEach(p => {
-    // Don't use flatSort for meta. Meta can have multiple entities in the same ordering, so do not attempt to "flatten" them out
-    p.meta = p.meta.sort(sorter);
-    p.sections = flatSort(db.section, p.sections);
-    p.materializers = flatSort(db.materializer, p.materializers);
-  });
-  return profiles;
-};
-
-const sortStoryTree = (db, stories) => {
-  stories = stories.map(s => s.toJSON());
-  stories = flatSort(db.story, stories);
-  stories.forEach(s => {
-    s.storysections = flatSort(db.storysection, s.storysections);
-  });
-  return stories;
-};
+const bubbleSortInputs = () => [];
 
 const sortProfile = (db, profile) => {
   // Don't use flatSort for meta. Meta can have multiple entities in the same ordering, so do not attempt to "flatten" them out
@@ -100,84 +74,37 @@ const sortProfile = (db, profile) => {
   return profile;
 };
 
-const sortStory = (db, story) => {
-  story.descriptions = flatSort(db.story_description, story.descriptions);
-  story.footnotes = flatSort(db.story_footnote, story.footnotes);
-  story.authors = flatSort(db.author, story.authors);
-  return story;
+// Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. todo: move it up to the query.
+const sortProfileTree = (db, profiles) => {
+  profiles = profiles.map(p => p.toJSON());
+  profiles = flatSort(db.profile, profiles);
+  profiles.forEach(p => {
+    sortProfile(db, p);
+  });
+  return profiles;
 };
 
 const sortSection = (db, section) => {
-  section.subtitles = flatSort(db.section_subtitle, section.subtitles);
-  section.visualizations = flatSort(db.section_visualization, section.visualizations);
-  section.stats = flatSort(db.section_stat, section.stats);
-  section.descriptions = flatSort(db.section_description, section.descriptions);
+  section.blocks = flatSort(db.blocks, section.blocks);
+  // todo1.0
   // ordering is nested in section_selector - bubble for top-level sorting
   section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
   return section;
 };
 
-const sortStorySection = (db, storysection) => {
-  storysection.subtitles = flatSort(db.storysection_subtitle, storysection.subtitles);
-  storysection.visualizations = flatSort(db.storysection_visualization, storysection.visualizations);
-  storysection.stats = flatSort(db.storysection_stat, storysection.stats);
-  storysection.descriptions = flatSort(db.storysection_description, storysection.descriptions);
-  // ordering is nested in section_selector - bubble for top-level sorting
-  storysection.selectors = bubbleSortSelectors(db.storysection_selector, storysection.selectors, "storysection_selector");
-  return storysection;
-};
-
-const getSectionTypes = () => {
-  const sectionTypes = [];
-  shell.ls(`${sectionTypeDir}*.jsx`).forEach(file => {
-    // In Windows, the shell.ls command returns forward-slash separated directories,
-    // but the node "path" command returns backslash separated directories. Flip the slashes
-    // so the ensuing replace operation works (this should be a no-op for *nix/osx systems)
-    const sectionTypeDirFixed = sectionTypeDir.replace(/\\/g, "/");
-    const compName = file.replace(sectionTypeDirFixed, "").replace(".jsx", "");
-    if (compName !== "Section") sectionTypes.push(compName);
-  });
-  if (fs.existsSync(sectionTypeDirCustom)) {
-    shell.ls(`${sectionTypeDirCustom}*.jsx`).forEach(file => {
-      const sectionTypeDirCustomFixed = sectionTypeDirCustom.replace(/\\/g, "/");
-      const compName = file.replace(sectionTypeDirCustomFixed, "").replace(".jsx", "");
-      sectionTypes.push(compName);
-    });
-  }
-  return sectionTypes;
-};
-
-const duplicateSection = async(db, oldSection, pid, selectorLookup) => {
+const duplicateSection = async(db, oldSection, pid) => {
   // Create a new section, but with the new profile id.
-  const newSection = await db.section.create(Object.assign({}, stripID(oldSection), {profile_id: pid}));
+  const newSection = await db.section.create({...stripID(oldSection), profile_id: pid});
   // Clone language content with new id
-  const newSectionContent = oldSection.content.map(d => Object.assign({}, d, {id: newSection.id}));
+  const newSectionContent = oldSection.content.map(d => ({...d, id: newSection.id}));
   await db.section_content.bulkCreate(newSectionContent).catch(catcher);
-  // Clone subtitles, descriptions, and stats, AND their content, and vizes and selectors
-  const entities = ["subtitle", "description", "stat", "visualization"];
-  // Only copy selectors if this is a full profile copy, i.e., selectorLookup was provided.
-  if (selectorLookup) entities.push("selector");
-  for (const entity of entities) {
-    const newRows = oldSection[`${entity}s`].map(d => {
-      // If the entity is a selector, replace its selector id with the newly cloned selector (created above in lookup)
-      if (entity === "selector") {
-        const s = d.section_selector;
-        return Object.assign({}, stripID(s), {section_id: newSection.id, selector_id: selectorLookup[s.selector_id]});
-      }
-      // Otherwise, simple overwrite the section id and delete the id as usual
-      else {
-        return Object.assign({}, stripID(d), {section_id: newSection.id});
-      }
-    });
-    for (const newRow of newRows) {
-      // Insert the actual entity row
-      const newEntity = await db[`section_${entity}`].create(newRow).catch(catcher);
-      // If this entity has content, Insert it.
-      if (["subtitle", "description", "stat"].includes(entity)) {
-        const newEntityContent = newRow.content.map(d => Object.assign({}, d, {id: newEntity.id}));
-        await db[`section_${entity}_content`].bulkCreate(newEntityContent).catch(catcher);
-      }
-    }
+  const newRows = oldSection.blocks.map(d => ({...stripID(d), section_id: newSection.id}));
+  for (const newRow of newRows) {
+    const newBlock = await db.blocks.create(newRow).catch(catcher);
+    const newBlockContent = newRow.content.map(d => ({...d, id: newBlock.id}));
+    await db.block_content.bulkCreate(newBlockContent).catch(catcher);
+    const newInputs = newRow.inputs.map(d => ({...stripID(d), block_id: newRow.id}));
+    await db.block_input.bulkCreate(newInputs);
   }
   return newSection.id;
 };
@@ -186,10 +113,11 @@ const pruneSearch = async(cubeName, dimension, levels, db) => {
   const currentMeta = await db.profile_meta.findAll().catch(catcher);
   const dimensionCubePairs = currentMeta.reduce((acc, d) => acc.concat(`${d.dimension}-${d.cubeName}`), []);
 
-  // To be on the safe side, only clear the search table of dimensions that NO remaining
-  // profiles are currently making use of.
-  // Don't need to prune levels - they will be filtered automatically in searches.
-  // If it gets unwieldy in size however, an optimization could be made here
+  /**
+   * Only clear the search table of dimensions that NO remaining profiles are currently making use of.
+   * Don't need to prune levels - they will be filtered automatically in searches.
+   * If it gets unwieldy in size however, an optimization could be made here
+   */
   if (!dimensionCubePairs.includes(`${dimension}-${cubeName}`)) {
     const resp = await db.search.destroy({where: {dimension, cubeName}}).catch(catcher);
     if (verbose) console.log(`Cleaned up search data. Rows affected: ${resp}`);
@@ -206,6 +134,27 @@ module.exports = function(app) {
   app.get("/api/cms", (req, res) => res.json(cmsCheck()));
   app.get("/api/cms/minRole", (req, res) => res.json(cmsMinRole()));
 
+  /**
+   * ref: the table being maxed, like "block"
+   * accessor: a string like "section_id"
+   * id: the id of the parent
+   */
+  const findMaxOrdering = async(ref, accessor, id) => {
+    const where = {
+      attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]],
+      raw: true
+    };
+    if (accessor && id) where.where = {[accessor]: id};
+    const maxFetch = await db[ref].findAll(where).catch(catcher);
+    const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+    return ordering;
+  };
+
+  const cleanSection = section => {
+    section = sortSection(db, section);
+    section.types = Object.values(SECTION_TYPES);
+  };
+
   /* BASIC GETS */
 
   // Top-level tables have their own special gets, so exclude them from the "simple" gets
@@ -215,7 +164,6 @@ module.exports = function(app) {
 
   getList.forEach(ref => {
     app.get(`/api/cms/${ref}/get/:id`, async(req, res) => {
-      console.log("at a get");
       if (contentTables.includes(ref)) {
         const u = await db[ref].findOne({where: {id: req.params.id}, include: {association: "content"}}).catch(catcher);
         return res.json(u);
@@ -240,11 +188,7 @@ module.exports = function(app) {
     let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     profiles.forEach(profile => {
-      profile.sections = profile.sections.map(section => {
-        section = sortSection(db, section);
-        section.types = getSectionTypes();
-        return section;
-      });
+      profile.sections = profile.sections.map(section => cleanSection(section));
       return profile;
     });
     return res.json(profiles);
@@ -262,11 +206,11 @@ module.exports = function(app) {
       ]
     }).catch(catcher);
     meta = meta.map(m => m.toJSON());
-    const locale = req.query.locale ? req.query.locale : envLoc;
+    const locale = req.query.locale ? req.query.locale : defaultLocale;
     meta.forEach(m => {
       if (m.content instanceof Array) {
         m.content = m.content.find(c => c.locale === locale) ||
-          m.content.find(c => c.locale === envLoc) ||
+          m.content.find(c => c.locale === defaultLocale) ||
            m[0];
       }
     });
@@ -276,20 +220,6 @@ module.exports = function(app) {
   app.get("/api/cms/formatter", async(req, res) => {
     const formatters = await db.formatter.findAll().catch(catcher);
     res.json(formatters);
-  });
-
-  app.get("/api/cms/storytree", async(req, res) => {
-    let stories = await db.story.findAll(storyReqFull).catch(catcher);
-    stories = sortStoryTree(db, stories);
-    stories.forEach(story => {
-      story.storysections = story.storysections.map(storysection => {
-        storysection = sortStorySection(db, storysection);
-        storysection.types = getSectionTypes();
-        return storysection;
-      });
-      return story;
-    });
-    return res.json(stories);
   });
 
   /* BASIC INSERTS */
@@ -307,50 +237,35 @@ module.exports = function(app) {
       // If it was not provided, but this is a table that needs them, append it to the end and
       // insert the derived ordering into req.body
       else if (parentOrderingTables[ref]) {
-        const where = {
-          where: {[parentOrderingTables[ref]]: req.body[parentOrderingTables[ref]]},
-          attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]],
-          raw: true
-        };
-        const maxFetch = await db[ref].findAll(where).catch(catcher);
-        const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
-        req.body.ordering = ordering;
+        req.body.ordering = await findMaxOrdering(ref, parentOrderingTables[ref], req.body[parentOrderingTables[ref]]).catch(catcher);
       }
       // First, create the metadata object in the top-level table
       const newObj = await db[ref].create(req.body).catch(catcher);
       // For a certain subset of translated tables, we need to also insert a new, corresponding english content row.
       if (contentTables.includes(ref)) {
-        const payload = Object.assign({}, req.body, {id: newObj.id, locale: envLoc});
+        const payload = Object.assign({}, req.body, {id: newObj.id, locale: defaultLocale});
         await db[`${ref}_content`].create(payload).catch(catcher);
         let reqObj;
         if (ref === "section") {
           reqObj = Object.assign({}, sectionReqFull, {where: {id: newObj.id}});
-        }
-        else if (ref === "storysection") {
-          reqObj = Object.assign({}, storysectionReqFull, {where: {id: newObj.id}});
         }
         else {
           reqObj = {where: {id: newObj.id}, include: {association: "content"}};
         }
         let fullObj = await db[ref].findOne(reqObj).catch(catcher);
         fullObj = fullObj.toJSON();
-        if (ref === "section" || ref === "storysection") {
-          fullObj.types = getSectionTypes();
+        if (ref === "section") {
+          fullObj.types = Object.values(SECTION_TYPES);
         }
         return res.json(fullObj);
       }
       else {
+        // todo1.0 ?? something with blocks
         if (ref === "section_selector") {
           let selector = await db.selector.findOne({where: {id: req.body.selector_id}}).catch(catcher);
           selector = selector.toJSON();
           selector.section_selector = newObj.toJSON();
           return res.json(selector);
-        }
-        if (ref === "storysection_selector") {
-          let story_selector = await db.story_selector.findOne({where: {id: req.body.story_selector_id}}).catch(catcher);  // eslint-disable-line
-          story_selector = story_selector.toJSON(); // eslint-disable-line
-          story_selector.storysection_selector = newObj.toJSON();
-          return res.json(story_selector);
         }
         else {
           return res.json(newObj);
@@ -361,39 +276,16 @@ module.exports = function(app) {
 
   /* CUSTOM INSERTS */
   app.post("/api/cms/profile/newScaffold", isEnabled, async(req, res) => {
-    const maxFetch = await db.profile.findAll({attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
-    const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+    const ordering = await findMaxOrdering("profile").catch(catcher);
     const profile = await db.profile.create({ordering}).catch(catcher);
-    await db.profile_content.create({id: profile.id, locale: envLoc}).catch(catcher);
-    const section = await db.section.create({ordering: 0, type: "Hero", profile_id: profile.id});
-    await db.section_content.create({id: section.id, locale: envLoc}).catch(catcher);
+    await db.profile_content.create({id: profile.id, locale: defaultLocale}).catch(catcher);
+    const section = await db.section.create({ordering: 0, type: SECTION_TYPES.HERO, profile_id: profile.id});
+    await db.section_content.create({id: section.id, locale: defaultLocale}).catch(catcher);
     const reqObj = Object.assign({}, profileReqFull, {where: {id: profile.id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());
-    newProfile.sections = newProfile.sections.map(section => {
-      section = sortSection(db, section);
-      section.types = getSectionTypes();
-      return section;
-    });
+    newProfile.sections = newProfile.sections.map(section => cleanSection(section));
     return res.json(newProfile);
-  });
-
-  app.post("/api/cms/story/newScaffold", isEnabled, async(req, res) => {
-    const maxFetch = await db.story.findAll({attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
-    const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
-    const story = await db.story.create({ordering}).catch(catcher);
-    await db.story_content.create({id: story.id, locale: envLoc}).catch(catcher);
-    const storysection = await db.storysection.create({ordering: 0, type: "Hero", story_id: story.id});
-    await db.storysection_content.create({id: storysection.id, locale: envLoc}).catch(catcher);
-    const reqObj = Object.assign({}, storyReqFull, {where: {id: story.id}});
-    let newStory = await db.story.findOne(reqObj).catch(catcher);
-    newStory = sortStory(db, newStory.toJSON());
-    newStory.storysection = newStory.storysections.map(storysection => {
-      storysection = sortStorySection(db, storysection);
-      storysection.types = getSectionTypes();
-      return storysection;
-    });
-    return res.json(newStory);
   });
 
   app.post("/api/cms/profile/upsertDimension", isEnabled, async(req, res) => {
@@ -406,8 +298,7 @@ module.exports = function(app) {
     if (!oldmeta) {
       // If no ordering was provided, divine ordering from meta length.
       if (isNaN(profileData.ordering)) {
-        const maxFetch = await db.profile_meta.findAll({where: {profile_id}, attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
-        const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+        const ordering = await findMaxOrdering("profile_meta", "profile_id", profile_id);
         profileData.ordering = ordering;
       }
       await db.profile_meta.create(profileData);
@@ -425,11 +316,7 @@ module.exports = function(app) {
     const reqObj = Object.assign({}, profileReqFull, {where: {id: profile_id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());
-    newProfile.sections = newProfile.sections.map(section => {
-      section = sortSection(db, section);
-      section.types = getSectionTypes();
-      return section;
-    });
+    newProfile.sections = newProfile.sections.map(section => cleanSection(section));
     return res.json(newProfile);
   });
 
@@ -478,11 +365,7 @@ module.exports = function(app) {
    */
   const swapList = [
     {elements: ["profile"], parent: null},
-    {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
-    {elements: ["materializer"], parent: "profile_id"},
-    {elements: ["story_materializer"], parent: "story_id"},
-    {elements: ["section_subtitle", "section_description", "section_stat", "section_visualization"], parent: "section_id"},
-    {elements: ["storysection_subtitle", "storysection_description", "storysection_stat", "storysection_visualization"], parent: "storysection_id"}
+    {elements: ["block"], parent: "section_id"}
   ];
   swapList.forEach(list => {
     list.elements.forEach(ref => {
@@ -505,8 +388,7 @@ module.exports = function(app) {
   /* CUSTOM SWAPS */
 
   const sectionSwapList = [
-    {ref: "section", parent: "profile_id"},
-    {ref: "storysection", parent: "story_id"}
+    {ref: "section", parent: "profile_id"}
   ];
   sectionSwapList.forEach(swap => {
     app.post(`/api/cms/${swap.ref}/swap`, isEnabled, async(req, res) => {
@@ -555,58 +437,32 @@ module.exports = function(app) {
     });
   });
 
-
-  app.post("/api/cms/section_selector/swap", isEnabled, async(req, res) => {
+  app.post("/api/cms/block_input/swap", isEnabled, async(req, res) => {
     const {id} = req.body;
-    const original = await db.section_selector.findOne({where: {id}}).catch(catcher);
-    const otherWhere = {ordering: original.ordering + 1, section_id: original.section_id};
-    const other = await db.section_selector.findOne({where: otherWhere}).catch(catcher);
-    await db.section_selector.update({ordering: sequelize.literal("ordering + 1")}, {where: {id}}).catch(catcher);
-    await db.section_selector.update({ordering: sequelize.literal("ordering - 1")}, {where: {id: other.id}}).catch(catcher);
-    const reqObj = {where: {id: original.section_id}, include: [{association: "selectors"}]};
-    let section = await db.section.findOne(reqObj).catch(catcher);
+    const original = await db.block_input.findOne({where: {id}}).catch(catcher);
+    const otherWhere = {ordering: original.ordering + 1, block_id: original.block_id};
+    const other = await db.block_input.findOne({where: otherWhere}).catch(catcher);
+    await db.block_input.update({ordering: sequelize.literal("ordering + 1")}, {where: {id}}).catch(catcher);
+    await db.block_input.update({ordering: sequelize.literal("ordering - 1")}, {where: {id: other.id}}).catch(catcher);
+    const reqObj = {where: {id: original.block_id}, include: [{association: "inputs"}]};
+    let block = await db.block.findOne(reqObj).catch(catcher);
     let rows = [];
-    if (section) {
-      section = section.toJSON();
-      section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
-      rows = section.selectors;
+    if (block) {
+      block = block.toJSON();
+      block.inputs = bubbleSortInputs(db.block_input, block.inputs);
+      rows = block.inputs;
     }
-    return res.json({parent_id: original.section_id, selectors: rows});
-  });
-
-  app.post("/api/cms/storysection_selector/swap", isEnabled, async(req, res) => {
-    const {id} = req.body;
-    const original = await db.storysection_selector.findOne({where: {id}}).catch(catcher);
-    const otherWhere = {ordering: original.ordering + 1, storysection_id: original.storysection_id};
-    const other = await db.storysection_selector.findOne({where: otherWhere}).catch(catcher);
-    await db.storysection_selector.update({ordering: sequelize.literal("ordering + 1")}, {where: {id}}).catch(catcher);
-    await db.storysection_selector.update({ordering: sequelize.literal("ordering - 1")}, {where: {id: other.id}}).catch(catcher);
-    const reqObj = {where: {id: original.storysection_id}, include: [{association: "selectors"}]};
-    let storysection = await db.storysection.findOne(reqObj).catch(catcher);
-    let rows = [];
-    if (storysection) {
-      storysection = storysection.toJSON();
-      storysection.selectors = bubbleSortSelectors(db.storysection_selector, storysection.selectors, "storysection_selector");
-      rows = storysection.selectors;
-    }
-    return res.json({parent_id: original.storysection_id, selectors: rows});
+    return res.json({parent_id: original.block_id, inputs: rows});
   });
 
   /* DUPLICATES */
 
   app.post("/api/cms/section/duplicate", isEnabled, async(req, res) => {
     const {id, pid} = req.body;
-    const reqObj = Object.assign({}, sectionReqFull, {where: {id}});
+    const reqObj = {...sectionReqFull, where: {id}};
     let oldSection = await db.section.findOne(reqObj).catch(catcher);
     oldSection = oldSection.toJSON();
-    let selectorLookup = null;
-    // If this section is being duplicated in the SAME profile as it came from, we DO want to populate its selectors
-    // (We skip selectors if we jump profiles). Populate a dummy lookup so the selector migration works.
     if (pid === oldSection.profile_id) {
-      selectorLookup = {};
-      oldSection.selectors.forEach(selector => {
-        selectorLookup[selector.section_selector.selector_id] = selector.section_selector.selector_id;
-      });
       // Because this is the same profile, we want its ordering to be after the duplication source.
       // Slide up all of the other sections to make room
       await db.section.update({ordering: sequelize.literal("ordering +1")}, {where: {profile_id: pid, ordering: {[Op.gt]: oldSection.ordering}}}).catch(catcher);
@@ -615,16 +471,13 @@ module.exports = function(app) {
     }
     else {
       // If this section is being added to a different profile, override its ordering to be the last in the list.
-      const maxFetch = await db.section.findAll({where: {profile_id: pid}, attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
-      const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+      const ordering = await findMaxOrdering("section", "profile_id", pid);
       oldSection.ordering = ordering;
     }
-    const newSectionId = await duplicateSection(db, oldSection, pid, selectorLookup);
+    const newSectionId = await duplicateSection(db, oldSection, pid);
     const newReqObj = Object.assign({}, sectionReqFull, {where: {id: newSectionId}});
     let newSection = await db.section.findOne(newReqObj).catch(catcher);
-    newSection = newSection.toJSON();
-    newSection = sortSection(db, newSection);
-    newSection.types = getSectionTypes();
+    newSection = cleanSection(newSection.toJSON());
     return res.json(newSection);
   });
 
@@ -634,8 +487,7 @@ module.exports = function(app) {
     let oldProfile = await db.profile.findOne(reqObj).catch(catcher);
     oldProfile = oldProfile.toJSON();
     // Make a new Profile
-    const maxFetch = await db.profile.findAll({attributes: [[sequelize.fn("max", sequelize.col("ordering")), "max"]], raw: true}).catch(catcher);
-    const ordering = typeof maxFetch[0].max === "number" ? maxFetch[0].max + 1 : 0;
+    const ordering = await findMaxOrdering("profile");
     const newProfile = await db.profile.create({ordering}).catch(catcher);
     // Clone meta with new slugs
     const newMeta = oldProfile.meta.map(d => Object.assign({}, stripID(d), {profile_id: newProfile.id, slug: `${d.slug}-${newProfile.id}`}));
@@ -643,36 +495,22 @@ module.exports = function(app) {
     // Clone language content with new id
     const newProfileContent = oldProfile.content.map(d => Object.assign({}, d, {id: newProfile.id}));
     await db.profile_content.bulkCreate(newProfileContent).catch(catcher);
-    // Clone generators, materializers
-    for (const table of ["generator", "materializer"]) {
-      const newRows = oldProfile[`${table}s`].map(d => Object.assign({}, stripID(d), {profile_id: newProfile.id}));
-      await db[table].bulkCreate(newRows).catch(catcher);
-    }
-    // Profile-level selectors are being cloned, and will receive a new id. When we later clone section_selector, it will need
-    // to have its selector_id updated to the NEWLY created selector's id. Create a lookup object for this.
-    const selectorLookup = {};
-    for (const oldSelector of oldProfile.selectors) {
-      const oldid = oldSelector.id;
-      const newSelector = await db.selector.create(Object.assign({}, stripID(oldSelector), {profile_id: newProfile.id})).catch(catcher);
-      selectorLookup[oldid] = newSelector.id;
-    }
     // Clone Sections
     for (const oldSection of oldProfile.sections) {
-      await duplicateSection(db, oldSection, newProfile.id, selectorLookup);
+      await duplicateSection(db, oldSection, newProfile.id);
     }
     // Now that all the creations are complete, fetch a new hierarchical and sorted profile.
-    const finalReqObj = Object.assign({}, profileReqFull, {where: {id: newProfile.id}});
+    const finalReqObj = {...profileReqFull, where: {id: newProfile.id}};
     let finalProfile = await db.profile.findOne(finalReqObj).catch(catcher);
     finalProfile = sortProfile(db, finalProfile.toJSON());
-    finalProfile.sections = finalProfile.sections.map(section => {
-      section = sortSection(db, section);
-      section.types = getSectionTypes();
-      return section;
-    });
+    finalProfile.sections = finalProfile.sections.map(section => cleanSection(section));
     return res.json(finalProfile);
   });
 
-  const duplicateList = ["selector", "generator", "materializer"];
+  /*
+
+  // todo1.0
+  const duplicateList = ["block"];
 
   duplicateList.forEach(ref => {
     app.post(`/api/cms/${ref}/duplicate`, isEnabled, async(req, res) => {
@@ -691,6 +529,8 @@ module.exports = function(app) {
     });
   });
 
+  */
+
   /* TRANSLATIONS */
   /** Translations are provided by the Google API and require an authentication key. They are requested client-side for
    * card-by-card translations (allowing for in-place editing) but can be batch-translated here.
@@ -698,20 +538,19 @@ module.exports = function(app) {
   app.post("/api/cms/section/translate", async(req, res) => {
     const sid = req.body.id;
     const {variables, source, target} = req.body;
-    const reqObj = Object.assign({}, sectionReqFull, {where: {id: sid}});
+    const reqObj = {...sectionReqFull, where: {id: sid}};
     let section = await db.section.findOne(reqObj);
     section = section.toJSON();
     const helpers = await fetchUpsertHelpers(db, section.profile_id, source);
     const {formatterFunctions, allSelectors} = helpers;
+    // todo1.0 selector refactor
     const config = {variables, source, target, formatterFunctions, allSelectors};
     const error = await translateSection(db, section, config);
     if (error) return res.json({error});
     // If there were no errors, fetch and return updated section
-    const newReqObj = Object.assign({}, sectionReqFull, {where: {id: sid}});
+    const newReqObj = {...sectionReqFull, where: {id: sid}};
     let newSection = await db.section.findOne(newReqObj).catch(catcher);
-    newSection = newSection.toJSON();
-    newSection = sortSection(db, newSection);
-    newSection.types = getSectionTypes();
+    newSection = cleanSection(newSection);
     return res.json(newSection);
   });
 
@@ -722,124 +561,46 @@ module.exports = function(app) {
     const error = await translateProfile(db, pid, config);
     if (error) return res.json({error});
     // If there were no errors, fetch and return updated profile
-    const reqObj = Object.assign({}, profileReqFull, {where: {id: pid}});
+    const reqObj = {...profileReqFull, where: {id: pid}};
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());
-    const sectionTypes = getSectionTypes();
-    newProfile.sections = newProfile.sections.map(section => {
-      section = sortSection(db, section);
-      section.types = sectionTypes;
-      return section;
-    });
+    newProfile.sections = newProfile.sections.map(section => cleanSection(section));
     return res.json(newProfile);
   });
 
   /* DELETES */
-  /**
-   * To streamline deletes, this list contains objects with two properties. "elements" refers to the tables to be modified,
-   * and "parent" refers to the foreign key that need be referenced in the associated where clause.
-   */
-  const deleteList = [
-    {elements: ["author", "story_description", "story_footnote"], parent: "story_id"},
-    {elements: ["section_subtitle", "section_description", "section_stat", "section_visualization"], parent: "section_id"},
-    {elements: ["storysection_subtitle", "storysection_description", "storysection_stat", "storysection_visualization"], parent: "storysection_id"}
-  ];
 
-  deleteList.forEach(list => {
-    list.elements.forEach(ref => {
-      app.delete(`/api/cms/${ref}/delete`, isEnabled, async(req, res) => {
-        const row = await db[ref].findOne({where: {id: req.query.id}}).catch(catcher);
-        // Construct a where clause that looks someting like: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}
-        // except "profile_id" is the "parent" in the array above
-        const where1 = {ordering: {[Op.gt]: row.ordering}};
-        where1[list.parent] = row[list.parent];
-        await db[ref].update({ordering: sequelize.literal("ordering -1")}, {where: where1}).catch(catcher);
-        await db[ref].destroy({where: {id: req.query.id}}).catch(catcher);
-        const where2 = {};
-        where2[list.parent] = row[list.parent];
-        const reqObj = {where: where2, order: [["ordering", "ASC"]]};
-        if (contentTables.includes(ref)) reqObj.include = {association: "content"};
-        const rows = await db[ref].findAll(reqObj).catch(catcher);
-        return res.json({parent_id: row[list.parent], newArray: rows});
-      });
-    });
+  app.delete("/api/cms/block/delete", isEnabled, async(req, res) => {
+    const row = await db.block.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.block.update(
+      {ordering: sequelize.literal("ordering -1")},
+      {where: {section_id: row.section_id, ordering: {[Op.gt]: row.ordering}}}
+    ).catch(catcher);
+    await db.block.destroy({where: {id: req.query.id}}).catch(catcher);
+    const reqObj = {
+      where: {section_id: row.section_id},
+      order: [["ordering", "ASC"]],
+      include: {association: "content"}
+    };
+    const rows = await db.block.findAll(reqObj).catch(catcher);
+    return res.json({parent_id: row.section_id, newArray: rows});
   });
 
-  /* CUSTOM DELETES */
-  app.delete("/api/cms/generator/delete", isEnabled, async(req, res) => {
-    const row = await db.generator.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.generator.destroy({where: {id: req.query.id}});
-    const generators = await db.generator.findAll({where: {profile_id: row.profile_id}}).catch(catcher);
-    return res.json({id: req.query.id, parent_id: row.profile_id, generators});
-  });
-
-  app.delete("/api/cms/story_generator/delete", isEnabled, async(req, res) => {
-    const row = await db.story_generator.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.generator.destroy({where: {id: req.query.id}});
-    const generators = await db.story_generator.findAll({where: {story_id: row.story_id}}).catch(catcher);
-    return res.json({id: req.query.id, parent_id: row.story_id, generators});
-  });
-
-  app.delete("/api/cms/materializer/delete", isEnabled, async(req, res) => {
-    const row = await db.materializer.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.materializer.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    await db.materializer.destroy({where: {id: req.query.id}}).catch(catcher);
-    const materializers = await db.materializer.findAll({where: {profile_id: row.profile_id}, order: [["ordering", "ASC"]]}).catch(catcher);
-    return res.json({id: req.query.id, parent_id: row.profile_id, materializers});
-  });
-
-  app.delete("/api/cms/story_materializer/delete", isEnabled, async(req, res) => {
-    const row = await db.materializer.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.materializer.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    await db.materializer.destroy({where: {id: req.query.id}}).catch(catcher);
-    const materializers = await db.materializer.findAll({where: {profile_id: row.profile_id}, order: [["ordering", "ASC"]]}).catch(catcher);
-    return res.json({id: req.query.id, parent_id: row.profile_id, materializers});
-  });
-
-  app.delete("/api/cms/selector/delete", isEnabled, async(req, res) => {
-    const row = await db.selector.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.selector.destroy({where: {id: req.query.id}});
-    const selectors = await db.selector.findAll({where: {profile_id: row.profile_id}}).catch(catcher);
-    return res.json({id: row.id, parent_id: row.profile_id, selectors});
-  });
-
-  app.delete("/api/cms/story_selector/delete", isEnabled, async(req, res) => {
-    const row = await db.story_selector.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.story_selector.destroy({where: {id: req.query.id}});
-    const selectors = await db.story_selector.findAll({where: {story_id: row.story_id}}).catch(catcher);
-    return res.json({id: row.id, parent_id: row.story_id, selectors});
-  });
-
-  app.delete("/api/cms/section_selector/delete", isEnabled, async(req, res) => {
-    const {selector_id, section_id} = req.query; // eslint-disable-line camelcase
-    const row = await db.section_selector.findOne({where: {selector_id, section_id}}).catch(catcher);
-    await db.section_selector.update({ordering: sequelize.literal("ordering -1")}, {where: {section_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    await db.section_selector.destroy({where: {selector_id, section_id}});
-    const reqObj = {where: {id: row.section_id}, include: [{association: "selectors"}]};
-    let section = await db.section.findOne(reqObj).catch(catcher);
+  app.delete("/api/cms/block_input/delete", isEnabled, async(req, res) => {
+    const {block_id, input_id} = req.query; // eslint-disable-line camelcase
+    const row = await db.block_input.findOne({where: {block_id, input_id}}).catch(catcher);
+    await db.block_input.update({ordering: sequelize.literal("ordering -1")}, {where: {block_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.block_input.destroy({where: {block_id, input_id}});
+    const reqObj = {where: {id: row.block_id}, include: [{association: "inputs"}]};
+    let block = await db.block.findOne(reqObj).catch(catcher);
     let rows = [];
-    if (section) {
-      section = section.toJSON();
-      section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
-      rows = section.selectors;
+    // todo1.0 not sure about this
+    if (block) {
+      block = block.toJSON();
+      block.inputs = bubbleSortInputs(db.block_input, block.inputs);
+      rows = block.inputs;
     }
-    return res.json({parent_id: row.section_id, selectors: rows});
-  });
-
-  app.delete("/api/cms/storysection_selector/delete", isEnabled, async(req, res) => {
-    const {story_selector_id, storysection_id} = req.query; // eslint-disable-line camelcase
-    const row = await db.storysection_selector.findOne({where: {story_selector_id, storysection_id}}).catch(catcher);
-    await db.storysection_selector.update({ordering: sequelize.literal("ordering -1")}, {where: {storysection_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    await db.storysection_selector.destroy({where: {story_selector_id, storysection_id}});
-    const reqObj = {where: {id: row.storysection_id}, include: [{association: "selectors"}]};
-    let storysection = await db.storysection.findOne(reqObj).catch(catcher);
-    let rows = [];
-    if (storysection) {
-      storysection = storysection.toJSON();
-      storysection.selectors = bubbleSortSelectors(db.storysection_selector, storysection.selectors, "storysection_selector");
-      rows = storysection.selectors;
-    }
-    return res.json({parent_id: row.storysection_id, selectors: rows});
+    return res.json({parent_id: row.block_id, inputs: rows});
   });
 
   app.delete("/api/cms/profile/delete", isEnabled, async(req, res) => {
@@ -850,13 +611,8 @@ module.exports = function(app) {
     // pruneSearch(row.dimension, row.levels, db);
     let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
-    const sectionTypes = getSectionTypes();
     profiles.forEach(profile => {
-      profile.sections = profile.sections.map(section => {
-        section = sortSection(db, section);
-        section.types = sectionTypes;
-        return section;
-      });
+      profile.sections = profile.sections.map(section => cleanSection(section));
       return profile;
     });
     return res.json({id: row.id, profiles});
@@ -875,30 +631,8 @@ module.exports = function(app) {
     const reqObj = Object.assign({}, profileReqFull, {where: {id: row.profile_id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());
-    const sectionTypes = getSectionTypes();
-    newProfile.sections = newProfile.sections.map(section => {
-      section = sortSection(db, section);
-      section.types = sectionTypes;
-      return section;
-    });
+    newProfile.sections = newProfile.sections.map(section => cleanSection(section));
     return res.json(newProfile);
-  });
-
-  app.delete("/api/cms/story/delete", isEnabled, async(req, res) => {
-    const row = await db.story.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.story.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    await db.story.destroy({where: {id: req.query.id}}).catch(catcher);
-    let stories = await db.story.findAll(storyReqFull).catch(catcher);
-    stories = sortStoryTree(db, stories);
-    stories.forEach(story => {
-      story.storysections = story.storysections.map(storysection => {
-        storysection = sortStorySection(db, storysection);
-        storysection.types = getSectionTypes();
-        return storysection;
-      });
-      return story;
-    });
-    return res.json({id: row.id, stories});
   });
 
   app.delete("/api/cms/formatter/delete", isEnabled, async(req, res) => {
@@ -916,25 +650,10 @@ module.exports = function(app) {
     sections = sections.map(section => {
       section = section.toJSON();
       section = sortSection(db, section);
-      section.types = getSectionTypes();
+      section.types = Object.values(SECTION_TYPES);
       return section;
     });
     return res.json({id: row.id, parent_id: row.profile_id, sections});
-  });
-
-  app.delete("/api/cms/storysection/delete", isEnabled, async(req, res) => {
-    const row = await db.storysection.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.storysection.update({ordering: sequelize.literal("ordering -1")}, {where: {story_id: row.story_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    await db.storysection.destroy({where: {id: req.query.id}}).catch(catcher);
-    const reqObj = Object.assign({}, storysectionReqFull, {where: {story_id: row.story_id}, order: [["ordering", "ASC"]]});
-    let storysections = await db.storysection.findAll(reqObj).catch(catcher);
-    storysections = storysections.map(storysection => {
-      storysection = storysection.toJSON();
-      storysection = sortStorySection(db, storysection);
-      storysection.types = getSectionTypes();
-      return storysection;
-    });
-    return res.json({id: row.id, parent_id: row.story_id, storysections});
   });
 
 };
