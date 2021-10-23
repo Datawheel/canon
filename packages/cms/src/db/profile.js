@@ -1,4 +1,4 @@
-import {PROFILE_TYPES} from "../utils/consts/cms";
+const {PROFILE_TYPES} = require("../utils/consts/cms");
 
 module.exports = function(sequelize, db) {
 

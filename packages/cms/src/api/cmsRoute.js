@@ -1,11 +1,13 @@
-const Op = sequelize.Op,
-      sequelize = require("sequelize"),
+const sequelize = require("sequelize"),
+      Op = sequelize.Op, // eslint-disable-line
       yn = require("yn");
 
 const populateSearch = require("../utils/populateSearch");
 const {profileReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables} = require("../utils/sequelize/models");
 const {translateProfile, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
+// todo1.0 - unite this with getSectionTypes somehow
 const {SECTION_TYPES} = require("../utils/consts/cms");
+
 
 const defaultLocale = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);

@@ -1,8 +1,8 @@
-import {SECTION_TYPES} from "../utils/consts/cms";
+const {SECTION_TYPES} = require("../utils/consts/cms");
 
 module.exports = function(sequelize, db) {
 
-  const t = sequelize.define("section",
+  const section = sequelize.define("section",
     {
       id: {
         type: db.INTEGER,
@@ -46,11 +46,11 @@ module.exports = function(sequelize, db) {
     }
   );
 
-  t.associate = models => {
-    t.hasMany(models.section_content, {foreignKey: "id", sourceKey: "id", as: "content"});
-    t.hasMany(models.blocks, {foreignKey: "section_id", sourceKey: "id", as: "blocks"});
+  section.associate = models => {
+    section.hasMany(models.section_content, {foreignKey: "id", sourceKey: "id", as: "content"});
+    section.hasMany(models.block, {foreignKey: "section_id", sourceKey: "id", as: "blocks"});
   };
 
-  return t;
+  return section;
 
 };

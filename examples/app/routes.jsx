@@ -29,7 +29,7 @@ export default function RouteCreate() {
       <Route path="/:lang/story/:slug" component={Story} />
       <Route path="/:lang/stories" component={StoryLanding} />
 
-      <Route path="/new" component={StoryLanding} />
+      <Route path="/new" component={NewBuilder} />
 
       <Route path="*" component={Error} status={404} />
 

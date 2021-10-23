@@ -1,5 +1,3 @@
-const getSectionTypes = require("../sections/getSectionTypes");
-
 const PROFILE_TYPES = {
   PROFILE: "profile",
   STORY: "story"
@@ -22,7 +20,18 @@ const PROFILE_SETTINGS = {
   LOGIC_ALLOWED_ENABLED: "logicAllowedEnabled"
 };
 
-const SECTION_TYPES = getSectionTypes().reduce((acc, d) => ({...acc, [d.toUpperCase()]: d}), {});
+// const SECTION_TYPES = getSectionTypes().reduce((acc, d) => ({...acc, [d.toUpperCase()]: d}), {});
+
+const SECTION_TYPES = {
+  DEFAULT: "Default",
+  GROUPING: "Grouping",
+  HERO: "Hero",
+  MULTI_COLUMN: "MultiColumn",
+  RELATED: "Related",
+  SINGLE_COLUMN: "SingleColumn",
+  SUB_GROUPING: "SubGrouping",
+  TABS: "Tabs"
+};
 
 const SECTION_FIELDS = {
   TITLE: "title",

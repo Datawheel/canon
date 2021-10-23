@@ -1,6 +1,6 @@
 module.exports = function(sequelize, db) {
 
-  const s = sequelize.define("block_input",
+  const blockInput = sequelize.define("block_input",
     {
       id: {
         type: db.INTEGER,
@@ -32,6 +32,6 @@ module.exports = function(sequelize, db) {
     }
   );
 
-  return s;
+  return blockInput;
 
 };

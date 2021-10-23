@@ -1,5 +1,6 @@
 const models = {
   block: require.resolve("./src/db/block.js"),
+  block_content: require.resolve("./src/db/block_content.js"),
   block_input: require.resolve("./src/db/block_input.js"),
   formatter: require.resolve("./src/db/formatter.js"),
   image: require.resolve("./src/db/image.js"),

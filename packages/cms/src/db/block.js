@@ -1,4 +1,4 @@
-import {BLOCK_TYPES} from "../utils/consts/cms";
+const {BLOCK_TYPES} = require("../utils/consts/cms");
 
 module.exports = function(sequelize, db) {
 
@@ -68,5 +68,7 @@ module.exports = function(sequelize, db) {
     block.hasMany(models.block_content, {foreignKey: "id", sourceKey: "id", as: "content"});
     block.belongsToMany(models.block, {through: "block_input", foreignKey: "block_id", otherKey: "input_id", as: "inputs"});
   };
+
+  return block;
 
 };

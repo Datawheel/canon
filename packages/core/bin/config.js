@@ -1,3 +1,4 @@
+const {resolve} = require("path");
 const path = require("path");
 const canonConfigPath = path.resolve("canon.js");
 
@@ -21,6 +22,8 @@ function getCanonConfig() {
 
   delete require.cache[resolvedPath];
   const canonConfig = require(resolvedPath);
+
+  console.log("JIM", resolvedPath);
 
   return Object.assign({}, defaultConfig, canonConfig);
 }

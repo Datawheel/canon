@@ -5,7 +5,6 @@ import {Icon} from "@blueprintjs/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 
 import {getProfiles, newProfile, deleteProfile, setVariables, resetPreviews} from "../../actions/profiles";
-import {getStories, newStory, deleteStory} from "../../actions/stories";
 import {setStatus} from "../../actions/status";
 
 import stripHTML from "../../utils/formatters/stripHTML";
@@ -496,10 +495,6 @@ const mapDispatchToProps = dispatch => ({
   newProfile: () => dispatch(newProfile()),
   deleteProfile: id => dispatch(deleteProfile(id)),
   resetPreviews: () => dispatch(resetPreviews()),
-  // Stories
-  getStories: () => dispatch(getStories()),
-  newStory: () => dispatch(newStory()),
-  deleteStory: id => dispatch(deleteStory(id)),
   // Status Operations
   setStatus: status => dispatch(setStatus(status)),
   setVariables: newVariables => dispatch(setVariables(newVariables))
