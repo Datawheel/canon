@@ -92,11 +92,11 @@ export default (profiles = [], action) => {
             .map(sel => sel.ordering >= action.data.ordering ? Object.assign({}, sel, {ordering: sel.ordering + 1}) : sel)
             .concat([action.data])
             .sort(sorter)}) : s)}));
-    case "SECTION_SELECTOR_DELETE":
+    case "BLOCK_INPUT_DELETE":
       return profiles.map(p =>
         Object.assign({}, p, {sections: p.sections.map(s =>
           s.id === action.data.parent_id ? Object.assign({}, s, {selectors: action.data.selectors}) : s)}));
-    case "SECTION_SELECTOR_SWAP":
+    case "BLOCK_INPUT_SWAP":
       return profiles.map(p =>
         Object.assign({}, p, {sections: p.sections.map(s =>
           s.id === action.data.parent_id ? Object.assign({}, s, {selectors: action.data.selectors}) : s)}));
