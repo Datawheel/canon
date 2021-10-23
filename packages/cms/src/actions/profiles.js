@@ -200,22 +200,6 @@ export function deleteEntity(type, payload) {
   };
 }
 
-/** */
-export function fetchSectionPreview(id, locale) {
-  return function(dispatch, getStore) {
-    dispatch({type: "SECTION_PREVIEW_FETCH"});
-    const {currentPid, pathObj} = getStore().cms.status;
-    const {variables} = getStore().cms.variables[locale];
-    const {previews} = pathObj;
-    const idString = previews.reduce((acc, id, i) => `${acc}&slug${i + 1}=${id.slug}&id${i + 1}=${id.id}`, "");
-    const url = `${getStore().env.CANON_API}/api/profile?profile=${currentPid}&section=${id}&locale=${locale}${idString}`;
-    axios.post(url, {variables})
-      .then(({data}) => {
-        dispatch({type: "SECTION_PREVIEW_SET", data});
-      });
-  };
-}
-
 /**
  * Vizes have the ability to call setVariables({key: value}), which "breaks out" of the viz
  * and overrides/sets a variable in the variables object. This does not require a server
