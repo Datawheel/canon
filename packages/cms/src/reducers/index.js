@@ -23,7 +23,7 @@ const initialState = {
   profiles: [],
   formatters: [],
   resources: {
-    formatterFunctions: {}
+    formatterFunctions: false
   },
   variables: {}
 };
