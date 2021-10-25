@@ -17,7 +17,9 @@ import {deleteEntity, duplicateEntity, updateEntity} from "../../actions/profile
 import {setStatus} from "../../actions/status";
 
 import "./SelectorCard.css";
-import {PARENT_TYPES} from "../../utils/consts/cms";
+
+// import {PARENT_TYPES} from "../../utils/consts/cms";
+const PARENT_TYPES = {};
 
 /**
  * Card Component for displaying dropdown selectors. Selectors may be singular dropdowns

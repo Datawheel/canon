@@ -6,7 +6,7 @@ const populateSearch = require("../utils/populateSearch");
 const {profileReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables} = require("../utils/sequelize/models");
 const {translateProfile, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
 // todo1.0 - unite this with getSectionTypes somehow
-const {SECTION_TYPES} = require("../utils/consts/cms");
+const {PROFILE_FIELDS, SECTION_TYPES} = require("../utils/consts/cms");
 
 
 const defaultLocale = process.env.CANON_LANGUAGE_DEFAULT || "en";
@@ -90,7 +90,7 @@ const sortSection = (db, section) => {
   section.blocks = flatSort(db.blocks, section.blocks);
   // todo1.0
   // ordering is nested in section_selector - bubble for top-level sorting
-  section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
+  // section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
   return section;
 };
 
@@ -279,8 +279,9 @@ module.exports = function(app) {
   /* CUSTOM INSERTS */
   app.post("/api/cms/profile/newScaffold", isEnabled, async(req, res) => {
     const ordering = await findMaxOrdering("profile").catch(catcher);
+    const profileFields = Object.values(PROFILE_FIELDS).reduce((acc, d) => req.body[d] ? {...acc, [d]: req.body[d]} : acc, {});
     const profile = await db.profile.create({ordering}).catch(catcher);
-    await db.profile_content.create({id: profile.id, locale: defaultLocale}).catch(catcher);
+    await db.profile_content.create({id: profile.id, locale: defaultLocale, content: profileFields}).catch(catcher);
     const section = await db.section.create({ordering: 0, type: SECTION_TYPES.HERO, profile_id: profile.id});
     await db.section_content.create({id: section.id, locale: defaultLocale}).catch(catcher);
     const reqObj = Object.assign({}, profileReqFull, {where: {id: profile.id}});

@@ -13,7 +13,7 @@ const profileReqFull = {
         {association: "content", separate: true},
         {association: "blocks", include: [
           {association: "content", separate: true},
-          {association: "inputs", separate: true}
+          {association: "inputs"}
         ], separate: true}
       ]
     }

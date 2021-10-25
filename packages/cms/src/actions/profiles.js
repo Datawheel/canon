@@ -32,9 +32,9 @@ export function getProfiles() {
 }
 
 /** */
-export function newProfile() {
+export function newProfile(payload) {
   return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/cms/profile/newScaffold`)
+    return axios.post(`${getStore().env.CANON_API}/api/cms/profile/newScaffold`, payload)
       .then(({data}) => {
         dispatch({type: "PROFILE_NEW", data});
       });

@@ -13,7 +13,8 @@ import ConsoleVariable from "../variables/ConsoleVariable";
 import {fetchVariables, newEntity} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
-import {PARENT_TYPES} from "../../utils/consts/cms";
+// import {PARENT_TYPES} from "../../utils/consts/cms";
+const PARENT_TYPES = {};
 
 import "./Toolbox.css";
 

@@ -42,6 +42,7 @@ importers:
     specifiers:
       '@blueprintjs/core': ^3.45.0
       '@blueprintjs/datetime': ^3.23.4
+      '@blueprintjs/popover2': ^0.12.8
       '@blueprintjs/select': ^3.16.4
       '@datawheel/canon-core': workspace:^
       '@datawheel/canon-logiclayer': workspace:^
@@ -92,6 +93,7 @@ importers:
     dependencies:
       '@blueprintjs/core': 3.45.0
       '@blueprintjs/datetime': 3.23.4
+      '@blueprintjs/popover2': 0.12.8
       '@blueprintjs/select': 3.16.4
       '@datawheel/olap-client': 2.0.0-beta.2
       '@google-cloud/storage': 5.3.0
@@ -1681,6 +1683,10 @@ packages:
       to-fast-properties: 2.0.0
     dev: false
 
+  /@blueprintjs/colors/4.0.0-alpha.1:
+    resolution: {integrity: sha512-i95xW/cAIijJAMIBDrXw1WLbGVXVaRDRG1Ga0CxOtMVwL20zvdXlQj7EMqhkgVEJo9LaKNIDliPI+jsh7h5Lag==}
+    dev: false
+
   /@blueprintjs/core/3.38.2_react-dom@16.14.0+react@16.14.0:
     resolution: {integrity: sha512-YOTZ8UkaKCjP/g8fm9e2py5/9TvAWHwhhDQAH30NV53FD5oBOjYu0+mUU1hRys9TrBflvA3cQn8EgHRP1y/K9A==}
     hasBin: true
@@ -1745,6 +1751,27 @@ packages:
       tslib: 1.13.0
     dev: false
 
+  /@blueprintjs/core/3.51.3:
+    resolution: {integrity: sha512-Z3xGWBMBuboKFx19uxWNAUjITsCmpm+594R/KEAM578uT6yoydT6s5S7N12APAsFe8w3H1Yu2hbWHlHTvRfOhA==}
+    hasBin: true
+    peerDependencies:
+      react: ^15.3.0 || 16 || 17
+      react-dom: ^15.3.0 || 16 || 17
+    dependencies:
+      '@blueprintjs/colors': 4.0.0-alpha.1
+      '@blueprintjs/icons': 3.31.0
+      '@types/dom4': 2.0.2
+      classnames: 2.3.1
+      dom4: 2.1.6
+      normalize.css: 8.0.1
+      popper.js: 1.16.1
+      react-lifecycles-compat: 3.0.4
+      react-popper: 1.3.11
+      react-transition-group: 2.9.0
+      resize-observer-polyfill: 1.5.1
+      tslib: 1.13.0
+    dev: false
+
   /@blueprintjs/datetime/3.23.4:
     resolution: {integrity: sha512-tC0DH6jKMLdZjXlAH7UoP3gzTjCm8iYKGY9jMyqPqTj869AJHnqW5NlCZKp+xMiy6FJ53oJjjKdhw6l5p46BZA==}
     peerDependencies:
@@ -1770,6 +1797,29 @@ packages:
     dependencies:
       classnames: 2.3.1
       tslib: 1.13.0
+    dev: false
+
+  /@blueprintjs/icons/3.31.0:
+    resolution: {integrity: sha512-6pXhHC8zEvoDKN5KNsIHNuCRKsemmRbXNv1jweB95VaFzR1M+Mik+Qi+13Wd+VtZrzes2ZcWttIeyuK91NoLCw==}
+    dependencies:
+      classnames: 2.3.1
+      tslib: 1.13.0
+    dev: false
+
+  /@blueprintjs/popover2/0.12.8:
+    resolution: {integrity: sha512-BuMcrx4BfjRHYfj1qai3gPq+nlI5pnsh0wGAkcindwDSugJYGq+pQh/CEkm6PfX4cQXwBH5yFhhiW/FSPzCs7g==}
+    peerDependencies:
+      react: ^16.8.0 || ^17
+    dependencies:
+      '@blueprintjs/core': 3.51.3
+      '@popperjs/core': 2.10.2
+      classnames: 2.3.1
+      dom4: 2.1.6
+      react-popper: 2.2.5_@popperjs+core@2.10.2
+      resize-observer-polyfill: 1.5.1
+      tslib: 1.13.0
+    transitivePeerDependencies:
+      - react-dom
     dev: false
 
   /@blueprintjs/select/3.15.4_react-dom@16.14.0+react@16.14.0:
@@ -2193,6 +2243,10 @@ packages:
       webpack-hot-middleware: 2.25.0
     dev: false
 
+  /@popperjs/core/2.10.2:
+    resolution: {integrity: sha512-IXf3XA7+XyN7CP9gGh/XB0UxVMlvARGEgGXLubFICsUMGz6Q+DU+i4gGlpOxTjKvXjkJDJC8YdqdKkDj9qZHEQ==}
+    dev: false
+
   /@popperjs/core/2.6.0:
     resolution: {integrity: sha512-cPqjjzuFWNK3BSKLm0abspP0sp/IGOli4p5I5fKFAzdS8fvjdOwDCfZqAaIiXd9lPkOWi3SUUfZof3hEb7J/uw==}
     dev: false
@@ -2274,6 +2328,10 @@ packages:
 
   /@types/dom4/2.0.1:
     resolution: {integrity: sha512-kSkVAvWmMZiCYtvqjqQEwOmvKwcH+V4uiv3qPQ8pAh1Xl39xggGEo8gHUqV4waYGHezdFw0rKBR8Jt0CrQSDZA==}
+
+  /@types/dom4/2.0.2:
+    resolution: {integrity: sha512-Rt4IC1T7xkCWa0OG1oSsPa0iqnxlDeQqKXZAHrQGLb7wFGncWm85MaxKUjAGejOrUynOgWlFi4c6S6IyJwoK4g==}
+    dev: false
 
   /@types/geojson/1.0.6:
     resolution: {integrity: sha512-Xqg/lIZMrUd0VRmSRbCAewtwGZiAk3mEUDvV4op1tGl+LvyPcb/MIOSxTl9z+9+J+R4/vpjiCAT4xeKzH9ji1w==}
@@ -10771,6 +10829,17 @@ packages:
       typed-styles: 0.0.7
       warning: 4.0.3
     dev: true
+
+  /react-popper/2.2.5_@popperjs+core@2.10.2:
+    resolution: {integrity: sha512-kxGkS80eQGtLl18+uig1UIf9MKixFSyPxglsgLBxlYnyDf65BiY9B3nZSc6C9XUNDgStROB0fMQlTEz1KxGddw==}
+    peerDependencies:
+      '@popperjs/core': ^2.0.0
+      react: ^16.8.0 || ^17
+    dependencies:
+      '@popperjs/core': 2.10.2
+      react-fast-compare: 3.2.0
+      warning: 4.0.3
+    dev: false
 
   /react-redux/7.2.4_react-dom@16.13.1+react@16.13.1:
     resolution: {integrity: sha512-hOQ5eOSkEJEXdpIKbnRyl04LhaWabkDPV+Ix97wqQX3T3d2NQ8DUblNXXtNMavc7DpswyQM6xfaN4HQDKNY2JA==}
