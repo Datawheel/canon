@@ -16,9 +16,12 @@ function ProfilePicker() {
   const dispatch = useDispatch();
 
   /* redux */
-  const {profiles} = useSelector(state => ({
-    profiles: state.cms.profiles
+  const {profiles, localeDefault} = useSelector(state => ({
+    profiles: state.cms.profiles,
+    localeDefault: state.cms.status.localeDefault
   }));
+
+
 
   /* mount */
   useEffect(() => {
@@ -37,7 +40,7 @@ function ProfilePicker() {
       <h1>Profiles</h1>
       <ul>
         {profiles.map(profile =>
-          <li key={`profile${profile.id}`}>{JSON.stringify(profile.content[0].content.label)}</li>)
+          <li key={`profile${profile.id}`}>{profile.contentByLocale[localeDefault]?.content?.label}</li>)
         }
         <li>
           <Popover2

@@ -65,7 +65,7 @@ module.exports = function(sequelize, db) {
   );
 
   block.associate = models => {
-    block.hasMany(models.block_content, {foreignKey: "id", sourceKey: "id", as: "content"});
+    block.hasMany(models.block_content, {foreignKey: "id", sourceKey: "id", as: "contentByLocale"});
     block.belongsToMany(models.block, {through: "block_input", foreignKey: "block_id", otherKey: "input_id", as: "inputs"});
   };
 

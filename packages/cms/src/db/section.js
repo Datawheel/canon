@@ -47,7 +47,7 @@ module.exports = function(sequelize, db) {
   );
 
   section.associate = models => {
-    section.hasMany(models.section_content, {foreignKey: "id", sourceKey: "id", as: "content"});
+    section.hasMany(models.section_content, {foreignKey: "id", sourceKey: "id", as: "contentByLocale"});
     section.hasMany(models.block, {foreignKey: "section_id", sourceKey: "id", as: "blocks"});
   };
 

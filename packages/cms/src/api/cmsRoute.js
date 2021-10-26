@@ -68,10 +68,12 @@ const bubbleSortSelectors = (conn, selectors, accessor = "section_selector") => 
 
 const bubbleSortInputs = () => [];
 
+const contentReducer = (acc, d) => ({...acc, [d.locale]: d});
+
 const sortProfile = (db, profile) => {
   // Don't use flatSort for meta. Meta can have multiple entities in the same ordering, so do not attempt to "flatten" them out
   profile.meta = profile.meta.sort(sorter);
-  profile.materializers = flatSort(db.materializer, profile.materializers);
+  profile.contentByLocale = profile.contentByLocale.reduce(contentReducer, {});
   profile.sections = flatSort(db.section, profile.sections);
   return profile;
 };
@@ -103,7 +105,7 @@ const duplicateSection = async(db, oldSection, pid) => {
   const newRows = oldSection.blocks.map(d => ({...stripID(d), section_id: newSection.id}));
   for (const newRow of newRows) {
     const newBlock = await db.blocks.create(newRow).catch(catcher);
-    const newBlockContent = newRow.content.map(d => ({...d, id: newBlock.id}));
+    const newBlockContent = newRow.contentByLocale.map(d => ({...d, id: newBlock.id}));
     await db.block_content.bulkCreate(newBlockContent).catch(catcher);
     const newInputs = newRow.inputs.map(d => ({...stripID(d), block_id: newRow.id}));
     await db.block_input.bulkCreate(newInputs);
@@ -167,7 +169,7 @@ module.exports = function(app) {
   getList.forEach(ref => {
     app.get(`/api/cms/${ref}/get/:id`, async(req, res) => {
       if (contentTables.includes(ref)) {
-        const u = await db[ref].findOne({where: {id: req.params.id}, include: {association: "content"}}).catch(catcher);
+        const u = await db[ref].findOne({where: {id: req.params.id}, include: {association: "contentByLocale"}}).catch(catcher);
         return res.json(u);
       }
       else {
@@ -204,15 +206,15 @@ module.exports = function(app) {
     let meta = await db.profile.findAll({
       include: [
         {association: "meta", separate: true},
-        {association: "content", separate: true}
+        {association: "contentByLocale", separate: true}
       ]
     }).catch(catcher);
     meta = meta.map(m => m.toJSON());
     const locale = req.query.locale ? req.query.locale : defaultLocale;
     meta.forEach(m => {
-      if (m.content instanceof Array) {
-        m.content = m.content.find(c => c.locale === locale) ||
-          m.content.find(c => c.locale === defaultLocale) ||
+      if (m.contentByLocale instanceof Array) {
+        m.contentByLocale = m.contentByLocale.find(c => c.locale === locale) ||
+          m.contentByLocale.find(c => c.locale === defaultLocale) ||
            m[0];
       }
     });
@@ -252,7 +254,7 @@ module.exports = function(app) {
           reqObj = Object.assign({}, sectionReqFull, {where: {id: newObj.id}});
         }
         else {
-          reqObj = {where: {id: newObj.id}, include: {association: "content"}};
+          reqObj = {where: {id: newObj.id}, include: {association: "contentByLocale"}};
         }
         let fullObj = await db[ref].findOne(reqObj).catch(catcher);
         fullObj = fullObj.toJSON();
@@ -350,7 +352,7 @@ module.exports = function(app) {
       }
       else {
         if (contentTables.includes(ref)) {
-          const u = await db[ref].findOne({where: {id}, include: {association: "content"}}).catch(catcher);
+          const u = await db[ref].findOne({where: {id}, include: {association: "contentByLocale"}}).catch(catcher);
           return res.json(u);
         }
         else {
@@ -496,7 +498,7 @@ module.exports = function(app) {
     const newMeta = oldProfile.meta.map(d => Object.assign({}, stripID(d), {profile_id: newProfile.id, slug: `${d.slug}-${newProfile.id}`}));
     await db.profile_meta.bulkCreate(newMeta).catch(catcher);
     // Clone language content with new id
-    const newProfileContent = oldProfile.content.map(d => Object.assign({}, d, {id: newProfile.id}));
+    const newProfileContent = oldProfile.contentByLocale.map(d => Object.assign({}, d, {id: newProfile.id}));
     await db.profile_content.bulkCreate(newProfileContent).catch(catcher);
     // Clone Sections
     for (const oldSection of oldProfile.sections) {
@@ -583,7 +585,7 @@ module.exports = function(app) {
     const reqObj = {
       where: {section_id: row.section_id},
       order: [["ordering", "ASC"]],
-      include: {association: "content"}
+      include: {association: "contentByLocale"}
     };
     const rows = await db.block.findAll(reqObj).catch(catcher);
     return res.json({parent_id: row.section_id, newArray: rows});

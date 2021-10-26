@@ -49,8 +49,8 @@ const cartesian = (a, b, ...c) => b ? cartesian(f(a, b), ...c) : a;
 
 let unaccentExtensionInstalled;
 
-const imageIncludeNoBlobs = [{association: "image", attributes: {exclude: ["thumb", "splash"]}, include: [{association: "content"}]}, {association: "content"}];
-const imageIncludeThumbOnly = [{association: "image", attributes: {exclude: ["splash"]}, include: [{association: "content"}]}, {association: "content"}];
+const imageIncludeNoBlobs = [{association: "image", attributes: {exclude: ["thumb", "splash"]}, include: [{association: "contentByLocale"}]}, {association: "contentByLocale"}];
+const imageIncludeThumbOnly = [{association: "image", attributes: {exclude: ["splash"]}, include: [{association: "contentByLocale"}]}, {association: "contentByLocale"}];
 
 // The visibility or invisibility of certain profiles or variants determines which "dimension cube pairs" should be considered valid.
 // When making a query into canon_cms_search, use the de-duplicated, valid, and visible dim/cubes from this array to restrict the results.
@@ -72,7 +72,7 @@ const fetchDimCubes = async db => {
 // Convert a legacy-style search result into a scaffolded faked version of what the deepsearch API returns.
 // This allows us to use the same collating code below, whether the results came from legacy or deepsearch.
 const rowToResult = (row, locale) => {
-  const content = row.content.find(c => c.locale === locale);
+  const content = row.contentByLocale.find(c => c.locale === locale);
   return {
     name: content ? content.name : "",
     confidence: row.zvalue,
@@ -400,7 +400,7 @@ module.exports = function(app) {
           limit
         });
         // Filter out show:false from results
-        rows = rows.filter(d => !d.content.map(c => c.attr).some(a => a && a.show === false));
+        rows = rows.filter(d => !d.contentByLocale.map(c => c.attr).some(a => a && a.show === false));
         rows.forEach(row => {
           if (!results.results[row.dimension]) results.results[row.dimension] = [];
           results.results[row.dimension].push(rowToResult(row, locale));
@@ -513,7 +513,7 @@ module.exports = function(app) {
         results.origin = "legacy";
         results.results = {};
         // Filter out show:false from results
-        rows = rows.filter(d => !d.content.map(c => c.attr).some(a => a && a.show === false));
+        rows = rows.filter(d => !d.contentByLocale.map(c => c.attr).some(a => a && a.show === false));
         rows.forEach(row => {
           if (!results.results[row.dimension]) results.results[row.dimension] = [];
           results.results[row.dimension].push(rowToResult(row, locale));
@@ -742,7 +742,7 @@ module.exports = function(app) {
     // even if hidden using {show: false}. However, when deepsearch is down, the front-end uses this basic search.
     // If coming from the CMS, don't use the filter - otherwise, use it.
     if (!cms) {
-      rows = rows.filter(d => !d.content.map(c => c.attr).some(a => a && a.show === false));
+      rows = rows.filter(d => !d.contentByLocale.map(c => c.attr).some(a => a && a.show === false));
     }
 
     /**
@@ -791,7 +791,7 @@ module.exports = function(app) {
           result.parents = resp.data.data;
         }
       }
-      const defCon = d.content.find(c => c.locale === locale);
+      const defCon = d.contentByLocale.find(c => c.locale === locale);
       if (defCon) {
         result.name = defCon.name;
         result.keywords = defCon.keywords;

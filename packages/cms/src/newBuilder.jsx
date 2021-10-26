@@ -47,6 +47,8 @@ function NewBuilder({router}) {
     };
   }, []);
 
+  const pathObjString = JSON.stringify(pathObj);
+
   // todo1.0 make routing work
   useEffect(() => {
     const {pathname} = router.location;
@@ -59,9 +61,12 @@ function NewBuilder({router}) {
     if (pathObj?.previews) {
       params.previews = typeof pathObj?.previews === "string" ? pathObj?.previews : pathObj?.previews.map(d => d.memberSlug).join();
     }
-    const url = `${pathname}${Object.keys(params).filter(d => params[d]).map(key => `${key}=${params[key]}`).join("&")}`;
-    // router.replace(url);
-  });
+    const hasParams = Object.values(params).some(d => d);
+    if (hasParams) {
+      const url = `${pathname}?${Object.keys(params).filter(d => params[d]).map(key => `${key}=${params[key]}`).join("&")}`;
+      router.replace(url);
+    }
+  }, [pathObjString]);
 
   if (!isEnabled) return null;
   if (!formatterFunctions) return <div>Loading...</div>;

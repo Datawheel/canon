@@ -6,13 +6,13 @@
 const profileReqFull = {
   include: [
     {association: "meta", separate: true},
-    {association: "content", separate: true},
+    {association: "contentByLocale", separate: true},
     {
       association: "sections", separate: true,
       include: [
-        {association: "content", separate: true},
+        {association: "contentByLocale", separate: true},
         {association: "blocks", include: [
-          {association: "content", separate: true},
+          {association: "contentByLocale", separate: true},
           {association: "inputs"}
         ], separate: true}
       ]
@@ -22,9 +22,9 @@ const profileReqFull = {
 
 const sectionReqFull = {
   include: [
-    {association: "content", separate: true},
+    {association: "contentByLocale", separate: true},
     {association: "blocks", include: [
-      {association: "content", separate: true},
+      {association: "contentByLocale", separate: true},
       {association: "inputs", separate: true}
     ], separate: true}
   ]

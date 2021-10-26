@@ -24,7 +24,7 @@ const imgCatcher = e => {
   return false;
 };
 
-const imageInclude = {association: "image", attributes: {exclude: ["splash", "thumb"]}, include: [{association: "content"}]};
+const imageInclude = {association: "image", attributes: {exclude: ["splash", "thumb"]}, include: [{association: "contentByLocale"}]};
 
 const getParentMemberWithImage = async(db, member, meta) => {
   const {id, hierarchy} = member;
@@ -92,11 +92,11 @@ module.exports = function(app) {
         const parentMember = await getParentMemberWithImage(db, member, meta);
         if (parentMember) member.image = parentMember.image;
       }
-      if (member.image && member.image.content) {
-        const content = member.image.content.find(d => d.locale === locale);
+      if (member.image && member.image.contentByLocale) {
+        const content = member.image.contentByLocale.find(d => d.locale === locale);
         if (content) {
           member.image.meta = content.meta;
-          delete member.image.content;
+          delete member.image.contentByLocale;
         }
       }
       return res.json(member);
