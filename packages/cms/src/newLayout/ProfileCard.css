@@ -1,0 +1,14 @@
+.cms-profile-card {
+  display: block;
+  width: 100px;
+  height: 100px;
+  border: 1px solid black;
+  padding: 10px;
+  margin-right: 20px;
+  text-align: center;
+  transition: box-shadow .3s;
+}
+
+.cms-profile-card:hover {
+  box-shadow: 0 0 15px rgba(33,33,33,.3);
+}

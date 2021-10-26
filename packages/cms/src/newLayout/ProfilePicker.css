@@ -1,3 +1,11 @@
+.cms-profile-picker {
+  & ul {
+    list-style-type: none;
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
+
 .cms-profile-name-box {
   width: 200px;
   height: 120px;
@@ -5,4 +13,9 @@
   display: flex;
   flex-direction: column;
   justify-content:space-evenly;
+}
+
+.cms-profile-new-button {
+  width: 100px;
+  height: 100px;
 }
