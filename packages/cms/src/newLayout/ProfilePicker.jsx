@@ -40,19 +40,26 @@ function ProfilePicker() {
     dispatch(setStatus({pathObj: {profile: id}}));
   };
 
+  const popoverProps = {
+    interactionKind: Popover2InteractionKind.CLICK,
+    placement: PopoverPosition.AUTO
+  };
+
   return (
     <div className="cms-profile-picker">
       <h1>Profiles</h1>
       <ul>
         {profiles.map(profile =>
-          <li key={`profile${profile.id}`} onClick={() => openProfile(profile.id)} >
+          <li className="cms-profile-li" key={`profile${profile.id}`} >
+            <button className="cms-card-cover-button" onClick={() => openProfile(profile.id)} >
+              <span className="u-visually-hidden">open</span>
+            </button>
             <ProfileCard id={profile.id} label={profile.contentByLocale[localeDefault].content.label} />
           </li>
         )}
         <li>
           <Popover2
-            interactionKind={Popover2InteractionKind.CLICK}
-            placement={PopoverPosition.AUTO}
+            {...popoverProps}
             content={<div className="cms-profile-name-box">
               <label>Profile Name</label>
               <input type="text" value={profileName} autoFocus onChange={e => setProfileName(e.target.value)} />

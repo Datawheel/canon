@@ -7,20 +7,13 @@
   padding: 10px;
   margin-right: 20px;
   text-align: center;
-  transition: box-shadow .3s;
-  transition: background-color .3s;
   position: relative;
-  cursor: pointer;
   background-color: rgb(255, 160, 122, .2);
-}
-
-.cms-profile-card:hover {
-  box-shadow: 0 0 15px rgba(33,33,33,.3);
-  background-color: rgb(255, 160, 122, .4);
 }
 
 .cms-profile-card-cog {
   position: absolute;
   bottom: 5px;
   right: 5px;
+  z-index: 2;
 }

@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Button, Menu, MenuItem} from "@blueprintjs/core";
-import {Popover2} from "@blueprintjs/Popover2";
+import {Alert, Button, Menu, MenuItem, MenuDivider, Intent} from "@blueprintjs/core";
+import {Popover2, Classes} from "@blueprintjs/Popover2";
 
 import {getProfiles, newProfile} from "../actions/profiles";
 
@@ -19,18 +19,44 @@ function ProfileActions() {
     localeDefault: state.cms.status.localeDefault
   }));
 
-  const cancel = e => {
+  const [showAlert, setShowAlert] = useState(null);
+
+  const toggleVisibility = e => {
     e.stopPropagation();
-    console.log("oy");
+    console.log("todo1.0 vis switch");
+  };
+
+  const maybeDelete = e => {
+    e.stopPropagation();
+    setShowAlert(true);
+  };
+
+  const onDelete = () => {
+    setShowAlert(false),
+    console.log("delete");
+  };
+
+  const alertProps = {
+    canOutsideClickCancel: true,
+    icon: "trash",
+    isOpen: showAlert,
+    intent: Intent.DANGER,
+    confirmButtonText: "Yes, Delete Profile",
+    onConfirm: onDelete,
+    cancelButtonText: "Cancel",
+    onCancel: () => setShowAlert(false)
   };
 
   return (
     <div className="cms-profile-actions">
       <Menu>
-        <MenuItem onClick={cancel} text="one" />
-        <MenuItem onClick={cancel} text="two" />
-        <MenuItem onClick={cancel} text="three" />
+        <MenuItem icon="eye-open" onClick={toggleVisibility} text="Visible" />
+        <MenuDivider />
+        <MenuItem icon="trash" onClick={maybeDelete} text="Delete" />
       </Menu>
+      <Alert {...alertProps} key="alert">
+        Are you sure you want to delete this profile and all its children? This action cannot be undone.
+      </Alert>
     </div>
   );
 

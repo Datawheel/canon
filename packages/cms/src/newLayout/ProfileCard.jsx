@@ -1,9 +1,6 @@
-import React, {useState, useEffect} from "react";
-import {useDispatch, useSelector} from "react-redux";
+import React, {useState} from "react";
 import {Button, PopoverPosition} from "@blueprintjs/core";
 import {Popover2, Popover2InteractionKind} from "@blueprintjs/Popover2";
-
-import {getProfiles, newProfile} from "../actions/profiles";
 
 import ProfileActions from "./ProfileActions";
 
@@ -13,35 +10,25 @@ import "./ProfileCard.css";
 /**
  *
  */
-function ProfileCard({id, label}) {
-
-  // const dispatch = useDispatch();
-
-  /* redux */
-  const {localeDefault} = useSelector(state => ({
-    localeDefault: state.cms.status.localeDefault
-  }));
+function ProfileCard({label}) {
 
   const [showMenu, setShowMenu] = useState(false);
 
-
-  const toggleMenu = e => {
-    e.stopPropagation();
-    setShowMenu(!showMenu);
+  const popoverProps = {
+    isOpen: showMenu,
+    onClose: () => setShowMenu(false),
+    interactionKind: Popover2InteractionKind.CLICK,
+    placement: PopoverPosition.AUTO
   };
-
 
   return (
     <div className="cms-profile-card">
       <span>{label}</span>
       <Popover2
-        isOpen={showMenu}
-        onClose={() => setShowMenu(false)}
-        interactionKind={Popover2InteractionKind.CLICK}
-        placement={PopoverPosition.AUTO}
-        content={<ProfileActions />}
+        {...popoverProps}
+        content ={<ProfileActions />}
         renderTarget={({ref, ...targetProps}) =>
-          <Button {...targetProps} elementRef={ref} onClick={toggleMenu} className="cms-profile-card-cog bp3-small" icon="cog" />
+          <Button {...targetProps} elementRef={ref} onClick={() => setShowMenu(!showMenu)} className="cms-profile-card-cog bp3-small" icon="cog" />
         }
       />
     </div>
