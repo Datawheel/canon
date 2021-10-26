@@ -6,12 +6,12 @@ import {Popover2} from "@blueprintjs/Popover2";
 import {getProfiles, newProfile} from "../actions/profiles";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
-import "./ProfileCard.css";
+import "./ProfileEditor.css";
 
 /**
  *
  */
-function ProfileCard({id, label}) {
+function ProfileEditor({id, label}) {
 
   // const dispatch = useDispatch();
 
@@ -29,4 +29,4 @@ function ProfileCard({id, label}) {
 
 }
 
-export default ProfileCard;
+export default ProfileEditor;

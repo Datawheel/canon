@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import yn from "yn";
 
@@ -6,6 +6,7 @@ import {fetchData, isAuthenticated} from "@datawheel/canon-core";
 
 import AuthForm from "./components/interface/AuthForm";
 import ProfilePicker from "./newLayout/ProfilePicker";
+import ProfileEditor from "./newLayout/ProfileEditor";
 
 import {getFormatters} from "./actions/formatters";
 import {setStatus} from "./actions/status";
@@ -47,7 +48,7 @@ function NewBuilder({router}) {
     };
   }, []);
 
-  const pathObjString = JSON.stringify(pathObj);
+  const pathObjString = `${pathObj?.profile}-${pathObj.section}-${typeof pathObj?.previews === "string" ? pathObj?.previews : pathObj?.previews?.map(d => d.memberSlug).join()}`;
 
   // todo1.0 make routing work
   useEffect(() => {
@@ -87,11 +88,12 @@ function NewBuilder({router}) {
 
   return (
     <div className="cms-profile-browser">
-      <ProfilePicker />
+      {pathObj.profile
+        ? <ProfileEditor id={pathObj.profile}/>
+        : <ProfilePicker />
+      }
     </div>
   );
-
-
 
 }
 
