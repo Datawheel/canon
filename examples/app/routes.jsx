@@ -19,7 +19,7 @@ export default function RouteCreate() {
 
       <Route path="docs/:pkg/:page" component={Docs} />
 
-      <Route path="/cms" component={Builder} />
+      <Route path="/cms" component={NewBuilder} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={SignUp} />
       <Route path="/:lang/profile/:slug/:id" component={Profile} />
@@ -28,8 +28,6 @@ export default function RouteCreate() {
       <Route path="/:lang/profilesearch" component={ProfileSearch} />
       <Route path="/:lang/story/:slug" component={Story} />
       <Route path="/:lang/stories" component={StoryLanding} />
-
-      <Route path="/new" component={NewBuilder} />
 
       <Route path="*" component={Error} status={404} />
 

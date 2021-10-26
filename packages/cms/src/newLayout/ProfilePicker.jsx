@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Button, Icon} from "@blueprintjs/core";
-import {Popover2} from "@blueprintjs/Popover2";
+import {Button, Icon, Intent, PopoverPosition} from "@blueprintjs/core";
+import {Popover2, Popover2InteractionKind} from "@blueprintjs/Popover2";
 
 import ProfileCard from "./ProfileCard";
 
@@ -51,15 +51,15 @@ function ProfilePicker() {
         )}
         <li>
           <Popover2
-            interactionKind="click"
-            placement="auto"
+            interactionKind={Popover2InteractionKind.CLICK}
+            placement={PopoverPosition.AUTO}
             content={<div className="cms-profile-name-box">
               <label>Profile Name</label>
               <input type="text" value={profileName} autoFocus onChange={e => setProfileName(e.target.value)} />
               <Button onClick={submit} disabled={!profileName}>Submit</Button>
             </div>}
             renderTarget={({ref, ...targetProps}) =>
-              <Button {...targetProps} elementRef={ref} className="cms-profile-new-button" intent="primary"><Icon icon="add" iconSize={40} /></Button>
+              <Button {...targetProps} elementRef={ref} className="cms-profile-new-button" intent={Intent.PRIMARY}><Icon icon="add" iconSize={40} /></Button>
             }
           />
 
