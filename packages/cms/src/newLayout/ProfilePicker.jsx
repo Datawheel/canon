@@ -5,6 +5,8 @@ import {Popover2, Popover2InteractionKind} from "@blueprintjs/Popover2";
 
 import ProfileCard from "./ProfileCard";
 
+import useKeyPress from "./hooks/useKeyPress";
+
 import {getProfiles, newProfile} from "../actions/profiles";
 import {setStatus} from "../actions/status";
 
@@ -24,15 +26,22 @@ function ProfilePicker() {
     localeDefault: state.cms.status.localeDefault
   }));
 
+  /* state */
+  const [profileName, setProfileName] = useState("");
+  const [submitOpen, setSubmitOpen] = useState(false);
+
   /* mount */
   useEffect(() => {
     dispatch(getProfiles());
   }, []);
 
-  /* state */
-  const [profileName, setProfileName] = useState("");
+  const onClose = () => {
+    setProfileName("");
+    setSubmitOpen(false);
+  };
 
   const submit = () => {
+    onClose();
     dispatch(newProfile({label: profileName}));
   };
 
@@ -40,7 +49,12 @@ function ProfilePicker() {
     dispatch(setStatus({pathObj: {profile: id}}));
   };
 
+  const enterPress = useKeyPress(13); // Enter key
+  if (submitOpen && profileName && enterPress) submit();
+
   const popoverProps = {
+    isOpen: submitOpen,
+    onClose,
     interactionKind: Popover2InteractionKind.CLICK,
     placement: PopoverPosition.AUTO
   };
@@ -66,7 +80,7 @@ function ProfilePicker() {
               <Button onClick={submit} disabled={!profileName}>Submit</Button>
             </div>}
             renderTarget={({ref, ...targetProps}) =>
-              <Button {...targetProps} elementRef={ref} className="cms-profile-new-button" intent={Intent.PRIMARY}><Icon icon="add" iconSize={40} /></Button>
+              <Button {...targetProps} elementRef={ref} onClick={() => setSubmitOpen(true)} className="cms-profile-new-button" intent={Intent.PRIMARY}><Icon icon="add" iconSize={40} /></Button>
             }
           />
 

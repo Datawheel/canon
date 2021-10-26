@@ -3,21 +3,16 @@ import {useDispatch, useSelector} from "react-redux";
 import {Alert, Button, Menu, MenuItem, MenuDivider, Intent} from "@blueprintjs/core";
 import {Popover2, Classes} from "@blueprintjs/Popover2";
 
-import {getProfiles, newProfile} from "../actions/profiles";
+import {deleteProfile} from "../actions/profiles";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
 /**
  *
  */
-function ProfileActions() {
+function ProfileActions({id}) {
 
-  // const dispatch = useDispatch();
-
-  /* redux */
-  const {localeDefault} = useSelector(state => ({
-    localeDefault: state.cms.status.localeDefault
-  }));
+  const dispatch = useDispatch();
 
   const [showAlert, setShowAlert] = useState(null);
 
@@ -33,7 +28,7 @@ function ProfileActions() {
 
   const onDelete = () => {
     setShowAlert(false),
-    console.log("delete");
+    dispatch(deleteProfile(id));
   };
 
   const alertProps = {

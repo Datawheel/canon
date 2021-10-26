@@ -10,7 +10,7 @@ import "./ProfileCard.css";
 /**
  *
  */
-function ProfileCard({label}) {
+function ProfileCard({id, label}) {
 
   const [showMenu, setShowMenu] = useState(false);
 
@@ -23,10 +23,11 @@ function ProfileCard({label}) {
 
   return (
     <div className="cms-profile-card">
-      <span>{label}</span>
+      <span key="label">{label}</span>
       <Popover2
+        key="popover"
         {...popoverProps}
-        content ={<ProfileActions />}
+        content ={<ProfileActions id={id}/>}
         renderTarget={({ref, ...targetProps}) =>
           <Button {...targetProps} elementRef={ref} onClick={() => setShowMenu(!showMenu)} className="cms-profile-card-cog bp3-small" icon="cog" />
         }
