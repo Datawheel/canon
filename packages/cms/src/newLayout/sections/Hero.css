@@ -1,5 +1,8 @@
 .cms-hero {
+  display:flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
-  background-color: grey;
   height: 200px;
+  background-color: grey;
 }

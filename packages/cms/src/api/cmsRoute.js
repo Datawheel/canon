@@ -90,6 +90,7 @@ const sortProfileTree = (db, profiles) => {
 
 const sortSection = (db, section) => {
   section.blocks = flatSort(db.blocks, section.blocks);
+  section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
   // todo1.0
   // ordering is nested in section_selector - bubble for top-level sorting
   // section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);

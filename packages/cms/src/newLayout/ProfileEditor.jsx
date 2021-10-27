@@ -5,7 +5,9 @@ import {Popover2} from "@blueprintjs/Popover2";
 
 import {getProfiles, newProfile} from "../actions/profiles";
 
+import CMSHeader from "./CMSHeader";
 import Hero from "./sections/Hero";
+
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import "./ProfileEditor.css";
@@ -26,12 +28,12 @@ function ProfileEditor({id}) {
   if (!profile) return <div>Loading...</div>;
   if (profile.error) return <div>{profile.error}</div>;
 
-  const {sections} = profile;
-  const heroSection = sections.shift();
+  const [heroSection, ...sections] = profile.sections;
 
   return (
     <div className="cms-profile">
-      <Hero key="hero" profile={profile} contents={heroSection} />
+      <CMSHeader />
+      <Hero key="hero" profile={profile} section={heroSection} />
     </div>
   );
 

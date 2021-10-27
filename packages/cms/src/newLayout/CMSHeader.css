@@ -1,0 +1,21 @@
+.cms-header {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-direction: column;
+  text-align:center;
+  padding-top:5px;
+  width: 100%;
+  height: 100px;
+  margin-bottom: 5px;
+  background-color:lightgray;
+  position: relative;
+}
+
+.cms-header-return-link {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  cursor: pointer;
+  text-decoration: underline;
+}

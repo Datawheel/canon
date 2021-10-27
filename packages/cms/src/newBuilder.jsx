@@ -38,17 +38,20 @@ function NewBuilder({router}) {
     dispatch(getProfiles());
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
+    const localeCurrent = localeDefault;
     const locales = env.CANON_LANGUAGES?.includes(",") ? env.CANON_LANGUAGES.split(",").filter(l => l !== localeDefault) : undefined;
     const localeSecondary = null;
     const {profile, section, previews} = router.location.query;
     const pathObj = {profile, previews, section};
-    dispatch(setStatus({localeDefault, localeSecondary, locales, pathObj}));
+    dispatch(setStatus({localeDefault, localeSecondary, localeCurrent, locales, pathObj}));
     // Prevent leaving the page accidentally
+    /*
     const unload = e => e.returnValue = "Are you sure you want to leave?";
     if (typeof window !== "undefined") window.addEventListener("beforeunload", unload);
     return () => {
       if (typeof window !== "undefined")  window.addEventListener("beforeunload", unload);
     };
+    */
   }, []);
 
   const pathObjString = `${pathObj?.profile}-${pathObj.section}-${typeof pathObj?.previews === "string" ? pathObj?.previews : pathObj?.previews?.map(d => d.memberSlug).join()}`;
