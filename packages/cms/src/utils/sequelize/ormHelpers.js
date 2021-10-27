@@ -25,7 +25,7 @@ const sectionReqFull = {
     {association: "contentByLocale", separate: true},
     {association: "blocks", include: [
       {association: "contentByLocale", separate: true},
-      {association: "inputs", separate: true}
+      {association: "inputs"}
     ], separate: true}
   ]
 };

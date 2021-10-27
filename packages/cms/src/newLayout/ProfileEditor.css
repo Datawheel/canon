@@ -1,7 +1,19 @@
 .cms-profile {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items:center;
+}
+
+.cms-section-container {
+  width: 100%;
+  position: relative;
 }
 
 .cms-profile-add-section-button {
-  margin-top: -10px;
+  position:absolute;
+  bottom: -16px;
+  left: 49%; /* lol sorry dave */
+  z-index: 1;
 }
+
+
