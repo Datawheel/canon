@@ -10,6 +10,7 @@ import ProfileEditor from "./newLayout/ProfileEditor";
 
 import {getFormatters} from "./actions/formatters";
 import {setStatus} from "./actions/status";
+import {getProfiles} from "./actions/profiles";
 
 import "./newBuilder.css";
 
@@ -34,6 +35,7 @@ function NewBuilder({router}) {
   useEffect(() => {
     dispatch(isAuthenticated());
     dispatch(getFormatters());
+    dispatch(getProfiles());
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
     const locales = env.CANON_LANGUAGES?.includes(",") ? env.CANON_LANGUAGES.split(",").filter(l => l !== localeDefault) : undefined;
@@ -89,7 +91,7 @@ function NewBuilder({router}) {
   return (
     <div className="cms-profile-browser">
       {pathObj.profile
-        ? <ProfileEditor id={pathObj.profile}/>
+        ? <ProfileEditor id={Number(pathObj.profile)}/>
         : <ProfilePicker />
       }
     </div>

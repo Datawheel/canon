@@ -5,25 +5,33 @@ import {Popover2} from "@blueprintjs/Popover2";
 
 import {getProfiles, newProfile} from "../actions/profiles";
 
+import Hero from "./sections/Hero";
+
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import "./ProfileEditor.css";
 
 /**
  *
  */
-function ProfileEditor({id, label}) {
+function ProfileEditor({id}) {
 
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   /* redux */
-  const {localeDefault} = useSelector(state => ({
-    localeDefault: state.cms.status.localeDefault
+  const {localeDefault, profile} = useSelector(state => ({
+    localeDefault: state.cms.status.localeDefault,
+    profile: state.cms.profiles.find(d => d.id === id)
   }));
 
+  if (!profile) return <div>Loading...</div>;
+  if (profile.error) return <div>{profile.error}</div>;
+
+  const {sections} = profile;
+  const heroSection = sections.shift();
+
   return (
-    <div className="cms-profile-card">
-      <span>{label}</span>
-      <Button className="cms-profile-card-cog bp3-small" icon="cog" />
+    <div className="cms-profile">
+      <Hero key="hero" profile={profile} contents={heroSection} />
     </div>
   );
 

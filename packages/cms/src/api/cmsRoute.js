@@ -3,7 +3,7 @@ const sequelize = require("sequelize"),
       yn = require("yn");
 
 const populateSearch = require("../utils/populateSearch");
-const {profileReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables} = require("../utils/sequelize/helpers");
+const {profileReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables} = require("../utils/sequelize/ormHelpers");
 const {translateProfile, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
 // todo1.0 - unite this with getSectionTypes somehow
 const {PROFILE_FIELDS, SECTION_TYPES} = require("../utils/consts/cms");
@@ -157,6 +157,7 @@ module.exports = function(app) {
   const cleanSection = section => {
     section = sortSection(db, section);
     section.types = Object.values(SECTION_TYPES);
+    return section;
   };
 
   /* BASIC GETS */

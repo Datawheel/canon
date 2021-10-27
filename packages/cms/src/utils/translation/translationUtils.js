@@ -2,7 +2,7 @@ const yn = require("yn");
 const formatters4eval = require("../formatters4eval");
 const translateContent = require("./translateContent");
 const translateText = require("./translateText");
-const {profileReqFull} = require("../sequelize/helpers");
+const {profileReqFull} = require("../sequelize/ormHelpers");
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 const catcher = e => {

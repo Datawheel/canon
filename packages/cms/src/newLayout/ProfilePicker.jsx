@@ -5,9 +5,9 @@ import {Popover2, Popover2InteractionKind} from "@blueprintjs/Popover2";
 
 import ProfileCard from "./ProfileCard";
 
-import useKeyPress from "./hooks/useKeyPress";
+import useKeyPress from "./hooks/listeners/useKeyPress";
 
-import {getProfiles, newProfile} from "../actions/profiles";
+import {newProfile} from "../actions/profiles";
 import {setStatus} from "../actions/status";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
@@ -30,11 +30,6 @@ function ProfilePicker() {
   const [profileName, setProfileName] = useState("");
   const [submitOpen, setSubmitOpen] = useState(false);
 
-  /* mount */
-  useEffect(() => {
-    dispatch(getProfiles());
-  }, []);
-
   const onClose = () => {
     setProfileName("");
     setSubmitOpen(false);
@@ -49,7 +44,8 @@ function ProfilePicker() {
     dispatch(setStatus({pathObj: {profile: id}}));
   };
 
-  const enterPress = useKeyPress(13); // Enter key
+  const ENTER_KEY = 13;
+  const enterPress = useKeyPress(ENTER_KEY);
   if (submitOpen && profileName && enterPress) submit();
 
   const popoverProps = {
