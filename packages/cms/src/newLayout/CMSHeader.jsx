@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from "react";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {Button} from "@blueprintjs/core";
+
+import {setStatus} from "../actions/status";
 
 import "./CMSHeader.css";
 
@@ -8,6 +10,8 @@ import "./CMSHeader.css";
  *
  */
 function CMSHeader() {
+
+  const dispatch = useDispatch();
 
   /* redux */
   const {localeDefault, localeSecondary, locales, profiles} = useSelector(state => ({
@@ -19,7 +23,7 @@ function CMSHeader() {
   }));
 
   const goBack = () => {
-    console.log("go back");
+    dispatch(setStatus({pathObj: {home: true}}));
   };
 
   const reportOptions = profiles.map(d => d.contentByLocale[localeDefault].content.label);

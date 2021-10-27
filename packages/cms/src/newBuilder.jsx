@@ -61,7 +61,8 @@ function NewBuilder({router}) {
     const {pathname} = router.location;
     const params = {
       profile: pathObj?.profile,
-      section: pathObj?.section
+      section: pathObj?.section,
+      home: pathObj?.home
     };
     // Previews may come in as a string (from the URL) or an array (from the app).
     // Set the url correctly either way.
