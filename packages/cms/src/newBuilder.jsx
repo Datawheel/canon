@@ -43,10 +43,11 @@ function NewBuilder({router}) {
     const {profile, section, previews} = router.location.query;
     const pathObj = {profile, previews, section};
     dispatch(setStatus({localeDefault, localeSecondary, locales, pathObj}));
-    // When the user leaves the page to view the front-end profile, clear the back/reload blocker that was
-    // only meant for the CMS (prevents the popup from erroneously occuring when the user tries to leave the front-end)
+    // Prevent leaving the page accidentally
+    const unload = e => e.returnValue = "Are you sure you want to leave?";
+    if (typeof window !== "undefined") window.addEventListener("beforeunload", unload);
     return () => {
-      if (typeof window !== "undefined") window.onbeforeunload = () => undefined;
+      if (typeof window !== "undefined")  window.addEventListener("beforeunload", unload);
     };
   }, []);
 

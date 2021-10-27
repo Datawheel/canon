@@ -1,3 +1,7 @@
+/**
+ * Hook for handling keystrokes.
+ * Receives integer keyCode, returns true when pressed.
+ */
 const {useState, useEffect} = require("react");
 
 module.exports = targetKey => {
