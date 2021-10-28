@@ -1,3 +1,9 @@
+const ENTITY_TYPES = {
+  PROFILE: "profile",
+  SECTION: "section",
+  BLOCK: "block"
+};
+
 const PROFILE_TYPES = {
   PROFILE: "profile",
   STORY: "story"
@@ -141,6 +147,7 @@ module.exports = {
   BLOCK_MAP,
   BLOCK_SETTINGS,
   BLOCK_TYPES,
+  ENTITY_TYPES,
   PROFILE_FIELDS,
   PROFILE_MAP,
   PROFILE_SETTINGS,

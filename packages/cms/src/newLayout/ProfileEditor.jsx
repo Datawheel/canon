@@ -3,12 +3,13 @@ import {useDispatch, useSelector} from "react-redux";
 import {Button, Intent} from "@blueprintjs/core";
 import {Popover2} from "@blueprintjs/Popover2";
 
-import {newEntity} from "../actions/profiles";
-
 import CMSHeader from "./CMSHeader";
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 
+import {newEntity} from "../actions/profiles";
+
+import {ENTITY_TYPES} from "../utils/consts/cms";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import "./ProfileEditor.css";
@@ -32,7 +33,7 @@ function ProfileEditor({id}) {
       type: "Default",
       ordering
     };
-    dispatch(newEntity("section", payload));
+    dispatch(newEntity(ENTITY_TYPES.SECTION, payload));
   };
 
   if (!profile) return <div>Loading...</div>;

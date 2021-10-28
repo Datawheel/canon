@@ -54,6 +54,7 @@ function Section({section}) {
     <div className="cms-section">
       <h1>section {section.id}</h1>
       <h2>ordering {section.ordering}</h2>
+      <Button onClick={maybeDelete} icon="menu" />
       <Button onClick={maybeDelete} icon="trash" />
       <Alert {...alertProps} key="alert">
         Are you sure you want to delete this section and all its blocks? This action cannot be undone.
