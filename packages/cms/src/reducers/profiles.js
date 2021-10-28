@@ -77,7 +77,7 @@ export default (profiles = [], action) => {
         .concat([action.data])
         .sort(sorter)}) : p);
     case "SECTION_UPDATE":
-      return profiles.map(p => Object.assign({}, p, {sections: p.sections.map(s => s.id === action.data.id ? Object.assign({}, s, {...action.data}) : s)}));
+      return profiles.map(p => Object.assign({}, p, {sections: p.sections.map(s => s.id === action.data.id ? {...s, ...action.data.entity} : {...s, ordering: action.data.siblings[s.id]}).sort(sorter)}));
     case "SECTION_TRANSLATE":
       return profiles.map(p => Object.assign({}, p, {sections: p.sections.map(s => s.id === action.data.id ? Object.assign({}, s, {...action.data}) : s)}));
     case "SECTION_DELETE":

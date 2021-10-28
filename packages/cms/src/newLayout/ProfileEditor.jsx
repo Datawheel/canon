@@ -2,12 +2,13 @@ import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Button, Intent} from "@blueprintjs/core";
 import {Popover2} from "@blueprintjs/Popover2";
+import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 
 import CMSHeader from "./CMSHeader";
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 
-import {newEntity} from "../actions/profiles";
+import {newEntity, updateEntity} from "../actions/profiles";
 
 import {ENTITY_TYPES} from "../utils/consts/cms";
 
@@ -26,6 +27,12 @@ function ProfileEditor({id}) {
     localeDefault: state.cms.status.localeDefault,
     profile: state.cms.profiles.find(d => d.id === id)
   }));
+
+  const onDragEnd = result => {
+    if (!result.destination) return;
+    const payload = {id: Number(result.draggableId), ordering: result.destination.index + 1};
+    dispatch(updateEntity(ENTITY_TYPES.SECTION, payload));
+  };
 
   const addSection = ordering => {
     const payload = {
@@ -48,12 +55,31 @@ function ProfileEditor({id}) {
         <Hero key="hero" profile={profile} section={heroSection} />
         <Button className="cms-profile-add-section-button" icon="add" onClick={() => addSection(1)} intent={Intent.PRIMARY} iconSize={20}/>
       </div>
-      {sections.map((section, i) =>
-        <div key={`section-${i}`} className="cms-section-container">
-          <Section section={section}/>
-          <Button className="cms-profile-add-section-button" icon="add" onClick={() => addSection(i + 2)} intent={Intent.PRIMARY} iconSize={20}/>
-        </div>
-      )}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="sections">
+          {provided =>
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              {sections.map((section, i) =>
+                <Draggable key={section.id} draggableId={`${section.id}`} index={i}>
+                  {provided =>
+                    <div
+                      key={`section-${i}`}
+                      className="cms-section-container"
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                    >
+                      <Section section={section}/>
+                      <Button className="cms-profile-add-section-button" icon="add" onClick={() => addSection(i + 2)} intent={Intent.PRIMARY} iconSize={20}/>
+                    </div>
+                  }
+                </Draggable>
+              )}
+              {provided.placeholder}
+            </div>
+          }
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 

@@ -341,6 +341,23 @@ module.exports = function(app) {
   updateList.forEach(ref => {
     app.post(`/api/cms/${ref}/update`, isEnabled, async(req, res) => {
       const {id} = req.body;
+      // When ordering is provided, this update is the result of a drag/drop reordering.
+      // Insert the item in the desired spot, bump all other orderings to match, and
+      // importantly, prepare a "siblings" lookup of the new orderings to apply in the reducer,
+      // so the whole array knows can have its ordering updated on the front end.
+      let siblings;
+      if (req.body.ordering) {
+        const entity = await db[ref].findOne({where: {id}}).catch(catcher);
+        let items = await db[ref].findAll({where: {[parentOrderingTables[ref]]: entity[parentOrderingTables[ref]]}}).catch(catcher);
+        items = items.sort(sorter).map(d => d.id).filter(d => d !== id);
+        items.splice(req.body.ordering, 0, id);
+        items = items.map((d, i) => ({id: d, ordering: i}));
+        siblings = items.reduce((acc, d) => ({...acc, [d.id]: d.ordering}), {});
+        // todo1.0 this loop sucks. upgrade to sequelize 5 for updateOnDuplicate support.
+        for (const item of items) {
+          await db[ref].update({ordering: item.ordering}, {where: {id: item.id}}).catch(catcher);
+        }
+      }
       await db[ref].update(req.body, {where: {id}}).catch(catcher);
       if (contentTables.includes(ref) && req.body.content) {
         for (const content of req.body.content) {
@@ -354,12 +371,12 @@ module.exports = function(app) {
       }
       else {
         if (contentTables.includes(ref)) {
-          const u = await db[ref].findOne({where: {id}, include: {association: "contentByLocale"}}).catch(catcher);
-          return res.json(u);
+          const entity = await db[ref].findOne({where: {id}, include: {association: "contentByLocale"}}).catch(catcher);
+          return res.json({entity, siblings});
         }
         else {
-          const u = await db[ref].findOne({where: {id}}).catch(catcher);
-          return res.json(u);
+          const entity = await db[ref].findOne({where: {id}}).catch(catcher);
+          return res.json(entity, siblings);
         }
       }
     });
