@@ -8,7 +8,6 @@ const {translateProfile, translateSection, fetchUpsertHelpers} = require("../uti
 // todo1.0 - unite this with getSectionTypes somehow
 const {PROFILE_FIELDS, SECTION_TYPES} = require("../utils/consts/cms");
 
-
 const defaultLocale = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 

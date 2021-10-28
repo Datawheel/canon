@@ -9,7 +9,7 @@ import "./CMSHeader.css";
 /**
  *
  */
-function CMSHeader() {
+function CMSHeader({id}) {
 
   const dispatch = useDispatch();
 
@@ -26,7 +26,7 @@ function CMSHeader() {
     dispatch(setStatus({pathObj: {home: true}}));
   };
 
-  const reportOptions = profiles.map(d => d.contentByLocale[localeDefault].content.label);
+  const reportOptions = profiles.map(d => ({id: d.id, label: d.contentByLocale[localeDefault].content.label}));
   const previewOptions = ["Massachusetts", "New York", "California"];
   const localeOptions = [localeDefault].concat(locales);
 
@@ -34,8 +34,8 @@ function CMSHeader() {
     <div className="cms-header">
       <span className="cms-header-return-link" onClick={goBack}>{"<="}Choose another Profile</span>
       <span>Viewing Automated Report
-        <select>
-          {reportOptions.map(d => <option key={d} value={d}>{d}</option>)}
+        <select value={id}>
+          {reportOptions.map(d => <option key={d.id} value={d.id}>{d.label}</option>)}
         </select>
         <Button icon="cog" small={true} /></span>
       <span>Previewing as

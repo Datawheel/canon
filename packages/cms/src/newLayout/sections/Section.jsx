@@ -10,7 +10,7 @@ import "./Section.css";
 /**
  *
  */
-function Section({section, isDragging}) {
+function Section({section, isDragging, dragHandleProps}) {
 
   const dispatch = useDispatch();
 
@@ -52,10 +52,10 @@ function Section({section, isDragging}) {
 
   return (
     <div className={`cms-section${isDragging ? " isDragging" : ""}`}>
-      <h1>section {section.id}</h1>
-      <h2>ordering {section.ordering}</h2>
-      <Button onClick={maybeDelete} icon="menu" />
-      <Button onClick={maybeDelete} icon="trash" />
+      <h1 key="h1">section {section.id}</h1>
+      <h2 key="h2">ordering {section.ordering}</h2>
+      <Button key="db1" className="cms-section-drag-button" icon="drag-handle-horizontal" {...dragHandleProps}/>
+      <Button key="db2" onClick={maybeDelete} icon="trash" />
       <Alert {...alertProps} key="alert">
         Are you sure you want to delete this section and all its blocks? This action cannot be undone.
       </Alert>

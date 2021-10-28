@@ -10,7 +10,7 @@ import Section from "./sections/Section";
 
 import {newEntity, updateEntity} from "../actions/profiles";
 
-import {ENTITY_TYPES} from "../utils/consts/cms";
+import {ENTITY_TYPES, SECTION_TYPES} from "../utils/consts/cms";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import "./ProfileEditor.css";
@@ -29,7 +29,7 @@ function ProfileEditor({id}) {
   }));
 
   const onDragEnd = result => {
-    if (!result.destination) return;
+    if (!result.destination || result.source.index === result.destination.index) return;
     const payload = {id: Number(result.draggableId), ordering: result.destination.index + 1};
     dispatch(updateEntity(ENTITY_TYPES.SECTION, payload));
   };
@@ -37,7 +37,7 @@ function ProfileEditor({id}) {
   const addSection = ordering => {
     const payload = {
       profile_id: id,
-      type: "Default",
+      type: SECTION_TYPES.DEFAULT,
       ordering
     };
     dispatch(newEntity(ENTITY_TYPES.SECTION, payload));
@@ -50,7 +50,7 @@ function ProfileEditor({id}) {
 
   return (
     <div className="cms-profile">
-      <CMSHeader />
+      <CMSHeader id={id}/>
       <div className="cms-section-container">
         <Hero key="hero" profile={profile} section={heroSection} />
         <Button className="cms-profile-add-section-button" icon="add" onClick={() => addSection(1)} intent={Intent.PRIMARY} iconSize={20}/>
@@ -67,9 +67,8 @@ function ProfileEditor({id}) {
                       className="cms-section-container"
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      {...provided.dragHandleProps}
                     >
-                      <Section section={section} isDragging={snapshot.isDragging}/>
+                      <Section section={section} isDragging={snapshot.isDragging} dragHandleProps={provided.dragHandleProps}/>
                       <Button className="cms-profile-add-section-button" icon="add" onClick={() => addSection(i + 2)} intent={Intent.PRIMARY} iconSize={20}/>
                     </div>
                   }

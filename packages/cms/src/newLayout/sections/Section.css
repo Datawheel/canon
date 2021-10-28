@@ -12,3 +12,9 @@
 .isDragging {
   background-color: lightblue;
 }
+
+.cms-section-drag-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
