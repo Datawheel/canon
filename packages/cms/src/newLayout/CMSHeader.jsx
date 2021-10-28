@@ -4,6 +4,8 @@ import {Button} from "@blueprintjs/core";
 
 import {setStatus} from "../actions/status";
 
+import {ENTITY_TYPES} from "../utils/consts/cms";
+
 import "./CMSHeader.css";
 
 /**
@@ -26,6 +28,10 @@ function CMSHeader({id}) {
     dispatch(setStatus({pathObj: {home: true}}));
   };
 
+  const onChangeReport = e => {
+    dispatch(setStatus({pathObj: {[ENTITY_TYPES.PROFILE]: e.target.value}}));
+  };
+
   const reportOptions = profiles.map(d => ({id: d.id, label: d.contentByLocale[localeDefault].content.label}));
   const previewOptions = ["Massachusetts", "New York", "California"];
   const localeOptions = [localeDefault].concat(locales);
@@ -34,7 +40,7 @@ function CMSHeader({id}) {
     <div className="cms-header">
       <span className="cms-header-return-link" onClick={goBack}>{"<="}Choose another Profile</span>
       <span>Viewing Automated Report
-        <select value={id}>
+        <select onChange={onChangeReport} value={id}>
           {reportOptions.map(d => <option key={d.id} value={d.id}>{d.label}</option>)}
         </select>
         <Button icon="cog" small={true} /></span>
