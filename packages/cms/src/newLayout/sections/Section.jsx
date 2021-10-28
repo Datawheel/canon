@@ -10,7 +10,7 @@ import "./Section.css";
 /**
  *
  */
-function Section({section}) {
+function Section({section, isDragging}) {
 
   const dispatch = useDispatch();
 
@@ -51,7 +51,7 @@ function Section({section}) {
   // const {title} = section.contentByLocale[localeDefault].content;
 
   return (
-    <div className="cms-section">
+    <div className={`cms-section${isDragging ? " isDragging" : ""}`}>
       <h1>section {section.id}</h1>
       <h2>ordering {section.ordering}</h2>
       <Button onClick={maybeDelete} icon="menu" />

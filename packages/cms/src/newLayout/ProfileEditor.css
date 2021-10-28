@@ -7,6 +7,11 @@
 .cms-section-container {
   width: 100%;
   position: relative;
+  height: 200px;
+}
+
+.cms-droppable-container {
+  width: 100%;
 }
 
 .cms-profile-add-section-button {

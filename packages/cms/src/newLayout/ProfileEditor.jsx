@@ -58,10 +58,10 @@ function ProfileEditor({id}) {
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="sections">
           {provided =>
-            <div ref={provided.innerRef} {...provided.droppableProps}>
+            <div ref={provided.innerRef} {...provided.droppableProps} className="cms-droppable-container">
               {sections.map((section, i) =>
-                <Draggable key={section.id} draggableId={`${section.id}`} index={i}>
-                  {provided =>
+                <Draggable key={section.id} draggableId={`${section.id}`} index={i} >
+                  {(provided, snapshot) =>
                     <div
                       key={`section-${i}`}
                       className="cms-section-container"
@@ -69,7 +69,7 @@ function ProfileEditor({id}) {
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                     >
-                      <Section section={section}/>
+                      <Section section={section} isDragging={snapshot.isDragging}/>
                       <Button className="cms-profile-add-section-button" icon="add" onClick={() => addSection(i + 2)} intent={Intent.PRIMARY} iconSize={20}/>
                     </div>
                   }
