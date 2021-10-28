@@ -1,10 +1,13 @@
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
+import {Button, PopoverPosition} from "@blueprintjs/core";
+import {Popover2, Popover2InteractionKind} from "@blueprintjs/Popover2";
 
-import {Alert, Button, Intent} from "@blueprintjs/core";
+import CogMenu from "../CogMenu";
 
-import {deleteEntity} from "../../actions/profiles";
+import {ENTITY_TYPES} from "../../utils/consts/cms";
 
+import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import "./Section.css";
 
 /**
@@ -26,39 +29,32 @@ function Section({section, isDragging, dragHandleProps}) {
   }, []);
 
   /* state */
-  const [showAlert, setShowAlert] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
-  const maybeDelete = () => {
-    setShowAlert(true);
+  const popoverProps = {
+    isOpen: showMenu,
+    onClose: () => setShowMenu(false),
+    interactionKind: Popover2InteractionKind.CLICK,
+    placement: PopoverPosition.AUTO
   };
-
-  const onDelete = () => {
-    setShowAlert(false);
-    dispatch(deleteEntity("section", {id: section.id}));
-  };
-
-  const alertProps = {
-    canOutsideClickCancel: true,
-    icon: "trash",
-    isOpen: showAlert,
-    intent: Intent.DANGER,
-    confirmButtonText: "Yes, Delete Section",
-    onConfirm: onDelete,
-    cancelButtonText: "Cancel",
-    onCancel: () => setShowAlert(false)
-  };
-
-  // const {title} = section.contentByLocale[localeDefault].content;
 
   return (
     <div className={`cms-section${isDragging ? " isDragging" : ""}`}>
+      <div className="cms-section-header">
+        <Button key="b1" className="cms-section-drag-button" icon="drag-handle-horizontal" {...dragHandleProps}/>
+        <Button key="b2" className="cms-section-edit-button" icon="edit" />
+        <Popover2
+          key="popover"
+          {...popoverProps}
+          content ={<CogMenu type={ENTITY_TYPES.SECTION} id={section.id}/>}
+          renderTarget={({ref, ...targetProps}) =>
+            <Button key="b3" {...targetProps} elementRef={ref} onClick={() => setShowMenu(!showMenu)} className="cms-section-cog-button" icon="cog" />
+          }
+        />
+
+      </div>
       <h1 key="h1">section {section.id}</h1>
       <h2 key="h2">ordering {section.ordering}</h2>
-      <Button key="db1" className="cms-section-drag-button" icon="drag-handle-horizontal" {...dragHandleProps}/>
-      <Button key="db2" onClick={maybeDelete} icon="trash" />
-      <Alert {...alertProps} key="alert">
-        Are you sure you want to delete this section and all its blocks? This action cannot be undone.
-      </Alert>
     </div>
   );
 
