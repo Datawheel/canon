@@ -13,6 +13,7 @@ import {select} from "d3-selection";
 import {uuid} from "d3plus-common";
 import {saveAs} from "file-saver";
 import JSZip from "jszip";
+import XLSX from "xlsx";
 import axios from "axios";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
@@ -25,6 +26,12 @@ import ButtonGroup from "../fields/ButtonGroup";
 import ShareDirectLink from "./ShareDirectLink";
 import ShareFacebookLink from "./ShareFacebookLink";
 import ShareTwitterLink from "./ShareTwitterLink";
+
+const DOWNLOAD_TYPES = {
+  CSV: "CSV",
+  JSON: "JSON",
+  XLS: "XLS"
+};
 
 const measureText = str => sum(`${str}`.split("")
   .map(c => ["I", "i", "l", "."].includes(c) ? 4 : 9));
@@ -77,35 +84,48 @@ class Options extends Component {
     }
   }
 
-  onCSV() {
+  onDownload(type) {
+    console.log(type);
     const {title, dataAttachments} = this.props;
     const {results} = this.state;
-
-    const colDelim = ",";
-    const rowDelim = "\r\n";
-
-    const columns = results && results[0] ? Object.keys(results[0]) : [];
-    let csv = columns.map(val => `\"${val}\"`).join(colDelim);
-
-    for (let i = 0; i < results.length; i++) {
-      const data = results[i];
-
-      csv += rowDelim;
-      csv += columns.map(key => {
-
-        const val = data[key];
-
-        return typeof val === "number" ? val
-          : val ? `\"${val}\"` : "";
-
-      }).join(colDelim);
-    }
-
     const zip = new JSZip();
+    if (type === DOWNLOAD_TYPES.JSON) {
+      zip.file(`${filename(title)}.json`, JSON.stringify(results));
+    }
+    else if (type === DOWNLOAD_TYPES.XLS) {
+      const ws = XLSX.utils.json_to_sheet(results);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, filename(title));
+      const xls = XLSX.write(wb, {bookType: "xlsx", bookSST: true, type: "binary"});
+      zip.file(`${filename(title)}.xlsx`, xls, {binary: true});
+    }
+    else if (type === DOWNLOAD_TYPES.CSV) {  // csv
+      const colDelim = ",";
+      const rowDelim = "\r\n";
 
-    // add generated data table to ZIP
-    zip.file(`${filename(title)}.csv`, csv);
+      const columns = results && results[0] ? Object.keys(results[0]) : [];
+      let csv = columns.map(val => `\"${val}\"`).join(colDelim);
 
+      for (let i = 0; i < results.length; i++) {
+        const data = results[i];
+
+        csv += rowDelim;
+        csv += columns.map(key => {
+
+          const val = data[key];
+
+          return typeof val === "number" ? val
+            : val ? `\"${val}\"` : "";
+
+        }).join(colDelim);
+      }
+      // add generated data table to ZIP
+      zip.file(`${filename(title)}.csv`, csv);
+    }
+    else {
+      console.error(`Invalid download type: ${type}`);
+      return;
+    }
     // Include any additional files defined in config
     if (typeof dataAttachments !== "undefined") {
 
@@ -377,10 +397,17 @@ class Options extends Component {
             resizable={false}
           />
         </div>
-
-        <Button key="data-download" icon="download" fontSize="md" onClick={this.onCSV.bind(this)} fill>
-          {t("CMS.Options.Download as CSV")}
-        </Button>
+        <div className="cms-options-download-button-group">
+          <Button key="data-download" icon="download" fontSize="sm" onClick={() => this.onDownload.bind(this)(DOWNLOAD_TYPES.CSV)} >
+            {t("CMS.Options.Download as CSV")}
+          </Button>
+          <Button key="data-download" icon="download" fontSize="sm" onClick={() => this.onDownload.bind(this)(DOWNLOAD_TYPES.XLS)} >
+            {t("CMS.Options.Download as XLS")}
+          </Button>
+          <Button key="data-download" icon="download" fontSize="sm" onClick={() => this.onDownload.bind(this)(DOWNLOAD_TYPES.JSON)} >
+            {t("CMS.Options.Download as JSON")}
+          </Button>
+        </div>
       </div>
       : <div className="bp3-dialog-body view-table">
         <NonIdealState title={t("CMS.Options.Loading Data")} visual={<Spinner />} />
