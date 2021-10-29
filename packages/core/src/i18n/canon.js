@@ -29,6 +29,8 @@ export default {
       "Direct link": "Direct link",
       "Download": "Download",
       "Download as CSV": "Download as CSV",
+      "Download as JSON": "Download as JSON",
+      "Download as XLS": "Download as XLS",
       "Endpoint": "Endpoint",
       "Image Format": "Image Format",
       "Image area": "Image area",
