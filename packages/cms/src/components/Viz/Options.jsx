@@ -85,7 +85,6 @@ class Options extends Component {
   }
 
   onDownload(type) {
-    console.log(type);
     const {title, dataAttachments} = this.props;
     const {results} = this.state;
     const zip = new JSZip();
