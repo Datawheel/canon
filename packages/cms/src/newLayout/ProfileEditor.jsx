@@ -7,6 +7,7 @@ import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import CMSHeader from "./CMSHeader";
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
+import EntityAddButton from "./components/EntityAddButton";
 
 import {newEntity, updateEntity} from "../actions/profiles";
 
@@ -34,10 +35,11 @@ function ProfileEditor({id}) {
     dispatch(updateEntity(ENTITY_TYPES.SECTION, payload));
   };
 
-  const addSection = ordering => {
+  const addSection = (slug, ordering) => {
     const payload = {
       profile_id: id,
       type: SECTION_TYPES.DEFAULT,
+      slug,
       ordering
     };
     dispatch(newEntity(ENTITY_TYPES.SECTION, payload));
@@ -53,7 +55,12 @@ function ProfileEditor({id}) {
       <CMSHeader id={id}/>
       <div className="cms-section-container">
         <Hero key="hero" profile={profile} section={heroSection} />
-        <Button className="cms-profile-add-section-button" icon="add" onClick={() => addSection(1)} intent={Intent.PRIMARY} iconSize={20}/>
+        <EntityAddButton
+          label="Section Slug"
+          onSubmit={name => addSection(name, 1)}
+          urlSafe={true}
+          renderTarget={props => <Button {...props} className="cms-profile-add-section-button" icon="add" intent={Intent.PRIMARY} iconSize={20}/>}
+        />
       </div>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="sections">
@@ -69,7 +76,12 @@ function ProfileEditor({id}) {
                       {...provided.draggableProps}
                     >
                       <Section section={section} isDragging={snapshot.isDragging} dragHandleProps={provided.dragHandleProps}/>
-                      <Button className="cms-profile-add-section-button" icon="add" onClick={() => addSection(i + 2)} intent={Intent.PRIMARY} iconSize={20}/>
+                      <EntityAddButton
+                        label="Section Slug"
+                        urlSafe={true}
+                        onSubmit={name => addSection(name, i + 2)}
+                        renderTarget={props => <Button {...props} className="cms-profile-add-section-button" icon="add" intent={Intent.PRIMARY} iconSize={20}/>}
+                      />
                     </div>
                   }
                 </Draggable>

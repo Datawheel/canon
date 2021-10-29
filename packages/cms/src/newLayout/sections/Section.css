@@ -1,7 +1,6 @@
 .cms-section {
   display:flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   width: 100%;
   height: inherit;
   background-color: grey;
@@ -13,20 +12,6 @@
   background-color: lightblue;
 }
 
-.cms-section-drag-button {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-}
-
-.cms-section-edit-button {
-  position: absolute;
-  top: 10px;
-  right: 50px;
-}
-
-.cms-section-cog-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+.cms-section-content {
+  display: flex;
 }

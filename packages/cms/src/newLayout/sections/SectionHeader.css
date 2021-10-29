@@ -1,0 +1,32 @@
+.cms-section-header {
+  background-color: rgb(237, 209, 140);
+  display:block;
+  width: 100%;
+  height: 35px;
+}
+
+.cms-section-drag-button {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+}
+
+.cms-section-edit-button {
+  position: absolute;
+  top: 5px;
+  right: 35px;
+}
+
+.cms-section-cog-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+.cms-section-header-slug {
+  font-family: "Courier New";
+  margin-left: 40px;
+  line-height: 35px;
+  font-size: 20px;
+  font-weight: bold;
+}
