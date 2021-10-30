@@ -15,3 +15,9 @@
 .cms-section-content {
   display: flex;
 }
+
+.cms-profile-add-block-button {
+  width: 100px;
+  height: 100px;
+  margin: 10px;
+}

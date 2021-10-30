@@ -1,10 +1,18 @@
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
+import {Button, Intent, Icon} from "@blueprintjs/core";
 
 import SectionHeader from "./SectionHeader";
+import EntityAddButton from "../components/EntityAddButton";
 import Block from "../blocks/Block";
 
+import {newEntity} from "../../actions/profiles";
+
+import {ENTITY_ADD_BUTTON_TYPES} from "../components/consts";
+import {BLOCK_TYPES, ENTITY_TYPES} from "../../utils/consts/cms";
+
 import "./Section.css";
+
 
 /**
  *
@@ -18,6 +26,14 @@ function Section({section, isDragging, dragHandleProps}) {
     localeDefault: state.cms.status.localeDefault
   }));
 
+  const addBlock = type => {
+    const payload = {
+      type,
+      section_id: section.id
+    };
+    dispatch(newEntity(ENTITY_TYPES.BLOCK, payload));
+  };
+
   const {blocks} = section;
 
   return (
@@ -27,6 +43,13 @@ function Section({section, isDragging, dragHandleProps}) {
         {blocks.map(block =>
           <Block key={`block-${block.id}`} block={block}/>
         )}
+        <EntityAddButton
+          type={ENTITY_ADD_BUTTON_TYPES.SELECT}
+          label="Block Type"
+          onSubmit={value => addBlock(value)}
+          selections={Object.values(BLOCK_TYPES).map(d => ({label: d, value: d}))}
+          renderTarget={props => <Button {...props} className="cms-profile-add-block-button" intent={Intent.PRIMARY}><Icon icon="add" /></Button>}
+        />
       </div>
     </div>
   );
