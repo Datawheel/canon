@@ -7,6 +7,7 @@
   margin-left: 10px;
   border: 1px solid black;
   position: relative;
+  cursor: pointer;
 }
 
 .cms-section-block-header {

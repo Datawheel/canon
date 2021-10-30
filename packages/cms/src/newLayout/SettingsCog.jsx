@@ -9,6 +9,11 @@ function SettingsCog({content, renderTarget}) {
 
   const [showMenu, setShowMenu] = useState(false);
 
+  const onClick = e => {
+    e.stopPropagation();
+    setShowMenu(!showMenu);
+  };
+
   const popoverProps = {
     isOpen: showMenu,
     onClose: () => setShowMenu(false),
@@ -24,7 +29,7 @@ function SettingsCog({content, renderTarget}) {
         content={content}
         renderTarget={({ref, ...targetProps}) =>
           renderTarget
-            ? renderTarget({...targetProps, elementRef: ref, onClick: () => setShowMenu(!showMenu)})
+            ? renderTarget({...targetProps, elementRef: ref, onClick})
             : <Button key="b3" {...targetProps} elementRef={ref} small={true} onClick={() => setShowMenu(!showMenu)} icon="cog" />
         }
       />
