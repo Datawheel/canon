@@ -1,5 +1,12 @@
 import React, {useState} from "react";
-import {Button} from "@blueprintjs/core";
+import {Button, Intent} from "@blueprintjs/core";
+
+import "./BlockEditor.css";
+
+const MODES = {
+  INPUT: "input",
+  OUTPUT: "output"
+};
 
 /**
  *
@@ -7,10 +14,14 @@ import {Button} from "@blueprintjs/core";
 function BlockEditor({block}) {
 
   /* state */
+  const [mode, setMode] = useState(MODES.INPUT);
 
   return (
     <div className="cms-block-editor">
-      im a blockeditor
+      <div className="cms-block-editor-toggle">
+        <Button onClick={() => setMode(MODES.INPUT)} intent={mode === MODES.INPUT ? Intent.PRIMARY : Intent.NONE} icon="data-lineage">IN</Button>
+        <Button onClick={() => setMode(MODES.OUTPUT)}intent={mode === MODES.OUTPUT ? Intent.PRIMARY : Intent.NONE}icon="application">OUT</Button>
+      </div>
     </div>
   );
 

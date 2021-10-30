@@ -1,0 +1,10 @@
+.cms-block-editor {
+  display:block;
+  padding: 10px;
+  height: 800px;
+  position: relative;
+}
+
+.cms-block-editor-toggle {
+  text-align:center;
+}

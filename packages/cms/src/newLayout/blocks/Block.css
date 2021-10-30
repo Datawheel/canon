@@ -21,3 +21,7 @@
   bottom: 5px;
   right: 5px;
 }
+
+.cms-block-editor-dialog{
+  width: 80%;
+}

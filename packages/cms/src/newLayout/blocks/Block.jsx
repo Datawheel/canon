@@ -57,14 +57,14 @@ function Block({block}) {
 
   return (
     <div className="cms-section-block" onClick={onClick}>
-      <div className="cms-section-block-header">{block.type}</div>
-      <div className="cms-block-cog">
+      <div key="bh" className="cms-section-block-header">{block.type}</div>
+      <div key="bc" className="cms-block-cog">
         <SettingsCog
           content={<CogMenu type={ENTITY_TYPES.BLOCK} id={block.id} />}
           renderTarget={props => <Button {...props} key="b3" className="cms-block-cog-button" small={true} icon="cog" />}
         />
       </div>
-      <Dialog {...dialogProps}>
+      <Dialog key="d" {...dialogProps}>
         <BlockEditor block={block} />
       </Dialog>
     </div>
