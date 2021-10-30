@@ -13,7 +13,6 @@ import {BLOCK_TYPES, ENTITY_TYPES} from "../../utils/consts/cms";
 
 import "./Section.css";
 
-
 /**
  *
  */

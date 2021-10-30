@@ -1,0 +1,22 @@
+.cms-section-block {
+  display: block;
+  width: 200px;
+  height: 100px;
+  background-color: rgb(255, 206, 206);
+  margin-top: 10px;
+  margin-left: 10px;
+  border: 1px solid black;
+  position: relative;
+}
+
+.cms-section-block-header {
+  background-color: white;
+  border-bottom: 1px solid black;
+  height: 20px;
+}
+
+.cms-block-cog-button {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}

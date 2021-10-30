@@ -7,7 +7,7 @@ import "./Hero.css";
 /**
  *
  */
-function Hero({profile, section}) {
+function Hero({section}) {
 
   /* redux */
   const {localeDefault} = useSelector(state => ({

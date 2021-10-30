@@ -1,6 +1,5 @@
 .cms-section {
   display:flex;
-  flex-direction: column;
   width: 100%;
   height: inherit;
   background-color: grey;
@@ -17,7 +16,8 @@
 }
 
 .cms-profile-add-block-button {
-  width: 100px;
+  width: 200px;
   height: 100px;
-  margin: 10px;
+  margin-top: 10px;
+  margin-left: 10px;
 }

@@ -23,6 +23,8 @@ function ProfileEditor({id}) {
 
   const dispatch = useDispatch();
 
+  const [stateSections, setStateSections] = useState([]);
+
   /* redux */
   const {localeDefault, profile} = useSelector(state => ({
     localeDefault: state.cms.status.localeDefault,
@@ -32,6 +34,7 @@ function ProfileEditor({id}) {
   const onDragEnd = result => {
     if (!result.destination || result.source.index === result.destination.index) return;
     const payload = {id: Number(result.draggableId), ordering: result.destination.index + 1};
+    setStateSections(stateSections.sort(Math.random() - 1));
     dispatch(updateEntity(ENTITY_TYPES.SECTION, payload));
   };
 
