@@ -11,7 +11,7 @@ function SettingsCog({content, renderTarget}) {
 
   const onClick = e => {
     e.stopPropagation();
-    setShowMenu(!showMenu);
+    setShowMenu(true);
   };
 
   const popoverProps = {

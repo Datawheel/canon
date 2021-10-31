@@ -1,10 +1,16 @@
 .cms-block-editor {
-  display:block;
   padding: 10px;
   height: 800px;
   position: relative;
 }
 
+.cms-block-editor-content {
+  display: flex;
+  max-height: 100%;
+}
+
 .cms-block-editor-toggle {
-  text-align:center;
+  position:absolute;
+  left: 50%;
+  transform: translate(-50%);
 }

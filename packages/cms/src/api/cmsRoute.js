@@ -254,6 +254,9 @@ module.exports = function(app) {
         if (ref === "section") {
           reqObj = Object.assign({}, sectionReqFull, {where: {id: newObj.id}});
         }
+        else if (ref === "block") {
+          reqObj = {where: {id: newObj.id}, include: [{association: "contentByLocale"}, {association: "inputs"}]};
+        }
         else {
           reqObj = {where: {id: newObj.id}, include: {association: "contentByLocale"}};
         }
@@ -603,7 +606,7 @@ module.exports = function(app) {
     const reqObj = {
       where: {section_id: row.section_id},
       order: [["ordering", "ASC"]],
-      include: {association: "contentByLocale"}
+      include: [{association: "contentByLocale"}, {association: "inputs"}]
     };
     const rows = await db.block.findAll(reqObj).catch(catcher);
     return res.json({parent_id: row.section_id, newArray: rows});
