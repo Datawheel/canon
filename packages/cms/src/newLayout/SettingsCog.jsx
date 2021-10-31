@@ -22,18 +22,16 @@ function SettingsCog({content, renderTarget}) {
   };
 
   return (
-    <div>
-      <Popover2
-        key="popover"
-        {...popoverProps}
-        content={content}
-        renderTarget={({ref, ...targetProps}) =>
-          renderTarget
-            ? renderTarget({...targetProps, elementRef: ref, onClick})
-            : <Button key="b3" {...targetProps} elementRef={ref} small={true} onClick={() => setShowMenu(!showMenu)} icon="cog" />
-        }
-      />
-    </div>
+    <Popover2
+      key="popover"
+      {...popoverProps}
+      content={content}
+      renderTarget={({ref, ...targetProps}) =>
+        renderTarget
+          ? renderTarget({...targetProps, elementRef: ref, onClick})
+          : <Button key="b3" {...targetProps} elementRef={ref} small={true} onClick={() => setShowMenu(!showMenu)} icon="cog" />
+      }
+    />
   );
 
 }

@@ -1,0 +1,18 @@
+.cms-block-variable-list {
+  width: 250px;
+  background-color: white;
+  border: 1px solid black;
+  min-height: 100%;
+  max-height: 100%;
+  position: absolute;
+  overflow-y: scroll;
+  padding: 5px;
+  & ul {
+    margin-top: 0px;
+    padding-left: 0px;
+  }
+  & li {
+    list-style: none;
+    font-size: 13px;
+  }
+}
