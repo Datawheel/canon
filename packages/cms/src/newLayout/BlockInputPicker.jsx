@@ -1,10 +1,14 @@
 import React, {useState} from "react";
 import {Button, Intent, Icon} from "@blueprintjs/core";
+import {useDispatch, useSelector} from "react-redux";
 
 import EntityAddButton from "./components/EntityAddButton";
 import Block from "./blocks/Block";
 
+import {newEntity} from "../actions/profiles";
+
 import {ENTITY_ADD_BUTTON_TYPES} from "./components/consts";
+import {ENTITY_TYPES} from "../utils/consts/cms";
 
 import "./BlockInputPicker.css";
 
@@ -13,10 +17,28 @@ import "./BlockInputPicker.css";
  */
 function BlockInputPicker({block}) {
 
+  const dispatch = useDispatch();
+
+  /* redux */
+  const {sourceBlocks} = useSelector(state => {
+    let sourceBlocks = [];
+    const profile = state.cms.profiles.find(p => p.id === Number(state.cms.status.pathObj.profile));
+    if (profile) {
+      const section = profile.sections.find(s => s.id === block.section_id);
+      if (section) sourceBlocks = section.blocks.filter(d => d.id !== block.id);
+    }
+    return {sourceBlocks};
+  });
+
+
   const inputs = block.inputs;
 
-  const addInput = value => {
-    console.log(value);
+  const addInput = id => {
+    const payload = {
+      input_id: Number(id),
+      block_id: block.id
+    };
+    dispatch(newEntity(ENTITY_TYPES.BLOCK_INPUT, payload));
   };
 
   return (
@@ -28,7 +50,7 @@ function BlockInputPicker({block}) {
         type={ENTITY_ADD_BUTTON_TYPES.SELECT}
         label="Block Type"
         onSubmit={value => addInput(value)}
-        selections={Object.values(inputs).map(d => ({label: d, value: d}))}
+        selections={sourceBlocks.map(d => ({label: d.type, value: d.id}))}
         renderTarget={props => <Button {...props} className="cms-block-add-input-button" intent={Intent.PRIMARY}><Icon icon="add" /></Button>}
       />
     </div>

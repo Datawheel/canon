@@ -15,7 +15,7 @@ import "./Block.css";
 /**
  *
  */
-function Block({block}) {
+function Block({block, mode}) {
 
   const dispatch = useDispatch();
 
@@ -33,7 +33,7 @@ function Block({block}) {
   }, []);
 
   const onClick = () => {
-    setIsOpen(true);
+    if (mode !== "input") setIsOpen(true);
   };
 
   const save = () => {
@@ -54,13 +54,18 @@ function Block({block}) {
     // onSave: this.save.bind(this)
   };
 
+  const cogProps = {
+    type: mode === "input" ? ENTITY_TYPES.BLOCK_INPUT : ENTITY_TYPES.BLOCK,
+    id: block.id
+  };
+
   return (
     <React.Fragment>
       <div className="cms-section-block" onClick={onClick}>
         <div key="bh" className="cms-section-block-header">{block.type}</div>
         <div key="bc" className="cms-block-cog">
           <SettingsCog
-            content={<CogMenu type={ENTITY_TYPES.BLOCK} id={block.id} />}
+            content={<CogMenu {...cogProps} />}
             renderTarget={props => <Button {...props} key="b3" className="cms-block-cog-button" small={true} icon="cog" />}
           />
         </div>

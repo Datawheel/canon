@@ -1,7 +1,8 @@
 const ENTITY_TYPES = {
   PROFILE: "profile",
   SECTION: "section",
-  BLOCK: "block"
+  BLOCK: "block",
+  BLOCK_INPUT: "block_input"
 };
 
 const PROFILE_TYPES = {

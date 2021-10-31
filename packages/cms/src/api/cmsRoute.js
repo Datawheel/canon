@@ -268,12 +268,13 @@ module.exports = function(app) {
         return res.json(fullObj);
       }
       else {
-        // todo1.0 ?? something with blocks
-        if (ref === "section_selector") {
-          let selector = await db.selector.findOne({where: {id: req.body.selector_id}}).catch(catcher);
-          selector = selector.toJSON();
-          selector.section_selector = newObj.toJSON();
-          return res.json(selector);
+        // If a new block_input was created, a block (block_id) subscribed to another block (input_id) as an input.
+        // The requesting block needs its "inputs" array to be correct, so instead of returning the block_input relation,
+        // return a full copy of the block that made the request - complete with full list of inputs.
+        if (ref === "block_input") {
+          let block = await db.block.findOne({where: {id: req.body.block_id}, include: [{association: "contentByLocale"}, {association: "inputs"}]}).catch(catcher);
+          block = block.toJSON();
+          return res.json(block);
         }
         else {
           return res.json(newObj);

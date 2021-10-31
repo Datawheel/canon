@@ -86,12 +86,10 @@ export default (profiles = [], action) => {
     // Block inputs
     // todo1.0, make these work
     case "BLOCK_INPUT_NEW":
-      return profiles.map(p =>
-        Object.assign({}, p, {sections: p.sections.map(s =>
-          s.id === action.data.section_selector.section_id ? Object.assign({}, s, {selectors: s.selectors
-            .map(sel => sel.ordering >= action.data.ordering ? Object.assign({}, sel, {ordering: sel.ordering + 1}) : sel)
-            .concat([action.data])
-            .sort(sorter)}) : s)}));
+      return profiles.map(p => (
+        {...p, sections: p.sections.map(s =>
+          s.id === action.data.section_id ? {...s, blocks: s.blocks.map(b =>
+            b.id === action.data.id ? action.data : b)} : s)}));
     case "BLOCK_INPUT_DELETE":
       return profiles.map(p =>
         Object.assign({}, p, {sections: p.sections.map(s =>

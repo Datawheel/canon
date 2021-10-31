@@ -6,7 +6,6 @@ import BlockInputPicker from "./BlockInputPicker";
 
 import "./BlockEditor.css";
 
-
 const MODES = {
   INPUT: "input",
   OUTPUT: "output"
