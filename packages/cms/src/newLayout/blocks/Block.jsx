@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {Button, Dialog} from "@blueprintjs/core";
 
 import SettingsCog from "../SettingsCog";
-import CogMenu from "../CogMenu";
+import CogMenu from "../components/CogMenu";
 import BlockEditor from "../BlockEditor";
 
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";

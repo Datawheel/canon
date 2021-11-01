@@ -2,9 +2,9 @@ import React, {useState} from "react";
 import {useDispatch} from "react-redux";
 import {Alert, Menu, MenuItem, MenuDivider, Intent} from "@blueprintjs/core";
 
-import {deleteEntity, deleteProfile} from "../actions/profiles";
+import {deleteEntity, deleteProfile} from "../../actions/profiles";
 
-import {ENTITY_TYPES} from "../utils/consts/cms";
+import {ENTITY_TYPES} from "../../utils/consts/cms";
 
 /**
  *

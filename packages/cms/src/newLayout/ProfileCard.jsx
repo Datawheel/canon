@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {Button, PopoverPosition} from "@blueprintjs/core";
 import {Popover2, Popover2InteractionKind} from "@blueprintjs/Popover2";
 
-import CogMenu from "./CogMenu";
+import CogMenu from "./components/CogMenu";
 
 import {ENTITY_TYPES} from "../utils/consts/cms";
 

@@ -2,13 +2,13 @@ import React, {useState} from "react";
 import {Button, Intent, Icon} from "@blueprintjs/core";
 import {useDispatch, useSelector} from "react-redux";
 
-import EntityAddButton from "./components/EntityAddButton";
-import Block from "./blocks/Block";
+import EntityAddButton from "../components/EntityAddButton";
+import Block from "./Block";
 
-import {newEntity} from "../actions/profiles";
+import {newEntity} from "../../actions/profiles";
 
-import {ENTITY_ADD_BUTTON_TYPES} from "./components/consts";
-import {ENTITY_TYPES} from "../utils/consts/cms";
+import {ENTITY_ADD_BUTTON_TYPES} from "../components/consts";
+import {ENTITY_TYPES} from "../../utils/consts/cms";
 
 import "./BlockInputPicker.css";
 

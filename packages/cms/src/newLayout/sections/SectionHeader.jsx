@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {Button} from "@blueprintjs/core";
 
 import SettingsCog from "../SettingsCog";
-import CogMenu from "../CogMenu";
+import CogMenu from "../components/CogMenu";
 
 import {ENTITY_TYPES} from "../../utils/consts/cms";
 

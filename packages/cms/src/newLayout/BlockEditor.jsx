@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {Button, Intent} from "@blueprintjs/core";
 
 import VariableList from "./VariableList";
-import BlockInputPicker from "./BlockInputPicker";
+import BlockInputPicker from "./blocks/BlockInputPicker";
 
 import "./BlockEditor.css";
 
