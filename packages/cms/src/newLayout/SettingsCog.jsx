@@ -9,8 +9,7 @@ function SettingsCog({content, renderTarget}) {
 
   const [showMenu, setShowMenu] = useState(false);
 
-  const onClick = e => {
-    e.stopPropagation();
+  const onClick = () => {
     setShowMenu(true);
   };
 

@@ -9,7 +9,6 @@ import {ENTITY_ADD_BUTTON_TYPES} from "./consts";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
-
 /**
  *
  */

@@ -614,20 +614,19 @@ module.exports = function(app) {
   });
 
   app.delete("/api/cms/block_input/delete", isEnabled, async(req, res) => {
-    const {block_id, input_id} = req.query; // eslint-disable-line camelcase
-    const row = await db.block_input.findOne({where: {block_id, input_id}}).catch(catcher);
-    await db.block_input.update({ordering: sequelize.literal("ordering -1")}, {where: {block_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    await db.block_input.destroy({where: {block_id, input_id}});
+    const {id} = req.query; // eslint-disable-line camelcase
+    const row = await db.block_input.findOne({where: {id}}).catch(catcher);
+    // await db.block_input.update({ordering: sequelize.literal("ordering -1")}, {where: {block_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.block_input.destroy({where: {id}});
     const reqObj = {where: {id: row.block_id}, include: [{association: "inputs"}]};
     let block = await db.block.findOne(reqObj).catch(catcher);
-    let rows = [];
-    // todo1.0 not sure about this
+    let inputs = [];
     if (block) {
       block = block.toJSON();
-      block.inputs = bubbleSortInputs(db.block_input, block.inputs);
-      rows = block.inputs;
+      // block.inputs = bubbleSortInputs(db.block_input, block.inputs);
+      inputs = block.inputs;
     }
-    return res.json({parent_id: row.block_id, inputs: rows});
+    return res.json({parent_id: row.block_id, inputs});
   });
 
   app.delete("/api/cms/profile/delete", isEnabled, async(req, res) => {

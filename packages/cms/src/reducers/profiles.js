@@ -91,9 +91,11 @@ export default (profiles = [], action) => {
           s.id === action.data.section_id ? {...s, blocks: s.blocks.map(b =>
             b.id === action.data.id ? action.data : b)} : s)}));
     case "BLOCK_INPUT_DELETE":
-      return profiles.map(p =>
-        Object.assign({}, p, {sections: p.sections.map(s =>
-          s.id === action.data.parent_id ? Object.assign({}, s, {selectors: action.data.selectors}) : s)}));
+      console.log("Jim", action.data);
+      return profiles.map(p => (
+        {...p, sections: p.sections.map(s => (
+          {...s, blocks: s.blocks.map(b =>
+            b.id === action.data.parent_id ? {...b, inputs: action.data.inputs} : b)}))}));
     case "BLOCK_INPUT_SWAP":
       return profiles.map(p =>
         Object.assign({}, p, {sections: p.sections.map(s =>

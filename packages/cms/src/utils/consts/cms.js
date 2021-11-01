@@ -5,6 +5,13 @@ const ENTITY_TYPES = {
   BLOCK_INPUT: "block_input"
 };
 
+const ENTITY_PRETTY_NAMES = {
+  profile: "Profile",
+  section: "Section",
+  block: "Block",
+  block_input: "Input"
+};
+
 const PROFILE_TYPES = {
   PROFILE: "profile",
   STORY: "story"
@@ -149,6 +156,7 @@ module.exports = {
   BLOCK_SETTINGS,
   BLOCK_TYPES,
   ENTITY_TYPES,
+  ENTITY_PRETTY_NAMES,
   PROFILE_FIELDS,
   PROFILE_MAP,
   PROFILE_SETTINGS,

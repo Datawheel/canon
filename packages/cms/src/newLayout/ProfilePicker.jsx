@@ -23,19 +23,12 @@ function ProfilePicker() {
     localeDefault: state.cms.status.localeDefault
   }));
 
-  const openProfile = id => {
-    dispatch(setStatus({pathObj: {profile: id}}));
-  };
-
   return (
     <div className="cms-profile-picker">
       <h1>Profiles</h1>
       <ul>
         {profiles.map(profile =>
           <li className="cms-profile-li" key={`profile${profile.id}`} >
-            <button className="cms-card-cover-button" onClick={() => openProfile(profile.id)} >
-              <span className="u-visually-hidden">open</span>
-            </button>
             <ProfileCard id={profile.id} label={profile.contentByLocale[localeDefault].content.label} />
           </li>
         )}

@@ -40,7 +40,7 @@ function Section({section, isDragging, dragHandleProps}) {
       <SectionHeader section={section} dragHandleProps={dragHandleProps}/>
       <div className="cms-section-content">
         {blocks.map(block =>
-          <Block key={`block-${block.id}`} block={block}/>
+          <Block key={`block-${block.id}`} type={ENTITY_TYPES.BLOCK} block={block}/>
         )}
         <EntityAddButton
           type={ENTITY_ADD_BUTTON_TYPES.SELECT}

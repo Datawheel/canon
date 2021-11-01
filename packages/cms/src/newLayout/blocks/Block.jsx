@@ -15,7 +15,7 @@ import "./Block.css";
 /**
  *
  */
-function Block({block, mode}) {
+function Block({block, type}) {
 
   const dispatch = useDispatch();
 
@@ -26,14 +26,8 @@ function Block({block, mode}) {
     localeDefault: state.cms.status.localeDefault
   }));
 
-  /* mount */
-  useEffect(() => {
-    // todo1.0 load background images
-    // todo1.0 reimplement titlesearch click
-  }, []);
-
   const onClick = () => {
-    if (mode !== "input") setIsOpen(true);
+    if (type === ENTITY_TYPES.BLOCK) setIsOpen(true);
   };
 
   const save = () => {
@@ -55,21 +49,19 @@ function Block({block, mode}) {
   };
 
   const cogProps = {
-    type: mode === "input" ? ENTITY_TYPES.BLOCK_INPUT : ENTITY_TYPES.BLOCK,
-    id: block.id
+    type,
+    id: type === ENTITY_TYPES.BLOCK_INPUT ? block.block_input.id : block.id
   };
 
   return (
     <React.Fragment>
-      <div className="cms-section-block" onClick={onClick}>
-        <div key="bh" className="cms-section-block-header">{block.type}</div>
-        <div key="bc" className="cms-block-cog">
-          <SettingsCog
-            content={<CogMenu {...cogProps} />}
-            renderTarget={props => <Button {...props} key="b3" className="cms-block-cog-button" small={true} icon="cog" />}
-          />
-        </div>
-
+      <div className="cms-section-block" >
+        <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
+        {type === ENTITY_TYPES.BLOCK && <Button className="cms-block-edit-button" onClick={onClick} icon="edit" small={true} /> }
+        <SettingsCog
+          content={<CogMenu {...cogProps} />}
+          renderTarget={props => <Button {...props} key="b3" className="cms-block-cog-button" small={true} icon="cog" />}
+        />
       </div>
       <Dialog key="d" {...dialogProps}>
         <BlockEditor block={block} />

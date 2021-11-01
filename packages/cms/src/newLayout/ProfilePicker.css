@@ -19,12 +19,3 @@
   width: 100px;
   height: 100px;
 }
-
-.cms-card-cover-button {
-  width:100px;
-  height: 100px;
-  position: absolute;
-  z-index: 1;
-  opacity: 0;
-  cursor: pointer;
-}

@@ -44,7 +44,7 @@ function BlockInputPicker({block}) {
   return (
     <div className="cms-block-input-picker">
       {inputs.map(block =>
-        <Block key={`block-${block.id}`} mode="input" block={block}/>
+        <Block key={`block-${block.id}`} type={ENTITY_TYPES.BLOCK_INPUT} block={block}/>
       )}
       <EntityAddButton
         type={ENTITY_ADD_BUTTON_TYPES.SELECT}

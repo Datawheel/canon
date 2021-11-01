@@ -15,5 +15,10 @@
   position: absolute;
   bottom: 5px;
   right: 5px;
-  z-index: 2;
+}
+
+.cms-profile-card-edit {
+  position: absolute;
+  bottom: 5px;
+  right: 33px;
 }

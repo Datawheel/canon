@@ -22,6 +22,12 @@
   right: 5px;
 }
 
+.cms-block-edit-button {
+  position: absolute;
+  bottom: 5px;
+  right: 33px;
+}
+
 .cms-block-editor-dialog{
   width: 80%;
 }
