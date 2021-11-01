@@ -91,7 +91,6 @@ export default (profiles = [], action) => {
           s.id === action.data.section_id ? {...s, blocks: s.blocks.map(b =>
             b.id === action.data.id ? action.data : b)} : s)}));
     case "BLOCK_INPUT_DELETE":
-      console.log("Jim", action.data);
       return profiles.map(p => (
         {...p, sections: p.sections.map(s => (
           {...s, blocks: s.blocks.map(b =>

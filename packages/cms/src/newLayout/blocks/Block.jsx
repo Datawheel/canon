@@ -13,9 +13,12 @@ import {ENTITY_TYPES} from "../../utils/consts/cms";
 import "./Block.css";
 
 /**
- *
+ * A Block is a visual element of any kind embedded in a Section. It can be a stat,
+ * selector, or anything listed in BLOCK_TYPES.
+ * block - the data for this block
+ * entity - BLOCK (clickable, editable) or BLOCK_INPUT (uneditable - feeds another block)
  */
-function Block({block, type}) {
+function Block({block, entity}) {
 
   const dispatch = useDispatch();
 
@@ -27,7 +30,7 @@ function Block({block, type}) {
   }));
 
   const onClick = () => {
-    if (type === ENTITY_TYPES.BLOCK) setIsOpen(true);
+    if (entity === ENTITY_TYPES.BLOCK) setIsOpen(true);
   };
 
   const save = () => {
@@ -49,15 +52,18 @@ function Block({block, type}) {
   };
 
   const cogProps = {
-    type,
-    id: type === ENTITY_TYPES.BLOCK_INPUT ? block.block_input.id : block.id
+    type: entity,
+    // The action cog needs an entity type and an id to perform actions on.
+    // If this is a BLOCK, then its just the id - but if it's a BLOCK_INPUT, then
+    // a *subscription* to a block is being deleted, and must use that id instead.
+    id: entity === ENTITY_TYPES.BLOCK_INPUT ? block.block_input.id : block.id
   };
 
   return (
     <React.Fragment>
       <div className="cms-section-block" >
         <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
-        {type === ENTITY_TYPES.BLOCK && <Button className="cms-block-edit-button" onClick={onClick} icon="edit" small={true} /> }
+        {entity === ENTITY_TYPES.BLOCK && <Button className="cms-block-edit-button" onClick={onClick} icon="edit" small={true} /> }
         <SettingsCog
           content={<CogMenu {...cogProps} />}
           renderTarget={props => <Button {...props} key="b3" className="cms-block-cog-button" small={true} icon="cog" />}

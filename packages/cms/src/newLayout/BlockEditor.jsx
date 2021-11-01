@@ -2,7 +2,8 @@ import React, {useState} from "react";
 import {Button, Intent} from "@blueprintjs/core";
 
 import VariableList from "./VariableList";
-import BlockInputPicker from "./blocks/BlockInputPicker";
+import BlockInput from "./blocks/BlockInput";
+import BlockOutput from "./blocks/BlockOutput";
 
 import "./BlockEditor.css";
 
@@ -27,7 +28,12 @@ function BlockEditor({block}) {
       </div>
       <div className="cms-block-editor-content">
         <VariableList />
-        <BlockInputPicker block={block}/>
+        {mode === MODES.INPUT && <React.Fragment>
+          <BlockInput block={block}/>
+        </React.Fragment> }
+        {mode === MODES.OUTPUT && <div className="cms-block-editor-output">
+          <BlockOutput block={block}/>
+        </div>}
       </div>
 
     </div>

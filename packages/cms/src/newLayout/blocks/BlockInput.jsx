@@ -10,12 +10,12 @@ import {newEntity} from "../../actions/profiles";
 import {ENTITY_ADD_BUTTON_TYPES} from "../components/consts";
 import {ENTITY_TYPES} from "../../utils/consts/cms";
 
-import "./BlockInputPicker.css";
+import "./BlockInput.css";
 
 /**
  *
  */
-function BlockInputPicker({block}) {
+function BlockInput({block}) {
 
   const dispatch = useDispatch();
 
@@ -30,9 +30,6 @@ function BlockInputPicker({block}) {
     return {sourceBlocks};
   });
 
-
-  const inputs = block.inputs;
-
   const addInput = id => {
     const payload = {
       input_id: Number(id),
@@ -41,10 +38,12 @@ function BlockInputPicker({block}) {
     dispatch(newEntity(ENTITY_TYPES.BLOCK_INPUT, payload));
   };
 
+  const {inputs} = block;
+
   return (
-    <div className="cms-block-input-picker">
+    <div className="cms-block-input">
       {inputs.map(block =>
-        <Block key={`block-${block.id}`} type={ENTITY_TYPES.BLOCK_INPUT} block={block}/>
+        <Block key={`block-${block.id}`} entity={ENTITY_TYPES.BLOCK_INPUT} block={block}/>
       )}
       <EntityAddButton
         type={ENTITY_ADD_BUTTON_TYPES.SELECT}
@@ -58,4 +57,4 @@ function BlockInputPicker({block}) {
 
 }
 
-export default BlockInputPicker;
+export default BlockInput;
