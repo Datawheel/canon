@@ -167,7 +167,7 @@ export function newEntity(type, payload) {
 /** */
 export function updateEntity(type, payload) {
   return function(dispatch, getStore) {
-    dispatch({type: "CLEAR_UPDATED"});
+    // dispatch({type: "CLEAR_UPDATED"});
     // Updates might need to trigger re-running certain displays. Use diffCounter to track changes
     const diffCounter = getStore().cms.status.diffCounter + 1;
     // Formatters require locales in the payload to know what languages to compile for

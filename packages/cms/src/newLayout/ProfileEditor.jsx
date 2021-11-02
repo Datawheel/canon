@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Button, Intent} from "@blueprintjs/core";
-import {Popover2} from "@blueprintjs/Popover2";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 
 import CMSHeader from "./CMSHeader";
@@ -11,6 +10,7 @@ import EntityAddButton from "./components/EntityAddButton";
 
 import {newEntity, updateEntity} from "../actions/profiles";
 
+import insertAtOrdering from "../utils/insertAtOrdering";
 import {ENTITY_TYPES, SECTION_TYPES} from "../utils/consts/cms";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
@@ -29,11 +29,34 @@ function ProfileEditor({id}) {
     profile: state.cms.profiles.find(d => d.id === id)
   }));
 
+  const [sections, setSections] = useState([]);
+  // const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    setSections(profile ? profile.sections : []);
+  }, [profile]);
+
   const onDragEnd = result => {
     if (!result.destination || result.source.index === result.destination.index) return;
-    const payload = {id: Number(result.draggableId), ordering: result.destination.index + 1};
+    const id = Number(result.draggableId);
+    const ordering = result.destination.index + 1;
+    const payload = {id, ordering};
+    // update the sections optimistically (locally) while sending the asynchronous update
+    setSections(insertAtOrdering(sections, payload.id, payload.ordering));
+    // setIsDragging(false);
     dispatch(updateEntity(ENTITY_TYPES.SECTION, payload));
   };
+
+  /*
+  const getStyle = style => {
+    if (!isDragging) return style;
+    return {
+      ...style,
+      height: "40px",
+      overflow: "hidden"
+    };
+  };
+  */
 
   const addSection = (slug, ordering) => {
     const payload = {
@@ -48,13 +71,13 @@ function ProfileEditor({id}) {
   if (!profile) return <div>Loading...</div>;
   if (profile.error) return <div>{profile.error}</div>;
 
-  const [heroSection, ...sections] = profile.sections;
+  const [heroSection, ...restSections] = sections;
 
   return (
     <div className="cms-profile">
       <CMSHeader id={id}/>
       <div className="cms-section-container">
-        <Hero key="hero" profile={profile} section={heroSection} />
+        {heroSection && <Hero key="hero" profile={profile} section={heroSection} />}
         <EntityAddButton
           label="Section Slug"
           onSubmit={name => addSection(name, 1)}
@@ -62,18 +85,19 @@ function ProfileEditor({id}) {
           renderTarget={props => <Button {...props} className="cms-profile-add-section-button" icon="add" intent={Intent.PRIMARY} iconSize={20}/>}
         />
       </div>
-      <DragDropContext onDragEnd={onDragEnd}>
+      <DragDropContext /* onBeforeCapture={() => setIsDragging(true)}*/ onDragEnd={onDragEnd}>
         <Droppable droppableId="sections">
           {provided =>
             <div ref={provided.innerRef} {...provided.droppableProps} className="cms-droppable-container">
-              {sections.map((section, i) =>
+              {restSections.map((section, i) =>
                 <Draggable key={section.id} draggableId={`${section.id}`} index={i} >
                   {(provided, snapshot) =>
                     <div
-                      key={`section-${i}`}
+                      key={`section-${section.id}`}
                       className="cms-section-container"
                       ref={provided.innerRef}
                       {...provided.draggableProps}
+                      // style={getStyle(provided.draggableProps.style)}
                     >
                       <Section section={section} isDragging={snapshot.isDragging} dragHandleProps={provided.dragHandleProps}/>
                       <EntityAddButton
