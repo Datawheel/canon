@@ -94,7 +94,8 @@ class Options extends Component {
     else if (type === DOWNLOAD_TYPES.XLS) {
       const ws = XLSX.utils.json_to_sheet(results);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, filename(title));
+      const SHEET_NAME_MAX_LENGTH = 30;
+      XLSX.utils.book_append_sheet(wb, ws, filename(title).substring(0, SHEET_NAME_MAX_LENGTH));
       const xls = XLSX.write(wb, {bookType: "xlsx", bookSST: true, type: "binary"});
       zip.file(`${filename(title)}.xlsx`, xls, {binary: true});
     }
