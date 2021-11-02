@@ -88,8 +88,9 @@ const sortProfileTree = (db, profiles) => {
 };
 
 const sortSection = (db, section) => {
-  section.blocks = flatSort(db.blocks, section.blocks);
   section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
+  section.blocks = flatSort(db.blocks, section.blocks);
+  section.blocks.forEach(block => block.contentByLocale = block.contentByLocale.reduce(contentReducer, {}));
   // todo1.0
   // ordering is nested in section_selector - bubble for top-level sorting
   // section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
@@ -262,6 +263,7 @@ module.exports = function(app) {
         }
         let fullObj = await db[ref].findOne(reqObj).catch(catcher);
         fullObj = fullObj.toJSON();
+        fullObj.contentByLocale = fullObj.contentByLocale.reduce(contentReducer, {});
         if (ref === "section") {
           fullObj.types = Object.values(SECTION_TYPES);
         }
@@ -274,6 +276,7 @@ module.exports = function(app) {
         if (ref === "block_input") {
           let block = await db.block.findOne({where: {id: req.body.block_id}, include: [{association: "contentByLocale"}, {association: "inputs"}]}).catch(catcher);
           block = block.toJSON();
+          block.contentByLocale = block.contentByLocale.reduce(contentReducer, {});
           return res.json(block);
         }
         else {
@@ -375,6 +378,7 @@ module.exports = function(app) {
       else {
         if (contentTables.includes(ref)) {
           const entity = await db[ref].findOne({where: {id}, include: {association: "contentByLocale"}}).catch(catcher);
+          entity.contentByLocale = entity.contentByLocale.reduce(contentReducer, {});
           return res.json({entity, siblings});
         }
         else {
@@ -610,6 +614,7 @@ module.exports = function(app) {
       include: [{association: "contentByLocale"}, {association: "inputs"}]
     };
     const rows = await db.block.findAll(reqObj).catch(catcher);
+    rows.forEach(row => row.contentByLocale = row.contentByLocale.reduce(contentReducer, {}));
     return res.json({parent_id: row.section_id, newArray: rows});
   });
 

@@ -133,6 +133,7 @@ const BLOCK_MAP = {
   ]
 };
 
+/*
 Object.keys(BLOCK_MAP).forEach(k => {
   BLOCK_MAP[k] = BLOCK_MAP[k].concat([
     BLOCK_FIELDS.LOGIC,
@@ -141,6 +142,7 @@ Object.keys(BLOCK_MAP).forEach(k => {
     BLOCK_FIELDS.LOGIC_SIMPLE_ENABLED
   ]);
 });
+*/
 
 const BLOCK_SETTINGS = {
   NAME: "name",
