@@ -5,8 +5,10 @@ import {Button, Intent} from "@blueprintjs/core";
 import DraftWrapper from "../../components/editors/DraftWrapper";
 
 import {BLOCK_FIELDS} from "../../utils/consts/cms";
+import deepClone from "../../utils/deepClone";
 
 import "./NewRichTextEditor.css";
+
 
 /**
  *
@@ -18,13 +20,11 @@ function NewRichTextEditor({locale, block, fields}) {
     showToolbar: state.cms.status.showToolbar
   }));
 
-  const handleEditor = field => {
+  const [stateContent, setStateContent] = useState(deepClone(block.contentByLocale[locale].content));
 
+  const handleEditor = (field, text) => {
+    setStateContent({...stateContent, [field]: text});
   };
-
-  console.log(fields);
-
-  const content = block.contentByLocale[locale].content;
 
   return (
     <div className="cms-new-rich-text-editor">
@@ -39,8 +39,8 @@ function NewRichTextEditor({locale, block, fields}) {
             selectors={[]}
             formatters={[]}
             variables={{}}
-            defaultValue={content[field] || ""}
-            onChange={() => handleEditor(field)}
+            defaultValue={stateContent[field] || ""}
+            onChange={text => handleEditor(field, text)}
             showToolbar={showToolbar}
             // ref={c => this.editors[f] = c}
           />
