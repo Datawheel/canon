@@ -1,14 +1,16 @@
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Button, Dialog} from "@blueprintjs/core";
+import {Button, Dialog, Classes, Intent} from "@blueprintjs/core";
 
 import SettingsCog from "../SettingsCog";
 import CogMenu from "../components/CogMenu";
 import BlockEditor from "../BlockEditor";
+import BlockEditorFooter from "../components/BlockEditorFooter";
+import NewRichTextEditor from "../editors/NewRichTextEditor";
 
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 
-import {ENTITY_TYPES} from "../../utils/consts/cms";
+import {ENTITY_TYPES, BLOCK_MAP} from "../../utils/consts/cms";
 
 import "./Block.css";
 
@@ -59,6 +61,13 @@ function Block({block, entity}) {
     id: entity === ENTITY_TYPES.BLOCK_INPUT ? block.block_input.id : block.id
   };
 
+  const onChange = obj => {
+    console.log("out", obj);
+  };
+
+  const fields = BLOCK_MAP[block.type];
+  const textEditor = <NewRichTextEditor locale={localeDefault} block={block} fields={fields} onChange={onChange}/>;
+
   return (
     <React.Fragment>
       <div className="cms-section-block" >
@@ -70,7 +79,8 @@ function Block({block, entity}) {
         />
       </div>
       <Dialog key="d" {...dialogProps}>
-        <BlockEditor block={block} />
+        <BlockEditor block={block} textEditor={textEditor}/>
+        <BlockEditorFooter />
       </Dialog>
     </React.Fragment>
   );

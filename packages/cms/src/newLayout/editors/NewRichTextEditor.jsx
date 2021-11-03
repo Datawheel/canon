@@ -13,7 +13,7 @@ import "./NewRichTextEditor.css";
 /**
  *
  */
-function NewRichTextEditor({locale, block, fields}) {
+function NewRichTextEditor({locale, block, fields, onChange}) {
 
   /* redux */
   const {showToolbar} = useSelector(state => ({
@@ -24,6 +24,7 @@ function NewRichTextEditor({locale, block, fields}) {
 
   const handleEditor = (field, text) => {
     setStateContent({...stateContent, [field]: text});
+    onChange({...stateContent, [field]: text});
   };
 
   return (

@@ -12,7 +12,7 @@ import "./BlockOutput.css";
 /**
  *
  */
-function BlockOutput({block}) {
+function BlockOutput({block, textEditor}) {
 
   const fields = BLOCK_MAP[block.type];
 
@@ -23,7 +23,7 @@ function BlockOutput({block}) {
 
   return (
     <div className="cms-block-output">
-      <NewRichTextEditor locale={localeDefault} block={block} fields={fields}/>
+      {textEditor}
       <BlockPreview block={block} />
     </div>
   );
