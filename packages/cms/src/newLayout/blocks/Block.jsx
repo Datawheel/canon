@@ -9,10 +9,14 @@ import BlockEditorFooter from "../components/BlockEditorFooter";
 import NewRichTextEditor from "../editors/NewRichTextEditor";
 
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
+import sanitizeBlockContent from "../../utils/sanitizeBlockContent";
+
+import {updateEntity} from "../../actions/profiles";
 
 import {ENTITY_TYPES, BLOCK_MAP} from "../../utils/consts/cms";
 
 import "./Block.css";
+
 
 /**
  * A Block is a visual element of any kind embedded in a Section. It can be a stat,
@@ -27,21 +31,46 @@ function Block({block, entity}) {
   const [isOpen, setIsOpen] = useState(false);
 
   /* redux */
-  const {localeDefault} = useSelector(state => ({
-    localeDefault: state.cms.status.localeDefault
+  const {localeDefault, justUpdated} = useSelector(state => ({
+    localeDefault: state.cms.status.localeDefault,
+    justUpdated: state.cms.status.justUpdated
   }));
+
+  console.log(justUpdated);
+
+  const [stateContent, setStateContent] = useState({});
 
   const onClick = () => {
     if (entity === ENTITY_TYPES.BLOCK) setIsOpen(true);
   };
 
-  const save = () => {
-    console.log("save");
+  const onSave = () => {
+    const content = Object.keys(stateContent).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(stateContent[d])}), {});
+    const payload = {
+      id: block.id,
+      content: [{
+        id: block.id,
+        locale: localeDefault,
+        content
+      }]
+    };
+    dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload));
   };
 
   const maybeCloseEditorWithoutSaving = () => {
 
   };
+
+  const onChange = content => {
+    setStateContent({...stateContent, ...content});
+  };
+
+  const textEditor = <NewRichTextEditor
+    locale={localeDefault}
+    block={block}
+    fields={BLOCK_MAP[block.type]}
+    onChange={onChange}
+  />;
 
   const dialogProps = {
     className: "cms-block-editor-dialog",
@@ -61,13 +90,6 @@ function Block({block, entity}) {
     id: entity === ENTITY_TYPES.BLOCK_INPUT ? block.block_input.id : block.id
   };
 
-  const onChange = obj => {
-    console.log("out", obj);
-  };
-
-  const fields = BLOCK_MAP[block.type];
-  const textEditor = <NewRichTextEditor locale={localeDefault} block={block} fields={fields} onChange={onChange}/>;
-
   return (
     <React.Fragment>
       <div className="cms-section-block" >
@@ -80,7 +102,7 @@ function Block({block, entity}) {
       </div>
       <Dialog key="d" {...dialogProps}>
         <BlockEditor block={block} textEditor={textEditor}/>
-        <BlockEditorFooter />
+        <BlockEditorFooter onSave={onSave}/>
       </Dialog>
     </React.Fragment>
   );

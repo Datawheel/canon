@@ -6,11 +6,7 @@ import {ENTITY_ADD_BUTTON_TYPES} from "./consts";
 /**
  *
  */
-function BlockEditorFooter({}) {
-
-  const onSave = () => {
-    console.log("save");
-  };
+function BlockEditorFooter({onSave}) {
 
   return (
     <div className={Classes.DIALOG_FOOTER}>
