@@ -1,3 +1,5 @@
+const {normalize, schema} = require("normalizr");
+
 const sorter = (a, b) => a.ordering - b.ordering;
 
 const addSectionEntity = (profiles, data, accessor) => profiles.map(p =>
@@ -24,17 +26,31 @@ const swapSectionEntity = (profiles, data, accessor) => profiles.map(p =>
     }).sort(sorter)})
   )}));
 
-export default (profiles = [], action) => {
+const profileSchema = [new schema.Entity("profiles", {
+  sections: [new schema.Entity("sections", {
+    blocks: [new schema.Entity("blocks")]
+  })]
+})];
+
+export default (profiles = {}, action) => {
   switch (action.type) {
     // Profiles
     case "PROFILES_GET":
-      return action.data;
+      return normalize(action.data, profileSchema);
     case "PROFILE_NEW":
-      return profiles.concat([action.data]);
+      // todo1.0 return better hero section (don't use [0])
+      return {
+        result: profiles.result.concat([action.data.id]),
+        entities: {
+          ...profiles.entities,
+          profiles: {...profiles.entities.profiles, [action.data.id]: {...action.data, sections: action.data.sections.map(d => d.id)}},
+          sections: {...profiles.entities.sections, [action.data.sections[0].id]: action.data.sections[0]}
+        }
+      };
     case "PROFILE_DUPLICATE":
       return profiles.concat([action.data]);
     case "PROFILE_DELETE":
-      return action.data.profiles;
+      return normalize(action.data.profiles, profileSchema);
     case "PROFILE_UPDATE":
       return profiles.map(p => p.id === action.data.id ? Object.assign({}, p, {...action.data}) : p);
     case "PROFILE_TRANSLATE":
@@ -67,17 +83,41 @@ export default (profiles = [], action) => {
           return match ? Object.assign({}, s, {ordering: match.ordering}) : s;
         }).sort((a, b) => a.ordering - b.ordering)}));
     case "SECTION_NEW":
-      return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {sections: p.sections
-        .map(s => s.ordering >= action.data.ordering ? Object.assign({}, s, {ordering: s.ordering + 1}) : s)
-        .concat([action.data])
-        .sort(sorter)}) : p);
+      return {
+        ...profiles,
+        entities: {
+          ...profiles.entities,
+          profiles: Object.values(profiles.entities.profiles)
+            .map(d => d.id === action.data.profile_id ? {...d, sections: d.sections.concat([action.data.id])} : d)
+            .reduce((acc, d) => ({...acc, [d.id]: d}), {}),
+          sections: Object.values(profiles.entities.sections)
+            .filter(d => d.profile_id === action.data.profile_id)
+            .map(d => d.ordering > action.data.ordering ? {...d, ordering: d.ordering + 1} : d)
+            .concat(action.data)
+            .reduce((acc, d) => ({...acc, [d.id]: d}), profiles.entities.sections)
+        }
+      };
     case "SECTION_DUPLICATE":
       return profiles.map(p => p.id === action.data.profile_id ? Object.assign({}, p, {sections: p.sections
         .map(s => s.ordering >= action.data.ordering ? Object.assign({}, s, {ordering: s.ordering + 1}) : s)
         .concat([action.data])
         .sort(sorter)}) : p);
     case "SECTION_UPDATE":
-      return profiles.map(p => Object.assign({}, p, {sections: p.sections.map(s => s.id === action.data.id ? {...s, ...action.data.entity} : {...s, ordering: action.data.siblings[s.id]}).sort(sorter)}));
+      const sortedSections = Object.values(profiles.entities.sections)
+        .filter(d => d.profile_id === action.data.entity.profile_id)
+        .map(d => d.id === action.data.id ? {...d, ...action.data.entity} : {...d, ordering: action.data.siblings[d.id]})
+        .sort(sorter);
+      return {
+        ...profiles,
+        entities: {
+          ...profiles.entities,
+          profiles: Object.values(profiles.entities.profiles)
+            .map(d => d.id === action.data.entity.profile_id ? {...d, sections: sortedSections.map(d => d.id)} : d)
+            .reduce((acc, d) => ({...acc, [d.id]: d}), {}),
+          sections: sortedSections
+            .reduce((acc, d) => ({...acc, [d.id]: d}), profiles.entities.sections)
+        }
+      };
     case "SECTION_TRANSLATE":
       return profiles.map(p => Object.assign({}, p, {sections: p.sections.map(s => s.id === action.data.id ? Object.assign({}, s, {...action.data}) : s)}));
     case "SECTION_DELETE":

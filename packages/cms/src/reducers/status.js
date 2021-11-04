@@ -1,7 +1,7 @@
 export default (status = {}, action) => {
 
-  const success = action?.data?.id ? {id: action.data.id, status: "SUCCESS"} : {};
-  const error = action?.data?.id ? {id: action.data.id, status: "ERROR"} : {};
+  const success = action && action.data && action.data.id ? {id: action.data.id, status: "SUCCESS"} : {};
+  const error = action && action.data && action.data.id ? {id: action.data.id, status: "ERROR"} : {};
 
   switch (action.type) {
     // Basic assign

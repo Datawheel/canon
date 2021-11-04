@@ -12,9 +12,7 @@ import "./BlockOutput.css";
 /**
  *
  */
-function BlockOutput({block, textEditor}) {
-
-  const fields = BLOCK_MAP[block.type];
+function BlockOutput({id, textEditor}) {
 
   /* redux */
   const {localeDefault} = useSelector(state => ({
@@ -24,7 +22,7 @@ function BlockOutput({block, textEditor}) {
   return (
     <div className="cms-block-output">
       {textEditor}
-      <BlockPreview block={block} />
+      <BlockPreview id={id} />
     </div>
   );
 

@@ -82,6 +82,7 @@ importers:
       localforage: ^1.7.2
       multer: ^1.4.2
       node-yaml: ^3.1.1
+      normalizr: ^3.6.1
       promise-throttle: ^1.0.0
       puppeteer: ^8.0.0
       puppeteer-cluster: ^0.22.0
@@ -133,6 +134,7 @@ importers:
       localforage: 1.9.0
       multer: 1.4.2
       node-yaml: 3.2.0
+      normalizr: 3.6.1
       promise-throttle: 1.1.2
       puppeteer: 8.0.0
       puppeteer-cluster: 0.22.0_puppeteer@8.0.0
@@ -8967,6 +8969,10 @@ packages:
 
   /normalize.css/8.0.1:
     resolution: {integrity: sha512-qizSNPO93t1YUuUhP22btGOo3chcvDFqFaj2TRybP0DMxkHOCTYwp3n34fel4a31ORXy4m1Xq0Gyqpb5m33qIg==}
+
+  /normalizr/3.6.1:
+    resolution: {integrity: sha512-8iEmqXmPtll8PwbEFrbPoDxVw7MKnNvt3PZzR2Xvq9nggEEOgBlNICPXYzyZ4w4AkHUzCU998mdatER3n2VaMA==}
+    dev: false
 
   /now-and-later/2.0.1:
     resolution: {integrity: sha512-KGvQ0cB70AQfg107Xvs/Fbu+dGmZoTRJp2TaPwcwQm3/7PteUyN2BCgk8KBMPGBUXZdVwyWS8fDCGFygBm19UQ==}

@@ -7,11 +7,12 @@ import "./Hero.css";
 /**
  *
  */
-function Hero({section}) {
+function Hero({id}) {
 
   /* redux */
-  const {localeDefault} = useSelector(state => ({
-    localeDefault: state.cms.status.localeDefault
+  const {localeDefault, section} = useSelector(state => ({
+    localeDefault: state.cms.status.localeDefault,
+    section: state.cms.profiles.entities.sections[id]
   }));
 
   /* mount */

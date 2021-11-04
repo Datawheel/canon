@@ -20,7 +20,7 @@ const initialState = {
     pathObj: {}
   },
   cubeData: false,
-  profiles: [],
+  profiles: {},
   formatters: [],
   resources: {
     formatterFunctions: false

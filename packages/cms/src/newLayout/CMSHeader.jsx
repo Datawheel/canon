@@ -21,7 +21,7 @@ function CMSHeader({id}) {
     localeSecondary: state.cms.status.localeSecondary,
     locales: state.cms.status.locales,
     // todo1.0 - is this too heavy to import the whole thing?
-    profiles: state.cms.profiles
+    profiles: Object.values(state.cms.profiles.entities.profiles)
   }));
 
   const goBack = () => {

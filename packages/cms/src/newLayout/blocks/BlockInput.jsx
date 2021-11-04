@@ -15,19 +15,15 @@ import "./BlockInput.css";
 /**
  *
  */
-function BlockInput({block}) {
+function BlockInput({id}) {
 
   const dispatch = useDispatch();
 
   /* redux */
-  const {sourceBlocks} = useSelector(state => {
-    let sourceBlocks = [];
-    const profile = state.cms.profiles.find(p => p.id === Number(state.cms.status.pathObj.profile));
-    if (profile) {
-      const section = profile.sections.find(s => s.id === block.section_id);
-      if (section) sourceBlocks = section.blocks.filter(d => d.id !== block.id);
-    }
-    return {sourceBlocks};
+  const {block, sourceBlocks} = useSelector(state => {
+    const block = state.cms.profiles.entities.blocks[id];
+    const sourceBlocks = Object.values(state.cms.profiles.entities.blocks).filter(d => d.section_id === block.section_id && d.id !== block.id);
+    return {block, sourceBlocks};
   });
 
   const addInput = id => {
@@ -43,7 +39,7 @@ function BlockInput({block}) {
   return (
     <div className="cms-block-input">
       {inputs.map(block =>
-        <Block key={`block-${block.id}`} entity={ENTITY_TYPES.BLOCK_INPUT} block={block}/>
+        <Block key={`block-${block.id}`} entity={ENTITY_TYPES.BLOCK_INPUT} id={block.id}/>
       )}
       <EntityAddButton
         type={ENTITY_ADD_BUTTON_TYPES.SELECT}

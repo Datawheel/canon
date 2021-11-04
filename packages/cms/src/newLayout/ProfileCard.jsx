@@ -15,9 +15,15 @@ import "./ProfileCard.css";
 /**
  *
  */
-function ProfileCard({id, label}) {
+function ProfileCard({id}) {
 
   const dispatch = useDispatch();
+
+  /* redux */
+  const {localeDefault, profile} = useSelector(state => ({
+    localeDefault: state.cms.status.localeDefault,
+    profile: state.cms.profiles.entities.profiles[id]
+  }));
 
   const [showMenu, setShowMenu] = useState(false);
 
@@ -31,6 +37,8 @@ function ProfileCard({id, label}) {
     interactionKind: Popover2InteractionKind.CLICK,
     placement: PopoverPosition.AUTO
   };
+
+  const label = profile.contentByLocale[localeDefault].content.label;
 
   return (
     <div className="cms-profile-card">

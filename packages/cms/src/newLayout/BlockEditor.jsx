@@ -17,7 +17,7 @@ const MODES = {
 /**
  *
  */
-function BlockEditor({block, textEditor}) {
+function BlockEditor({id, textEditor}) {
 
   /* state */
   const [mode, setMode] = useState(MODES.INPUT);
@@ -39,7 +39,7 @@ function BlockEditor({block, textEditor}) {
       </div>
       <div className="cms-block-editor-content">
         <VariableList />
-        <BlockPanel block={block} textEditor={textEditor}/>
+        <BlockPanel id={id} textEditor={textEditor}/>
       </div>
 
     </div>

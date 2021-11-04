@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState, useCallback} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import yn from "yn";
 
@@ -21,6 +21,8 @@ function NewBuilder({router}) {
 
   const dispatch = useDispatch();
 
+  const [loading, setLoading] = useState(true);
+
   /* redux */
   const {auth, env, formatterFunctions, isEnabled, minRole, pathObj} = useSelector(state => ({
     auth: state.auth,
@@ -31,11 +33,19 @@ function NewBuilder({router}) {
     pathObj: state.cms.status.pathObj
   }));
 
+  const loadProfiles = useCallback(() => {
+    setLoading(true);
+    dispatch(getProfiles()).then(() => {
+      setLoading(false);
+    });
+  }, []);
+
   /* mount */
   useEffect(() => {
+    // todo1.0 memoize these with usecallback and promise (fran)
     dispatch(isAuthenticated());
     dispatch(getFormatters());
-    dispatch(getProfiles());
+    loadProfiles();
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
     const localeCurrent = localeDefault;
@@ -92,6 +102,8 @@ function NewBuilder({router}) {
       <AuthForm redirect={pathname} error={true} auth={auth} />
     );
   }
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="cms-profile-browser">

@@ -26,7 +26,7 @@ function ProfileEditor({id}) {
   /* redux */
   const {localeDefault, profile} = useSelector(state => ({
     localeDefault: state.cms.status.localeDefault,
-    profile: state.cms.profiles.find(d => d.id === id)
+    profile: state.cms.profiles.entities.profiles[id]
   }));
 
   const [sections, setSections] = useState([]);
@@ -68,16 +68,15 @@ function ProfileEditor({id}) {
     dispatch(newEntity(ENTITY_TYPES.SECTION, payload));
   };
 
-  if (!profile) return <div>Loading...</div>;
   if (profile.error) return <div>{profile.error}</div>;
 
   const [heroSection, ...restSections] = sections;
 
   return (
     <div className="cms-profile">
-      <CMSHeader id={id}/>
+      <CMSHeader id={profile.id}/>
       <div className="cms-section-container">
-        {heroSection && <Hero key="hero" profile={profile} section={heroSection} />}
+        {heroSection && <Hero key="hero" id={heroSection} />}
         <EntityAddButton
           label="Section Slug"
           onSubmit={name => addSection(name, 1)}
@@ -90,16 +89,16 @@ function ProfileEditor({id}) {
           {provided =>
             <div ref={provided.innerRef} {...provided.droppableProps} className="cms-droppable-container">
               {restSections.map((section, i) =>
-                <Draggable key={section.id} draggableId={`${section.id}`} index={i} >
+                <Draggable key={section} draggableId={`${section}`} index={i} >
                   {(provided, snapshot) =>
                     <div
-                      key={`section-${section.id}`}
+                      key={`section-${section}`}
                       className="cms-section-container"
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       // style={getStyle(provided.draggableProps.style)}
                     >
-                      <Section section={section} isDragging={snapshot.isDragging} dragHandleProps={provided.dragHandleProps}/>
+                      <Section id={section} isDragging={snapshot.isDragging} dragHandleProps={provided.dragHandleProps}/>
                       <EntityAddButton
                         label="Section Slug"
                         urlSafe={true}

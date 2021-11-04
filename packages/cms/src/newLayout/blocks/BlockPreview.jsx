@@ -6,11 +6,11 @@ import "./BlockPreview.css";
 /**
  *
  */
-function BlockPreview({block}) {
+function BlockPreview({id}) {
 
   return (
     <div className="cms-block-preview">
-      block preview
+      block preview of {id}
     </div>
   );
 

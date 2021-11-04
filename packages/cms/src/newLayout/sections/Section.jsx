@@ -16,13 +16,14 @@ import "./Section.css";
 /**
  *
  */
-function Section({section, isDragging, dragHandleProps}) {
+function Section({id, isDragging, dragHandleProps}) {
 
   const dispatch = useDispatch();
 
   /* redux */
-  const {localeDefault} = useSelector(state => ({
-    localeDefault: state.cms.status.localeDefault
+  const {localeDefault, section} = useSelector(state => ({
+    localeDefault: state.cms.status.localeDefault,
+    section: state.cms.profiles.entities.sections[id]
   }));
 
   const addBlock = type => {
@@ -40,7 +41,7 @@ function Section({section, isDragging, dragHandleProps}) {
       <SectionHeader section={section} dragHandleProps={dragHandleProps}/>
       <div className="cms-section-content">
         {blocks.map(block =>
-          <Block key={`block-${block.id}`} entity={ENTITY_TYPES.BLOCK} block={block}/>
+          <Block id={block} key={`block-${block}`} entity={ENTITY_TYPES.BLOCK} />
         )}
         <EntityAddButton
           type={ENTITY_ADD_BUTTON_TYPES.SELECT}

@@ -6,7 +6,6 @@ import ProfileCard from "./ProfileCard";
 import EntityAddButton from "./components/EntityAddButton";
 
 import {newProfile} from "../actions/profiles";
-import {setStatus} from "../actions/status";
 
 import "./ProfilePicker.css";
 
@@ -19,7 +18,7 @@ function ProfilePicker() {
 
   /* redux */
   const {profiles, localeDefault} = useSelector(state => ({
-    profiles: state.cms.profiles,
+    profiles: state.cms.profiles.result,
     localeDefault: state.cms.status.localeDefault
   }));
 
@@ -28,8 +27,8 @@ function ProfilePicker() {
       <h1>Profiles</h1>
       <ul>
         {profiles.map(profile =>
-          <li className="cms-profile-li" key={`profile${profile.id}`} >
-            <ProfileCard id={profile.id} label={profile.contentByLocale[localeDefault].content.label} />
+          <li className="cms-profile-li" key={`profile-${profile}`} >
+            <ProfileCard id={profile} />
           </li>
         )}
         <li>

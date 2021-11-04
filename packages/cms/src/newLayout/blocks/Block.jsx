@@ -24,19 +24,17 @@ import "./Block.css";
  * block - the data for this block
  * entity - BLOCK (clickable, editable) or BLOCK_INPUT (uneditable - feeds another block)
  */
-function Block({block, entity}) {
+function Block({id, entity}) {
 
   const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
 
   /* redux */
-  const {localeDefault, justUpdated} = useSelector(state => ({
+  const {localeDefault, block} = useSelector(state => ({
     localeDefault: state.cms.status.localeDefault,
-    justUpdated: state.cms.status.justUpdated
+    block: state.cms.profiles.entities.blocks[id]
   }));
-
-  console.log(justUpdated);
 
   const [stateContent, setStateContent] = useState({});
 
@@ -44,7 +42,11 @@ function Block({block, entity}) {
     if (entity === ENTITY_TYPES.BLOCK) setIsOpen(true);
   };
 
+  // when  BLOCK_UPDATE is done, isOpen(false)
+  // prevprops = loading this.props = loaded
+
   const onSave = () => {
+    // Remove draftjs html cruft and leading/trailing spaces from all content fields
     const content = Object.keys(stateContent).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(stateContent[d])}), {});
     const payload = {
       id: block.id,
@@ -101,7 +103,7 @@ function Block({block, entity}) {
         />
       </div>
       <Dialog key="d" {...dialogProps}>
-        <BlockEditor block={block} textEditor={textEditor}/>
+        <BlockEditor id={id} textEditor={textEditor}/>
         <BlockEditorFooter onSave={onSave}/>
       </Dialog>
     </React.Fragment>
