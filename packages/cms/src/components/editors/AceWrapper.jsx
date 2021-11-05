@@ -41,7 +41,7 @@ export default class AceWrapper extends Component {
       };
 
       return (
-        <div className={`cms-ace-container${isFullscreen ? " is-fullscreen" : ""}`}>
+        <div /* className={`cms-ace-container${isFullscreen ? " is-fullscreen" : ""}`}*/>
           <Button
             className="cms-ace-button"
             namespace="cms"

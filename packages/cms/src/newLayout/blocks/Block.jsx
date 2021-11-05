@@ -7,6 +7,7 @@ import CogMenu from "../components/CogMenu";
 import BlockEditor from "../BlockEditor";
 import BlockEditorFooter from "../components/BlockEditorFooter";
 import NewRichTextEditor from "../editors/NewRichTextEditor";
+import AceWrapper from "../../components/editors/AceWrapper";
 
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 import sanitizeBlockContent from "../../utils/sanitizeBlockContent";
@@ -51,9 +52,6 @@ function Block({id, entity}) {
     if (entity === ENTITY_TYPES.BLOCK) setIsOpen(true);
   };
 
-  // when  BLOCK_UPDATE is done, isOpen(false)
-  // prevprops = loading this.props = loaded
-
   const onSave = () => {
     // Remove draftjs html cruft and leading/trailing spaces from all content fields
     const content = Object.keys(stateContent).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(stateContent[d])}), {});
@@ -66,7 +64,6 @@ function Block({id, entity}) {
       }]
     };
     setLoading(true);
-    // setStateContent({...stateContent, ...content});
     dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload)).then(resp => {
       if (resp.status === REQUEST_STATUS.SUCCESS) {
         setIsOpen(false);
@@ -82,16 +79,30 @@ function Block({id, entity}) {
 
   };
 
-  const onChange = content => {
+  const onChangeText = content => {
     setStateContent({...stateContent, ...content});
+  };
+
+  const onChangeCode = logic => {
+    setStateContent({...stateContent, logic});
   };
 
   const textEditor = <NewRichTextEditor
     locale={localeDefault}
     block={block}
     fields={BLOCK_MAP[block.type]}
-    onChange={onChange}
+    onChange={onChangeText}
   />;
+
+  const codeEditor = <AceWrapper
+    className="cms-block-output-ace"
+    // ref={comp => this.editor = comp}
+    onChange={onChangeCode}
+    // value={data.logic}
+    // {...this.props}
+  />;
+
+  const editors = {textEditor, codeEditor};
 
   const dialogProps = {
     className: "cms-block-editor-dialog",
@@ -122,7 +133,7 @@ function Block({id, entity}) {
         />
       </div>
       <Dialog key="d" {...dialogProps}>
-        <BlockEditor id={id} textEditor={textEditor}/>
+        <BlockEditor id={id} editors={editors}/>
         <BlockEditorFooter onSave={onSave}/>
       </Dialog>
     </React.Fragment>

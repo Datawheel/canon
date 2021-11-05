@@ -1,27 +1,55 @@
 import React, {useState} from "react";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {Button, Intent} from "@blueprintjs/core";
 
 import BlockPreview from "./BlockPreview";
-import NewRichTextEditor from "../editors/NewRichTextEditor";
 
-import {BLOCK_MAP} from "../../utils/consts/cms";
+import {BLOCK_MAP, ENTITY_TYPES} from "../../utils/consts/cms";
 
 import "./BlockOutput.css";
+import {updateEntity} from "../../actions/profiles";
+
+const MODES = {
+  TEXT: "text",
+  CODE: "code"
+};
 
 /**
  *
  */
-function BlockOutput({id, textEditor}) {
+function BlockOutput({id, editors}) {
+
+  const dispatch = useDispatch();
 
   /* redux */
   const {localeDefault} = useSelector(state => ({
     localeDefault: state.cms.status.localeDefault
   }));
 
+  const [mode, setMode] = useState(MODES.TEXT);
+
+  const changeMode = mode => {
+    const payload = {
+      id,
+      content: [{
+        id,
+        locale: localeDefault,
+        content: {logicEnabled: mode === MODES.CODE}
+      }]
+    };
+    // todo1.0 delay this change, don't save right away
+    dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload));
+    setMode(mode);
+  };
+
   return (
     <div className="cms-block-output">
-      {textEditor}
+      <div>
+        <Button onClick={() => changeMode(MODES.TEXT)} intent={mode === MODES.TEXT ? Intent.PRIMARY : Intent.NONE} icon="paragraph"></Button>
+        <Button onClick={() => changeMode(MODES.CODE)}intent={mode === MODES.CODE ? Intent.PRIMARY : Intent.NONE}icon="code"></Button>
+      </div>
+      {mode === MODES.TEXT && editors.textEditor}
+      {mode === MODES.CODE && editors.codeEditor}
       <BlockPreview id={id} />
     </div>
   );

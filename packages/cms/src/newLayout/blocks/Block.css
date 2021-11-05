@@ -31,3 +31,7 @@
 .cms-block-editor-dialog{
   width: 80%;
 }
+
+.cms-block-output-ace {
+  min-width: 600px;
+}
