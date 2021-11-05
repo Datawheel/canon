@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from "react";
+import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Button, Dialog, Classes, Intent} from "@blueprintjs/core";
+import {Button, Dialog} from "@blueprintjs/core";
 
 import SettingsCog from "../SettingsCog";
 import CogMenu from "../components/CogMenu";
@@ -17,6 +17,7 @@ import {ENTITY_TYPES, BLOCK_MAP} from "../../utils/consts/cms";
 import {REQUEST_STATUS} from "../../utils/consts/redux";
 
 import "./Block.css";
+
 
 const LOOKUP_MAP = {
   block: "blocks",
@@ -65,6 +66,7 @@ function Block({id, entity}) {
       }]
     };
     setLoading(true);
+    // setStateContent({...stateContent, ...content});
     dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload)).then(resp => {
       if (resp.status === REQUEST_STATUS.SUCCESS) {
         setIsOpen(false);
@@ -83,7 +85,6 @@ function Block({id, entity}) {
   const onChange = content => {
     setStateContent({...stateContent, ...content});
   };
-
 
   const textEditor = <NewRichTextEditor
     locale={localeDefault}

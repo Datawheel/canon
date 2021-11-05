@@ -377,7 +377,8 @@ module.exports = function(app) {
       }
       else {
         if (contentTables.includes(ref)) {
-          const entity = await db[ref].findOne({where: {id}, include: {association: "contentByLocale"}}).catch(catcher);
+          let entity = await db[ref].findOne({where: {id}, include: {association: "contentByLocale"}}).catch(catcher);
+          entity = entity.toJSON();
           entity.contentByLocale = entity.contentByLocale.reduce(contentReducer, {});
           return res.json({entity, siblings});
         }

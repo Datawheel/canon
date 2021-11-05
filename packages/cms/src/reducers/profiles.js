@@ -86,7 +86,7 @@ export default (profiles = {}, action) => {
         ...profiles,
         entities: {
           ...profiles.entities,
-          blocks: {...profiles.entities.blocks, [action.data.id]: action.data}
+          blocks: {...profiles.entities.blocks, [action.data.entity.id]: {...profiles.entities.blocks[action.data.entity.id], ...action.data.entity}}
         }
       };
     case "BLOCK_DELETE":

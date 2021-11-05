@@ -176,7 +176,7 @@ export function updateEntity(type, payload) {
     return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/update`, payload)
       .then(resp => {
         if (resp.status === 200) {
-          // dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, diffCounter, locales});
+          dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, diffCounter, locales});
           return {status: REQUEST_STATUS.SUCCESS};
         }
         else {

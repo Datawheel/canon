@@ -22,7 +22,7 @@ function NewRichTextEditor({locale, block, fields, onChange}) {
   const [stateContent] = useState(() => deepClone(block.contentByLocale[locale].content));
 
   const handleEditor = (field, text) => {
-    onChange({...stateContent, [field]: text});
+    onChange({[field]: text});
   };
 
   return (
