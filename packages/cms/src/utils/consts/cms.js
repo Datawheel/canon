@@ -130,7 +130,8 @@ const BLOCK_MAP = {
   ],
   [BLOCK_TYPES.TITLE]: [
     BLOCK_FIELDS.TITLE
-  ]
+  ],
+  [BLOCK_TYPES.GENERATOR]: []
 };
 
 /*

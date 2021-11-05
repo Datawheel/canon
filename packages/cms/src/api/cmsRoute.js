@@ -609,14 +609,27 @@ module.exports = function(app) {
       {where: {section_id: row.section_id, ordering: {[Op.gt]: row.ordering}}}
     ).catch(catcher);
     await db.block.destroy({where: {id: req.query.id}}).catch(catcher);
+
+    /*
     const reqObj = {
       where: {section_id: row.section_id},
       order: [["ordering", "ASC"]],
       include: [{association: "contentByLocale"}, {association: "inputs"}]
     };
-    const rows = await db.block.findAll(reqObj).catch(catcher);
+    let rows = await db.block.findAll(reqObj).catch(catcher);
+    rows = rows.map(d => d.toJSON);
     rows.forEach(row => row.contentByLocale = row.contentByLocale.reduce(contentReducer, {}));
-    return res.json({parent_id: row.section_id, newArray: rows});
+    return res.json({parent_id: row.section_id, blocks: rows});
+    */
+    let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
+    profiles = sortProfileTree(db, profiles);
+    profiles.forEach(profile => {
+      profile.sections = profile.sections.map(section => cleanSection(section));
+      return profile;
+    });
+    return res.json({profiles});
+
+
   });
 
   app.delete("/api/cms/block_input/delete", isEnabled, async(req, res) => {

@@ -90,7 +90,7 @@ export default (profiles = {}, action) => {
         }
       };
     case "BLOCK_DELETE":
-      return deleteSectionEntity(profiles, action.data, "blocks");
+      return normalize(action.data.profiles, profileSchema);
     case "BLOCK_SWAP":
       return swapSectionEntity(profiles, action.data, "blocks");
 

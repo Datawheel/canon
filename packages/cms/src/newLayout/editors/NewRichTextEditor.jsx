@@ -29,12 +29,12 @@ function NewRichTextEditor({locale, block, fields, onChange}) {
     <div className="cms-new-rich-text-editor">
       {fields.map(field =>
         <div className="cms-field-container" key={field}>
-          <label key="l" htmlFor={field}>
+          <label key="label" htmlFor={field}>
             {field}
           </label>
           <DraftWrapper
             id={field}
-            key="dw"
+            key="draft-wrapper"
             selectors={[]}
             formatters={[]}
             variables={{}}
