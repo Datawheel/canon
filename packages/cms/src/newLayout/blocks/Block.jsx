@@ -17,6 +17,10 @@ import {ENTITY_TYPES, BLOCK_MAP} from "../../utils/consts/cms";
 
 import "./Block.css";
 
+const LOOKUP_MAP = {
+  block: "blocks",
+  block_input: "inputs"
+};
 
 /**
  * A Block is a visual element of any kind embedded in a Section. It can be a stat,
@@ -33,7 +37,7 @@ function Block({id, entity}) {
   /* redux */
   const {localeDefault, block} = useSelector(state => ({
     localeDefault: state.cms.status.localeDefault,
-    block: state.cms.profiles.entities.blocks[id]
+    block: state.cms.profiles.entities[LOOKUP_MAP[entity]][id]
   }));
 
   const [stateContent, setStateContent] = useState({});

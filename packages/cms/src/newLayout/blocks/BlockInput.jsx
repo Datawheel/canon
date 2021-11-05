@@ -38,8 +38,8 @@ function BlockInput({id}) {
 
   return (
     <div className="cms-block-input">
-      {inputs.map(block =>
-        <Block key={`block-${block.id}`} entity={ENTITY_TYPES.BLOCK_INPUT} id={block.id}/>
+      {inputs.map(id =>
+        <Block key={`block-${id}`} entity={ENTITY_TYPES.BLOCK_INPUT} id={id}/>
       )}
       <EntityAddButton
         type={ENTITY_ADD_BUTTON_TYPES.SELECT}

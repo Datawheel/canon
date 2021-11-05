@@ -28,7 +28,9 @@ const swapSectionEntity = (profiles, data, accessor) => profiles.map(p =>
 
 const profileSchema = [new schema.Entity("profiles", {
   sections: [new schema.Entity("sections", {
-    blocks: [new schema.Entity("blocks")]
+    blocks: [new schema.Entity("blocks", {
+      inputs: [new schema.Entity("inputs")]
+    })]
   })]
 })];
 
@@ -36,6 +38,7 @@ export default (profiles = {}, action) => {
   switch (action.type) {
     // Profiles
     case "PROFILES_GET":
+      console.log(normalize(action.data, profileSchema));
       return normalize(action.data, profileSchema);
     case "PROFILE_NEW":
       // todo1.0 return better hero section (don't use [0])
@@ -63,9 +66,29 @@ export default (profiles = {}, action) => {
         }).sort((a, b) => a.ordering - b.ordering);
 
     case "BLOCK_NEW":
-      return addSectionEntity(profiles, action.data, "blocks");
+      return {
+        ...profiles,
+        entities: {
+          ...profiles.entities,
+          sections: Object.values(profiles.entities.sections)
+            .map(d => d.id === action.data.section_id ? {...d, blocks: d.blocks.concat([action.data.id])} : d)
+            .reduce((acc, d) => ({...acc, [d.id]: d}), {}),
+          blocks: Object.values(profiles.entities.blocks)
+            .filter(d => d.section_id === action.data.section_id)
+            .map(d => d.ordering > action.data.ordering ? {...d, ordering: d.ordering + 1} : d)
+            .concat(action.data)
+            .reduce((acc, d) => ({...acc, [d.id]: d}), profiles.entities.blocks)
+        }
+      };
+    // todo1.0 add sorting here, like sections
     case "BLOCK_UPDATE":
-      return updateSectionEntity(profiles, action.data, "blocks");
+      return {
+        ...profiles,
+        entities: {
+          ...profiles.entities,
+          blocks: {...profiles.entities.blocks, [action.data.id]: action.data}
+        }
+      };
     case "BLOCK_DELETE":
       return deleteSectionEntity(profiles, action.data, "blocks");
     case "BLOCK_SWAP":
@@ -126,15 +149,33 @@ export default (profiles = {}, action) => {
     // Block inputs
     // todo1.0, make these work
     case "BLOCK_INPUT_NEW":
-      return profiles.map(p => (
-        {...p, sections: p.sections.map(s =>
-          s.id === action.data.section_id ? {...s, blocks: s.blocks.map(b =>
-            b.id === action.data.id ? action.data : b)} : s)}));
+      return {
+        ...profiles,
+        entities: {
+          ...profiles.entities,
+          blocks: Object.values(profiles.entities.blocks)
+            .map(d => d.id === action.data.id ? {...d, inputs: action.data.inputs.map(i => i.id)} : d)
+            .reduce((acc, d) => ({...acc, [d.id]: d}), {}),
+          inputs: {
+            ...profiles.entities.inputs,
+            ...action.data.inputs.reduce((acc, d) => ({...acc, [d.id]: d}), {})
+          }
+        }
+      };
     case "BLOCK_INPUT_DELETE":
-      return profiles.map(p => (
-        {...p, sections: p.sections.map(s => (
-          {...s, blocks: s.blocks.map(b =>
-            b.id === action.data.parent_id ? {...b, inputs: action.data.inputs} : b)}))}));
+      return {
+        ...profiles,
+        entities: {
+          ...profiles.entities,
+          blocks: Object.values(profiles.entities.blocks)
+            .map(d => d.id === action.data.parent_id ? {...d, inputs: action.data.inputs.map(i => i.id)} : d)
+            .reduce((acc, d) => ({...acc, [d.id]: d}), {}),
+          inputs: Object.values(profiles.entities.inputs)
+            .filter(d => d.block_id !== action.data.parent_id)
+            .concat(action.data.inputs)
+            .reduce((acc, d) => ({...acc, [d.id]: d}), {})
+        }
+      };
     case "BLOCK_INPUT_SWAP":
       return profiles.map(p =>
         Object.assign({}, p, {sections: p.sections.map(s =>
