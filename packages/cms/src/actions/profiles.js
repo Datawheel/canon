@@ -4,6 +4,7 @@ import deepClone from "../utils/deepClone";
 import getLocales from "../utils/getLocales";
 import attify from "../utils/attify";
 import groupMeta from "../utils/groupMeta";
+import {REQUEST_STATUS} from "../utils/consts/redux";
 
 const catcher = e => {
   console.log(`Error in profile action: ${e}`);
@@ -175,14 +176,14 @@ export function updateEntity(type, payload) {
     return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/update`, payload)
       .then(resp => {
         if (resp.status === 200) {
-          dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, diffCounter, locales});
+          // dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, diffCounter, locales});
+          return {status: REQUEST_STATUS.SUCCESS};
         }
         else {
-          dispatch({type: `${type.toUpperCase()}_ERROR`, data: {id: payload.id}});
+          // dispatch({type: `${type.toUpperCase()}_ERROR`, data: {id: payload.id}});
+          return {status: REQUEST_STATUS.ERROR, error: resp.status};
         }
-      }).catch(() => {
-        dispatch({type: `${type.toUpperCase()}_ERROR`, data: {id: payload.id}});
-      });
+      }).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
   };
 }
 

@@ -14,6 +14,7 @@ import sanitizeBlockContent from "../../utils/sanitizeBlockContent";
 import {updateEntity} from "../../actions/profiles";
 
 import {ENTITY_TYPES, BLOCK_MAP} from "../../utils/consts/cms";
+import {REQUEST_STATUS} from "../../utils/consts/redux";
 
 import "./Block.css";
 
@@ -43,6 +44,7 @@ function Block({id, entity}) {
   if (!block) return null;
 
   const [stateContent, setStateContent] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const onClick = () => {
     if (entity === ENTITY_TYPES.BLOCK) setIsOpen(true);
@@ -62,7 +64,16 @@ function Block({id, entity}) {
         content
       }]
     };
-    dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload));
+    setLoading(true);
+    dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload)).then(resp => {
+      if (resp.status === REQUEST_STATUS.SUCCESS) {
+        setIsOpen(false);
+      }
+      else {
+        // todo1.0 toast error
+      }
+      setLoading(false);
+    });
   };
 
   const maybeCloseEditorWithoutSaving = () => {
