@@ -40,6 +40,8 @@ function Block({id, entity}) {
     block: state.cms.profiles.entities[LOOKUP_MAP[entity]][id]
   }));
 
+  if (!block) return null;
+
   const [stateContent, setStateContent] = useState({});
 
   const onClick = () => {
@@ -70,6 +72,7 @@ function Block({id, entity}) {
   const onChange = content => {
     setStateContent({...stateContent, ...content});
   };
+
 
   const textEditor = <NewRichTextEditor
     locale={localeDefault}

@@ -29,6 +29,8 @@ function ProfileEditor({id}) {
     profile: state.cms.profiles.entities.profiles[id]
   }));
 
+  if (!profile) return null;
+
   const [sections, setSections] = useState([]);
   // const [isDragging, setIsDragging] = useState(false);
 
@@ -70,6 +72,7 @@ function ProfileEditor({id}) {
 
   if (profile.error) return <div>{profile.error}</div>;
 
+  // todo1.0 - maybe filter this by the sections that exist to avoid draghandle race condition
   const [heroSection, ...restSections] = sections;
 
   return (

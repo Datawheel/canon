@@ -676,6 +676,8 @@ module.exports = function(app) {
     const row = await db.section.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.section.destroy({where: {id: req.query.id}}).catch(catcher);
+
+    /*
     const reqObj = Object.assign({}, sectionReqFull, {where: {profile_id: row.profile_id}, order: [["ordering", "ASC"]]});
     let sections = await db.section.findAll(reqObj).catch(catcher);
     sections = sections.map(section => {
@@ -684,7 +686,14 @@ module.exports = function(app) {
       section.types = Object.values(SECTION_TYPES);
       return section;
     });
-    return res.json({id: row.id, parent_id: row.profile_id, sections});
+    return res.json({id: row.id, parent_id: row.profile_id, sections});*/
+    let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
+    profiles = sortProfileTree(db, profiles);
+    profiles.forEach(profile => {
+      profile.sections = profile.sections.map(section => cleanSection(section));
+      return profile;
+    });
+    return res.json({profiles});
   });
 
 };

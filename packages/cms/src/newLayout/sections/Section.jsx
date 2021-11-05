@@ -26,6 +26,8 @@ function Section({id, isDragging, dragHandleProps}) {
     section: state.cms.profiles.entities.sections[id]
   }));
 
+  if (!section) return null;
+
   const addBlock = type => {
     const payload = {
       type,

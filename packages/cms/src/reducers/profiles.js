@@ -106,18 +106,19 @@ export default (profiles = {}, action) => {
           return match ? Object.assign({}, s, {ordering: match.ordering}) : s;
         }).sort((a, b) => a.ordering - b.ordering)}));
     case "SECTION_NEW":
+      const newSortedSections = Object.values(profiles.entities.sections)
+        .filter(d => d.profile_id === action.data.profile_id)
+        .map(d => d.ordering >= action.data.ordering ? {...d, ordering: d.ordering + 1} : d)
+        .concat(action.data)
+        .sort(sorter);
       return {
         ...profiles,
         entities: {
           ...profiles.entities,
           profiles: Object.values(profiles.entities.profiles)
-            .map(d => d.id === action.data.profile_id ? {...d, sections: d.sections.concat([action.data.id])} : d)
+            .map(d => d.id === action.data.profile_id ? {...d, sections: newSortedSections.map(s => s.id)} : d)
             .reduce((acc, d) => ({...acc, [d.id]: d}), {}),
-          sections: Object.values(profiles.entities.sections)
-            .filter(d => d.profile_id === action.data.profile_id)
-            .map(d => d.ordering > action.data.ordering ? {...d, ordering: d.ordering + 1} : d)
-            .concat(action.data)
-            .reduce((acc, d) => ({...acc, [d.id]: d}), profiles.entities.sections)
+          sections: newSortedSections.reduce((acc, d) => ({...acc, [d.id]: d}), profiles.entities.sections)
         }
       };
     case "SECTION_DUPLICATE":
@@ -126,7 +127,7 @@ export default (profiles = {}, action) => {
         .concat([action.data])
         .sort(sorter)}) : p);
     case "SECTION_UPDATE":
-      const sortedSections = Object.values(profiles.entities.sections)
+      const updateSortedSections = Object.values(profiles.entities.sections)
         .filter(d => d.profile_id === action.data.entity.profile_id)
         .map(d => d.id === action.data.id ? {...d, ...action.data.entity} : {...d, ordering: action.data.siblings[d.id]})
         .sort(sorter);
@@ -135,17 +136,16 @@ export default (profiles = {}, action) => {
         entities: {
           ...profiles.entities,
           profiles: Object.values(profiles.entities.profiles)
-            .map(d => d.id === action.data.entity.profile_id ? {...d, sections: sortedSections.map(d => d.id)} : d)
+            .map(d => d.id === action.data.entity.profile_id ? {...d, sections: updateSortedSections.map(s => s.id)} : d)
             .reduce((acc, d) => ({...acc, [d.id]: d}), {}),
-          sections: sortedSections
+          sections: updateSortedSections
             .reduce((acc, d) => ({...acc, [d.id]: d}), profiles.entities.sections)
         }
       };
     case "SECTION_TRANSLATE":
       return profiles.map(p => Object.assign({}, p, {sections: p.sections.map(s => s.id === action.data.id ? Object.assign({}, s, {...action.data}) : s)}));
     case "SECTION_DELETE":
-      return profiles.map(p => p.id === action.data.parent_id ? Object.assign({}, p, {sections: action.data.sections}) : p);
-
+      return normalize(action.data.profiles, profileSchema);
     // Block inputs
     // todo1.0, make these work
     case "BLOCK_INPUT_NEW":
