@@ -12,6 +12,7 @@ export default class AceWrapper extends Component {
   }
 
   componentDidUpdate() {
+
     if (this.editor) {
       clearTimeout(this.resize);
       this.resize = setTimeout(editor => editor.resize(), 400, this.editor.editor);
@@ -31,9 +32,9 @@ export default class AceWrapper extends Component {
 
       const options = {
         fontSize: "14px",
-        useWorker: "false"
-        // enableBasicAutocompletion: true,
-        // enableLiveAutocompletion: true
+        useWorker: "false",
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: true
       };
 
       const editorProps = {
@@ -49,7 +50,7 @@ export default class AceWrapper extends Component {
             active={isFullscreen}
             icon={isFullscreen ? "minimize" : "fullscreen"}
             onClick={() => this.setState({isFullscreen: !isFullscreen})}
-            key="b"
+            key="fullscreen-button"
           >
             Toggle fullscreen
           </Button>
@@ -63,7 +64,7 @@ export default class AceWrapper extends Component {
             mode="javascript"
             setOptions={options}
             editorProps={editorProps}
-            key="e"
+            key="ace-editor"
             {...this.props}
           />
         </div>

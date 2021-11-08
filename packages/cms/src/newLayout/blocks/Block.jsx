@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Button, Dialog} from "@blueprintjs/core";
 
@@ -19,7 +19,6 @@ import {REQUEST_STATUS} from "../../utils/consts/redux";
 
 import "./Block.css";
 
-
 const LOOKUP_MAP = {
   block: "blocks",
   block_input: "inputs"
@@ -28,7 +27,7 @@ const LOOKUP_MAP = {
 /**
  * A Block is a visual element of any kind embedded in a Section. It can be a stat,
  * selector, or anything listed in BLOCK_TYPES.
- * block - the data for this block
+ * id - the id for this block
  * entity - BLOCK (clickable, editable) or BLOCK_INPUT (uneditable - feeds another block)
  */
 function Block({id, entity}) {
@@ -98,7 +97,8 @@ function Block({id, entity}) {
     className="cms-block-output-ace"
     // ref={comp => this.editor = comp}
     onChange={onChangeCode}
-    // value={data.logic}
+    // todo1.0 how to handle/scaffold missing content here?
+    defaultValue={block && block.contentByLocale ? block.contentByLocale[localeDefault].content.logic : ""}
     // {...this.props}
   />;
 

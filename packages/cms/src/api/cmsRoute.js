@@ -367,7 +367,15 @@ module.exports = function(app) {
       await db[ref].update(req.body, {where: {id}}).catch(catcher);
       if (contentTables.includes(ref) && req.body.content) {
         for (const content of req.body.content) {
-          await db[`${ref}_content`].upsert(content, {where: {id, locale: content.locale}}).catch(catcher);
+          // todo1.0. it is bad to do this get/put, but we need to merge the jsonb. can this be done at the db level?
+          // await db[`${ref}_content`].upsert(content, {where: {id, locale: content.locale}}).catch(catcher);
+          const contentRow = await db[`${ref}_content`].findOne({where: {id, locale: content.locale}}).catch(catcher);
+          if (contentRow) {
+            await db[`${ref}_content`].update({content: {...contentRow.content, ...content.content}}, {where: {id, locale: content.locale}}).catch(catcher);
+          }
+          else {
+            await db[`${ref}_content`].create(content).catch(catcher);
+          }
         }
       }
       // Formatters are a special update case - return the whole list on update (necessary for recompiling them)

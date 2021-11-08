@@ -4,7 +4,7 @@ import {Button, Intent} from "@blueprintjs/core";
 
 import BlockPreview from "./BlockPreview";
 
-import {BLOCK_MAP, ENTITY_TYPES} from "../../utils/consts/cms";
+import {ENTITY_TYPES} from "../../utils/consts/cms";
 
 import "./BlockOutput.css";
 import {updateEntity} from "../../actions/profiles";
@@ -22,11 +22,12 @@ function BlockOutput({id, editors}) {
   const dispatch = useDispatch();
 
   /* redux */
-  const {localeDefault} = useSelector(state => ({
-    localeDefault: state.cms.status.localeDefault
+  const {block, localeDefault} = useSelector(state => ({
+    localeDefault: state.cms.status.localeDefault,
+    block: state.cms.profiles.entities.blocks[id]
   }));
 
-  const [mode, setMode] = useState(MODES.TEXT);
+  const [mode, setMode] = useState(block.contentByLocale[localeDefault].content.logicEnabled ? MODES.CODE : MODES.TEXT);
 
   const changeMode = mode => {
     const payload = {
