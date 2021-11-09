@@ -8,7 +8,7 @@ const {translateProfile, translateSection, fetchUpsertHelpers} = require("../uti
 // todo1.0 - unite this with getSectionTypes somehow
 const {PROFILE_FIELDS, SECTION_TYPES} = require("../utils/consts/cms");
 
-const defaultLocale = process.env.CANON_LANGUAGE_DEFAULT || "en";
+const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 const cmsCheck = () => process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
@@ -212,11 +212,11 @@ module.exports = function(app) {
       ]
     }).catch(catcher);
     meta = meta.map(m => m.toJSON());
-    const locale = req.query.locale ? req.query.locale : defaultLocale;
+    const locale = req.query.locale ? req.query.locale : localeDefault;
     meta.forEach(m => {
       if (m.contentByLocale instanceof Array) {
         m.contentByLocale = m.contentByLocale.find(c => c.locale === locale) ||
-          m.contentByLocale.find(c => c.locale === defaultLocale) ||
+          m.contentByLocale.find(c => c.locale === localeDefault) ||
            m[0];
       }
     });
@@ -249,7 +249,7 @@ module.exports = function(app) {
       const newObj = await db[ref].create(req.body).catch(catcher);
       // For a certain subset of translated tables, we need to also insert a new, corresponding english content row.
       if (contentTables.includes(ref)) {
-        const payload = Object.assign({}, req.body, {id: newObj.id, locale: defaultLocale});
+        const payload = Object.assign({}, req.body, {id: newObj.id, locale: localeDefault});
         await db[`${ref}_content`].create(payload).catch(catcher);
         let reqObj;
         if (ref === "section") {
@@ -291,9 +291,9 @@ module.exports = function(app) {
     const ordering = await findMaxOrdering("profile").catch(catcher);
     const profileFields = Object.values(PROFILE_FIELDS).reduce((acc, d) => req.body[d] ? {...acc, [d]: req.body[d]} : acc, {});
     const profile = await db.profile.create({ordering}).catch(catcher);
-    await db.profile_content.create({id: profile.id, locale: defaultLocale, content: profileFields}).catch(catcher);
+    await db.profile_content.create({id: profile.id, locale: localeDefault, content: profileFields}).catch(catcher);
     const section = await db.section.create({ordering: 0, type: SECTION_TYPES.HERO, profile_id: profile.id});
-    await db.section_content.create({id: section.id, locale: defaultLocale}).catch(catcher);
+    await db.section_content.create({id: section.id, locale: localeDefault}).catch(catcher);
     const reqObj = Object.assign({}, profileReqFull, {where: {id: profile.id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());
@@ -396,103 +396,6 @@ module.exports = function(app) {
         }
       }
     });
-  });
-
-  /* SWAPS */
-  /**
-   * To handle swaps, this list contains objects with two properties. "elements" refers to the tables to be modified,
-   * and "parent" refers to the foreign key that need be referenced in the associated where clause.
-   */
-  const swapList = [
-    {elements: ["profile"], parent: null},
-    {elements: ["block"], parent: "section_id"}
-  ];
-  swapList.forEach(list => {
-    list.elements.forEach(ref => {
-      app.post(`/api/cms/${ref}/swap`, isEnabled, async(req, res) => {
-        const {id} = req.body;
-        const original = await db[ref].findOne({where: {id}}).catch(catcher);
-        const otherWhere = {ordering: original.ordering + 1};
-        if (list.parent) otherWhere[list.parent] = original[list.parent];
-        const other = await db[ref].findOne({where: otherWhere}).catch(catcher);
-        if (!original || !other) return res.json([]);
-        const originalTarget = other.ordering;
-        const otherTarget = original.ordering;
-        const newOriginal = await db[ref].update({ordering: originalTarget}, {where: {id}, returning: true, plain: true}).catch(catcher);
-        const newOther = await db[ref].update({ordering: otherTarget}, {where: {id: other.id}, returning: true, plain: true}).catch(catcher);
-        return res.json([newOriginal[1], newOther[1]]);
-      });
-    });
-  });
-
-  /* CUSTOM SWAPS */
-
-  const sectionSwapList = [
-    {ref: "section", parent: "profile_id"}
-  ];
-  sectionSwapList.forEach(swap => {
-    app.post(`/api/cms/${swap.ref}/swap`, isEnabled, async(req, res) => {
-      // Sections can be Groupings, which requires a more complex swap that brings it child sections along with it
-      const {id} = req.body;
-      const original = await db[swap.ref].findOne({where: {id}}).catch(catcher);
-      let sections = await db[swap.ref].findAll({where: {[swap.parent]: original[swap.parent]}, order: [["ordering", "ASC"]]}).catch(catcher);
-      sections = sections.map(s => s.toJSON());
-      // Create a hierarchical array that respects groupings that looks like: [[G1, S1, S2], [G2, S3, S4, S5]] for easy swapping
-      const sectionsGrouped = [];
-      let hitGrouping = false;
-      sections.forEach(section => {
-        if (!hitGrouping || section.type === "Grouping") {
-          sectionsGrouped.push([section]);
-          if (section.type === "Grouping") hitGrouping = true;
-        }
-        else {
-          sectionsGrouped[sectionsGrouped.length - 1].push(section);
-        }
-      });
-      // Sections that come before the Groupings start are technically in groups of their own.
-      let isGroupLeader = false;
-      sectionsGrouped.forEach(group => {
-        if (group.map(d => d.id).includes(original.id) && group[0].id === original.id) isGroupLeader = true;
-      });
-      let updatedSections = [];
-      if (isGroupLeader) {
-        const ogi = sectionsGrouped.findIndex(group => group[0].id === id);
-        const ngi = ogi + 1;
-        // https://stackoverflow.com/a/872317
-        [sectionsGrouped[ogi], sectionsGrouped[ngi]] = [sectionsGrouped[ngi], sectionsGrouped[ogi]];
-        updatedSections = sectionsGrouped
-          .flat()
-          .map((section, i) => ({...section, ordering: i}));
-      }
-      else {
-        const oi = original.ordering;
-        const ni = original.ordering + 1;
-        [sections[oi], sections[ni]] = [sections[ni], sections[oi]];
-        updatedSections = sections.map((section, i) => ({...section, ordering: i}));
-      }
-      for (const section of updatedSections) {
-        await db[swap.ref].update({ordering: section.ordering}, {where: {id: section.id}});
-      }
-      return res.json(updatedSections.map(d => ({id: d.id, ordering: d.ordering})));
-    });
-  });
-
-  app.post("/api/cms/block_input/swap", isEnabled, async(req, res) => {
-    const {id} = req.body;
-    const original = await db.block_input.findOne({where: {id}}).catch(catcher);
-    const otherWhere = {ordering: original.ordering + 1, block_id: original.block_id};
-    const other = await db.block_input.findOne({where: otherWhere}).catch(catcher);
-    await db.block_input.update({ordering: sequelize.literal("ordering + 1")}, {where: {id}}).catch(catcher);
-    await db.block_input.update({ordering: sequelize.literal("ordering - 1")}, {where: {id: other.id}}).catch(catcher);
-    const reqObj = {where: {id: original.block_id}, include: [{association: "inputs"}]};
-    let block = await db.block.findOne(reqObj).catch(catcher);
-    let rows = [];
-    if (block) {
-      block = block.toJSON();
-      block.inputs = bubbleSortInputs(db.block_input, block.inputs);
-      rows = block.inputs;
-    }
-    return res.json({parent_id: original.block_id, inputs: rows});
   });
 
   /* DUPLICATES */

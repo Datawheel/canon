@@ -1,3 +1,7 @@
+/**
+ * Top-level entity types - every "entity" in the CMS is one of these,
+ * and has CRUD operations accordingly.
+ */
 const ENTITY_TYPES = {
   PROFILE: "profile",
   SECTION: "section",
@@ -5,6 +9,9 @@ const ENTITY_TYPES = {
   BLOCK_INPUT: "block_input"
 };
 
+/**
+ * For each ENTITY_TYPE, store a pretty name for window titles, etc.
+ */
 const ENTITY_PRETTY_NAMES = {
   profile: "Profile",
   section: "Section",
@@ -12,10 +19,24 @@ const ENTITY_PRETTY_NAMES = {
   block_input: "Input"
 };
 
+/**
+ * Profiles and stories are nearly identical, but stories have a
+ * publish date, and support for footnotes / authors
+ */
 const PROFILE_TYPES = {
   PROFILE: "profile",
   STORY: "story"
 };
+
+/**
+ * NOTE ON FIELDS, MAPS, AND SETTINGS
+ * Many elements of the CMS are stored as JSON blobs in the database, to allow
+ * easy addition of new or custom keys without a database migration. However, the
+ * standard keys for any given entity or settings element are contained here.
+ * FIELDS - all available fields for a given entity, regardless of type
+ * MAP - what subset of those fields belong to which type of that entity
+ * SETTINGS - a list of settings keys expected in the settings object
+ */
 
 const PROFILE_FIELDS = {
   TITLE: "title",
@@ -120,10 +141,10 @@ const BLOCK_MAP = {
     BLOCK_FIELDS.SELECTOR_TYPE
   ],
   [BLOCK_TYPES.STAT]: [
-    BLOCK_FIELDS.SUBTITLE,
     BLOCK_FIELDS.TITLE,
-    BLOCK_FIELDS.TOOLTIP,
-    BLOCK_FIELDS.VALUE
+    BLOCK_FIELDS.SUBTITLE,
+    BLOCK_FIELDS.VALUE,
+    BLOCK_FIELDS.TOOLTIP
   ],
   [BLOCK_TYPES.SUBTITLE]: [
     BLOCK_FIELDS.SUBTITLE

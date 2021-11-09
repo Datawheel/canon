@@ -3,30 +3,39 @@
  * Along with some helper arrays that feed into cmsRoute to help dynamically define CRUD actions.
  */
 
-const profileReqFull = {
+const blockReqFull = {
   include: [
-    {association: "meta", separate: true},
     {association: "contentByLocale", separate: true},
-    {
-      association: "sections", separate: true,
-      include: [
-        {association: "contentByLocale", separate: true},
-        {association: "blocks", include: [
-          {association: "contentByLocale", separate: true},
-          {association: "inputs"}
-        ], separate: true}
-      ]
-    }
+    {association: "inputs"}
   ]
 };
 
 const sectionReqFull = {
   include: [
     {association: "contentByLocale", separate: true},
-    {association: "blocks", include: [
-      {association: "contentByLocale", separate: true},
-      {association: "inputs"}
-    ], separate: true}
+    {association: "blocks", separate: true,
+      ...blockReqFull
+    }
+  ]
+};
+
+const profileReqFull = {
+  include: [
+    {association: "meta", separate: true},
+    {association: "contentByLocale", separate: true},
+    {
+      association: "sections", separate: true,
+      ...sectionReqFull
+    }
+  ]
+};
+
+const blockReqWithInputs = {
+  include: [
+    {association: "contentByLocale", separate: true},
+    {association: "inputs", include: [
+      {association: "contentByLocale", separate: true}
+    ]}
   ]
 };
 
@@ -62,4 +71,4 @@ const parentOrderingTables = {
   section: "profile_id"
 };
 
-module.exports = {profileReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables};
+module.exports = {profileReqFull, sectionReqFull, blockReqFull, blockReqWithInputs, cmsTables, contentTables, parentOrderingTables};

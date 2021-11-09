@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {Button, Intent} from "@blueprintjs/core";
 
 import VariableList from "./VariableList";
@@ -14,6 +14,12 @@ const MODES = {
   SETTINGS: "settings"
 };
 
+const COMPONENTS = {
+  [MODES.INPUT]: BlockInput,
+  [MODES.OUTPUT]: BlockOutput,
+  [MODES.SETTINGS]: BlockSettings
+};
+
 /**
  *
  */
@@ -22,13 +28,11 @@ function BlockEditor({id, editors}) {
   /* state */
   const [mode, setMode] = useState(MODES.INPUT);
 
-  const COMPONENTS = {
-    [MODES.INPUT]: BlockInput,
-    [MODES.OUTPUT]: BlockOutput,
-    [MODES.SETTINGS]: BlockSettings
-  };
-
   const BlockPanel = COMPONENTS[mode];
+
+  useEffect(() => {
+    console.log("mount");
+  }, []);
 
   return (
     <div className="cms-block-editor">
@@ -38,7 +42,7 @@ function BlockEditor({id, editors}) {
         <Button onClick={() => setMode(MODES.SETTINGS)}intent={mode === MODES.SETTINGS ? Intent.PRIMARY : Intent.NONE}icon="cog"></Button>
       </div>
       <div className="cms-block-editor-content">
-        <VariableList />
+        <VariableList id={id}/>
         <BlockPanel id={id} editors={editors}/>
       </div>
 
