@@ -1,7 +1,9 @@
+/* react */
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Button, Dialog} from "@blueprintjs/core";
 
+/* components */
 import SettingsCog from "../SettingsCog";
 import CogMenu from "../components/CogMenu";
 import BlockEditor from "../BlockEditor";
@@ -9,14 +11,18 @@ import BlockEditorFooter from "../components/BlockEditorFooter";
 import NewRichTextEditor from "../editors/NewRichTextEditor";
 import AceWrapper from "../../components/editors/AceWrapper";
 
+/* utils */
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 import sanitizeBlockContent from "../../utils/sanitizeBlockContent";
 
+/* redux */
 import {updateEntity} from "../../actions/profiles";
 
+/* enums */
 import {ENTITY_TYPES, BLOCK_MAP} from "../../utils/consts/cms";
 import {REQUEST_STATUS} from "../../utils/consts/redux";
 
+/* css */
 import "./Block.css";
 
 const LOOKUP_MAP = {

@@ -12,9 +12,5 @@
   & li {
     list-style: none;
     font-size: 13px;
-    cursor: pointer;
-  }
-  & li:hover {
-    background-color: lightblue;
   }
 }

@@ -20,10 +20,11 @@ import {
 // import Textarea from "../fields/components/Textarea";
 import DraftEntry from "./components/DraftEntry";
 import "./DraftWrapper.css";
-// import "draft-js-mention-plugin/lib/plugin.css";
+import "draft-js-mention-plugin/lib/plugin.css";
 import "draft-js-static-toolbar-plugin/lib/plugin.css";
 
 class DraftWrapper extends Component {
+
   constructor(props) {
     super(props);
 
@@ -88,11 +89,11 @@ class DraftWrapper extends Component {
       editorState = EditorState.createWithContent(ContentState.createFromBlockArray(blocks.contentBlocks, blocks.entityMap));
     }
 
-    const {_genStatus, _matStatus, ...variables} = this.props.variables; //eslint-disable-line
+    const {variables} = this.props;
 
     const suggestions = Object.keys(variables).map(k => ({
       name: `{{${k}}}`,
-      value: this.props.variables[k]
+      value: variables[k]
     }));
 
     const suggestionsFormatter = this.props.formatters.map(f => ({name: f.name}));
@@ -158,9 +159,9 @@ class DraftWrapper extends Component {
     const MentionSuggestionsFormatter = this.mentionPluginFormatter.MentionSuggestions;
     const MentionSuggestionsSelector = this.mentionPluginSelector.MentionSuggestions;
     const plugins = [
-      this.mentionPlugin, 
-      this.mentionPluginFormatter, 
-      this.mentionPluginSelector, 
+      this.mentionPlugin,
+      this.mentionPluginFormatter,
+      this.mentionPluginSelector,
       this.staticToolbarPlugin,
       this.customLinkifyPlugin
     ];
@@ -194,7 +195,7 @@ class DraftWrapper extends Component {
           ref={c => this.editor = c}
           key="draft-editor"
         />
-        
+
 
         {/* variables dropdown (generators, materializers) */}
         <span className="cms-draft-entry cms-variable-draft-entry">
