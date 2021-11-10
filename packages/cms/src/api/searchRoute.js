@@ -1,13 +1,13 @@
 const sequelize = require("sequelize");
 const yn = require("yn");
 const d3Array = require("d3-array");
-const { unique } = require("d3plus-common");
+const {unique} = require("d3plus-common");
 const jwt = require("jsonwebtoken");
 const groupMeta = require("../utils/groupMeta");
 const multer = require("multer");
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({storage: multer.memoryStorage()});
 
-const { CANON_CMS_CUBES, CANON_CMS_MINIMUM_ROLE, OLAP_PROXY_SECRET } =
+const {CANON_CMS_CUBES, CANON_CMS_MINIMUM_ROLE, OLAP_PROXY_SECRET} =
   process.env;
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
@@ -15,7 +15,7 @@ let Base58, flickr, sharp, storage;
 if (process.env.FLICKR_API_KEY) {
   const Flickr = require("flickr-sdk");
   flickr = new Flickr(process.env.FLICKR_API_KEY);
-  const { Storage } = require("@google-cloud/storage");
+  const {Storage} = require("@google-cloud/storage");
   storage = new Storage();
   sharp = require("sharp");
   Base58 = require("base58");
@@ -44,31 +44,26 @@ const thumbWidth = Number(process.env.CANON_CONST_IMAGE_THUMB_WIDTH) || 400;
 let deepsearchAPI = process.env.CANON_CMS_DEEPSEARCH_API;
 if (deepsearchAPI) deepsearchAPI = deepsearchAPI.replace(/\/$/, "");
 const f = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
-const cartesian = (a, b, ...c) => (b ? cartesian(f(a, b), ...c) : a);
+const cartesian = (a, b, ...c) => b ? cartesian(f(a, b), ...c) : a;
 
 let unaccentExtensionInstalled;
 
-<<<<<<< HEAD
-const imageIncludeNoBlobs = [{association: "image", attributes: {exclude: ["thumb", "splash"]}, include: [{association: "contentByLocale"}]}, {association: "contentByLocale"}];
-const imageIncludeThumbOnly = [{association: "image", attributes: {exclude: ["splash"]}, include: [{association: "contentByLocale"}]}, {association: "contentByLocale"}];
-=======
 const imageIncludeNoBlobs = [
   {
     association: "image",
-    attributes: { exclude: ["thumb", "splash"] },
-    include: [{ association: "content" }]
+    attributes: {exclude: ["thumb", "splash"]},
+    include: [{association: "content"}]
   },
-  { association: "content" }
+  {association: "content"}
 ];
 const imageIncludeThumbOnly = [
   {
     association: "image",
-    attributes: { exclude: ["splash"] },
-    include: [{ association: "content" }]
+    attributes: {exclude: ["splash"]},
+    include: [{association: "content"}]
   },
-  { association: "content" }
+  {association: "content"}
 ];
->>>>>>> 4e68c8d75ae3e1795999d348d094f21e0af9e0a1
 
 // The visibility or invisibility of certain profiles or variants determines which "dimension cube pairs" should be considered valid.
 // When making a query into canon_cms_search, use the de-duplicated, valid, and visible dim/cubes from this array to restrict the results.
@@ -78,7 +73,7 @@ const fetchDimCubes = async db => {
   let allProfiles = await db.profile.findAll().catch(catcher);
   allProfiles = allProfiles.map(d => d.toJSON());
   const profileVisibilityHash = allProfiles.reduce(
-    (acc, d) => ({ ...acc, [d.id]: d.visible }),
+    (acc, d) => ({...acc, [d.id]: d.visible}),
     {}
   );
   const allDimCubes = [];
@@ -113,20 +108,20 @@ const rowToResult = (row, locale) => {
  * Given a db connection, image id, and image buffer, attempt to upload the image to google cloud.
  * If the upload to cloud fails, store buffer data in psql row
  */
-const uploadImage = async (db, id, imageData) => {
+const uploadImage = async(db, id, imageData) => {
   const configs = [
-    { type: "splash", res: splashWidth },
-    { type: "thumb", res: thumbWidth }
+    {type: "splash", res: splashWidth},
+    {type: "thumb", res: thumbWidth}
   ];
   for (const config of configs) {
     const buffer = await sharp(imageData)
       .resize(config.res)
       .toFormat("jpeg")
-      .jpeg({ force: true })
+      .jpeg({force: true})
       .toBuffer()
       .catch(catcher);
     const file = `${config.type}/${id}.jpg`;
-    const options = { metadata: { contentType: "image/jpeg" } };
+    const options = {metadata: {contentType: "image/jpeg"}};
     // Attempt to upload to google bucket. If it fails, fall back to psql blob
     const writeResult = await storage
       .bucket(bucket)
@@ -142,23 +137,25 @@ const uploadImage = async (db, id, imageData) => {
       });
     if (writeResult === false) {
       await db.image
-        .update({ [config.type]: buffer }, { where: { id } })
+        .update({[config.type]: buffer}, {where: {id}})
         .catch(catcher);
-    } else {
+    }
+    else {
       await storage.bucket(bucket).file(file).makePublic().catch(catcher);
     }
   }
 };
 
-module.exports = function (app) {
-  const { db } = app.settings;
+module.exports = function(app) {
+  const {db} = app.settings;
   const dbQuery = db.search.sequelize.query.bind(db.search.sequelize);
 
-  app.get("/api/isImageEnabled", async (req, res) => {
-    const payload = { imageEnabled: Boolean(flickr) };
+  app.get("/api/isImageEnabled", async(req, res) => {
+    const payload = {imageEnabled: Boolean(flickr)};
     if (!bucket) {
       payload.cloudEnabled = false;
-    } else {
+    }
+    else {
       const bucketRef = await storage
         .bucket(bucket)
         .getMetadata()
@@ -168,14 +165,14 @@ module.exports = function (app) {
     return res.json(payload);
   });
 
-  app.post("/api/image/cloudfix", async (req, res) => {
-    if (!flickr) return res.json({ error: "Flickr API Key not configured" });
-    const { id } = req.body;
-    const imageRow = await db.image.findOne({ where: { id } }).catch(catcher);
-    if (!imageRow) return res.json({ error: "No Image Found" });
+  app.post("/api/image/cloudfix", async(req, res) => {
+    if (!flickr) return res.json({error: "Flickr API Key not configured"});
+    const {id} = req.body;
+    const imageRow = await db.image.findOne({where: {id}}).catch(catcher);
+    if (!imageRow) return res.json({error: "No Image Found"});
     for (const type of ["thumb", "splash"]) {
       const file = `${type}/${imageRow.id}.jpg`;
-      const options = { metadata: { contentType: "image/jpeg" } };
+      const options = {metadata: {contentType: "image/jpeg"}};
       const writeResult = await storage
         .bucket(bucket)
         .file(file)
@@ -187,10 +184,11 @@ module.exports = function (app) {
           return false;
         });
       if (writeResult === false) {
-        return res.json({ error: "Image upload Error" });
-      } else {
+        return res.json({error: "Image upload Error"});
+      }
+      else {
         await db.image
-          .update({ [type]: null }, { where: { id } })
+          .update({[type]: null}, {where: {id}})
           .catch(catcher);
         await storage.bucket(bucket).file(file).makePublic().catch(catcher);
       }
@@ -198,7 +196,7 @@ module.exports = function (app) {
     // return to the client all searchrows that were affected by this image update
     const newRows = await db.search
       .findAll({
-        where: { imageId: imageRow.id },
+        where: {imageId: imageRow.id},
         include: imageIncludeThumbOnly
       })
       .catch(catcher);
@@ -208,32 +206,33 @@ module.exports = function (app) {
     return res.json(newRows);
   });
 
-  app.post("/api/image/upload", upload.single("imgFile"), async (req, res) => {
+  app.post("/api/image/upload", upload.single("imgFile"), async(req, res) => {
     if (!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-      return res.json({ error: "File must be an image!" });
+      return res.json({error: "File must be an image!"});
     }
-    const { contentId } = req.body;
+    const {contentId} = req.body;
     const imageData = req.file.buffer;
     const searchRow = await db.search
-      .findOne({ where: { contentId } })
+      .findOne({where: {contentId}})
       .catch(catcher);
     if (!searchRow.imageId) {
-      const payload = { author: null, license: null };
+      const payload = {author: null, license: null};
       const newImage = await db.image.create(payload).catch(catcher);
       await db.image
         .update(
-          { url: `custom-image-${newImage.id}` },
-          { where: { id: newImage.id } }
+          {url: `custom-image-${newImage.id}`},
+          {where: {id: newImage.id}}
         )
         .catch(catcher);
       await db.search
-        .update({ imageId: newImage.id }, { where: { contentId } })
+        .update({imageId: newImage.id}, {where: {contentId}})
         .catch(catcher);
 
       await uploadImage(db, newImage.id, imageData).catch(catcher);
-    } else {
+    }
+    else {
       const imageRow = await db.image
-        .findOne({ where: { id: searchRow.imageId } })
+        .findOne({where: {id: searchRow.imageId}})
         .catch(catcher);
       if (imageRow) {
         await uploadImage(db, imageRow.id, imageData).catch(catcher);
@@ -242,41 +241,43 @@ module.exports = function (app) {
     return res.json("OK");
   });
 
-  app.post("/api/image/update", async (req, res) => {
-    if (!flickr) return res.json({ error: "Flickr API Key not configured" });
-    const { contentId } = req.body;
-    let { id, shortid } = req.body;
+  app.post("/api/image/update", async(req, res) => {
+    if (!flickr) return res.json({error: "Flickr API Key not configured"});
+    const {contentId} = req.body;
+    let {id, shortid} = req.body;
     if (id && !shortid) shortid = Base58.int_to_base58(id);
     if (!id && shortid) id = Base58.base58_to_int(shortid);
     const url = `https://flic.kr/p/${shortid}`;
     const info = await flickr.photos
-      .getInfo({ photo_id: id })
+      .getInfo({photo_id: id})
       .then(resp => resp.body)
       .catch(catcher);
     if (info) {
       if (validLicenses.includes(info.photo.license)) {
         const searchRow = await db.search
-          .findOne({ where: { contentId } })
+          .findOne({where: {contentId}})
           .catch(catcher);
         const imageRow = await db.image
-          .findOne({ where: { url } })
+          .findOne({where: {url}})
           .catch(catcher);
         if (searchRow) {
           if (imageRow) {
             await db.search
-              .update({ imageId: imageRow.id }, { where: { contentId } })
+              .update({imageId: imageRow.id}, {where: {contentId}})
               .catch(catcher);
-          } else {
+          }
+          else {
             if (!bucket) {
               if (verbose) {
                 console.error(
                   "CANON_CONST_STORAGE_BUCKET not configured, failed to update image"
                 );
               }
-            } else {
+            }
+            else {
               // To add a new image, first fetch the image data
               const sizeObj = await flickr.photos
-                .getSizes({ photo_id: id })
+                .getSizes({photo_id: id})
                 .then(resp => resp.body)
                 .catch(catcher);
               let image = sizeObj.sizes.size.find(
@@ -298,7 +299,7 @@ module.exports = function (app) {
                 });
               }
               const imageData = await axios
-                .get(image.source, { responseType: "arraybuffer" })
+                .get(image.source, {responseType: "arraybuffer"})
                 .then(d => d.data)
                 .catch(catcher);
 
@@ -310,7 +311,7 @@ module.exports = function (app) {
               };
               const newImage = await db.image.create(payload).catch(catcher);
               await db.search
-                .update({ imageId: newImage.id }, { where: { contentId } })
+                .update({imageId: newImage.id}, {where: {contentId}})
                 .catch(catcher);
 
               // Finally, upload splash and thumb version to google cloud, or psql as a fallback
@@ -319,7 +320,7 @@ module.exports = function (app) {
           }
           const newRow = await db.search
             .findOne({
-              where: { contentId },
+              where: {contentId},
               include: imageIncludeThumbOnly
             })
             .catch(catcher);
@@ -327,18 +328,21 @@ module.exports = function (app) {
             newRow.image.thumb = Boolean(newRow.image.thumb);
           }
           return res.json(newRow);
-        } else {
+        }
+        else {
           return res.json("Error updating Search");
         }
-      } else {
-        return res.json({ error: "Bad License" });
       }
-    } else {
-      return res.json({ error: "Malformed URL" });
+      else {
+        return res.json({error: "Bad License"});
+      }
+    }
+    else {
+      return res.json({error: "Malformed URL"});
     }
   });
 
-  app.get("/api/cubeData", async (req, res) => {
+  app.get("/api/cubeData", async(req, res) => {
     // Older version of CANON_CMS_CUBES had a full path to the cube (path.com/cubes)
     // CANON_CMS_CUBES was changed to be root only, so fix it here so we can handle
     // both the new style and the old style
@@ -355,14 +359,14 @@ module.exports = function (app) {
 
     const config = {};
     if (OLAP_PROXY_SECRET) {
-      const jwtPayload = { sub: "server", status: "valid" };
+      const jwtPayload = {sub: "server", status: "valid"};
       if (CANON_CMS_MINIMUM_ROLE) {
         jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
       }
       const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {
         expiresIn: "5y"
       });
-      config.headers = { "x-tesseract-jwt-token": apiToken };
+      config.headers = {"x-tesseract-jwt-token": apiToken};
     }
 
     const resp = await axios
@@ -406,9 +410,9 @@ module.exports = function (app) {
     return res.json(dimensions.sort(s));
   });
 
-  app.get("/api/flickr/search", async (req, res) => {
-    if (!flickr) return res.json({ error: "Flickr API Key not configured" });
-    const { q } = req.query;
+  app.get("/api/flickr/search", async(req, res) => {
+    if (!flickr) return res.json({error: "Flickr API Key not configured"});
+    const {q} = req.query;
     const result = await flickr.photos
       .search({
         text: q,
@@ -419,7 +423,7 @@ module.exports = function (app) {
       .catch(catcher);
     const photos = result.photos.photo;
     const fetches = photos.reduce(
-      (acc, d) => acc.concat(flickr.photos.getSizes({ photo_id: d.id })),
+      (acc, d) => acc.concat(flickr.photos.getSizes({photo_id: d.id})),
       []
     );
     const results = await Promise.all(fetches)
@@ -438,29 +442,30 @@ module.exports = function (app) {
     return res.json(payload);
   });
 
-  app.post("/api/image_content/update", async (req, res) => {
-    const { id, locale } = req.body;
+  app.post("/api/image_content/update", async(req, res) => {
+    const {id, locale} = req.body;
     const defaults = req.body;
     const [row, created] = await db.image_content
-      .findOrCreate({ where: { id, locale }, defaults })
+      .findOrCreate({where: {id, locale}, defaults})
       .catch(catcher);
     if (created) {
       res.json(created);
-    } else {
+    }
+    else {
       row.updateAttributes(defaults).catch(catcher);
       res.json(row);
     }
   });
 
-  app.post("/api/search/update", async (req, res) => {
-    const { id, locale } = req.body;
+  app.post("/api/search/update", async(req, res) => {
+    const {id, locale} = req.body;
     const update = await db.search_content
-      .update(req.body, { where: { id, locale } })
+      .update(req.body, {where: {id, locale}})
       .catch(catcher);
     res.json(update);
   });
 
-  const profileSearch = async (req, res) => {
+  const profileSearch = async(req, res) => {
     let allDimCubes = await fetchDimCubes(db).catch(catcher);
 
     if (req.query.profile) {
@@ -507,13 +512,9 @@ module.exports = function (app) {
           limit
         });
         // Filter out show:false from results
-<<<<<<< HEAD
-        rows = rows.filter(d => !d.contentByLocale.map(c => c.attr).some(a => a && a.show === false));
-=======
         rows = rows.filter(
           d => !d.content.map(c => c.attr).some(a => a && a.show === false)
         );
->>>>>>> 4e68c8d75ae3e1795999d348d094f21e0af9e0a1
         rows.forEach(row => {
           if (!results.results[row.dimension]) {
             results.results[row.dimension] = [];
@@ -521,7 +522,8 @@ module.exports = function (app) {
           results.results[row.dimension].push(rowToResult(row, locale));
         });
       }
-    } else {
+    }
+    else {
       // If deepsearch is configured, attempt to connect and query
       if (deepsearchAPI) {
         req.query.language = locale;
@@ -550,7 +552,7 @@ module.exports = function (app) {
         }
         if (results) results.origin = "deepsearch";
       }
-      if (!deepsearchAPI || (deepsearchAPI && !results)) {
+      if (!deepsearchAPI || deepsearchAPI && !results) {
         // Check just the first time if unaccent Extension is installed.
         // If not launch a warning and use the fallback search.
         // Install it running in the db: "CREATE EXTENSION IF NOT EXISTS unaccent;";
@@ -570,7 +572,7 @@ module.exports = function (app) {
         }
 
         results = {};
-        const { query } = req.query;
+        const {query} = req.query;
         const where = {};
         const searchWhere = {};
         const terms = query.split(" ");
@@ -612,9 +614,10 @@ module.exports = function (app) {
                 }
               )
             );
-          } else {
+          }
+          else {
             // Where by name: Use simple ilike query if unaccent extension doesn't exists.
-            orArray.push({ name: { [sequelize.Op.iLike]: `%${term}%` } });
+            orArray.push({name: {[sequelize.Op.iLike]: `%${term}%`}});
           }
         });
 
@@ -623,7 +626,7 @@ module.exports = function (app) {
           orArray.push(
             sequelize.where(
               sequelize.cast(sequelize.col("keywords"), "varchar"),
-              { [sequelize.Op.iLike]: `%${query}%` }
+              {[sequelize.Op.iLike]: `%${query}%`}
             )
           );
         }
@@ -631,13 +634,13 @@ module.exports = function (app) {
         where[sequelize.Op.or] = orArray;
         where.locale = locale;
         const contentRows = await db.search_content
-          .findAll({ where })
+          .findAll({where})
           .catch(catcher);
         searchWhere[sequelize.Op.or] = [
           // If the user searched by name, it must be matched against the result set from the earlier search_content query
-          { contentId: Array.from(new Set(contentRows.map(r => r.id))) },
+          {contentId: Array.from(new Set(contentRows.map(r => r.id)))},
           // If the user searched by direct id, it must be matched against the id itself directly the in search table
-          { id: { [sequelize.Op.iLike]: `%${query}%` } }
+          {id: {[sequelize.Op.iLike]: `%${query}%`}}
         ];
         // If the user has specified a profile(s), restrict the search results to those cubes
         if (req.query.profile) {
@@ -671,13 +674,9 @@ module.exports = function (app) {
         results.origin = "legacy";
         results.results = {};
         // Filter out show:false from results
-<<<<<<< HEAD
-        rows = rows.filter(d => !d.contentByLocale.map(c => c.attr).some(a => a && a.show === false));
-=======
         rows = rows.filter(
           d => !d.content.map(c => c.attr).some(a => a && a.show === false)
         );
->>>>>>> 4e68c8d75ae3e1795999d348d094f21e0af9e0a1
         rows.forEach(row => {
           if (!results.results[row.dimension]) {
             results.results[row.dimension] = [];
@@ -690,8 +689,8 @@ module.exports = function (app) {
     const relevantPids = unique(allDimCubes.map(d => d.profile_id));
     let profiles = await db.profile
       .findAll({
-        where: { id: relevantPids, visible: true },
-        include: { association: "meta" }
+        where: {id: relevantPids, visible: true},
+        include: {association: "meta"}
       })
       .catch(catcher);
     profiles = profiles.map(d => d.toJSON());
@@ -714,10 +713,10 @@ module.exports = function (app) {
         group.forEach(m => {
           const theseResults = results.results[m.dimension]
             ? results.results[m.dimension].filter(
-                d =>
-                  d.metadata.cube_name === m.cubeName &&
+              d =>
+                d.metadata.cube_name === m.cubeName &&
                   m.levels.includes(d.metadata.hierarchy)
-              )
+            )
             : false;
           if (theseResults) {
             acc[i] = acc[i].concat(
@@ -768,7 +767,7 @@ module.exports = function (app) {
                   }
                 },
                 raw: true,
-                include: [{ association: "content", where: { locale } }],
+                include: [{association: "content", where: {locale}}],
                 order: [["zvalue", "DESC NULLS LAST"]]
               })
               .catch(catcher);
@@ -831,8 +830,8 @@ module.exports = function (app) {
       if (filteredResults.length > 0) {
         results.profiles[slug] = filteredResults
           .map(d => {
-            const avg = d.reduce((acc, d) => (acc += d.ranking), 0) / d.length;
-            return d.map(o => ({ ...o, avg }));
+            const avg = d.reduce((acc, d) => acc += d.ranking, 0) / d.length;
+            return d.map(o => ({...o, avg}));
           })
           .sort((a, b) => b[0].avg - a[0].avg)
           .slice(0, limit);
@@ -841,8 +840,8 @@ module.exports = function (app) {
       results.grouped = results.grouped
         .concat(filteredResults)
         .map(d => {
-          const avg = d.reduce((acc, d) => (acc += d.ranking), 0) / d.length;
-          return d.map(o => ({ ...o, avg }));
+          const avg = d.reduce((acc, d) => acc += d.ranking, 0) / d.length;
+          return d.map(o => ({...o, avg}));
         })
         .sort((a, b) => b[0].avg - a[0].avg)
         .slice(0, limit);
@@ -851,16 +850,16 @@ module.exports = function (app) {
     return res.json(results);
   };
 
-  const search = async (req, res) => {
+  const search = async(req, res) => {
     const where = {};
 
-    let { limit = "10" } = req.query;
+    let {limit = "10"} = req.query;
     limit = parseInt(limit, 10);
 
     const locale =
       req.query.locale || process.env.CANON_LANGUAGE_DEFAULT || "en";
 
-    const { id, slug, dimension, levels, cubeName, pslug, parents, cms } =
+    const {id, slug, dimension, levels, cubeName, pslug, parents, cms} =
       req.query;
     const q = req.query.q || req.query.query;
 
@@ -872,13 +871,14 @@ module.exports = function (app) {
         where,
         include: imageIncludeThumbOnly
       });
-    } else if (id) {
+    }
+    else if (id) {
       where.id = id.includes(",") ? id.split(",") : id;
       if (dimension) where.dimension = dimension;
       if (levels) where.hierarchy = levels.split(",");
       if (pslug) {
         const thisMeta = await db.profile_meta.findOne({
-          where: { slug: pslug.split(",") }
+          where: {slug: pslug.split(",")}
         });
         if (thisMeta) {
           where.cubeName = thisMeta.cubeName;
@@ -890,7 +890,8 @@ module.exports = function (app) {
         where,
         include: imageIncludeThumbOnly
       });
-    } else {
+    }
+    else {
       // Check just the first time if unaccent Extension is installed.
       // If not launch a warning and use the fallback search.
       // Install it running in the db: "CREATE EXTENSION IF NOT EXISTS unaccent;";
@@ -948,10 +949,10 @@ module.exports = function (app) {
         // Use regular ilike search if unaccent is not installed.
         else {
           where[sequelize.Op.or] = [
-            { name: { [sequelize.Op.iLike]: `%${q}%` } },
+            {name: {[sequelize.Op.iLike]: `%${q}%`}},
             sequelize.where(
               sequelize.cast(sequelize.col("keywords"), "varchar"),
-              { [sequelize.Op.iLike]: `%${q}%` }
+              {[sequelize.Op.iLike]: `%${q}%`}
             )
             // Todo - search attr and imagecontent for query
           ];
@@ -959,12 +960,12 @@ module.exports = function (app) {
 
         if (locale !== "all") where.locale = locale;
 
-        rows = await db.search_content.findAll({ where }).catch(catcher);
+        rows = await db.search_content.findAll({where}).catch(catcher);
         searchWhere[sequelize.Op.or] = [
           // If the user searched by name, it must be matched against the result set from the earlier search_content query
-          { contentId: Array.from(new Set(rows.map(r => r.id))) },
+          {contentId: Array.from(new Set(rows.map(r => r.id)))},
           // If the user searched by direct id, it must be matched against the id itself directly the in search table
-          { id: { [sequelize.Op.iLike]: `%${q}%` } }
+          {id: {[sequelize.Op.iLike]: `%${q}%`}}
         ];
       }
       if (!cms) {
@@ -980,7 +981,7 @@ module.exports = function (app) {
       if (levels) searchWhere.hierarchy = levels.split(",");
       if (pslug) {
         const thisMeta = await db.profile_meta.findAll({
-          where: { slug: pslug.split(",") }
+          where: {slug: pslug.split(",")}
         });
         if (thisMeta && thisMeta.length > 0) {
           searchWhere.cubeName = thisMeta.map(d => d.cubeName);
@@ -1012,13 +1013,9 @@ module.exports = function (app) {
     // even if hidden using {show: false}. However, when deepsearch is down, the front-end uses this basic search.
     // If coming from the CMS, don't use the filter - otherwise, use it.
     if (!cms) {
-<<<<<<< HEAD
-      rows = rows.filter(d => !d.contentByLocale.map(c => c.attr).some(a => a && a.show === false));
-=======
       rows = rows.filter(
         d => !d.content.map(c => c.attr).some(a => a && a.show === false)
       );
->>>>>>> 4e68c8d75ae3e1795999d348d094f21e0af9e0a1
     }
 
     /**
@@ -1054,14 +1051,14 @@ module.exports = function (app) {
         const url = `${cubeRoot}/relations.jsonrecords?cube=${d.cubeName}&${d.hierarchy}=${d.id}:parents`;
         const config = {};
         if (OLAP_PROXY_SECRET) {
-          const jwtPayload = { sub: "server", status: "valid" };
+          const jwtPayload = {sub: "server", status: "valid"};
           if (CANON_CMS_MINIMUM_ROLE) {
             jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
           }
           const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {
             expiresIn: "5y"
           });
-          config.headers = { "x-tesseract-jwt-token": apiToken };
+          config.headers = {"x-tesseract-jwt-token": apiToken};
         }
         const resp = await axios.get(url, config).catch(() => {
           if (verbose) {
@@ -1087,14 +1084,14 @@ module.exports = function (app) {
 
     return res.json({
       results,
-      query: { dimension, id, limit, q, parents }
+      query: {dimension, id, limit, q, parents}
     });
   };
 
   app.get(
     "/api/profilesearch",
-    async (req, res) => await profileSearch(req, res)
+    async(req, res) => await profileSearch(req, res)
   );
 
-  app.get("/api/search", async (req, res) => await search(req, res));
+  app.get("/api/search", async(req, res) => await search(req, res));
 };
