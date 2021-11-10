@@ -193,7 +193,7 @@ class ProfileSearch extends Component {
   onChange(e) {
 
     const {filterCubes, filterLevels, filterProfiles, ignoredTermsRegex, timeout} = this.state;
-    const {filterQueryArgs, limit, minQueryLength, showExamples, formatResults, locale} = this.props;
+    const {filterQueryArgs, limit, minQueryLength, showExamples, formatResults, locale, showLaterals} = this.props;
 
     let query = e ? e.target.value : this.state.query;
     if (query.length < minQueryLength) query = "";
@@ -231,6 +231,7 @@ class ProfileSearch extends Component {
       if (filterProfiles) url += `&profile=${filterProfiles}`;
       if (filterLevels) url += `&hierarchy=${filterLevels}`;
       if (filterCubes) url += `&cubeName=${filterCubes}`;
+      if (showLaterals) url += "&showLaterals=true";
 
       // handle the query
       this.setState({

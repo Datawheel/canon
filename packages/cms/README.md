@@ -2,34 +2,35 @@
 Content Management System for Canon sites.
 
 ## Table of Contents
-* [Why?](#why)
-* [Setup and Installation](#setup-and-installation)
-* [Enabling Image Support](#enabling-image-support)
-* [Rendering a Profile](#rendering-a-profile)
-* [Overview and Terminology](#overview-and-terminology)
-* [Environment Variables](#environment-variables)
-* [Sections](#sections)
-* [Custom Sections](#custom-sections)
-* [Custom Visualizations](#custom-visualizations)
-* [Hidden Profiles](#hidden-profiles)
-* [Search](#search)
-* [PDF Printing](#pdf-printing)
-* [Advanced Generator Techniques](#advanced-generator-techniques)
-* [Advanced Visualization Techniques](#advanced-visualization-techniques)
-* [Advanced Selector Techniques](#advanced-selector-techniques)
-* [Automatic Translations](#automatic-translations)
-* [Command Line Reingest](#command-line-reingest)
-* [Authentication](#authentication)
-* [Profile Caching](#profile-caching)
-* [Frequently Asked Questions](#frequently-asked-questions)
-* [Release Notes](#release-notes)
-* [Migration](#migration)
+
+- [Why?](#why)
+- [Setup and Installation](#setup-and-installation)
+- [Enabling Image Support](#enabling-image-support)
+- [Rendering a Profile](#rendering-a-profile)
+- [Overview and Terminology](#overview-and-terminology)
+- [Environment Variables](#environment-variables)
+- [Sections](#sections)
+- [Custom Sections](#custom-sections)
+- [Custom Visualizations](#custom-visualizations)
+- [Hidden Profiles](#hidden-profiles)
+- [Search](#search)
+- [PDF Printing](#pdf-printing)
+- [Advanced Generator Techniques](#advanced-generator-techniques)
+- [Advanced Visualization Techniques](#advanced-visualization-techniques)
+- [Advanced Selector Techniques](#advanced-selector-techniques)
+- [Automatic Translations](#automatic-translations)
+- [Command Line Reingest](#command-line-reingest)
+- [Authentication](#authentication)
+- [Profile Caching](#profile-caching)
+- [Frequently Asked Questions](#frequently-asked-questions)
+- [Release Notes](#release-notes)
+- [Migration](#migration)
 
 ---
 
 ## Why?
 
-Building websites can be hard, especially when they need to display _tons_ of information. For a company like Datawheel, an organization that needs to build maintainable sites that can showcase data from thousands of data "members," the creation of *data-agnostic, dynamic templates* that can render beautiful web pages (or "profiles") is crucial. The Canon CMS fulfills this need by giving content creators and translators the tools they need to be able to author and update page templates easily.
+Building websites can be hard, especially when they need to display _tons_ of information. For a company like Datawheel, an organization that needs to build maintainable sites that can showcase data from thousands of data "members," the creation of _data-agnostic, dynamic templates_ that can render beautiful web pages (or "profiles") is crucial. The Canon CMS fulfills this need by giving content creators and translators the tools they need to be able to author and update page templates easily.
 
 Canon CMS allows users to:
 
@@ -79,11 +80,13 @@ Please note Canon CMS currently only supports Postgres databases.
 There are a number of [canon-core environment variables](https://github.com/Datawheel/canon#additional-environment-variables) that `canon-cms` relies on. Ensure that the the following env vars are set.
 
 Canon CMS relies on `canon` needs, so be sure your `CANON_API` is set:
+
 ```sh
 export CANON_API=http://localhost:3300
 ```
 
 CMS content that you author can be translated into other languages. Set `CANON_LANGUAGE_DEFAULT` to your locale. If you plan to translate your content, set `CANON_LANGUAGES` to a comma separated list of languages you wish to use. Note that while `CANON_LANGUAGES` can be changed later, `CANON_LANGUAGE_DEFAULT` cannot, so remember to set it before starting!
+
 ```sh
 export CANON_LANGUAGE_DEFAULT=en
 export CANON_LANGUAGES=en,es
@@ -92,11 +95,13 @@ export CANON_LANGUAGES=en,es
 #### 4) Configure `canon-cms` vars
 
 Canon CMS requires a `canon-cms` specific env var for the current location of your mondrian or tesseract installation.
+
 ```sh
 export CANON_CMS_CUBES=https://tesseract-url.com/tesseract
 ```
 
 In summary, your env vars should now look like this:
+
 ```sh
 export CANON_API=http://localhost:3300
 export CANON_LANGUAGE_DEFAULT=en
@@ -114,7 +119,7 @@ By default, the CMS will only be enabled on development environments. If you wis
 
 #### 5) (Optional) Add Proxy for Local Tesseract Instance
 
-Your `CANON_CMS_CUBES` variable will (obviously) differ based on your project. If you are developing against a _local instance of tesseract_, you will likely need to add a simple proxy to bypass CORS errors from requesting data between different ports.  To do this, you will need to add a file called `local-proxy.js` in the `/api/` directory in the root level of your project (create one if you don't have one). The file should then look like [this](https://gist.github.com/greenrhyno/018042999a0deab501529224764c0fa4).
+Your `CANON_CMS_CUBES` variable will (obviously) differ based on your project. If you are developing against a _local instance of tesseract_, you will likely need to add a simple proxy to bypass CORS errors from requesting data between different ports. To do this, you will need to add a file called `local-proxy.js` in the `/api/` directory in the root level of your project (create one if you don't have one). The file should then look like [this](https://gist.github.com/greenrhyno/018042999a0deab501529224764c0fa4).
 
 #### 4) Add the Builder Component to a route
 
@@ -143,6 +148,7 @@ export const reducers = {
 ```
 
 #### 6) Start your dev server
+
 ```sh
 npm run dev
 ```
@@ -155,7 +161,7 @@ npm run dev
 
 ## Enabling Image Support
 
-Canon CMS includes the ability to assign each member of a cube (Such as *Massachusetts*, or *Metalworkers*) an acceptably licensed photo from flickr or a custom upload.
+Canon CMS includes the ability to assign each member of a cube (Such as _Massachusetts_, or _Metalworkers_) an acceptably licensed photo from flickr or a custom upload.
 
 ### Custom Uploads (no Flickr Source)
 
@@ -177,11 +183,12 @@ Note: If you decide to change from local to remote at a later time, this is poss
 
 ### Remote (S3 Storage) hosting in Google Cloud
 
-If you choose to host images remotely as opposed to locally, a series of steps must be taken to configure both the flickr authentication and the Google Cloud Storage for image hosting.  Contact the Admin who is in charge of this project's Google Cloud Project, or get permissions to do the following:
+If you choose to host images remotely as opposed to locally, a series of steps must be taken to configure both the flickr authentication and the Google Cloud Storage for image hosting. Contact the Admin who is in charge of this project's Google Cloud Project, or get permissions to do the following:
 
 #### 1) Create a bucket
 
 In the Storage section of Google Cloud Projects, create a bucket and give it a name. Set the var `CANON_CONST_STORAGE_BUCKET` to the name you provided.
+
 ```sh
 export CANON_CONST_STORAGE_BUCKET=your_bucketname
 ```
@@ -191,11 +198,13 @@ export CANON_CONST_STORAGE_BUCKET=your_bucketname
 Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create a JSON token with "Cloud Storage -> Storage Admin" permissions.
 
 Save the JSON token to disk and set its permissions to `644`.
+
 ```sh
 chmod 644 /path/to/token.json
 ```
 
 Configure the `GOOGLE_APPLICATION_CREDENTIALS` env var to the token's path.
+
 ```sh
 export GOOGLE_APPLICATION_CREDENTIALS="/path/to/token.json"
 ```
@@ -272,7 +281,7 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 
 - **Generator**: A CMS Entity which hits a provided API and stores the response in a variable called `resp`. Expects you to write javascript that returns an object full of key-value pairs. These KV pairs will be combined with other generators into a giant `variables` object that represents your lookup table for your mad-libs prose.
 
-- **Materializer**: Similar to a Generator, but with no API call. Materializers are guaranteed to be run *after* Generators, and in a strict order. Any materializer can make use of variables generated before it. Useful for datacalls that need to be combined, or for arbitrary variables (like CMS rules or about text)
+- **Materializer**: Similar to a Generator, but with no API call. Materializers are guaranteed to be run _after_ Generators, and in a strict order. Any materializer can make use of variables generated before it. Useful for datacalls that need to be combined, or for arbitrary variables (like CMS rules or about text)
 
 - **Formatter**: A formatter is a javascript function that will be applied to a variable. It receives one input, **n**, and returns a String. For example, take a javascript integer and add commas to make it a human-readable number.
 
@@ -288,25 +297,25 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 
 ## Environment Variables
 
-|variable|description|default|
-|---|---|---|
-|`CANON_CMS_CUBES`|Path to the mondrian or tesseract|`undefined (required)`|
-|`CANON_CMS_ENABLE`|Setting this env var to `true` allows access to the cms in production builds.|`false`|
-|`CANON_CMS_MINIMUM_ROLE`|The minimum integer value for a Canon user `role` to access the CMS|`1`|
-|`CANON_CMS_LOGGING`|Enable verbose logging in console.|`false`|
-|`CANON_CMS_REQUESTS_PER_SECOND`|Sets the `requestsPerSecond` value in the [promise-throttle](https://www.npmjs.com/package/promise-throttle) library, used for rate-limiting Generator requests|20|
-|`CANON_CMS_GENERATOR_TIMEOUT`|The number of ms after which a generator request times out, defaults to 5s. Increase this if you are making heavy requests that exceed 5s|5000|
-|`CANON_CMS_DEEPSEARCH_API`|Server location of Deepsearch API|`undefined`|
-|`CANON_CMS_HTACCESS_USER`|Authentication user for PDF generation on .htaccess protected pages|`undefined`|
-|`CANON_CMS_HTACCESS_PW`|Authentication password for PDF generation on .htaccess protected pages|`undefined`|
-|`CANON_CMS_PDF_DISABLE`|Disable the PDF generation endpoint|`undefined`|
-|`FLICKR_API_KEY`|Used to configure Flickr Authentication|`undefined`|
-|`GOOGLE_APPLICATION_CREDENTIALS`|Path to JSON token file for Cloud Storage|`undefined`|
-|`CANON_CONST_STORAGE_BUCKET`|Name of Google Cloud Storage Bucket|`undefined`|
-|`CANON_CONST_IMAGE_SPLASH_SIZE`|Splash width to resize flickr images|1400|
-|`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|200|
-|`CANON_CONST_IMAGE_THUMB_SIZE`|Thumb width to resize flickr images|200|
-|`OLAP_PROXY_SECRET`|For olap services that require a "x-tesseract-jwt-token" header to set in order to gain access, this variable can be used to set a private key for server-side processes.|`undefined`|
+| variable                         | description                                                                                                                                                               | default                |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| `CANON_CMS_CUBES`                | Path to the mondrian or tesseract                                                                                                                                         | `undefined (required)` |
+| `CANON_CMS_ENABLE`               | Setting this env var to `true` allows access to the cms in production builds.                                                                                             | `false`                |
+| `CANON_CMS_MINIMUM_ROLE`         | The minimum integer value for a Canon user `role` to access the CMS                                                                                                       | `1`                    |
+| `CANON_CMS_LOGGING`              | Enable verbose logging in console.                                                                                                                                        | `false`                |
+| `CANON_CMS_REQUESTS_PER_SECOND`  | Sets the `requestsPerSecond` value in the [promise-throttle](https://www.npmjs.com/package/promise-throttle) library, used for rate-limiting Generator requests           | 20                     |
+| `CANON_CMS_GENERATOR_TIMEOUT`    | The number of ms after which a generator request times out, defaults to 5s. Increase this if you are making heavy requests that exceed 5s                                 | 5000                   |
+| `CANON_CMS_DEEPSEARCH_API`       | Server location of Deepsearch API                                                                                                                                         | `undefined`            |
+| `CANON_CMS_HTACCESS_USER`        | Authentication user for PDF generation on .htaccess protected pages                                                                                                       | `undefined`            |
+| `CANON_CMS_HTACCESS_PW`          | Authentication password for PDF generation on .htaccess protected pages                                                                                                   | `undefined`            |
+| `CANON_CMS_PDF_DISABLE`          | Disable the PDF generation endpoint                                                                                                                                       | `undefined`            |
+| `FLICKR_API_KEY`                 | Used to configure Flickr Authentication                                                                                                                                   | `undefined`            |
+| `GOOGLE_APPLICATION_CREDENTIALS` | Path to JSON token file for Cloud Storage                                                                                                                                 | `undefined`            |
+| `CANON_CONST_STORAGE_BUCKET`     | Name of Google Cloud Storage Bucket                                                                                                                                       | `undefined`            |
+| `CANON_CONST_IMAGE_SPLASH_SIZE`  | Splash width to resize flickr images                                                                                                                                      | 1400                   |
+| `CANON_CONST_IMAGE_THUMB_SIZE`   | Thumb width to resize flickr images                                                                                                                                       | 200                    |
+| `CANON_CONST_IMAGE_THUMB_SIZE`   | Thumb width to resize flickr images                                                                                                                                       | 200                    |
+| `OLAP_PROXY_SECRET`              | For olap services that require a "x-tesseract-jwt-token" header to set in order to gain access, this variable can be used to set a private key for server-side processes. | `undefined`            |
 
 ---
 
@@ -315,72 +324,88 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 Sections are the chunks of content you will use to build a page. Each section contains [metadata](#section-metadata) fields, and various [content entities](#content-entities).
 
 ### Section metadata
+
 Used to customize the way the section behaves. Metadata fields include:
 
 #### Title
+
 The name of the section. This will be used by the heading tag on the profile, and in the admin panel navigation.
 
 #### Slug
-An ID for referencing the section. This is used to link directly to a section via scrolling anchor links, and is used in the construction of share links. Each section on a page *must* have a unique ID.
+
+An ID for referencing the section. This is used to link directly to a section via scrolling anchor links, and is used in the construction of share links. Each section on a page _must_ have a unique ID.
 
 #### Visibility
+
 The truthiness of this value will be used to determine whether or not the section appears on a given profile.
 
 ---
 
 #### Layouts
+
 Change the way the section looks and behaves. Out of the box, the following section layouts are included:
 
 ##### Hero layout
-The hero section is typically the first thing a user sees upon visiting a profile. It fills up most of the screen, displays the title in large type, and features an image or set of images in the background. If the section does not include a visualization, the text will be centered. If the section *does* include a visualization, the layout will switch to two columns, with the visualization on the right.
 
-The first section in each profile is automatically assigned this layout, and *only* the first section in a profile can use this layout.
+The hero section is typically the first thing a user sees upon visiting a profile. It fills up most of the screen, displays the title in large type, and features an image or set of images in the background. If the section does not include a visualization, the text will be centered. If the section _does_ include a visualization, the layout will switch to two columns, with the visualization on the right.
+
+The first section in each profile is automatically assigned this layout, and _only_ the first section in a profile can use this layout.
 
 ##### Default layout
+
 The default layout uses most of the available screen real estate for the visuals, with descriptive text and controls grouped into a sidebar. If the section includes multiple visualizations, they will be arranged into rows or columns, depending on the size of the screen.
 
 This layout is ideal for 1-2 visualizations. If no visualizations are included, the text content will appear in a single column.
 
 ##### Grouping layout
+
 A grouping section is used to group related sections together.
 
 Functionally, it creates hierarchy by nesting each following section, until the next grouping section (which in turn, starts a new grouping). In addition, it acts as a sign post for the section, prominently displaying its title.
 
 ##### Info card layout
+
 Used to display a summary of data with a small footprint, the info card is one of the most situational layouts. Since the layout was designed for primarily text content, it's best to use only a single graphic, or simple visualization such as a **gasp** pie chart.
 
 Any adjacent info cards will be automatically grouped together into columns.
 
 ##### Multicolumn layout
+
 The multicolumn layout takes any content you throw at it, and balances it into columns to the best of its ability. It uses [css multi-column layout](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Columns), which has excellent browser support but can get funky when there aren't enough paragraphs to split evenly.
 
 This layout is useful for sections with a lot of text and 0-1 visualizations, such as the about section that typically follows the hero section in our DataCountry sites.
 
 ##### Single column layout
+
 On its own, the single column layout is a simple tube of content. However, like the info card section, adjacent single columns will be automatically grouped together into a grid.
 
 Use this layout when you want multiple, similar, evenly spaced columns, with simple visuals at the bottom.
 
 ##### Tabs layout
-At first, this layout may appear to be similar to the [default](#default-layout) layout. However, each visual in the section will become its own *panel*, which can be accessed via the automatically generated button group in the sidebar.
+
+At first, this layout may appear to be similar to the [default](#default-layout) layout. However, each visual in the section will become its own _panel_, which can be accessed via the automatically generated button group in the sidebar.
 
 This layout is ideal for displaying similar or related information in one section, while showing one visual at a time.
 
 🔥**Pro tip**: additional tabs section customization can be achieved via the visualization configuration:
+
 1. label the corresponding tab's button text (`tab: "custom button text"`)
 2. specify an array of selectors for the corresponding tab (`selectors: ["selectorName1", "selectorName2"]`).
 
 ---
 
 #### Positioning
+
 By default, each section will simply appear below the previous section as the user scrolls. In addition, there are two highly situation alternate behaviors:
 
 ##### Sticky positioning
+
 This takes advantage of the `position: sticky` css property — or in the case of Internet Explorer, dirty hacks — and sticks to the top of the screen until the user scrolls to the bottom of the grouping it appears in. This is typically used to keep selectors which effect an entire section grouping visible as you scroll through it.
 
 These sections cannot use certain features of standard sections, due to their added complexity and their need to be space efficient.
 
 ##### Modal positioning
+
 The section will no longer render unless it is called via a function elsewhere. Modals can be assigned any of the standard layouts except for grouping.
 
 For more information, see [Opening a modal window](#opening-a-modal-window)
@@ -388,12 +413,15 @@ For more information, see [Opening a modal window](#opening-a-modal-window)
 ---
 
 ### Content entities
+
 Used to add, edit, and remove content.
 
 #### Subtitles
+
 Short bits of text that appear underneath the section title for added clarification.
 
 #### Stats
+
 Useful for emphasizing bits and pieces of data, stats are made up of the following:
 
 1. **Label**: appears before the number, concisely explaining what it represents.
@@ -403,20 +431,25 @@ Useful for emphasizing bits and pieces of data, stats are made up of the followi
 🔥**Pro tip**: Multiple stats with the same label will be grouped together into columns, and their label will only be displayed once.
 
 #### Paragraphs
+
 Text rendered into paragraph tags.
 
 #### Visualizations
+
 Primarily, visualizations utilize [d3plus](http://d3plus.org/). However, we've also added a few custom visualization types:
 
 ##### Table
+
 Renders data in a [react-table](https://github.com/tannerlinsley/react-table/tree/v6) table. All react-table props are available.
 
-🔥**Pro tip**: we've combined react-table's infinite nesting capability with more accessible table header markup and consistent styles. The config syntax looks like: `columns: ["col1", "col2"]` for a flat array of columns, or `columns: [["header grouping label", ["col1", "col2"]]]` from an array of grouped/named columns. If an item in the array is a *string*, it will simply be converted to a column via that string. If an item in the array is an *array*, we're assuming the first item in the nested array is a string (the name of the column group), followed by an array — which can in turn be an array which contains strings, or an array with a string and an array, and so on.
+🔥**Pro tip**: we've combined react-table's infinite nesting capability with more accessible table header markup and consistent styles. The config syntax looks like: `columns: ["col1", "col2"]` for a flat array of columns, or `columns: [["header grouping label", ["col1", "col2"]]]` from an array of grouped/named columns. If an item in the array is a _string_, it will simply be converted to a column via that string. If an item in the array is an _array_, we're assuming the first item in the nested array is a string (the name of the column group), followed by an array — which can in turn be an array which contains strings, or an array with a string and an array, and so on.
 
 🔥**Pro tip**: You can also pass `headerFormat(key)` and `columnFormat(key, val)` to the config.
 
 ##### Graphic
+
 Renders an image, optionally on top of a [stat](#stats). The config looks like:
+
 ```js
 config: {
   imageURL: "link/to.image",
@@ -457,7 +490,7 @@ return {
 };
 ```
 
-This `cellStyle` method operates much like the `Cell` method of react-table, but again, *you may not return a JSX element*. Make vanilla ES6 modifications to the object and return it.
+This `cellStyle` method operates much like the `Cell` method of react-table, but again, _you may not return a JSX element_. Make vanilla ES6 modifications to the object and return it.
 
 ---
 
@@ -473,9 +506,10 @@ To extend the layout and functionality of sections, custom JSX sections can be c
 - Create an `index.js` file in this directory that exports ALL of your custom components:
 
 ```js
-export {default as CustomSection} from "./CustomSection.jsx";
-export {default as CustomSection2} from "./CustomSection2.jsx";
+export { default as CustomSection } from "./CustomSection.jsx";
+export { default as CustomSection2 } from "./CustomSection2.jsx";
 ```
+
 - Rebuild the server
 - Set your section to the new section type in Section Editor of the CMS.
 
@@ -483,7 +517,7 @@ export {default as CustomSection2} from "./CustomSection2.jsx";
 
 The [Section wrapper](https://github.com/Datawheel/canon/blob/master/packages/cms/src/components/sections/Section.jsx) handles most of the context callbacks, click interaction, anchor links, etc. required by all Sections. As such, the underlying section layouts are fairly sparse; many of them just pass the props through one by one (`Default.jsx` is a good example of this - observe the series of stats/paragraphs/sources variables).
 
-If you need more control over how these sections are laid out, or even want to manipulate the text provided by the API, the *entire* section object is passed down via the `contents` key. In your custom component, you may emulate any `Section.jsx` variable preparation using these contents to maximize customization.
+If you need more control over how these sections are laid out, or even want to manipulate the text provided by the API, the _entire_ section object is passed down via the `contents` key. In your custom component, you may emulate any `Section.jsx` variable preparation using these contents to maximize customization.
 
 ---
 
@@ -498,9 +532,10 @@ To extend the layout and functionality of visualizations, custom JSX visualizati
 - Create an `index.js` file in this directory that exports ALL of your custom components:
 
 ```js
-export {default as CustomViz} from "./CustomViz.jsx";
-export {default as CustomViz2} from "./CustomViz2.jsx";
+export { default as CustomViz } from "./CustomViz.jsx";
+export { default as CustomViz2 } from "./CustomViz2.jsx";
 ```
+
 - Rebuild the server
 - Set your visualization type to the new visualization type in Visualization Editor of the CMS.
 
@@ -514,7 +549,7 @@ Profiles have a `Visibility` Dropdown in the Profile Editor panel that may be se
 
 #### Variant Visibility
 
-Individual profile variants can also be hidden, which will result in the same behavior as above. Importantly, *profile visibility always trumps variant visibility*.
+Individual profile variants can also be hidden, which will result in the same behavior as above. Importantly, _profile visibility always trumps variant visibility_.
 
 #### A note on search
 
@@ -526,7 +561,7 @@ The `/api/search` legacy search route will respect these hidden profiles and not
 
 #### Legacy Search API (Dimensions only)
 
-The CMS is used to create Profiles based on Dimensions, such as "Geography" or "Industry". The individual entities that make up these dimensions (such as *Massachusetts* or *Metalworkers*) are referred to as Members. These members are what make up the slugs/ids in URLS; when visiting `/geo/massachusetts`, `geo` is the profile/dimension slug and `massachusetts` is the member.
+The CMS is used to create Profiles based on Dimensions, such as "Geography" or "Industry". The individual entities that make up these dimensions (such as _Massachusetts_ or _Metalworkers_) are referred to as Members. These members are what make up the slugs/ids in URLS; when visiting `/geo/massachusetts`, `geo` is the profile/dimension slug and `massachusetts` is the member.
 
 These members can be viewed and edited in the in the MetaData section of the CMS. However, they can also be searched via an API endpoint, which can be useful for setting up a search feature on your site. The API endpoint is:
 
@@ -536,16 +571,16 @@ These members can be viewed and edited in the in the MetaData section of the CMS
 
 Arguments are provided by url paramaters:
 
-|parameter|description|
-|---|---|
-|`q`|A string query which uses the SQL `ILIKE` operator to search the `name` and `keywords` of the member. (For better results install `unaccent` package in your Postgres server running: `CREATE EXTENSION IF NOT EXISTS unaccent;`. [More info.](https://www.postgresql.org/docs/9.1/unaccent.html) )|
-|`dimension`|An exact-match string to filter results to members in the provided dimension|
-|`levels`|A comma-separated list of levels to filter results to members by the provided levels|
-|`cubeName`|An exact-match string to filter results to members from the provided cube|
-|`pslug`|If the cubeName is not known, you may provide the unique slug of the desired dimension to limit results to that profile|
-|`limit`|A number, passed through to SQL `LIMIT` to limit results|
-|`id`|Exact match `id` lookup. Keep in mind that a member `id` is not necessarily unique and may require a `dimension` specification|
-|`cms`|If set to true, bypasses all "Hiding" functionality (profile, variant, or member) and shows ALL matching results.
+| parameter   | description                                                                                                                                                                                                                                                                                         |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `q`         | A string query which uses the SQL `ILIKE` operator to search the `name` and `keywords` of the member. (For better results install `unaccent` package in your Postgres server running: `CREATE EXTENSION IF NOT EXISTS unaccent;`. [More info.](https://www.postgresql.org/docs/9.1/unaccent.html) ) |
+| `dimension` | An exact-match string to filter results to members in the provided dimension                                                                                                                                                                                                                        |
+| `levels`    | A comma-separated list of levels to filter results to members by the provided levels                                                                                                                                                                                                                |
+| `cubeName`  | An exact-match string to filter results to members from the provided cube                                                                                                                                                                                                                           |
+| `pslug`     | If the cubeName is not known, you may provide the unique slug of the desired dimension to limit results to that profile                                                                                                                                                                             |
+| `limit`     | A number, passed through to SQL `LIMIT` to limit results                                                                                                                                                                                                                                            |
+| `id`        | Exact match `id` lookup. Keep in mind that a member `id` is not necessarily unique and may require a `dimension` specification                                                                                                                                                                      |
+| `cms`       | If set to true, bypasses all "Hiding" functionality (profile, variant, or member) and shows ALL matching results.                                                                                                                                                                                   |
 
 Example query:
 
@@ -607,21 +642,22 @@ import {ProfileSearch} from "@datawheel/canon-cms";
   subtitleFormat={result => result.memberHierarchy} // overrides for the default result subtitles
   showExamples={false} // setting this to `true` will display results when no query has been entered
   showFilters={false} // show a faceted search underneath the input box
+  showLaterals={false} // Force to return top 5 combination for bilaterals results, even with just one word in q.
 />
 ```
 
 If you would prefer to build your own search component, the DeepSearch API is available at `/api/profilesearch`. Arguments are as follows:
 
-|parameter|description|
-|---|---|
-|`query`|Query to search for|
-|`locale`|Language for results|
-|`limit`|Maximum number of results to return|
-|`profile`|Restrict results to a profile, must be an integer profile id or a profile slug (unary profiles only)|
-|`dimension`|Restrict results by dimension (comma separated)|
-|`hierarchy`|Restrict results by hierarchy (comma separated)|
-|`cubeName`|Restrict results by source cube name (comma separated)|
-|`min_confidence`|Confidence threshold (Deepsearch Only)|
+| parameter        | description                                                                                          |
+| ---------------- | ---------------------------------------------------------------------------------------------------- |
+| `query`          | Query to search for                                                                                  |
+| `locale`         | Language for results                                                                                 |
+| `limit`          | Maximum number of results to return                                                                  |
+| `profile`        | Restrict results to a profile, must be an integer profile id or a profile slug (unary profiles only) |
+| `dimension`      | Restrict results by dimension (comma separated)                                                      |
+| `hierarchy`      | Restrict results by hierarchy (comma separated)                                                      |
+| `cubeName`       | Restrict results by source cube name (comma separated)                                               |
+| `min_confidence` | Confidence threshold (Deepsearch Only)                                                               |
 
 Results will be returned in a response object that includes metadata on the results. Matching members separated by profile can be found in the `profiles` key of the response object. A single grouped list of all matching profiles can be found in the `grouped` key of the response object.
 
@@ -662,7 +698,6 @@ Chromium requires a sandboxed namespace in which to run its headless browser. No
 ```sh
 echo 10000 > /proc/sys/user/max_user_namespaces
 ```
-
 
 #### React Component
 
@@ -751,8 +786,8 @@ If you want access to these slugs in your results set, you may add the `slugs` q
 
 The slugs parameter requires two elements for a successful lookup:
 
-1) The CMS-level dimension on which the ID is considered unique (`Exporter`, `HS Product`, etc)
-2) An accessor for the key in the response payload to be used for lookup (`Country`, `HS4`, etc). Note: The CMS will automatically append the ` ID` to your accessor, changing `HS4` to `HS4 ID` for example.
+1. The CMS-level dimension on which the ID is considered unique (`Exporter`, `HS Product`, etc)
+2. An accessor for the key in the response payload to be used for lookup (`Country`, `HS4`, etc). Note: The CMS will automatically append the ` ID` to your accessor, changing `HS4` to `HS4 ID` for example.
 
 These parameters should be added to the generator API, using colons to separate the two required pieces:
 
@@ -762,7 +797,7 @@ If the pieces are the same, one parameter may be used:
 
 `&slugs=Product`
 
-In some rare edge cases, a dimension and id are not enough to disambiguate a member. In these cases, a third argument can be passed, which refers to *the cube on which the given id is considered unique*:
+In some rare edge cases, a dimension and id are not enough to disambiguate a member. In these cases, a third argument can be passed, which refers to _the cube on which the given id is considered unique_:
 
 `&slugs=HS Product:HS4:trade_i_baci_a_92`
 
@@ -770,16 +805,16 @@ Note that when using this cube disambiguation, you may not use the singular para
 
 ### Custom Attributes
 
-The fixed "Attributes" includes basic information about the currently selected member, like dimension, id, and hierarchy. This is useful because it is run *before* other generators, and can therefore be used both in subsequent `variables` object and also in API calls, using the `<bracket>` syntax.
+The fixed "Attributes" includes basic information about the currently selected member, like dimension, id, and hierarchy. This is useful because it is run _before_ other generators, and can therefore be used both in subsequent `variables` object and also in API calls, using the `<bracket>` syntax.
 
 If you would like to inject your own custom variables into the Attributes generator, create an endpoint in your canon API folder:
 
 ```js
 app.post("/api/cms/customAttributes/:pid", (req, res) => {
-
   const pid = parseInt(req.params.pid, 10);
-  const {variables, locale} = req.body;
-  const {id1, dimension1, hierarchy1, slug1, name1, cubeName1, user} = variables;
+  const { variables, locale } = req.body;
+  const { id1, dimension1, hierarchy1, slug1, name1, cubeName1, user } =
+    variables;
 
   /**
    * Make axios calls, run JS, and return your compiled data as a single JS Object. Use the pid
@@ -790,9 +825,7 @@ app.post("/api/cms/customAttributes/:pid", (req, res) => {
     return res.json({
       capitalName: name1.toUpperCase()
     });
-  }
-  else return res.json({});
-
+  } else return res.json({});
 });
 ```
 
@@ -822,7 +855,6 @@ For this reason, the `setVariables` function has been added to Visualizations. T
 ```
 
 Thus, when you click on a section of the primary viz treemap, it calls `setVariables`, sets the `secondaryId`, and the page will re-render to update the secondary viz with the appropriate id (in the above example, the id for Cars).
-
 
 ### Modifying Page State
 
@@ -882,7 +914,7 @@ In advanced mode, an HTML visualization has the following format:
 return {
   type: "HTML",
   html: "<div>Hello World</div>"
-}
+};
 ```
 
 This visualization type can even be used to embed entire iframes:
@@ -891,7 +923,7 @@ This visualization type can even be used to embed entire iframes:
 return {
   type: "HTML",
   html: '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0"></iframe>'
-}
+};
 ```
 
 ### Additional File Attachments
@@ -904,11 +936,13 @@ return {
   dataAttachments: "/path/to/file.ext"
 }
 ```
+
 The `dataAttachments` property will also accept a list of files:
 
 ```js
-  dataAttachments: ["/path/to/file1.ext", "/path/to/file2.ext"]
+dataAttachments: ["/path/to/file1.ext", "/path/to/file2.ext"];
 ```
+
 Once the list of attachments has been downloaded, it will be included with the CSV file in a ZIP archive file.
 
 ---
@@ -925,19 +959,19 @@ Dynamic selectors are array variables. The members of that array may be objects 
 
 If the members are **objects**, you must provide the required key `option`, and the optional keys `label` and `allowed`.
 
-|key|required|details
-|---|---|---|
-|`option`|required|Serves as the `value` of the `<Select/>` in the dropdown.
-|`label`|optional|Value shown as label of dropdown. If not provided, defaults to the value of `option`.
-|`allowed`|optional|String reference to variable to use for `allowed`. Defaults to `always`.
+| key       | required | details                                                                               |
+| --------- | -------- | ------------------------------------------------------------------------------------- |
+| `option`  | required | Serves as the `value` of the `<Select/>` in the dropdown.                             |
+| `label`   | optional | Value shown as label of dropdown. If not provided, defaults to the value of `option`. |
+| `allowed` | optional | String reference to variable to use for `allowed`. Defaults to `always`.              |
 
 ```js
 [
-  {option: "year2016", label: "2016", allowed: "profileHas2016Data"},
-  {option: "year2017", label: "2017", allowed: "profileHas2017Data"},
-  {option: "year2018", label: "2018", allowed: "always"},
-  {option: "year2019", label: "2019"}   // allowed=always is implicit, if desired.
-]
+  { option: "year2016", label: "2016", allowed: "profileHas2016Data" },
+  { option: "year2017", label: "2017", allowed: "profileHas2017Data" },
+  { option: "year2018", label: "2018", allowed: "always" },
+  { option: "year2019", label: "2019" } // allowed=always is implicit, if desired.
+];
 ```
 
 Remember - in static selectors, the "label" was implicitly value of the variable. However, in dynamic selectors, **the options you create will not exist in the variables object**. The exist only within this dynamic selector. In the above example, attempting to access `variables.year2018` will not return anything, as no generator ever exported `year2018` as a proper variable in and of itself.
@@ -945,7 +979,7 @@ Remember - in static selectors, the "label" was implicitly value of the variable
 A string configuration is also supported:
 
 ```js
-["option1", "option2", "option3"]
+["option1", "option2", "option3"];
 ```
 
 In this case, `label` will default to `option` and `allowed` will default to `always`. You may also mix and match formats.
@@ -955,7 +989,11 @@ In this case, `label` will default to `option` and `allowed` will default to `al
 Advanced users may have used the following syntax to achieve "labels" on the front end:
 
 ```js
-{{[[selector1]]}}
+{
+  {
+    [[selector1]];
+  }
+}
 ```
 
 On a first pass, a selector swap will change `selector1` to its selected value (say `year2018`), which leaves `{{year2018}}` behind. A second variable swap pass would then change it to `2018`, for use in a human-readable paragraph.
@@ -985,11 +1023,13 @@ If you have already followed the steps for [Enabling Image Support](#enabling-im
 Follow the instructions [here](https://cloud.google.com/docs/authentication/getting-started) to create an authentication token and give it "Cloud Translation -> Cloud Translation API User" permissions.
 
 Save the JSON token to disk and set its permissions to `644`.
+
 ```sh
 chmod 644 /path/to/token.json
 ```
 
 Configure the `GOOGLE_APPLICATION_CREDENTIALS` env var to the token's path.
+
 ```sh
 export GOOGLE_APPLICATION_CREDENTIALS="/path/to/token.json"
 ```
@@ -998,12 +1038,13 @@ export GOOGLE_APPLICATION_CREDENTIALS="/path/to/token.json"
 
 ### Usage
 
-Once set up, translation buttons will appear on each TextCard, Section Header, and Profile Header, but *only when a second language is selected*. This second language must be selected and represents the target language for the translation.
+Once set up, translation buttons will appear on each TextCard, Section Header, and Profile Header, but _only when a second language is selected_. This second language must be selected and represents the target language for the translation.
 
 Remember a few key points for translations:
+
 - Translations cost [money](https://cloud.google.com/translate/pricing): $20 per 1,000,000 characters. For reference, this is about $4 per entire-OEC-site-translation per language. Be careful not to overuse it, especially with profile-wide translations.
 - Translating **paves all content in the target language and replaces it**. There is currently no smart detection of whether secondary language content has been updated since the last ingest - it is a one-way blast.
-- Translations currently only cover text content (subtitles, paragraphs, stats). They do not cover visualizations, formatters, or language-specific variables. The translation API should be considered a *starting point* for the SEO-optimized prose of the page.
+- Translations currently only cover text content (subtitles, paragraphs, stats). They do not cover visualizations, formatters, or language-specific variables. The translation API should be considered a _starting point_ for the SEO-optimized prose of the page.
 
 ### Command Line Tool
 
@@ -1033,6 +1074,7 @@ Arguments:
 ```
 
 Example usage:
+
 ```
 npx canon-cms-translate -b http://localhost:3300 -p 1 -t es
 ```
@@ -1079,6 +1121,7 @@ CANON_CMS_LOGGING
 ### Usage
 
 Help command:
+
 ```sh
 Canon CMS / Search Ingestion Script
 Usage: npx canon-cms-ingest <command> [args]
@@ -1096,13 +1139,14 @@ Arguments:
 ```
 
 Example usage:
+
 ```
 npx canon-cms-ingest run -d 1
 ```
 
 ### Notes
 
-Ingests are performed on a *dimension* level, not a profile one. For example, for a bilateral profile like product/country, there are single ids for each dimension (product and country). You can view a list of these by running `npx canon-cms-ingest list`. Then use the id found there to feed into the `-d` argument.
+Ingests are performed on a _dimension_ level, not a profile one. For example, for a bilateral profile like product/country, there are single ids for each dimension (product and country). You can view a list of these by running `npx canon-cms-ingest list`. Then use the id found there to feed into the `-d` argument.
 
 For the sake of permalinks, the ingest preserves slugs by default, even if the underlying data has changed its name. Use the `-s` switch to override this and generate slugs from scratch.
 
@@ -1212,7 +1256,7 @@ Selector values can be referenced anywhere through the site's contents, but if y
 
 At the top of every section editor in the CMS is the "Dimensions" panel. This panel lets you change which dimension is currently being displayed as the values for all of the generators and text. Simply use the search box in that panel to find a different profile dimension to preview!
 
-___
+---
 
 ## Release Notes
 
@@ -1238,23 +1282,23 @@ Here is a list of Minor CMS versions and their release notes:
 - [canon-cms@0.19.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.19.0)
 - [canon-cms@0.20.0](https://github.com/Datawheel/canon/releases/tag/%40datawheel%2Fcanon-cms%400.20.0)
 
-___
+---
 
 ## Migration
 
 For upgrading to new versions, there are currently several migration scripts:
 
-1) `npx canon-cms-migrate-legacy` (for DataUSA)
-2) `npx canon-cms-migrate-0.1` (for CDC or other 0.1 CMS users)
-3) `npx canon-cms-migrate-0.6` (for 0.6 CMS users)
-4) `npx canon-cms-migrate-0.7` (for 0.7 CMS users)
-5) `npx canon-cms-migrate-0.8` (for 0.8 CMS users)
-6) `npx canon-cms-migrate-0.9` (for 0.9 CMS users, for upgrade to 0.11 ONLY)
-7) `npx canon-cms-migrate-0.11` (for 0.10 or 0.11 CMS users, for upgrade to 0.12 ONLY)
-8) `npx canon-cms-migrate-0.12` (for 0.12 CMS users)
-9) `npx canon-cms-migrate-0.13` (for 0.13 CMS users)
-10) `npx canon-cms-migrate-0.16` (for 0.14, 0.15, or 0.16 CMS users, for upgrade to 0.17, 0.18, 0.19, or 0.20)
-11) `npx canon-cms-migrate-0.20` (for 0.17, 0.18, 0.19, or 0.20 CMS users, for upgrade to 0.21)
+1. `npx canon-cms-migrate-legacy` (for DataUSA)
+2. `npx canon-cms-migrate-0.1` (for CDC or other 0.1 CMS users)
+3. `npx canon-cms-migrate-0.6` (for 0.6 CMS users)
+4. `npx canon-cms-migrate-0.7` (for 0.7 CMS users)
+5. `npx canon-cms-migrate-0.8` (for 0.8 CMS users)
+6. `npx canon-cms-migrate-0.9` (for 0.9 CMS users, for upgrade to 0.11 ONLY)
+7. `npx canon-cms-migrate-0.11` (for 0.10 or 0.11 CMS users, for upgrade to 0.12 ONLY)
+8. `npx canon-cms-migrate-0.12` (for 0.12 CMS users)
+9. `npx canon-cms-migrate-0.13` (for 0.13 CMS users)
+10. `npx canon-cms-migrate-0.16` (for 0.14, 0.15, or 0.16 CMS users, for upgrade to 0.17, 0.18, 0.19, or 0.20)
+11. `npx canon-cms-migrate-0.20` (for 0.17, 0.18, 0.19, or 0.20 CMS users, for upgrade to 0.21)
 
 **Note:** Canon CMS Version 0.10.0 did **NOT** require a database migration, so the `0.9` script will output a `0.11` database.
 
@@ -1265,10 +1309,9 @@ For upgrading to new versions, there are currently several migration scripts:
 - `CANON_LANGUAGE_DEFAULT` - Required for slug generation - slugs for search members are generated based on the default language.
 - `CANON_CMS_LOGGING` - Not required, but recommended to turn on to observe the migration for any errors.
 
-
 ### Instructions
 
-The name of the script represents the version you wish to migrate **FROM**.  So, to upgrade a DB from 0.6 to 0.7, one would use `npx canon-cms-migrate-0.6`.  Currently both `legacy` and `0.1` upgrade directly to `0.6`.  From here on out, versions will upgrade **one dot version at a time** (exception: 0.9 to 0.11).
+The name of the script represents the version you wish to migrate **FROM**. So, to upgrade a DB from 0.6 to 0.7, one would use `npx canon-cms-migrate-0.6`. Currently both `legacy` and `0.1` upgrade directly to `0.6`. From here on out, versions will upgrade **one dot version at a time** (exception: 0.9 to 0.11).
 
 It is necessary that users spin up an entire new database for any CMS migration.
 
@@ -1286,7 +1329,7 @@ CANON_CMS_MIGRATION_NEW_DB_PW
 CANON_CMS_MIGRATION_NEW_DB_HOST
 ```
 
-These variables represent the old db you are migration **from** and the new db you are migrating **to**.  The new db will be **wiped every time** you run the script - the idea here is that you are building a new db from scratch.
+These variables represent the old db you are migration **from** and the new db you are migrating **to**. The new db will be **wiped every time** you run the script - the idea here is that you are building a new db from scratch.
 
 🔥 WHATEVER DB YOU CONFIGURE AS **NEW** WILL BE COMPLETELY DESTROYED AND BUILT FROM SCRATCH 🔥
 🔥 DO NOT SET `CANON_CMS_MIGRATION_NEW_DB_*` TO A CURRENTLY IMPORTANT DB🔥
