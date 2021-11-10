@@ -87,10 +87,43 @@ const sortProfileTree = (db, profiles) => {
   return profiles;
 };
 
+/*
+const runBlock = async(id, locale, acc = {}) => {
+  // Object.values(BLOCK_MAP[block.type]);
+  let block = await db.block.findOne({...blockReqFull, where: {id}}).catch(catcher);
+  // todo1.0 make a neat reducer that rolls up all available locale keys
+  block = block.toJSON();
+  block.contentByLocale = block.contentByLocale.reduce(contentReducer, {});
+  const outputs = Object.keys(block.contentByLocale[locale].content).reduce((acc2, d) => ({...acc2, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
+  acc = {...acc, ...outputs};
+  if (block.inputs.length === 0) return acc;
+  return block.inputs.reduce((acc3, d) => runBlock(d.id, locale, acc3), acc);
+};
+*/
+
 const sortSection = (db, section) => {
   section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
   section.blocks = flatSort(db.blocks, section.blocks);
   section.blocks.forEach(block => block.contentByLocale = block.contentByLocale.reduce(contentReducer, {}));
+
+  // todo1.0 move this somewhere to combine it with the one in mortarRoute
+  // todo1.0 this will have to consider profile-wide blocks too
+  const runBlock = (id, locale) => {
+    const block = section.blocks.find(d => d.id === id);
+    block._variables = Object.keys(block.contentByLocale[locale].content).reduce((acc2, d) => ({...acc2, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
+    for (const input of block.inputs) {
+      runBlock(input.block_input.input_id, localeDefault);
+    }
+  };
+
+  const leaves = section.blocks.filter(d => d.consumers.length === 0);
+  for (const leaf of leaves) {
+    for (const input of leaf.inputs) {
+      runBlock(input.block_input.input_id, localeDefault);
+    }
+  }
+
+
   // todo1.0
   // ordering is nested in section_selector - bubble for top-level sorting
   // section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);

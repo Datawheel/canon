@@ -6,7 +6,8 @@
 const blockReqFull = {
   include: [
     {association: "contentByLocale", separate: true},
-    {association: "inputs"}
+    {association: "inputs"},
+    {association: "consumers"}
   ]
 };
 

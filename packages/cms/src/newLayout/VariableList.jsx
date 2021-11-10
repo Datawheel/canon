@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import {Button, Intent} from "@blueprintjs/core";
+import {useDispatch, useSelector} from "react-redux";
 
 import "./VariableList.css";
 
@@ -11,11 +12,19 @@ const MODES = {
 /**
  *
  */
-function VariableList({variables = {}}) {
+function VariableList({id}) {
 
-  for (let i = 0; i < 200; i++) {
-    variables[`variable${i}`] = Math.random();
-  }
+  const dispatch = useDispatch();
+
+  /* redux */
+  const {block, variables} = useSelector(state => {
+    const block = state.cms.profiles.entities.blocks[id];
+    const inputs = Object.values(state.cms.profiles.entities.blocks).filter(d => block.inputs.includes(d.id));
+    const variables = inputs.reduce((acc, d) => ({...acc, ...d._variables}), {});
+    return {block, variables};
+  });
+
+  if (!block) return null;
 
   return (
     <div className="cms-block-variable-list">
