@@ -1,13 +1,8 @@
-/* react */
 import React, {useState} from "react";
 import {Button, Intent, Icon} from "@blueprintjs/core";
 import {useDispatch, useSelector} from "react-redux";
 
-/* components */
-import AceWrapper from "../../components/editors/AceWrapper";
-
-/* css */
-import "./GeneratorOutput.css";
+import "./GeneratorOutputInline.css";
 
 /**
  * When a block adds an API call as an input, the user will see this panel,
@@ -16,7 +11,7 @@ import "./GeneratorOutput.css";
  * and subscribing to it as an input. However, to help hide the generators, this inline editor
  * handles everything inline, in one panel, and generators are then hidden from the user.
  */
-function GeneratorOutput({id, editors}) {
+function GeneratorOutputInline({id}) {
 
   const dispatch = useDispatch();
 
@@ -26,16 +21,12 @@ function GeneratorOutput({id, editors}) {
     return {localeDefault};
   });
 
-  const {codeEditor} = editors;
-
   return (
-    <div className="cms-generator-output">
-      <label key="label">api</label>
-      <input key="api" />
-      {codeEditor}
+    <div className="cms-generator-output-inline">
+      output for {id}
     </div>
   );
 
 }
 
-export default GeneratorOutput;
+export default GeneratorOutputInline;

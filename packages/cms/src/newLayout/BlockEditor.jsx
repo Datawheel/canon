@@ -1,27 +1,23 @@
 /* react */
 import React, {useState, useEffect} from "react";
-import {Button, Intent} from "@blueprintjs/core";
 import {useSelector} from "react-redux";
+import {Button, Intent} from "@blueprintjs/core";
 
 /* components */
 import VariableList from "./VariableList";
 import BlockInput from "./blocks/BlockInput";
 import BlockOutput from "./blocks/BlockOutput";
 import BlockSettings from "./blocks/BlockSettings";
+import GeneratorOutput from "./blocks/GeneratorOutput";
 
 /* css */
 import "./BlockEditor.css";
+import {BLOCK_TYPES} from "../utils/consts/cms";
 
 const MODES = {
   INPUT: "input",
   OUTPUT: "output",
   SETTINGS: "settings"
-};
-
-const COMPONENTS = {
-  [MODES.INPUT]: BlockInput,
-  [MODES.OUTPUT]: BlockOutput,
-  [MODES.SETTINGS]: BlockSettings
 };
 
 /**
@@ -40,13 +36,19 @@ function BlockEditor({id, editors}) {
 
   if (!block) return null;
 
+  const COMPONENTS = {
+    [MODES.INPUT]: BlockInput,
+    [MODES.OUTPUT]: block.type === BLOCK_TYPES.GENERATOR ? GeneratorOutput : BlockOutput,
+    [MODES.SETTINGS]: BlockSettings
+  };
+
   /* state */
   const [mode, setMode] = useState(MODES.OUTPUT);
 
   const BlockPanel = COMPONENTS[mode];
 
   useEffect(() => {
-    console.log("mount");
+    //
   }, []);
 
   /**

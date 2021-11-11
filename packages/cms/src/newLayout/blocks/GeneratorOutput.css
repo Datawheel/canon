@@ -1,0 +1,13 @@
+.cms-generator-output {
+  background-color:lightblue;
+  width: 800px;
+  height: 700px;
+  margin-top:40px;
+  display:flex;
+  flex-direction:column;
+}
+
+.cms-generator-output-ace {
+  min-width: 800px;
+  min-height: 550px;
+}

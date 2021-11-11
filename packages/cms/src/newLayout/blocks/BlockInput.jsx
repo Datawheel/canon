@@ -23,6 +23,7 @@ function BlockInput({id}) {
   const {block, sourceBlocks} = useSelector(state => {
     const block = state.cms.profiles.entities.blocks[id];
     const sourceBlocks = Object.values(state.cms.profiles.entities.blocks).filter(d => d.section_id === block.section_id && d.id !== block.id);
+    // sourceBlocks.push({type: "+New API Call", value: "api"});
     return {block, sourceBlocks};
   });
 

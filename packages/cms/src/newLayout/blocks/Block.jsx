@@ -19,16 +19,26 @@ import sanitizeBlockContent from "../../utils/sanitizeBlockContent";
 import {updateEntity} from "../../actions/profiles";
 
 /* enums */
-import {ENTITY_TYPES, BLOCK_MAP} from "../../utils/consts/cms";
+import {ENTITY_TYPES, BLOCK_MAP, BLOCK_TYPES} from "../../utils/consts/cms";
 import {REQUEST_STATUS} from "../../utils/consts/redux";
 
 /* css */
 import "./Block.css";
 
+/**
+ * A block can be either a true block, or an input to another block.
+ * To help redux access the proper normalized array, map their psql name to their redux name
+ */
 const LOOKUP_MAP = {
   block: "blocks",
   block_input: "inputs"
 };
+
+/**
+ * Most blocks have translatable content, and store their locale-specific copies in a content table.
+ * Generators and vizes are the exception - they store their one & only version directly in the psql block.
+ */
+const hasNoLocaleContent = type => [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ].includes(type);
 
 /**
  * A Block is a visual element of any kind embedded in a Section. It can be a stat,
@@ -50,6 +60,13 @@ function Block({id, entity}) {
 
   if (!block) return null;
 
+  /**
+   * The content of the entire CMS is kept in a normalized redux object called profiles.
+   * These redux-level props cannot be edited directly, so each of the editors (draft, ace)
+   * will clone their contents on mount, and report their new states here via callbacks.
+   * When the user presses save, we have access to the current stateContent here, so it can
+   * be persisted to psql, pulled back into redux, and redistributed as props again.
+   */
   const [stateContent, setStateContent] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -58,16 +75,27 @@ function Block({id, entity}) {
   };
 
   const onSave = () => {
-    // Remove draftjs html cruft and leading/trailing spaces from all content fields
-    const content = Object.keys(stateContent).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(stateContent[d])}), {});
-    const payload = {
-      id: block.id,
-      content: [{
+    let payload;
+    if (hasNoLocaleContent(block.type)) {
+      payload = {
         id: block.id,
-        locale: localeDefault,
-        content
-      }]
-    };
+        api: stateContent.api,
+        logic: stateContent.logic
+      };
+      console.log(payload);
+    }
+    else {
+      // Remove draftjs html cruft and leading/trailing spaces from all content fields
+      const content = Object.keys(stateContent).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(stateContent[d])}), {});
+      payload = {
+        id: block.id,
+        content: [{
+          id: block.id,
+          locale: localeDefault,
+          content
+        }]
+      };
+    }
     setLoading(true);
     dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload)).then(resp => {
       if (resp.status === REQUEST_STATUS.SUCCESS) {
@@ -89,6 +117,7 @@ function Block({id, entity}) {
   };
 
   const onChangeCode = logic => {
+    console.log(logic);
     setStateContent({...stateContent, logic});
   };
 
