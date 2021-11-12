@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Button, Intent, Icon} from "@blueprintjs/core";
+import {ActionIcon, Group} from "@mantine/core";
+import {HiOutlinePlusCircle} from "react-icons/hi";
 
 import SectionHeader from "./SectionHeader";
 import EntityAddButton from "../components/EntityAddButton";
@@ -50,7 +51,7 @@ function Section({id, isDragging, dragHandleProps}) {
           label="Block Type"
           onSubmit={value => addBlock(value)}
           selections={Object.values(BLOCK_TYPES).map(d => ({label: d, value: d}))}
-          renderTarget={props => <Button {...props} className="cms-profile-add-block-button" intent={Intent.PRIMARY}><Icon icon="add" /></Button>}
+          target={<ActionIcon variant="filled" color="blue" radius="xl" className="cms-profile-add-block-button"><HiOutlinePlusCircle size={30} /></ActionIcon>}
         />
       </div>
     </div>

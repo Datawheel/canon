@@ -47,7 +47,7 @@ function BlockInput({id}) {
         label="Block Type"
         onSubmit={value => addInput(value)}
         selections={sourceBlocks.map(d => ({label: d.type, value: d.id}))}
-        renderTarget={props => <Button {...props} className="cms-block-add-input-button" intent={Intent.PRIMARY}><Icon icon="add" /></Button>}
+        target={<Button className="cms-block-add-input-button" >add</Button>}
       />
     </div>
   );

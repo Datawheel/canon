@@ -1,27 +1,25 @@
 import React, {useState} from "react";
-import {Button, Icon, Intent, PopoverPosition} from "@blueprintjs/core";
-import {Popover2, Popover2InteractionKind} from "@blueprintjs/Popover2";
 
 import useKeyPress from "../hooks/listeners/useKeyPress";
 import slugifyInput from "../../utils/web/slugifyInput";
 
 import {ENTITY_ADD_BUTTON_TYPES} from "./consts";
 
-import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
+import {Popover, Button, Group, TextInput, Select} from "@mantine/core";
 
 /**
  *
  */
-function EntityAddButton({type = ENTITY_ADD_BUTTON_TYPES.TEXT, label, onSubmit, renderTarget, urlSafe, selections = []}) {
+function EntityAddButton({type = ENTITY_ADD_BUTTON_TYPES.TEXT, label, onSubmit, target, urlSafe, selections = []}) {
 
   /* state */
   const [name, setName] = useState("");
   const [selection, setSelection] = useState(type === ENTITY_ADD_BUTTON_TYPES.SELECT && selections[0] ? selections[0].value : null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [opened, setOpened] = useState(false);
 
   const onClose = () => {
     setName("");
-    setIsOpen(false);
+    setOpened(false);
   };
 
   const onChangeText = e => {
@@ -29,7 +27,7 @@ function EntityAddButton({type = ENTITY_ADD_BUTTON_TYPES.TEXT, label, onSubmit, 
   };
 
   const onChangeSelect = e => {
-    setSelection(e.target.value);
+    setSelection(e);
   };
 
   const submit = () => {
@@ -41,32 +39,27 @@ function EntityAddButton({type = ENTITY_ADD_BUTTON_TYPES.TEXT, label, onSubmit, 
   const ENTER_KEY = 13;
   const enterPress = useKeyPress(ENTER_KEY);
   const ready = type === ENTITY_ADD_BUTTON_TYPES.TEXT && name || type === ENTITY_ADD_BUTTON_TYPES.SELECT;
-  if (isOpen && ready && enterPress) submit();
+  if (opened && ready && enterPress) submit();
 
   const popoverProps = {
-    isOpen,
+    opened,
     onClose,
-    interactionKind: Popover2InteractionKind.CLICK,
-    placement: PopoverPosition.AUTO
+    target: React.cloneElement(target, {onClick: () => setOpened(true)}),
+    position: "right"
   };
 
   return (
-    <Popover2
+    <Popover
+      withArrow
       {...popoverProps}
-      content={<div className="cms-profile-name-box">
+    >
+      <Group direction="column">
         <label>{label}</label>
-        {type === ENTITY_ADD_BUTTON_TYPES.TEXT && <input type="text" value={name} autoFocus onChange={onChangeText} />}
-        {type === ENTITY_ADD_BUTTON_TYPES.SELECT && <select autoFocus onChange={onChangeSelect} value={selection}>
-          {selections.map((d, i) => <option key={i} value={d.value}>{d.label}</option>)}
-        </select>}
+        {type === ENTITY_ADD_BUTTON_TYPES.TEXT && <TextInput placeholder="Enter Name" value={name} autoFocus onChange={onChangeText} />}
+        {type === ENTITY_ADD_BUTTON_TYPES.SELECT && <Select autoFocus onChange={onChangeSelect} value={selection} data={selections.map(d => ({value: d.value, label: d.label}))} /> }
         <Button onClick={submit} disabled={!ready}>Submit</Button>
-      </div>}
-      renderTarget={({ref, ...targetProps}) =>
-        renderTarget
-          ? renderTarget({...targetProps, elementRef: ref, onClick: () => setIsOpen(true)})
-          : <Button {...targetProps} elementRef={ref} onClick={() => setIsOpen(true)} intent={Intent.PRIMARY}><Icon icon="add" /></Button>
-      }
-    />
+      </Group>
+    </Popover>
 
   );
 

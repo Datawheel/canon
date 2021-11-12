@@ -1,12 +1,11 @@
 import React, {useState} from "react";
-import {Button} from "@blueprintjs/core";
+import {ActionIcon, Group} from "@mantine/core";
+import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";
 
-import SettingsCog from "../SettingsCog";
 import CogMenu from "../components/CogMenu";
 
 import {ENTITY_TYPES} from "../../utils/consts/cms";
 
-import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import "./SectionHeader.css";
 
 /**
@@ -18,13 +17,13 @@ function SectionHeader({section, dragHandleProps}) {
 
   return (
     <div className="cms-section-header">
-      <Button key="b1" small={true} className="cms-section-drag-button" icon="drag-handle-horizontal" {...dragHandleProps}/>
-      <span className="cms-section-header-slug">#{section.slug}</span>
-      <Button key="b2" small={true} className="cms-section-edit-button" icon="edit" />
-      <SettingsCog
-        content={<CogMenu type={ENTITY_TYPES.SECTION} id={section.id}/>}
-        renderTarget={props => <Button {...props} key="b3" className="cms-section-cog-button" small={true} icon="cog" />}
-      />
+      <Group>
+        {/* todo1.0 - for some reason neither an html button nor a mantine button can accept these dragHandleProps - need to revisit why */}
+        <span key="b1" className="cms-section-drag-button" {...dragHandleProps}>drag</span>
+        <span key="s1" className="cms-section-header-slug">#{section.slug}</span>
+        <ActionIcon ><HiOutlinePencil size={20} /></ActionIcon>
+        <CogMenu key="cog" type={ENTITY_TYPES.SECTION} id={section.id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
+      </Group>
     </div>
   );
 

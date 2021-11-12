@@ -6,11 +6,11 @@
 }
 
 .cms-section-drag-button {
-  position: absolute;
-  top: 5px;
-  left: 5px;
+
+
 }
 
+/*
 .cms-section-edit-button {
   position: absolute;
   top: 5px;
@@ -22,6 +22,7 @@
   top: 5px;
   right: 5px;
 }
+*/
 
 .cms-section-header-slug {
   font-family: "Courier New";

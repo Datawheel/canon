@@ -1,34 +1,35 @@
+/* react */
 import React, {useState} from "react";
 import {useDispatch} from "react-redux";
-import {Alert, Menu, MenuItem, MenuDivider, Intent} from "@blueprintjs/core";
+import {Modal, Menu, Button, Group} from "@mantine/core";
+import {HiOutlineTrash, HiOutlineEye} from "react-icons/hi";
 
+/* redux */
 import {deleteEntity, deleteProfile} from "../../actions/profiles";
 
+/* enums */
 import {ENTITY_TYPES, ENTITY_PRETTY_NAMES} from "../../utils/consts/cms";
 
 /**
  *
  */
-function CogMenu({type, id}) {
+function CogMenu({type, id, control}) {
 
   const PRETTY_NAME = ENTITY_PRETTY_NAMES[type] || "Entity";
 
   const dispatch = useDispatch();
 
-  const [showAlert, setShowAlert] = useState(null);
+  const [opened, setOpened] = useState(false);
 
-  const toggleVisibility = e => {
-    e.stopPropagation();
+  const toggleVisibility = () => {
     console.log("todo1.0 vis switch");
   };
 
-  const maybeDelete = e => {
-    e.stopPropagation();
-    setShowAlert(true);
-  };
+  const maybeDelete = () => setOpened(true);
+  const onClose = () => setOpened(false);
 
   const onDelete = () => {
-    setShowAlert(false);
+    onClose();
     if (type === ENTITY_TYPES.PROFILE) {
       dispatch(deleteProfile(id));
     }
@@ -37,29 +38,28 @@ function CogMenu({type, id}) {
     }
   };
 
-  const alertProps = {
-    canOutsideClickCancel: true,
-    icon: "trash",
-    isOpen: showAlert,
-    intent: Intent.DANGER,
-    confirmButtonText: `Yes, Delete ${PRETTY_NAME}`,
-    onConfirm: onDelete,
-    cancelButtonText: "Cancel",
-    onCancel: () => setShowAlert(false)
+  const modalProps = {
+    opened,
+    title: "Are you sure?",
+    overlayColor: "red",
+    overlayOpacity: 0.1,
+    onClose
   };
 
   return (
     <React.Fragment>
-      <div className="cms-cog-actions">
-        <Menu>
-          <MenuItem icon="eye-open" onClick={toggleVisibility} text="Visible" />
-          <MenuDivider />
-          <MenuItem icon="trash" onClick={maybeDelete} text="Delete" />
-        </Menu>
-      </div>
-      <Alert {...alertProps} key="alert">
+      <Menu control={control}>
+        <Menu.Label>Settings</Menu.Label>
+        <Menu.Item icon={<HiOutlineEye />} onClick={toggleVisibility}>Visible</Menu.Item>
+        <Menu.Item icon={<HiOutlineTrash />} onClick={maybeDelete}>Delete</Menu.Item>
+      </Menu>
+      <Modal {...modalProps} key="modal">
         {`Are you sure you want to delete this ${PRETTY_NAME} and all its children? This action cannot be undone.`}
-      </Alert>
+        <Group position="right" style={{marginTop: 10}}>
+          <Button color="blue" onClick={onClose}>Cancel</Button>
+          <Button color="red" onClick={onDelete}>Yes, Delete it.</Button>
+        </Group>
+      </Modal>
     </React.Fragment>
   );
 

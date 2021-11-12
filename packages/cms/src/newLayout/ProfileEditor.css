@@ -6,7 +6,6 @@
 
 .cms-section-container {
   width: 100%;
-  position: relative;
   height: 300px;
 }
 
@@ -15,10 +14,7 @@
 }
 
 .cms-profile-add-section-button {
-  position:absolute;
-  bottom: -16px;
-  left: 49%; /* lol sorry dave */
-  z-index: 1;
+
 }
 
 

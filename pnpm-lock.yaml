@@ -96,6 +96,7 @@ importers:
       react-ace: 9.4.1
       react-beautiful-dnd: ^13.1.0
       react-clipboard.js: ^2.0.7
+      react-icons: ^4.3.1
       react-sizeme: ^2.6.7
       react-table: 6.10.3
       sharp: ^0.28.1
@@ -155,6 +156,7 @@ importers:
       react-ace: 9.4.1
       react-beautiful-dnd: 13.1.0
       react-clipboard.js: 2.0.16
+      react-icons: 4.3.1
       react-sizeme: 2.6.12
       react-table: 6.10.3
       sharp: 0.28.1
@@ -11216,6 +11218,12 @@ packages:
       html-parse-stringify2: 2.0.1
       i18next: 10.6.0
       react: 16.13.1
+    dev: false
+
+  /react-icons/4.3.1:
+    resolution: {integrity: sha512-cB10MXLTs3gVuXimblAdI71jrJx8njrJZmNMEMC+sQu5B/BIOmlsAjskdqpn81y8UBVEGuHODd7/ci5DvoSzTQ==}
+    peerDependencies:
+      react: '*'
     dev: false
 
   /react-is/16.13.1:

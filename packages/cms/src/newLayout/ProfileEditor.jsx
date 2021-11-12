@@ -1,19 +1,26 @@
+/* react */
 import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Button, Intent} from "@blueprintjs/core";
+import {ActionIcon, Center} from "@mantine/core";
+import {HiOutlinePlusCircle} from "react-icons/hi";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 
+/* components */
 import CMSHeader from "./CMSHeader";
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 import EntityAddButton from "./components/EntityAddButton";
 
+/* redux */
 import {newEntity, updateEntity} from "../actions/profiles";
 
+/* utils */
 import insertAtOrdering from "../utils/insertAtOrdering";
+
+/* enums */
 import {ENTITY_TYPES, SECTION_TYPES} from "../utils/consts/cms";
 
-import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
+/* css */
 import "./ProfileEditor.css";
 
 /**
@@ -45,20 +52,8 @@ function ProfileEditor({id}) {
     const payload = {id, ordering};
     // update the sections optimistically (locally) while sending the asynchronous update
     setSections(insertAtOrdering(sections, payload.id, payload.ordering));
-    // setIsDragging(false);
     dispatch(updateEntity(ENTITY_TYPES.SECTION, payload));
   };
-
-  /*
-  const getStyle = style => {
-    if (!isDragging) return style;
-    return {
-      ...style,
-      height: "40px",
-      overflow: "hidden"
-    };
-  };
-  */
 
   const addSection = (slug, ordering) => {
     const payload = {
@@ -80,14 +75,16 @@ function ProfileEditor({id}) {
       <CMSHeader id={profile.id}/>
       <div className="cms-section-container">
         {heroSection && <Hero key="hero" id={heroSection} />}
-        <EntityAddButton
-          label="Section Slug"
-          onSubmit={name => addSection(name, 1)}
-          urlSafe={true}
-          renderTarget={props => <Button {...props} className="cms-profile-add-section-button" icon="add" intent={Intent.PRIMARY} iconSize={20}/>}
-        />
+        <Center>
+          <EntityAddButton
+            label="Section Slug"
+            onSubmit={name => addSection(name, 1)}
+            urlSafe={true}
+            target={<ActionIcon variant="filled" color="blue" radius="xl" className="cms-profile-add-section-button"><HiOutlinePlusCircle size={30} /></ActionIcon>}
+          />
+        </Center>
       </div>
-      <DragDropContext /* onBeforeCapture={() => setIsDragging(true)}*/ onDragEnd={onDragEnd}>
+      <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="sections">
           {provided =>
             <div ref={provided.innerRef} {...provided.droppableProps} className="cms-droppable-container">
@@ -99,15 +96,16 @@ function ProfileEditor({id}) {
                       className="cms-section-container"
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      // style={getStyle(provided.draggableProps.style)}
                     >
                       <Section id={section} isDragging={snapshot.isDragging} dragHandleProps={provided.dragHandleProps}/>
-                      <EntityAddButton
-                        label="Section Slug"
-                        urlSafe={true}
-                        onSubmit={name => addSection(name, i + 2)}
-                        renderTarget={props => <Button {...props} className="cms-profile-add-section-button" icon="add" intent={Intent.PRIMARY} iconSize={20}/>}
-                      />
+                      <Center>
+                        <EntityAddButton
+                          label="Section Slug"
+                          urlSafe={true}
+                          onSubmit={name => addSection(name, i + 2)}
+                          target={<ActionIcon variant="filled" color="blue" className="cms-profile-add-section-button" radius="xl" ><HiOutlinePlusCircle size={30} /></ActionIcon>}
+                        />
+                      </Center>
                     </div>
                   }
                 </Draggable>

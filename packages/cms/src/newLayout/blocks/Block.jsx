@@ -1,15 +1,17 @@
 /* react */
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Button, Dialog} from "@blueprintjs/core";
+import {Dialog} from "@blueprintjs/core";
+import {ActionIcon, Button} from "@mantine/core";
+import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";
 
 /* components */
-import SettingsCog from "../SettingsCog";
 import CogMenu from "../components/CogMenu";
 import BlockEditor from "../BlockEditor";
 import BlockEditorFooter from "../components/BlockEditorFooter";
 import NewRichTextEditor from "../editors/NewRichTextEditor";
 import AceWrapper from "../../components/editors/AceWrapper";
+
 
 /* utils */
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
@@ -150,26 +152,23 @@ function Block({id, entity}) {
   };
 
   const cogProps = {
-    type: entity,
     // The action cog needs an entity type and an id to perform actions on.
     // If this is a BLOCK, then its just the id - but if it's a BLOCK_INPUT, then
     // a *subscription* to a block is being deleted, and must use that id instead.
-    id: entity === ENTITY_TYPES.BLOCK_INPUT ? block.block_input.id : block.id
+    id: entity === ENTITY_TYPES.BLOCK_INPUT ? block.block_input.id : block.id,
+    type: entity
   };
 
   return (
     <React.Fragment>
       <div className="cms-section-block" >
         <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
-        {entity === ENTITY_TYPES.BLOCK && <Button className="cms-block-edit-button" onClick={onClick} icon="edit" small={true} /> }
-        <SettingsCog
-          content={<CogMenu {...cogProps} />}
-          renderTarget={props => <Button {...props} key="b3" className="cms-block-cog-button" small={true} icon="cog" />}
-        />
+        {entity === ENTITY_TYPES.BLOCK && <ActionIcon key="edit" onClick={onClick}><HiOutlinePencil size={20} /></ActionIcon> }
+        <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
       </div>
       <Dialog key="d" {...dialogProps}>
-        <BlockEditor id={id} editors={editors}/>
-        <BlockEditorFooter onSave={onSave}/>
+        <BlockEditor key="be" id={id} editors={editors}/>
+        <BlockEditorFooter key="bef" onSave={onSave}/>
       </Dialog>
     </React.Fragment>
   );
