@@ -1,7 +1,6 @@
 /* react */
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {} from "@blueprintjs/core";
 import {Modal, ActionIcon, Button} from "@mantine/core";
 import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";
 
@@ -10,7 +9,6 @@ import CogMenu from "../components/CogMenu";
 import BlockEditor from "../BlockEditor";
 import NewRichTextEditor from "../editors/NewRichTextEditor";
 import AceWrapper from "../../components/editors/AceWrapper";
-
 
 /* utils */
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
