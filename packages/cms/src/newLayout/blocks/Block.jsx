@@ -1,14 +1,13 @@
 /* react */
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Dialog} from "@blueprintjs/core";
-import {ActionIcon, Button} from "@mantine/core";
+import {} from "@blueprintjs/core";
+import {Modal, ActionIcon, Button} from "@mantine/core";
 import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";
 
 /* components */
 import CogMenu from "../components/CogMenu";
 import BlockEditor from "../BlockEditor";
-import BlockEditorFooter from "../components/BlockEditorFooter";
 import NewRichTextEditor from "../editors/NewRichTextEditor";
 import AceWrapper from "../../components/editors/AceWrapper";
 
@@ -52,7 +51,7 @@ function Block({id, entity}) {
 
   const dispatch = useDispatch();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [opened, setOpened] = useState(false);
 
   /* redux */
   const {localeDefault, block} = useSelector(state => ({
@@ -73,7 +72,7 @@ function Block({id, entity}) {
   const [loading, setLoading] = useState(false);
 
   const onClick = () => {
-    if (entity === ENTITY_TYPES.BLOCK) setIsOpen(true);
+    if (entity === ENTITY_TYPES.BLOCK) setOpened(true);
   };
 
   const onSave = () => {
@@ -101,7 +100,7 @@ function Block({id, entity}) {
     setLoading(true);
     dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload)).then(resp => {
       if (resp.status === REQUEST_STATUS.SUCCESS) {
-        setIsOpen(false);
+        setOpened(false);
       }
       else {
         // todo1.0 toast error
@@ -141,12 +140,12 @@ function Block({id, entity}) {
 
   const editors = {textEditor, codeEditor};
 
-  const dialogProps = {
-    className: "cms-block-editor-dialog",
+  const modalProps = {
     title: `${upperCaseFirst(block.type)} editor`,
-    isOpen,
+    size: "70%",
+    opened,
     // onClose: this.maybeCloseEditorWithoutSaving.bind(this),
-    onClose: () => setIsOpen(false)
+    onClose: () => setOpened(false)
     // onDelete: this.maybeDelete.bind(this),
     // onSave: this.save.bind(this)
   };
@@ -166,10 +165,10 @@ function Block({id, entity}) {
         {entity === ENTITY_TYPES.BLOCK && <ActionIcon key="edit" onClick={onClick}><HiOutlinePencil size={20} /></ActionIcon> }
         <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
       </div>
-      <Dialog key="d" {...dialogProps}>
+      <Modal key="d" {...modalProps}>
         <BlockEditor key="be" id={id} editors={editors}/>
-        <BlockEditorFooter key="bef" onSave={onSave}/>
-      </Dialog>
+        <Button onClick={onSave}>Save</Button>
+      </Modal>
     </React.Fragment>
   );
 
