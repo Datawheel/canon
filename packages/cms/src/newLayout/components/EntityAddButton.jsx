@@ -38,10 +38,11 @@ function EntityAddButton({type = ENTITY_ADD_BUTTON_TYPES.TEXT, label, onSubmit, 
 
   const ENTER_KEY = 13;
   const enterPress = useKeyPress(ENTER_KEY);
-  const ready = type === ENTITY_ADD_BUTTON_TYPES.TEXT && name || type === ENTITY_ADD_BUTTON_TYPES.SELECT;
+  const ready = type === ENTITY_ADD_BUTTON_TYPES.TEXT && name || type === ENTITY_ADD_BUTTON_TYPES.SELECT && selection;
   if (opened && ready && enterPress) submit();
 
   const popoverProps = {
+    zIndex: 1001, // Over Mantine Modal's 1000
     opened,
     onClose,
     target: React.cloneElement(target, {onClick: () => setOpened(true)}),
@@ -56,8 +57,8 @@ function EntityAddButton({type = ENTITY_ADD_BUTTON_TYPES.TEXT, label, onSubmit, 
       <Group direction="column">
         <label>{label}</label>
         {type === ENTITY_ADD_BUTTON_TYPES.TEXT && <TextInput placeholder="Enter Name" value={name} autoFocus onChange={onChangeText} />}
-        {type === ENTITY_ADD_BUTTON_TYPES.SELECT && <Select autoFocus onChange={onChangeSelect} value={selection} data={selections.map(d => ({value: d.value, label: d.label}))} /> }
-        <Button onClick={submit} disabled={!ready}>Submit</Button>
+        {type === ENTITY_ADD_BUTTON_TYPES.SELECT && <Select searchable={true} onChange={onChangeSelect} value={selection} data={selections.map(d => ({value: d.value, label: d.label}))} /> }
+        <Button onClick={submit} loading={!ready}>Submit</Button>
       </Group>
     </Popover>
 

@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Button, Intent, Icon} from "@blueprintjs/core";
+import {Button} from "@mantine/core";
 import {useDispatch, useSelector} from "react-redux";
 
 import EntityAddButton from "../components/EntityAddButton";
@@ -44,9 +44,9 @@ function BlockInput({id}) {
       )}
       <EntityAddButton
         type={ENTITY_ADD_BUTTON_TYPES.SELECT}
-        label="Block Type"
+        label="Block"
         onSubmit={value => addInput(value)}
-        selections={sourceBlocks.map(d => ({label: d.type, value: d.id}))}
+        selections={sourceBlocks.map(d => ({label: `${d.type}(${d.id})`, value: d.id}))}
         target={<Button className="cms-block-add-input-button" >add</Button>}
       />
     </div>

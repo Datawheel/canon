@@ -48,13 +48,13 @@ function CogMenu({type, id, control}) {
 
   return (
     <React.Fragment>
-      <Menu control={control}>
+      <Menu zIndex={1001} control={control}>
         <Menu.Label>Settings</Menu.Label>
         <Menu.Item icon={<HiOutlineEye />} onClick={toggleVisibility}>Visible</Menu.Item>
         <Menu.Item icon={<HiOutlineTrash />} onClick={maybeDelete}>Delete</Menu.Item>
       </Menu>
       <Modal {...modalProps} key="modal">
-        {`Are you sure you want to delete this ${PRETTY_NAME} and all its children? This action cannot be undone.`}
+        Are you sure you want to delete this {PRETTY_NAME} and all its children? This action cannot be undone.
         <Group position="right" style={{marginTop: 10}}>
           <Button color="blue" onClick={onClose}>Cancel</Button>
           <Button color="red" onClick={onDelete}>Yes, Delete it.</Button>
