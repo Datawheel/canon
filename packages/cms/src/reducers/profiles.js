@@ -43,7 +43,7 @@ export default (profiles = {}, action) => {
           sections: Object.values(profiles.entities.sections)
             .map(d => d.id === action.data.section_id ? {...d, blocks: d.blocks.concat([action.data.id])} : d)
             .reduce((acc, d) => ({...acc, [d.id]: d}), {}),
-          blocks: Object.values(profiles.entities.blocks)
+          blocks: Object.values(profiles.entities.blocks ? profiles.entities.blocks : {})
             .filter(d => d.section_id === action.data.section_id)
             .map(d => d.ordering > action.data.ordering ? {...d, ordering: d.ordering + 1} : d)
             .concat(action.data)
