@@ -3,6 +3,7 @@ import {useDispatch, useSelector} from "react-redux";
 import yn from "yn";
 
 import {fetchData, isAuthenticated} from "@datawheel/canon-core";
+import Loading from "$app/components/Loading";
 
 import AuthForm from "./components/interface/AuthForm";
 import ProfilePicker from "./newLayout/ProfilePicker";
@@ -87,7 +88,7 @@ function NewBuilder({router}) {
   }, [pathObjString]);
 
   if (!isEnabled) return null;
-  if (!formatterFunctions) return <div>Loading...</div>;
+  if (!formatterFunctions) return <Loading />;
   // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
   if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
   // Prevent accidental back swipes while working in the admin panel
