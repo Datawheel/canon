@@ -26,12 +26,11 @@ function GeneratorOutput({id, editors}) {
     return {localeDefault};
   });
 
-  const {codeEditor} = editors;
+  const {apiInput, codeEditor} = editors;
 
   return (
     <div className="cms-generator-output">
-      <label key="label">api</label>
-      <input key="api" />
+      {apiInput}
       {codeEditor}
     </div>
   );

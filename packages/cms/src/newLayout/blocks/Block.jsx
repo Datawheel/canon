@@ -1,7 +1,7 @@
 /* react */
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Modal, ActionIcon, Button} from "@mantine/core";
+import {Modal, ActionIcon, Button, TextInput} from "@mantine/core";
 import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";
 
 /* components */
@@ -78,10 +78,10 @@ function Block({id, entity}) {
     if (hasNoLocaleContent(block.type)) {
       payload = {
         id: block.id,
-        api: stateContent.api,
-        logic: stateContent.logic
+        ...stateContent
       };
       console.log(payload);
+      return;
     }
     else {
       // Remove draftjs html cruft and leading/trailing spaces from all content fields
@@ -116,9 +116,19 @@ function Block({id, entity}) {
   };
 
   const onChangeCode = logic => {
-    console.log(logic);
     setStateContent({...stateContent, logic});
   };
+
+  const onChangeInput = e => {
+    setStateContent({...stateContent, api: e.target.value});
+  };
+
+  const apiInput = <TextInput
+    placeHolder="API"
+    type="url"
+    size="xs"
+    onChange={onChangeInput}
+  />;
 
   const textEditor = <NewRichTextEditor
     locale={localeDefault}
@@ -136,7 +146,7 @@ function Block({id, entity}) {
     // {...this.props}
   />;
 
-  const editors = {textEditor, codeEditor};
+  const editors = {textEditor, codeEditor, apiInput};
 
   const modalProps = {
     title: `${upperCaseFirst(block.type)} editor`,
