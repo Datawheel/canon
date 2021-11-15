@@ -8,6 +8,7 @@ const PromiseThrottle = require("promise-throttle"),
       mortarEval = require("../utils/mortarEval"),
       prepareProfile = require("../utils/prepareProfile"),
       {profileReqFull, blockReqFull} = require("../utils/sequelize/ormHelpers"),
+      {runBlock} = require("../utils/sequelize/blockHelpers"),
       sequelize = require("sequelize"),
       urlSwap = require("../utils/urlSwap"),
       varSwapRecursive = require("../utils/varSwapRecursive"),
@@ -273,45 +274,7 @@ module.exports = function(app) {
 
   };
 
-  /**
-   * Run a single block. This requires running all of its parent blocks until an input-less block is reached,
-   * then feeding those inputs back down until this block can be run with the appropriate inputs.
-   */
-  const runBlock = async(id, locale) => {
-    // Retrieve the block in order to determine its section
-    const block = await db.block.findOne({where: {id}}).catch(catcher);
-    const section = block.section_id;
-    const formatterFunctions = await formatters4eval(db, locale);
-    // The recursion will need access to a number of other blocks - get a flat list here to avoid multiple db lookups
-    let blocks = await db.block.findAll({...blockReqFull, where: {section_id: section}}).catch(catcher);
-    blocks = blocks.map(d => {
-      d = d.toJSON();
-      return {...d, contentByLocale: d.contentByLocale.reduce(contentReducer, {})};
-    });
-    // Create the automatic content-driven keys that come from blocks (e.g., stat7title),
-    // but calculate their values using variables from previously run inputs to this block.
-    // todo1.0 - encaspulate this "content-driven" generator into a shared function
-    const generateVars = (block, variables = {}) => {
-      const contentObj = Object.keys(block.contentByLocale[locale].content).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
-      return varSwapRecursive(contentObj, formatterFunctions, variables);
-    };
-    // Recursive function - given an id, crawl up all inputs, running generateVars on the way down.
-    // For a given id, this function returns the variables which *that block creates*
-    const getVars = id => {
-      // Retrieve the block from the flat list (avoiding db lookup)
-      const block = blocks.find(d => d.id === id);
-      // If this block has no inputs, there is no need to crawl higher
-      if (block.inputs.length === 0) {
-        // Just process this object and pass its variables down
-        return generateVars(block);
-      }
-      // If this block has inputs, gather their results into an object and use it to help generate THIS block's variables.
-      const variables = block.inputs.reduce((acc, d) => ({...acc, ...getVars(d.id)}), {});
-      return generateVars(block, variables);
-    };
-    return getVars(id);
-  };
-
+  /*
   const runBlocks = async(req, section, id) => {
     const locale = req.query.locale || LOCALE_DEFAULT;
     const returnVariables = {};
@@ -327,6 +290,14 @@ module.exports = function(app) {
 
   app.get("/api/blocks/:sid", async(req, res) => res.json(await runBlocks(req, req.params.sid, req.query.block)));
   app.post("/api/blocks/:sid", async(req, res) => res.json(await runBlocks(req, req.params.sid, req.query.block)));
+
+  */
+
+  app.get("/api/block/:id", async(req, res) => {
+    const id = Number(req.params.id);
+    const locale = req.query.locale || LOCALE_DEFAULT;
+    return res.json(await runBlock(db, id, locale));
+  });
 
   app.get("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator)));
   app.post("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator, req.body.attributes)));
