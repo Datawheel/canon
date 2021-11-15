@@ -87,20 +87,6 @@ const sortProfileTree = (db, profiles) => {
   return profiles;
 };
 
-/*
-const runBlock = async(id, locale, acc = {}) => {
-  // Object.values(BLOCK_MAP[block.type]);
-  let block = await db.block.findOne({...blockReqFull, where: {id}}).catch(catcher);
-  // todo1.0 make a neat reducer that rolls up all available locale keys
-  block = block.toJSON();
-  block.contentByLocale = block.contentByLocale.reduce(contentReducer, {});
-  const outputs = Object.keys(block.contentByLocale[locale].content).reduce((acc2, d) => ({...acc2, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
-  acc = {...acc, ...outputs};
-  if (block.inputs.length === 0) return acc;
-  return block.inputs.reduce((acc3, d) => runBlock(d.id, locale, acc3), acc);
-};
-*/
-
 const sortSection = (db, section) => {
   section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
   section.blocks = flatSort(db.blocks, section.blocks);

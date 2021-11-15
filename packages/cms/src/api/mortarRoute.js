@@ -273,16 +273,43 @@ module.exports = function(app) {
 
   };
 
-  const runBlock = async(id, locale, acc = {}) => {
-    // Object.values(BLOCK_MAP[block.type]);
-    let block = await db.block.findOne({...blockReqFull, where: {id}}).catch(catcher);
-    // todo1.0 make a neat reducer that rolls up all available locale keys
-    block = block.toJSON();
-    block.contentByLocale = block.contentByLocale.reduce(contentReducer, {});
-    const outputs = Object.keys(block.contentByLocale[locale].content).reduce((acc2, d) => ({...acc2, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
-    acc = {...acc, ...outputs};
-    if (block.inputs.length === 0) return acc;
-    return block.inputs.reduce((acc3, d) => runBlock(d.id, locale, acc3), acc);
+  /**
+   * Run a single block. This requires running all of its parent blocks until an input-less block is reached,
+   * then feeding those inputs back down until this block can be run with the appropriate inputs.
+   */
+  const runBlock = async(id, locale) => {
+    // Retrieve the block in order to determine its section
+    const block = await db.block.findOne({where: {id}}).catch(catcher);
+    const section = block.section_id;
+    const formatterFunctions = await formatters4eval(db, locale);
+    // The recursion will need access to a number of other blocks - get a flat list here to avoid multiple db lookups
+    let blocks = await db.block.findAll({...blockReqFull, where: {section_id: section}}).catch(catcher);
+    blocks = blocks.map(d => {
+      d = d.toJSON();
+      return {...d, contentByLocale: d.contentByLocale.reduce(contentReducer, {})};
+    });
+    // Create the automatic content-driven keys that come from blocks (e.g., stat7title),
+    // but calculate their values using variables from previously run inputs to this block.
+    // todo1.0 - encaspulate this "content-driven" generator into a shared function
+    const generateVars = (block, variables = {}) => {
+      const contentObj = Object.keys(block.contentByLocale[locale].content).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
+      return varSwapRecursive(contentObj, formatterFunctions, variables);
+    };
+    // Recursive function - given an id, crawl up all inputs, running generateVars on the way down.
+    // For a given id, this function returns the variables which *that block creates*
+    const getVars = id => {
+      // Retrieve the block from the flat list (avoiding db lookup)
+      const block = blocks.find(d => d.id === id);
+      // If this block has no inputs, there is no need to crawl higher
+      if (block.inputs.length === 0) {
+        // Just process this object and pass its variables down
+        return generateVars(block);
+      }
+      // If this block has inputs, gather their results into an object and use it to help generate THIS block's variables.
+      const variables = block.inputs.reduce((acc, d) => ({...acc, ...getVars(d.id)}), {});
+      return generateVars(block, variables);
+    };
+    return getVars(id);
   };
 
   const runBlocks = async(req, section, id) => {
@@ -290,12 +317,10 @@ module.exports = function(app) {
     const returnVariables = {};
     const genStatus = {};
     const durations = {};
+
     // const blockReq = id ? {where: {id}} : {where: {section_id: section}};
-    let block = await await db.block.findOne({...blockReqFull, where: {id}}).catch(catcher);
-    block = block.toJSON();
-    block.contentByLocale = block.contentByLocale.reduce(contentReducer, {});
-    const variables = await runBlock(id, locale);
-    const formatterFunctions = await formatters4eval(db, locale);
+    const variables = await runBlock(id, blocks, locale);
+
     const result = varSwapRecursive(block.contentByLocale[locale].content, formatterFunctions, variables);
     return result;
   };

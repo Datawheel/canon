@@ -40,7 +40,7 @@ const LOOKUP_MAP = {
 const hasNoLocaleContent = type => [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ].includes(type);
 
 /**
- * A Block is a visual element of any kind embedded in a Section. It can be a stat,
+ * A Block is a visual element of any kind embedded in a Section. It can be a stat, generator,
  * selector, or anything listed in BLOCK_TYPES.
  * id - the id for this block
  * entity - BLOCK (clickable, editable) or BLOCK_INPUT (uneditable - feeds another block)
@@ -75,13 +75,12 @@ function Block({id, entity}) {
 
   const onSave = () => {
     let payload;
+    // Blocks and Vizes, which are not locale-specific, save their data directly on the block, not in a content table.
     if (hasNoLocaleContent(block.type)) {
       payload = {
         id: block.id,
         ...stateContent
       };
-      console.log(payload);
-      return;
     }
     else {
       // Remove draftjs html cruft and leading/trailing spaces from all content fields
@@ -125,6 +124,7 @@ function Block({id, entity}) {
 
   const apiInput = <TextInput
     placeHolder="API"
+    defaultValue={block.api}
     type="url"
     size="xs"
     onChange={onChangeInput}
@@ -141,8 +141,9 @@ function Block({id, entity}) {
     className="cms-block-output-ace"
     // ref={comp => this.editor = comp}
     onChange={onChangeCode}
-    // todo1.0 how to handle/scaffold missing content here?
-    defaultValue={block && block.contentByLocale ? block.contentByLocale[localeDefault].content.logic : ""}
+    // BLOCK_INPUTS don't currently carry their content with them - todo1.0 - do they need to?
+    defaultValue={entity === ENTITY_TYPES.BLOCK_INPUT ? "" : hasNoLocaleContent(block.type) ? block.logic : block.contentByLocale[localeDefault].content.logic}
+    // defaultValue={}
     // {...this.props}
   />;
 
