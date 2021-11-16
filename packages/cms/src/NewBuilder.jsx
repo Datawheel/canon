@@ -1,6 +1,7 @@
 import React, {useEffect, useState, useCallback} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import yn from "yn";
+import {MantineProvider} from "@mantine/core";
 
 import {fetchData, isAuthenticated} from "@datawheel/canon-core";
 import Loading from "$app/components/Loading";
@@ -12,8 +13,6 @@ import ProfileEditor from "./newLayout/ProfileEditor";
 import {getFormatters} from "./actions/formatters";
 import {setStatus} from "./actions/status";
 import {getProfiles} from "./actions/profiles";
-
-import "./newBuilder.css";
 
 /**
  * Builder - The outermost component of the CMS, exported in index.js, and embedded in a canon site.
@@ -108,12 +107,12 @@ function NewBuilder({router}) {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="cms-profile-browser">
+    <MantineProvider>
       {pathObj.profile
         ? <ProfileEditor id={Number(pathObj.profile)}/>
         : <ProfilePicker />
       }
-    </div>
+    </MantineProvider>
   );
 
 }
