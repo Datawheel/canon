@@ -1,21 +1,17 @@
 /* react */
 import React from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Card, Center, Image, Text, Badge, Button, Group, useMantineTheme} from "@mantine/core";
-import {HiOutlinePencil, HiOutlineCog} from "react-icons/hi";
+import {Card, Center, Space, Text, Badge, Button, Group, useMantineTheme} from "@mantine/core";
+import {HiOutlineDocumentReport, HiOutlinePencil, HiOutlineCog} from "react-icons/hi";
 
 /* components */
 import CogMenu from "./components/CogMenu";
-import img from "../../static/images/dw_icon.png";
 
 /* redux */
 import {setStatus} from "../actions/status";
 
 /* enums */
 import {ENTITY_TYPES} from "../utils/consts/cms";
-
-/* css */
-import "./ProfileCard.css";
 
 /**
  *
@@ -41,26 +37,26 @@ function ProfileCard({id}) {
   const label = profile.contentByLocale[localeDefault].content.label;
 
   return (
-    <div className="cms-profile-card" style={{width: 270, marginLeft: 20}}>
-      <Card shadow="md" padding="lg">
+    <Card shadow="xs" padding="lg" withBorder style={{margin: theme.spacing.sm}}>
+      <Group position="apart">
         <Center>
-          <Image src={img} align="center" width={100} height={100} alt="Datawheel Profile" />
+          <HiOutlineDocumentReport size={22} />
+          <Space w="xs" />
+          <Text margin="xl" weight="bold">{label}</Text>
         </Center>
-        <Group position="apart" style={{marginBottom: 5, marginTop: theme.spacing.sm}}>
-          <Text weight={500}>{label}</Text>
-          <Badge color="orange" variant="light">{profile.type}</Badge>
-        </Group>
-        <Text size="sm" style={{color: secondaryColor, lineHeight: 2}}>
-            Description of profile will go here
-        </Text>
-        <Group position="right" style={{marginTop: "5px"}}>
-          <Button onClick={() => openProfile(id)} leftIcon={<HiOutlinePencil />} variant="light" color="blue" >
+        <Badge variant="light">{profile.type}</Badge>
+      </Group>
+      <Text size="sm" style={{color: secondaryColor, lineHeight: 2}}>
+        Description of profile will go here
+      </Text>
+      <Space w="xs" />
+      <Group>
+        <Button onClick={() => openProfile(id)} leftIcon={<HiOutlinePencil />} compact>
           Edit
-          </Button>
-          <CogMenu type={ENTITY_TYPES.PROFILE} id={id} control={<Button leftIcon={<HiOutlineCog />}variant="light" color="blue" >Settings</Button>}/>
-        </Group>
-      </Card>
-    </div>
+        </Button>
+        <CogMenu type={ENTITY_TYPES.PROFILE} id={id} control={<Button leftIcon={<HiOutlineCog size={16} />} compact>Settings</Button>}/>
+      </Group>
+    </Card>
   );
 
 }
