@@ -55,25 +55,10 @@ const PROFILE_SETTINGS = {
   LOGIC_ALLOWED_ENABLED: "logicAllowedEnabled"
 };
 
-// const SECTION_TYPES = getSectionTypes().reduce((acc, d) => ({...acc, [d.toUpperCase()]: d}), {});
-
-const SECTION_TYPES = {
-  DEFAULT: "Default",
-  GROUPING: "Grouping",
-  HERO: "Hero",
-  MULTI_COLUMN: "MultiColumn",
-  RELATED: "Related",
-  SINGLE_COLUMN: "SingleColumn",
-  SUB_GROUPING: "SubGrouping",
-  TABS: "Tabs"
-};
-
 const SECTION_FIELDS = {
   TITLE: "title",
   SHORT: "short"
 };
-
-const SECTION_MAP = Object.values(SECTION_TYPES).reduce((acc, d) => ({...acc, [d]: Object.values(SECTION_FIELDS)}), {});
 
 const SECTION_SETTINGS = {
   POSITION: "position",
@@ -186,7 +171,5 @@ module.exports = {
   PROFILE_SETTINGS,
   PROFILE_TYPES,
   SECTION_FIELDS,
-  SECTION_MAP,
-  SECTION_SETTINGS,
-  SECTION_TYPES
+  SECTION_SETTINGS
 };

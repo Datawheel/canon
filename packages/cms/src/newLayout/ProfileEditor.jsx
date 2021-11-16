@@ -7,7 +7,6 @@ import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 
 /* components */
 import CMSHeader from "./CMSHeader";
-import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 import EntityAddButton from "./components/EntityAddButton";
 
@@ -18,7 +17,7 @@ import {newEntity, updateEntity} from "../actions/profiles";
 import insertAtOrdering from "../utils/insertAtOrdering";
 
 /* enums */
-import {ENTITY_TYPES, SECTION_TYPES} from "../utils/consts/cms";
+import {ENTITY_TYPES} from "../utils/consts/cms";
 
 /* css */
 import "./ProfileEditor.css";
@@ -58,7 +57,6 @@ function ProfileEditor({id}) {
   const addSection = (slug, ordering) => {
     const payload = {
       profile_id: id,
-      type: SECTION_TYPES.DEFAULT,
       slug,
       ordering
     };
@@ -67,28 +65,14 @@ function ProfileEditor({id}) {
 
   if (profile.error) return <div>{profile.error}</div>;
 
-  // todo1.0 - maybe filter this by the sections that exist to avoid draghandle race condition
-  const [heroSection, ...restSections] = sections;
-
   return (
     <div className="cms-profile">
       <CMSHeader id={profile.id}/>
-      <div className="cms-section-container">
-        {heroSection && <Hero key="hero" id={heroSection} />}
-        <Center>
-          <EntityAddButton
-            label="Section Slug"
-            onSubmit={name => addSection(name, 1)}
-            urlSafe={true}
-            target={<ActionIcon variant="filled" color="blue" radius="xl" className="cms-profile-add-section-button"><HiOutlinePlusCircle size={30} /></ActionIcon>}
-          />
-        </Center>
-      </div>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="sections">
           {provided =>
             <div ref={provided.innerRef} {...provided.droppableProps} className="cms-droppable-container">
-              {restSections.map((section, i) =>
+              {sections.map((section, i) =>
                 <Draggable key={section} draggableId={`${section}`} index={i} >
                   {(provided, snapshot) =>
                     <div

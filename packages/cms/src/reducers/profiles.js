@@ -5,7 +5,8 @@ const sorter = (a, b) => a.ordering - b.ordering;
 const profileSchema = [new schema.Entity("profiles", {
   sections: [new schema.Entity("sections", {
     blocks: [new schema.Entity("blocks", {
-      inputs: [new schema.Entity("inputs")]
+      inputs: [new schema.Entity("inputs")],
+      consumers: [new schema.Entity("consumers")]
     })]
   })]
 })];
@@ -14,7 +15,7 @@ export default (profiles = {}, action) => {
   switch (action.type) {
     // Profiles
     case "PROFILES_GET":
-      console.log(normalize(action.data, profileSchema));
+      console.log("redux structure", normalize(action.data, profileSchema));
       return normalize(action.data, profileSchema);
     case "PROFILE_NEW":
       // todo1.0 return better hero section (don't use [0])

@@ -6,8 +6,7 @@ const populateSearch = require("../utils/populateSearch");
 const {profileReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables} = require("../utils/sequelize/ormHelpers");
 const {translateProfile, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
 const mortarEval = require("../utils/mortarEval");
-// todo1.0 - unite this with getSectionTypes somehow, including custom sections
-const {PROFILE_FIELDS, SECTION_TYPES} = require("../utils/consts/cms");
+const {PROFILE_FIELDS} = require("../utils/consts/cms");
 
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
@@ -186,12 +185,6 @@ module.exports = function(app) {
     return ordering;
   };
 
-  const cleanSection = section => {
-    section = sortSection(db, section);
-    section.types = Object.values(SECTION_TYPES);
-    return section;
-  };
-
   /* BASIC GETS */
 
   // Top-level tables have their own special gets, so exclude them from the "simple" gets
@@ -225,7 +218,7 @@ module.exports = function(app) {
     let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     profiles.forEach(profile => {
-      profile.sections = profile.sections.map(section => cleanSection(section));
+      profile.sections = profile.sections.map(section => sortSection(db, section));
       return profile;
     });
     return res.json(profiles);
@@ -295,9 +288,6 @@ module.exports = function(app) {
         let fullObj = await db[ref].findOne(reqObj).catch(catcher);
         fullObj = fullObj.toJSON();
         fullObj.contentByLocale = fullObj.contentByLocale.reduce(contentReducer, {});
-        if (ref === "section") {
-          fullObj.types = Object.values(SECTION_TYPES);
-        }
         return res.json(fullObj);
       }
       else {
@@ -323,12 +313,12 @@ module.exports = function(app) {
     const profileFields = Object.values(PROFILE_FIELDS).reduce((acc, d) => req.body[d] ? {...acc, [d]: req.body[d]} : acc, {});
     const profile = await db.profile.create({ordering}).catch(catcher);
     await db.profile_content.create({id: profile.id, locale: localeDefault, content: profileFields}).catch(catcher);
-    const section = await db.section.create({ordering: 0, type: SECTION_TYPES.HERO, profile_id: profile.id});
+    const section = await db.section.create({ordering: 0, slug: "hero", profile_id: profile.id});
     await db.section_content.create({id: section.id, locale: localeDefault}).catch(catcher);
     const reqObj = Object.assign({}, profileReqFull, {where: {id: profile.id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());
-    newProfile.sections = newProfile.sections.map(section => cleanSection(section));
+    newProfile.sections = newProfile.sections.map(section => sortSection(db, section));
     return res.json(newProfile);
   });
 
@@ -360,7 +350,7 @@ module.exports = function(app) {
     const reqObj = Object.assign({}, profileReqFull, {where: {id: profile_id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());
-    newProfile.sections = newProfile.sections.map(section => cleanSection(section));
+    newProfile.sections = newProfile.sections.map(section => sortSection(db, section));
     return res.json(newProfile);
   });
 
@@ -419,6 +409,9 @@ module.exports = function(app) {
           let entity = await db[ref].findOne({where: {id}, include: {association: "contentByLocale"}}).catch(catcher);
           entity = entity.toJSON();
           entity.contentByLocale = entity.contentByLocale.reduce(contentReducer, {});
+          if (ref === "block") {
+            console.log("in");
+          }
           return res.json({entity, siblings});
         }
         else {
@@ -451,7 +444,7 @@ module.exports = function(app) {
     const newSectionId = await duplicateSection(db, oldSection, pid);
     const newReqObj = Object.assign({}, sectionReqFull, {where: {id: newSectionId}});
     let newSection = await db.section.findOne(newReqObj).catch(catcher);
-    newSection = cleanSection(newSection.toJSON());
+    newSection = sortSection(db, newSection.toJSON());
     return res.json(newSection);
   });
 
@@ -477,7 +470,7 @@ module.exports = function(app) {
     const finalReqObj = {...profileReqFull, where: {id: newProfile.id}};
     let finalProfile = await db.profile.findOne(finalReqObj).catch(catcher);
     finalProfile = sortProfile(db, finalProfile.toJSON());
-    finalProfile.sections = finalProfile.sections.map(section => cleanSection(section));
+    finalProfile.sections = finalProfile.sections.map(section => sortSection(db, section));
     return res.json(finalProfile);
   });
 
@@ -524,7 +517,7 @@ module.exports = function(app) {
     // If there were no errors, fetch and return updated section
     const newReqObj = {...sectionReqFull, where: {id: sid}};
     let newSection = await db.section.findOne(newReqObj).catch(catcher);
-    newSection = cleanSection(newSection);
+    newSection = sortSection(db, newSection);
     return res.json(newSection);
   });
 
@@ -538,7 +531,7 @@ module.exports = function(app) {
     const reqObj = {...profileReqFull, where: {id: pid}};
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());
-    newProfile.sections = newProfile.sections.map(section => cleanSection(section));
+    newProfile.sections = newProfile.sections.map(section => sortSection(db, section));
     return res.json(newProfile);
   });
 
@@ -566,7 +559,7 @@ module.exports = function(app) {
     let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     profiles.forEach(profile => {
-      profile.sections = profile.sections.map(section => cleanSection(section));
+      profile.sections = profile.sections.map(section => sortSection(db, section));
       return profile;
     });
     return res.json({profiles});
@@ -599,7 +592,7 @@ module.exports = function(app) {
     let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     profiles.forEach(profile => {
-      profile.sections = profile.sections.map(section => cleanSection(section));
+      profile.sections = profile.sections.map(section => sortSection(db, section));
       return profile;
     });
     return res.json({id: row.id, profiles});
@@ -618,7 +611,7 @@ module.exports = function(app) {
     const reqObj = Object.assign({}, profileReqFull, {where: {id: row.profile_id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());
-    newProfile.sections = newProfile.sections.map(section => cleanSection(section));
+    newProfile.sections = newProfile.sections.map(section => sortSection(db, section));
     return res.json(newProfile);
   });
 
@@ -639,14 +632,13 @@ module.exports = function(app) {
     sections = sections.map(section => {
       section = section.toJSON();
       section = sortSection(db, section);
-      section.types = Object.values(SECTION_TYPES);
       return section;
     });
     return res.json({id: row.id, parent_id: row.profile_id, sections});*/
     let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
     profiles = sortProfileTree(db, profiles);
     profiles.forEach(profile => {
-      profile.sections = profile.sections.map(section => cleanSection(section));
+      profile.sections = profile.sections.map(section => sortSection(db, section));
       return profile;
     });
     return res.json({profiles});

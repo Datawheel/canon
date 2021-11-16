@@ -23,7 +23,20 @@ module.exports = function(sequelize, db) {
         type: db.BOOLEAN,
         default: false
       },
-      ordering: db.INTEGER,
+
+      /* layout */
+      row: {
+        type: db.INTEGER,
+        default: 0
+      },
+      column: {
+        type: db.INTEGER,
+        default: 0
+      },
+      ordering: {
+        type: db.INTEGER,
+        default: 0
+      },
 
       /* generators & vizes */
       api: {

@@ -1,5 +1,3 @@
-const {SECTION_TYPES} = require("../utils/consts/cms");
-
 module.exports = function(sequelize, db) {
 
   const section = sequelize.define("section",
@@ -18,10 +16,6 @@ module.exports = function(sequelize, db) {
       settings: {
         type: db.JSON,
         defaultValue: {}
-      },
-      type: {
-        type: db.STRING,
-        defaultValue: SECTION_TYPES.DEFAULT
       },
       heading: {
         type: db.INTEGER,
