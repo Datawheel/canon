@@ -75,17 +75,19 @@ function Block({id, entity}) {
   };
 
   const onSave = () => {
+    // remove logicEnabled from the post - it is currently set directly when the mode is changed in BlockOutput.
+    const {logicEnabled, ...restStateContent} = stateContent; //eslint-disable-line
     let payload;
     // Blocks and Vizes, which are not locale-specific, save their data directly on the block, not in a content table.
     if (hasNoLocaleContent(block.type)) {
       payload = {
         id: block.id,
-        ...stateContent
+        ...restStateContent
       };
     }
     else {
       // Remove draftjs html cruft and leading/trailing spaces from all content fields
-      const content = Object.keys(stateContent).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(stateContent[d])}), {});
+      const content = Object.keys(restStateContent).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(restStateContent[d])}), {});
       payload = {
         id: block.id,
         content: [{

@@ -5,6 +5,7 @@ const sequelize = require("sequelize"),
 const populateSearch = require("../utils/populateSearch");
 const {profileReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables} = require("../utils/sequelize/ormHelpers");
 const {translateProfile, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
+const mortarEval = require("../utils/mortarEval");
 // todo1.0 - unite this with getSectionTypes somehow, including custom sections
 const {PROFILE_FIELDS, SECTION_TYPES} = require("../utils/consts/cms");
 
@@ -94,9 +95,20 @@ const sortSection = (db, section) => {
 
   // todo1.0 move this somewhere to combine it with the one in mortarRoute
   // todo1.0 this will have to consider profile-wide blocks too
+
   const runBlock = (id, locale) => {
     const block = section.blocks.find(d => d.id === id);
-    block._variables = Object.keys(block.contentByLocale[locale].content).reduce((acc2, d) => ({...acc2, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
+    const {logicEnabled, logic} = block.contentByLocale[locale].content;
+    if (logicEnabled) {
+      const vars = {};
+      const evalResults = mortarEval("variables", vars, logic, {}, locale); // todo1.0 add formatterfunctions back in here
+      if (typeof evalResults.vars !== "object") evalResults.vars = {};
+      block._status = evalResults.error ? {error: evalResults.error} : "OK";
+      block._variables = Object.keys(evalResults.vars).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: evalResults.vars[d]}), {});
+    }
+    else {
+      block._variables = Object.keys(block.contentByLocale[locale].content).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
+    }
     for (const input of block.inputs) {
       runBlock(input.block_input.input_id, localeDefault);
     }

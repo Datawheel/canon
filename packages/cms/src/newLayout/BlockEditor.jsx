@@ -1,7 +1,8 @@
 /* react */
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import {useSelector} from "react-redux";
-import {Button, Intent} from "@blueprintjs/core";
+import {Button} from "@mantine/core";
+import {HiViewGridAdd, HiOutlineDocumentText, HiOutlineCog} from "react-icons/hi";
 
 /* components */
 import VariableList from "./VariableList";
@@ -47,10 +48,6 @@ function BlockEditor({id, components}) {
 
   const BlockPanel = COMPONENTS[mode];
 
-  useEffect(() => {
-    //
-  }, []);
-
   /**
    * The text editor lives in Block.jsx so that its onChange callbacks can be persisted to psql.
    * However, the variables live here in the editor, so that they are only calculated when the editor opens.
@@ -63,9 +60,9 @@ function BlockEditor({id, components}) {
   return (
     <div className="cms-block-editor">
       <div className="cms-block-editor-toggle">
-        <Button onClick={() => setMode(MODES.INPUT)} intent={mode === MODES.INPUT ? Intent.PRIMARY : Intent.NONE} icon="data-lineage">IN</Button>
-        <Button onClick={() => setMode(MODES.OUTPUT)}intent={mode === MODES.OUTPUT ? Intent.PRIMARY : Intent.NONE}icon="application">OUT</Button>
-        <Button onClick={() => setMode(MODES.SETTINGS)}intent={mode === MODES.SETTINGS ? Intent.PRIMARY : Intent.NONE}icon="cog"></Button>
+        <Button onClick={() => setMode(MODES.INPUT)} variant={mode === MODES.INPUT ? "filled" : "outline"} leftIcon={<HiViewGridAdd size={20}/>}>IN</Button>
+        <Button onClick={() => setMode(MODES.OUTPUT)} variant={mode === MODES.OUTPUT ? "filled" : "outline"} leftIcon={<HiOutlineDocumentText size={20}/>}>OUT</Button>
+        <Button onClick={() => setMode(MODES.SETTINGS)} variant={mode === MODES.SETTINGS ? "filled" : "outline"} leftIcon={<HiOutlineCog size={20}/>}></Button>
       </div>
       <div className="cms-block-editor-content">
         <VariableList variables={variables}/>
