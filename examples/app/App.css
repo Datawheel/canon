@@ -1,6 +1,3 @@
-body {
-  background-color: var(--light-1);
-}
 #app {
   & main#docs {
     display: flex;
