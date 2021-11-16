@@ -32,7 +32,8 @@ const runBlock = async(db, id, locale) => {
   // todo1.0 - encaspulate this "content-driven" generator into a shared function
   const generateVars = (block, variables = {}) => {
     const contentObj = Object.keys(block.contentByLocale[locale].content).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
-    return varSwapRecursive(contentObj, formatterFunctions, variables);
+    const result = varSwapRecursive(contentObj, formatterFunctions, variables);
+    return result;
   };
   // Recursive function - given an id, crawl up all inputs, running generateVars on the way down.
   // For a given id, this function returns the variables which *that block creates*

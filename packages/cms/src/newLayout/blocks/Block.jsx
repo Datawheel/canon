@@ -9,6 +9,7 @@ import CogMenu from "../components/CogMenu";
 import BlockEditor from "../BlockEditor";
 import NewRichTextEditor from "../editors/NewRichTextEditor";
 import AceWrapper from "../../components/editors/AceWrapper";
+import BlockPreview from "./BlockPreview";
 
 /* utils */
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
@@ -122,8 +123,21 @@ function Block({id, entity}) {
     setStateContent({...stateContent, api: e.target.value});
   };
 
+  /**
+   * A number of components embedded in this block need access to content here, either the ever-changing
+   * stateContent, or the various callbacks that change it. It is recommended here https://reactjs.org/docs/composition-vs-inheritance.html
+   * to achieve this by passing these components down as props for deep embedding.
+   */
+
+  const blockPreview = <BlockPreview
+    id={id}
+    key="block-preview"
+    stateContent={stateContent}
+  />;
+
   const apiInput = <TextInput
     placeHolder="API"
+    key="text-input"
     defaultValue={block.api}
     type="url"
     size="xs"
@@ -132,6 +146,7 @@ function Block({id, entity}) {
 
   const textEditor = <NewRichTextEditor
     locale={localeDefault}
+    key="text-editor"
     block={block}
     fields={BLOCK_MAP[block.type]}
     onChange={onChangeText}
@@ -139,6 +154,7 @@ function Block({id, entity}) {
 
   const codeEditor = <AceWrapper
     className="cms-block-output-ace"
+    key="code-editor"
     // ref={comp => this.editor = comp}
     onChange={onChangeCode}
     // BLOCK_INPUTS don't currently carry their content with them - todo1.0 - do they need to?
@@ -147,7 +163,7 @@ function Block({id, entity}) {
     // {...this.props}
   />;
 
-  const editors = {textEditor, codeEditor, apiInput};
+  const components = {textEditor, codeEditor, apiInput, blockPreview};
 
   const modalProps = {
     title: `${upperCaseFirst(block.type)} editor`,
@@ -175,7 +191,7 @@ function Block({id, entity}) {
         <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
       </div>
       <Modal key="d" {...modalProps}>
-        <BlockEditor key="be" id={id} editors={editors}/>
+        <BlockEditor key="be" id={id} components={components}/>
         <Button onClick={onSave}>Save</Button>
       </Modal>
     </React.Fragment>

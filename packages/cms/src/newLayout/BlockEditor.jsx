@@ -23,7 +23,7 @@ const MODES = {
 /**
  *
  */
-function BlockEditor({id, editors}) {
+function BlockEditor({id, components}) {
 
   /* redux */
   const {block, variables} = useSelector(state => {
@@ -57,7 +57,8 @@ function BlockEditor({id, editors}) {
    * Add variables as a prop to the text editor "on its way down," so it has access to them.
    * todo1.0 - is this too heavy to do each render?
    */
-  editors.textEditor = React.cloneElement(editors.textEditor, {variables});
+  components.textEditor = React.cloneElement(components.textEditor, {variables});
+  components.blockPreview = React.cloneElement(components.blockPreview, {variables});
 
   return (
     <div className="cms-block-editor">
@@ -68,7 +69,7 @@ function BlockEditor({id, editors}) {
       </div>
       <div className="cms-block-editor-content">
         <VariableList variables={variables}/>
-        <BlockPanel id={id} editors={editors} />
+        <BlockPanel id={id} components={components} />
       </div>
 
     </div>

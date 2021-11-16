@@ -21,6 +21,15 @@ function NewRichTextEditor({locale, block, fields, onChange, variables}) {
 
   const [stateContent] = useState(() => deepClone(block.contentByLocale[locale].content));
 
+  /**
+   * There is a race condition when this component is mounted with several fields. Each of the fields
+   * calls handleEditor on instantiation, which happens too fast for the handler in Block.jsx to merge them.
+   * On mount, call onChange *one* time to send up the full object so that the preview can be populated.
+   */
+  useEffect(() => {
+    onChange(stateContent);
+  }, []);
+
   const handleEditor = (field, text) => {
     onChange({[field]: text});
   };

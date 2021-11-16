@@ -17,7 +17,7 @@ const MODES = {
 /**
  *
  */
-function BlockOutput({id, editors}) {
+function BlockOutput({id, components}) {
 
   const dispatch = useDispatch();
 
@@ -45,13 +45,13 @@ function BlockOutput({id, editors}) {
 
   return (
     <div className="cms-block-output">
-      <div>
+      <div key="buttons">
         <Button onClick={() => changeMode(MODES.TEXT)} intent={mode === MODES.TEXT ? Intent.PRIMARY : Intent.NONE} icon="paragraph"></Button>
         <Button onClick={() => changeMode(MODES.CODE)}intent={mode === MODES.CODE ? Intent.PRIMARY : Intent.NONE}icon="code"></Button>
       </div>
-      {mode === MODES.TEXT && editors.textEditor}
-      {mode === MODES.CODE && editors.codeEditor}
-      <BlockPreview id={id} />
+      {mode === MODES.TEXT && components.textEditor}
+      {mode === MODES.CODE && components.codeEditor}
+      {components.blockPreview}
     </div>
   );
 

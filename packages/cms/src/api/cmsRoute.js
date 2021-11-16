@@ -5,7 +5,7 @@ const sequelize = require("sequelize"),
 const populateSearch = require("../utils/populateSearch");
 const {profileReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables} = require("../utils/sequelize/ormHelpers");
 const {translateProfile, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
-// todo1.0 - unite this with getSectionTypes somehow
+// todo1.0 - unite this with getSectionTypes somehow, including custom sections
 const {PROFILE_FIELDS, SECTION_TYPES} = require("../utils/consts/cms");
 
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";

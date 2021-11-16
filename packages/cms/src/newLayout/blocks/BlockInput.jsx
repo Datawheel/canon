@@ -22,7 +22,12 @@ function BlockInput({id}) {
   /* redux */
   const {block, sourceBlocks} = useSelector(state => {
     const block = state.cms.profiles.entities.blocks[id];
-    const sourceBlocks = Object.values(state.cms.profiles.entities.blocks).filter(d => d.section_id === block.section_id && d.id !== block.id);
+    const sourceBlocks = Object.values(state.cms.profiles.entities.blocks).filter(d => {
+      const sameSection = d.section_id === block.section_id;
+      const sameBlock = d.id === block.id;
+      const inUse = block.inputs.includes(d.id);
+      return sameSection && !sameBlock && !inUse;
+    });
     // sourceBlocks.push({type: "+New API Call", value: "api"});
     return {block, sourceBlocks};
   });
@@ -46,7 +51,8 @@ function BlockInput({id}) {
         type={ENTITY_ADD_BUTTON_TYPES.SELECT}
         label="Block"
         onSubmit={value => addInput(value)}
-        selections={sourceBlocks.map(d => ({label: `${d.type}(${d.id})`, value: d.id}))}
+        // Mantine Select expect strings for select values, turn it back to int before sending in addInput
+        selections={sourceBlocks.map(d => ({label: `${d.type}(${d.id})`, value: String(d.id)}))}
         target={<Button className="cms-block-add-input-button" >add</Button>}
       />
     </div>

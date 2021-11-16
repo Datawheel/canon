@@ -45,6 +45,7 @@ function NewBuilder({router}) {
   useEffect(() => {
     // todo1.0 memoize these with usecallback and promise (fran)
     dispatch(isAuthenticated());
+    // todo1.0 potentially move formatters out of redux, and more importantly, locale/status stuff
     dispatch(getFormatters());
     loadProfiles();
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
@@ -55,7 +56,7 @@ function NewBuilder({router}) {
     const {profile, section, previews} = router.location.query;
     const pathObj = {profile, previews, section};
     dispatch(setStatus({localeDefault, localeSecondary, localeCurrent, locales, pathObj}));
-    // Prevent leaving the page accidentally
+    // Prevent leaving the page accidentally, disabled during heavy 1.0 development
     /*
     const unload = e => e.returnValue = "Are you sure you want to leave?";
     if (typeof window !== "undefined") window.addEventListener("beforeunload", unload);
