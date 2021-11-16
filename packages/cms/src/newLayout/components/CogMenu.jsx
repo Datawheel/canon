@@ -41,8 +41,6 @@ function CogMenu({type, id, control}) {
   const modalProps = {
     opened,
     title: "Are you sure?",
-    overlayColor: "red",
-    overlayOpacity: 0.1,
     onClose
   };
 
@@ -56,7 +54,7 @@ function CogMenu({type, id, control}) {
       <Modal {...modalProps} key="modal">
         Are you sure you want to delete this {PRETTY_NAME} and all its children? This action cannot be undone.
         <Group position="right" style={{marginTop: 10}}>
-          <Button color="blue" onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose}>Cancel</Button>
           <Button color="red" onClick={onDelete}>Yes, Delete it.</Button>
         </Group>
       </Modal>
