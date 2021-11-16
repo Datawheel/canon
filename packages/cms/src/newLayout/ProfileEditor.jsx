@@ -87,7 +87,7 @@ function ProfileEditor({id}) {
                           label="Section Slug"
                           urlSafe={true}
                           onSubmit={name => addSection(name, i + 2)}
-                          target={<ActionIcon variant="filled" color="blue" className="cms-profile-add-section-button" radius="xl" ><HiOutlinePlusCircle size={30} /></ActionIcon>}
+                          target={<ActionIcon variant="filled" color="blue" className="cms-profile-add-section-button" size="xl" radius="xl"><HiOutlinePlusCircle size={30} /></ActionIcon>}
                         />
                       </Center>
                     </div>

@@ -1,6 +1,7 @@
 import React, {useState} from "react";
-import {Button} from "@mantine/core";
+import {ActionIcon} from "@mantine/core";
 import {useDispatch, useSelector} from "react-redux";
+import {HiOutlinePlusCircle} from "react-icons/hi";
 
 import EntityAddButton from "../components/EntityAddButton";
 import Block from "./Block";
@@ -53,7 +54,7 @@ function BlockInput({id}) {
         onSubmit={value => addInput(value)}
         // Mantine Select expect strings for select values, turn it back to int before sending in addInput
         selections={sourceBlocks.map(d => ({label: `${d.type}(${d.id})`, value: String(d.id)}))}
-        target={<Button className="cms-block-add-input-button" >add</Button>}
+        target={<ActionIcon size="xl" radius="xl"><HiOutlinePlusCircle size={30} /></ActionIcon>}
       />
     </div>
   );

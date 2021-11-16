@@ -1,7 +1,7 @@
 /* react */
 import React, {useState} from "react";
 import {useSelector} from "react-redux";
-import {Button} from "@mantine/core";
+import {Tabs, Tab} from "@mantine/core";
 import {HiViewGridAdd, HiOutlineDocumentText, HiOutlineCog} from "react-icons/hi";
 
 /* components */
@@ -14,12 +14,6 @@ import GeneratorOutput from "./blocks/GeneratorOutput";
 /* css */
 import "./BlockEditor.css";
 import {BLOCK_TYPES} from "../utils/consts/cms";
-
-const MODES = {
-  INPUT: "input",
-  OUTPUT: "output",
-  SETTINGS: "settings"
-};
 
 /**
  *
@@ -37,17 +31,6 @@ function BlockEditor({id, components}) {
 
   if (!block) return null;
 
-  const COMPONENTS = {
-    [MODES.INPUT]: BlockInput,
-    [MODES.OUTPUT]: block.type === BLOCK_TYPES.GENERATOR ? GeneratorOutput : BlockOutput,
-    [MODES.SETTINGS]: BlockSettings
-  };
-
-  /* state */
-  const [mode, setMode] = useState(MODES.OUTPUT);
-
-  const BlockPanel = COMPONENTS[mode];
-
   /**
    * The text editor lives in Block.jsx so that its onChange callbacks can be persisted to psql.
    * However, the variables live here in the editor, so that they are only calculated when the editor opens.
@@ -59,16 +42,20 @@ function BlockEditor({id, components}) {
 
   return (
     <div className="cms-block-editor">
-      <div className="cms-block-editor-toggle">
-        <Button onClick={() => setMode(MODES.INPUT)} variant={mode === MODES.INPUT ? "filled" : "outline"} leftIcon={<HiViewGridAdd size={20}/>}>IN</Button>
-        <Button onClick={() => setMode(MODES.OUTPUT)} variant={mode === MODES.OUTPUT ? "filled" : "outline"} leftIcon={<HiOutlineDocumentText size={20}/>}>OUT</Button>
-        <Button onClick={() => setMode(MODES.SETTINGS)} variant={mode === MODES.SETTINGS ? "filled" : "outline"} leftIcon={<HiOutlineCog size={20}/>}></Button>
-      </div>
       <div className="cms-block-editor-content">
         <VariableList variables={variables}/>
-        <BlockPanel id={id} components={components} />
+        <Tabs>
+          <Tab icon={<HiViewGridAdd />} label="Input">
+            <BlockInput id={id} components={components} />
+          </Tab>
+          <Tab icon={<HiOutlineDocumentText />} label="Output">
+            {block.type === BLOCK_TYPES.GENERATOR ? <GeneratorOutput id={id} components={components} /> : <BlockOutput id={id} components={components} />}
+          </Tab>
+          <Tab icon={<HiOutlineCog />} label="Settings">
+            <BlockSettings />
+          </Tab>
+        </Tabs>
       </div>
-
     </div>
   );
 

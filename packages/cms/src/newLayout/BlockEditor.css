@@ -8,9 +8,3 @@
   display: flex;
   max-height: 100%;
 }
-
-.cms-block-editor-toggle {
-  position:absolute;
-  left: 50%;
-  transform: translate(-50%);
-}
