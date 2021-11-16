@@ -58,7 +58,7 @@ function EntityAddButton({type = ENTITY_ADD_BUTTON_TYPES.TEXT, label, onSubmit, 
         <label>{label}</label>
         {type === ENTITY_ADD_BUTTON_TYPES.TEXT && <TextInput placeholder="Enter Name" value={name} autoFocus onChange={onChangeText} />}
         {type === ENTITY_ADD_BUTTON_TYPES.SELECT && <Select searchable={true} onChange={onChangeSelect} value={selection} data={selections.map(d => ({value: d.value, label: d.label}))} /> }
-        <Button onClick={submit} loading={!ready}>Submit</Button>
+        <Button onClick={submit} disabled={!ready}>Submit</Button>
       </Group>
     </Popover>
 
