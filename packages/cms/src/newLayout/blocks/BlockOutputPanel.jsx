@@ -6,7 +6,7 @@ import BlockPreview from "./BlockPreview";
 
 import {ENTITY_TYPES} from "../../utils/consts/cms";
 
-import "./BlockOutput.css";
+import "./BlockOutputPanel.css";
 import {updateEntity} from "../../actions/profiles";
 
 const MODES = {

@@ -4,7 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {HiOutlinePlusCircle} from "react-icons/hi";
 
 import EntityAddButton from "../components/EntityAddButton";
-import BlockIn from "./BlockIn";
+import BlockInput from "./BlockInput";
 
 import {newEntity} from "../../actions/profiles";
 
@@ -46,7 +46,7 @@ function BlockInputPanel({id}) {
   return (
     <div className="cms-block-input">
       {inputs.map(id =>
-        <BlockIn key={`block-${id}`} id={id}/>
+        <BlockInput key={`block-${id}`} id={id}/>
       )}
       <EntityAddButton
         type={ENTITY_ADD_BUTTON_TYPES.SELECT}
