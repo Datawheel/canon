@@ -108,6 +108,7 @@ const sortSection = (db, section) => {
     else {
       block._variables = Object.keys(block.contentByLocale[locale].content).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
     }
+    block._editCount = 0;
     for (const input of block.inputs) {
       runBlock(input.block_input.input_id, localeDefault);
     }
@@ -410,7 +411,7 @@ module.exports = function(app) {
           entity = entity.toJSON();
           entity.contentByLocale = entity.contentByLocale.reduce(contentReducer, {});
           if (ref === "block") {
-            console.log("in");
+
           }
           return res.json({entity, siblings});
         }

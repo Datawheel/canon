@@ -6,8 +6,8 @@ import {HiViewGridAdd, HiOutlineDocumentText, HiOutlineCog} from "react-icons/hi
 
 /* components */
 import VariableList from "./VariableList";
-import BlockInput from "./blocks/BlockInput";
-import BlockOutput from "./blocks/BlockOutput";
+import BlockInputPanel from "./blocks/BlockInputPanel";
+import BlockOutputPanel from "./blocks/BlockOutputPanel";
 import BlockSettings from "./blocks/BlockSettings";
 import GeneratorOutput from "./blocks/GeneratorOutput";
 
@@ -46,10 +46,10 @@ function BlockEditor({id, components}) {
         <VariableList variables={variables}/>
         <Tabs>
           <Tab icon={<HiViewGridAdd />} label="Input">
-            <BlockInput id={id} components={components} />
+            <BlockInputPanel id={id} components={components} />
           </Tab>
           <Tab icon={<HiOutlineDocumentText />} label="Output">
-            {block.type === BLOCK_TYPES.GENERATOR ? <GeneratorOutput id={id} components={components} /> : <BlockOutput id={id} components={components} />}
+            {block.type === BLOCK_TYPES.GENERATOR ? <GeneratorOutput id={id} components={components} /> : <BlockOutputPanel id={id} components={components} />}
           </Tab>
           <Tab icon={<HiOutlineCog />} label="Settings">
             <BlockSettings />

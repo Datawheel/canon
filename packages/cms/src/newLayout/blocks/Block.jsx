@@ -1,5 +1,5 @@
 /* react */
-import React, {useState} from "react";
+import React, {useState, useEffect, useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Modal, ActionIcon, Button, TextInput} from "@mantine/core";
 import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";
@@ -26,15 +26,6 @@ import {REQUEST_STATUS} from "../../utils/consts/redux";
 import "./Block.css";
 
 /**
- * A block can be either a true block, or an input to another block.
- * To help redux access the proper normalized array, map their psql name to their redux name
- */
-const LOOKUP_MAP = {
-  block: "blocks",
-  block_input: "inputs"
-};
-
-/**
  * Most blocks have translatable content, and store their locale-specific copies in a content table.
  * Generators and vizes are the exception - they store their one & only version directly in the psql block.
  */
@@ -44,21 +35,24 @@ const hasNoLocaleContent = type => [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ].incl
  * A Block is a visual element of any kind embedded in a Section. It can be a stat, generator,
  * selector, or anything listed in BLOCK_TYPES.
  * id - the id for this block
- * entity - BLOCK (clickable, editable) or BLOCK_INPUT (uneditable - feeds another block)
  */
-function Block({id, entity}) {
+function Block({id}) {
 
   const dispatch = useDispatch();
 
   const [opened, setOpened] = useState(false);
 
   /* redux */
-  const {localeDefault, block} = useSelector(state => ({
-    localeDefault: state.cms.status.localeDefault,
-    block: state.cms.profiles.entities[LOOKUP_MAP[entity]][id]
-  }));
+  const localeDefault = useSelector(state => state.cms.status.localeDefault);
+  const blocks = useSelector(state => state.cms.profiles.entities.blocks);
+  const block = blocks[id];
+  const editString = useMemo(() =>
+    Object.values(blocks).filter(d => block.inputs.includes(d.id)).map(d => d._editCount).join(",")
+  , [blocks, block]);
 
-  if (!block) return null;
+  useEffect(() => {
+    console.log(id, "would recalc", editString);
+  }, [editString]);
 
   /**
    * The content of the entire CMS is kept in a normalized redux object called profiles.
@@ -71,7 +65,7 @@ function Block({id, entity}) {
   const [loading, setLoading] = useState(false);
 
   const onClick = () => {
-    if (entity === ENTITY_TYPES.BLOCK) setOpened(true);
+    setOpened(true);
   };
 
   const onSave = () => {
@@ -160,7 +154,7 @@ function Block({id, entity}) {
     // ref={comp => this.editor = comp}
     onChange={onChangeCode}
     // BLOCK_INPUTS don't currently carry their content with them - todo1.0 - do they need to?
-    defaultValue={entity === ENTITY_TYPES.BLOCK_INPUT ? "" : hasNoLocaleContent(block.type) ? block.logic : block.contentByLocale[localeDefault].content.logic}
+    defaultValue={hasNoLocaleContent(block.type) ? block.logic : block.contentByLocale[localeDefault].content.logic}
     // defaultValue={}
     // {...this.props}
   />;
@@ -178,18 +172,15 @@ function Block({id, entity}) {
   };
 
   const cogProps = {
-    // The action cog needs an entity type and an id to perform actions on.
-    // If this is a BLOCK, then its just the id - but if it's a BLOCK_INPUT, then
-    // a *subscription* to a block is being deleted, and must use that id instead.
-    id: entity === ENTITY_TYPES.BLOCK_INPUT ? block.block_input.id : block.id,
-    type: entity
+    id: block.id,
+    type: ENTITY_TYPES.BLOCK
   };
 
   return (
     <React.Fragment>
       <div className="cms-section-block" >
         <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
-        {entity === ENTITY_TYPES.BLOCK && <ActionIcon key="edit" onClick={onClick}><HiOutlinePencil size={20} /></ActionIcon> }
+        <ActionIcon key="edit" onClick={onClick}><HiOutlinePencil size={20} /></ActionIcon>
         <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
       </div>
       <Modal key="d" {...modalProps}>
