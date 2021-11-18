@@ -3,11 +3,12 @@ const sequelize = require("sequelize"),
       yn = require("yn");
 
 const populateSearch = require("../utils/populateSearch");
-const {profileReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables} = require("../utils/sequelize/ormHelpers");
+const {profileReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables, blockReqFull} = require("../utils/sequelize/ormHelpers");
 const {translateProfile, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
 const mortarEval = require("../utils/mortarEval");
 const {PROFILE_FIELDS} = require("../utils/consts/cms");
 const {REQUEST_STATUS} = require("../utils/consts/redux");
+const {runConsumers} = require("../utils/sequelize/blockHelpers");
 
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
@@ -161,10 +162,23 @@ module.exports = function(app) {
   app.get("/api/cms/section/activate", async(req, res) => {
     const locale = req.query.locale ? req.query.locale : localeDefault;
     const {id} = req.query;
-    let section = await db.section.findOne({where: {id}}).catch(catcher);
-    if (!section) return res.json(REQUEST_STATUS.ERROR);
-    section = section.toJSON();
-    return res.json(section);
+    let blocks = await db.block.findAll({...blockReqFull, where: {section_id: id}}).catch(catcher);
+    if (!blocks) return res.json({status: REQUEST_STATUS.ERROR});
+    blocks = blocks.map(d => {
+      d = d.toJSON();
+      // runConsumers requires a normalized block shape. This emulates that.
+      // todo1.0, either normalize this or create a different way of using runConsumers
+      return {...d,
+        contentByLocale: d.contentByLocale.reduce(contentReducer, {}),
+        inputs: d.inputs.map(d => d.id),
+        consumers: d.consumers.map(d => d.id)
+      };
+    });
+    const roots = blocks.filter(d => d.inputs.length === 0).reduce((acc, d) => ({...acc, [d.id]: d}), {});
+    blocks = blocks.reduce((acc, d) => ({...acc, [d.id]: d}), {});
+    // todo1.0 fix formatter usage here
+    const variablesById = runConsumers(roots, blocks, locale, {});
+    return res.json(variablesById);
   });
 
   /* GETS */

@@ -58,7 +58,7 @@ const runBlock = async(db, id, locale) => {
  * This function returns a hash object, keyed by the id of ALL downstream consumers, with each value containing
  * the new variables that they, in turn, output. In redux, these are spread into the blocks in the reducer.
  */
-const runConsumers = (updatedBlock, blocks, locale, formatterFunctions) => {
+const runConsumers = (startBlocks, blocks, locale, formatterFunctions) => {
   const result = {};
   // Create the automatic content-driven keys that come from blocks (e.g., stat7title),
   // but calculate their values using variables from previously run inputs to this block.
@@ -72,8 +72,8 @@ const runConsumers = (updatedBlock, blocks, locale, formatterFunctions) => {
   const crawl = bid => {
     let block, variables;
     // If this block has inputs, gather their results into an object and use it to help generate THIS block's variables.
-    if (bid === updatedBlock.id) {
-      block = updatedBlock;
+    if (startBlocks[bid]) {
+      block = startBlocks[bid];
       // At the head of the crawl, get the inputs from precalculated saved inputs (already in tree, unchanged)
       // Note that this lookup uses the *old* block in redux, as that's the one that has inputs. The updatedBlock is the lone
       // block from the server, and though that block is needed for generateVars (content-wise), it has no inputs.
@@ -92,7 +92,9 @@ const runConsumers = (updatedBlock, blocks, locale, formatterFunctions) => {
       crawl(cid);
     }
   };
-  crawl(updatedBlock.id);
+  for (const id of Object.keys(startBlocks)) {
+    crawl(id);
+  }
   return result;
 };
 

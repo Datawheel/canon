@@ -194,7 +194,7 @@ export function updateEntity(type, payload) {
     if (resp.status === 200) {
       if (type === ENTITY_TYPES.BLOCK) {
         // todo1.0 fix formatters here {}
-        const variablesById = runConsumers(resp.data.entity, blocks, localeDefault, {});
+        const variablesById = runConsumers({[resp.data.entity.id]: resp.data.entity}, blocks, localeDefault, {});
         dispatch({type: "BLOCK_UPDATE", data: resp.data, variablesById});
       }
       else {

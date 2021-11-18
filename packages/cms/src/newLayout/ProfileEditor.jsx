@@ -42,7 +42,7 @@ function ProfileEditor({id}) {
   const onDragEnd = result => {
     if (!result.destination || result.source.index === result.destination.index) return;
     const id = Number(result.draggableId);
-    const ordering = result.destination.index + 1;
+    const ordering = result.destination.index;
     const payload = {id, ordering};
     // update the sections optimistically (locally) while sending the asynchronous update
     setSections(insertAtOrdering(sections, payload.id, payload.ordering));
@@ -82,7 +82,7 @@ function ProfileEditor({id}) {
                         <EntityAddButton
                           label="Section Slug"
                           urlSafe={true}
-                          onSubmit={name => addSection(name, i + 2)}
+                          onSubmit={name => addSection(name, i + 1)}
                           target={<ActionIcon variant="filled" color="blue" className="cms-profile-add-section-button" size="xl" radius="xl"><HiOutlinePlusCircle size={30} /></ActionIcon>}
                         />
                       </Center>

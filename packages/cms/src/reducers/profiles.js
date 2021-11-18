@@ -119,13 +119,17 @@ export default (profiles = {}, action) => {
       return profiles.map(p => Object.assign({}, p, {sections: p.sections.map(s => s.id === action.data.id ? Object.assign({}, s, {...action.data}) : s)}));
     case "SECTION_DELETE":
       return normalize(action.data.profiles, profileSchema);
-    // Block inputs
-    // todo1.0, make these work
     case "SECTION_ACTIVATE":
-      console.log("i'm back");
-      return profiles;
+      return {
+        ...profiles,
+        entities: {
+          ...profiles.entities,
+          blocks: Object.values(profiles.entities.blocks)
+            .map(d => ({...d, _variables: action.data[d.id]}))
+            .reduce((acc, d) => ({...acc, [d.id]: d}), {})
+        }
+      };
     // Block inputs
-    // todo1.0, make these work
     case "BLOCK_INPUT_NEW":
       return {
         ...profiles,
