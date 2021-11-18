@@ -52,4 +52,45 @@ const runBlock = async(db, id, locale) => {
   return getVars(id);
 };
 
-module.exports = {runBlock};
+
+/**
+ * When a block is updated in the CMS, all its downstream consumers must have their variables recalculated.
+ * This function returns a hash object, keyed by the id of ALL downstream consumers, with each value containing
+ * the new variables that they, in turn, output. In redux, these are spread into the blocks in the reducer.
+ */
+const runConsumers = (updatedBlock, blocks, locale, formatterFunctions) => {
+  const result = {};
+  // Create the automatic content-driven keys that come from blocks (e.g., stat7title),
+  // but calculate their values using variables from previously run inputs to this block.
+  // todo1.0 - encaspulate this "content-driven" generator into a shared function
+  const generateVars = (block, variables = {}) => {
+    const contentObj = Object.keys(block.contentByLocale[locale].content).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
+    // todo1.0, this will have api calls
+    const result = varSwapRecursive(contentObj, formatterFunctions, variables);
+    return result;
+  };
+  const crawl = bid => {
+    let block, variables;
+    // If this block has inputs, gather their results into an object and use it to help generate THIS block's variables.
+    if (bid === updatedBlock.id) {
+      block = updatedBlock;
+      // At the head of the crawl, get the inputs from precalculated saved inputs (already in tree, unchanged)
+      // Note that this lookup uses the *old* block in redux, as that's the one that has inputs. The updatedBlock is the lone
+      // block from the server, and though that block is needed for generateVars (content-wise), it has no inputs.
+      variables = blocks[bid].inputs.reduce((acc, d) => ({...acc, ...blocks[d]._variables}), {});
+    }
+    else {
+      block = blocks[bid];
+      // Otherwise, get them from the result that we are *building live* while going down the tree.
+      variables = block.inputs.reduce((acc, d) => ({...acc, ...result[d]}), {});
+    }
+    result[bid] = generateVars(block, variables);
+    for (const cid of blocks[bid].consumers) {
+      crawl(cid);
+    }
+  };
+  crawl(updatedBlock.id);
+  return result;
+};
+
+module.exports = {runBlock, runConsumers};

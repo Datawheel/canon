@@ -5,6 +5,8 @@ import getLocales from "../utils/getLocales";
 import attify from "../utils/attify";
 import groupMeta from "../utils/groupMeta";
 import {REQUEST_STATUS} from "../utils/consts/redux";
+import {ENTITY_TYPES} from "../utils/consts/cms";
+import {runConsumers} from "../utils/sequelize/blockHelpers";
 
 const catcher = e => {
   console.log(`Error in profile action: ${e}`);
@@ -167,23 +169,28 @@ export function newEntity(type, payload) {
 
 /** */
 export function updateEntity(type, payload) {
-  return function(dispatch, getStore) {
-    // dispatch({type: "CLEAR_UPDATED"});
-    // Updates might need to trigger re-running certain displays. Use diffCounter to track changes
-    const diffCounter = getStore().cms.status.diffCounter + 1;
+  return async function(dispatch, getStore) {
     // Formatters require locales in the payload to know what languages to compile for
     const locales = getLocales(getStore().env);
-    return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/update`, payload)
-      .then(resp => {
-        if (resp.status === 200) {
-          dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, diffCounter, locales});
-          return {status: REQUEST_STATUS.SUCCESS};
-        }
-        else {
-          // dispatch({type: `${type.toUpperCase()}_ERROR`, data: {id: payload.id}});
-          return {status: REQUEST_STATUS.ERROR, error: resp.status};
-        }
-      }).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
+    const {localeDefault} = getStore().cms.status;
+    const {blocks} = getStore().cms.profiles.entities;
+    const resp = await axios.post(`${getStore().env.CANON_API}/api/cms/${type}/update`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
+    if (resp.status === 200) {
+      if (type === ENTITY_TYPES.BLOCK) {
+        // todo1.0 fix formatters here {}
+        const variablesById = runConsumers(resp.data.entity, blocks, localeDefault, {});
+        console.log(variablesById);
+        dispatch({type: "BLOCK_UPDATE", data: resp.data, variablesById});
+      }
+      else {
+        dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, locales});
+      }
+      return {status: REQUEST_STATUS.SUCCESS};
+    }
+    else {
+      // dispatch({type: `${type.toUpperCase()}_ERROR`, data: {id: payload.id}});
+      return {status: REQUEST_STATUS.ERROR, error: resp.status};
+    }
   };
 }
 

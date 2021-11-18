@@ -57,7 +57,17 @@ export default (profiles = {}, action) => {
         ...profiles,
         entities: {
           ...profiles.entities,
-          blocks: {...profiles.entities.blocks, [action.data.entity.id]: {...profiles.entities.blocks[action.data.entity.id], ...action.data.entity}}
+          blocks: Object.values(profiles.entities.blocks)
+            .map(d => {
+              if (d.id === action.data.entity.id) {
+                return {...d, ...action.data.entity, _variables: action.variablesById[d.id]};
+              }
+              else if (action.variablesById[d.id]) {
+                return {...d, _variables: action.variablesById[d.id]};
+              }
+              else return d;
+            })
+            .reduce((acc, d) => ({...acc, [d.id]: d}), profiles.entities.blocks)
         }
       };
     case "BLOCK_DELETE":

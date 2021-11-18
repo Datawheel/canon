@@ -108,7 +108,7 @@ const sortSection = (db, section) => {
     else {
       block._variables = Object.keys(block.contentByLocale[locale].content).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
     }
-    block._editCount = 0;
+    block._counter = 0;
     for (const input of block.inputs) {
       runBlock(input.block_input.input_id, localeDefault);
     }

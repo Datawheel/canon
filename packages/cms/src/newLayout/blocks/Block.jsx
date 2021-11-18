@@ -1,5 +1,5 @@
 /* react */
-import React, {useState, useEffect, useMemo} from "react";
+import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Modal, ActionIcon, Button, TextInput} from "@mantine/core";
 import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";
@@ -44,15 +44,7 @@ function Block({id}) {
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
-  const blocks = useSelector(state => state.cms.profiles.entities.blocks);
-  const block = blocks[id];
-  const editString = useMemo(() =>
-    Object.values(blocks).filter(d => block.inputs.includes(d.id)).map(d => d._editCount).join(",")
-  , [blocks, block]);
-
-  useEffect(() => {
-    console.log(id, "would recalc", editString);
-  }, [editString]);
+  const block = useSelector(state => state.cms.profiles.entities.blocks[id]);
 
   /**
    * The content of the entire CMS is kept in a normalized redux object called profiles.
