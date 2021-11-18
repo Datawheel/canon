@@ -1,10 +1,6 @@
 /* react */
-import React, {useState} from "react";
-import {Button, Intent, Icon} from "@blueprintjs/core";
+import React from "react";
 import {useDispatch, useSelector} from "react-redux";
-
-/* components */
-import AceWrapper from "../../components/editors/AceWrapper";
 
 /* css */
 import "./GeneratorOutput.css";
@@ -21,10 +17,7 @@ function GeneratorOutput({id, editors}) {
   const dispatch = useDispatch();
 
   /* redux */
-  const {localeDefault} = useSelector(state => {
-    const localeDefault = state.cms.status.localeDefault;
-    return {localeDefault};
-  });
+  const localeDefault = useSelector(state => state.cms.status.localeDefault);
 
   const {apiInput, codeEditor} = editors;
 

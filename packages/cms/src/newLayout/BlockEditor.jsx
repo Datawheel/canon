@@ -1,5 +1,5 @@
 /* react */
-import React, {useState} from "react";
+import React, {useMemo} from "react";
 import {useSelector} from "react-redux";
 import {Tabs, Tab} from "@mantine/core";
 import {HiViewGridAdd, HiOutlineDocumentText, HiOutlineCog} from "react-icons/hi";
@@ -21,15 +21,14 @@ import {BLOCK_TYPES} from "../utils/consts/cms";
 function BlockEditor({id, components}) {
 
   /* redux */
-  const {block, variables} = useSelector(state => {
-    const block = state.cms.profiles.entities.blocks[id];
-    const blocks = Object.values(state.cms.profiles.entities.blocks);
-    const inputs = blocks.filter(d => block.inputs.includes(d.id));
-    const variables = inputs.reduce((acc, d) => ({...acc, ...d._variables}), {});
-    return {block, variables};
-  });
+  const blocks = useSelector(state => state.cms.profiles.entities.blocks);
+  const block = blocks[id];
 
-  if (!block) return null;
+  const variables = useMemo(() =>
+    Object.values(blocks)
+      .filter(d => block.inputs.includes(d.id))
+      .reduce((acc, d) => ({...acc, ...d._variables}), {})
+  );
 
   /**
    * The text editor lives in Block.jsx so that its onChange callbacks can be persisted to psql.
@@ -39,6 +38,8 @@ function BlockEditor({id, components}) {
    */
   components.textEditor = React.cloneElement(components.textEditor, {variables});
   components.blockPreview = React.cloneElement(components.blockPreview, {variables});
+
+  if (!block) return null;
 
   return (
     <div className="cms-block-editor">

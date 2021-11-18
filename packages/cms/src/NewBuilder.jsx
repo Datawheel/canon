@@ -24,14 +24,12 @@ function NewBuilder({router}) {
   const [loading, setLoading] = useState(true);
 
   /* redux */
-  const {auth, env, formatterFunctions, isEnabled, minRole, pathObj} = useSelector(state => ({
-    auth: state.auth,
-    env: state.env,
-    formatterFunctions: state.cms.resources.formatterFunctions,
-    isEnabled: state.data.isEnabled,
-    minRole: state.data.minRole,
-    pathObj: state.cms.status.pathObj
-  }));
+  const auth = useSelector(state => state.auth);
+  const env = useSelector(state => state.env);
+  const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
+  const isEnabled = useSelector(state => state.data.isEnabled);
+  const minRole = useSelector(state => state.data.minRole);
+  const pathObj = useSelector(state => state.cms.status.pathObj);
 
   const loadProfiles = useCallback(() => {
     setLoading(true);

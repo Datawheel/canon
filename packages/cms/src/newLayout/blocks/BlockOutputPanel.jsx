@@ -1,13 +1,16 @@
+/* react */
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Button, Intent} from "@blueprintjs/core";
 
-import BlockPreview from "./BlockPreview";
+/* redux */
+import {updateEntity} from "../../actions/profiles";
 
+/* consts */
 import {ENTITY_TYPES} from "../../utils/consts/cms";
 
+/* css */
 import "./BlockOutputPanel.css";
-import {updateEntity} from "../../actions/profiles";
 
 const MODES = {
   TEXT: "text",
@@ -22,10 +25,8 @@ function BlockOutput({id, components}) {
   const dispatch = useDispatch();
 
   /* redux */
-  const {block, localeDefault} = useSelector(state => ({
-    localeDefault: state.cms.status.localeDefault,
-    block: state.cms.profiles.entities.blocks[id]
-  }));
+  const localeDefault = useSelector(state => state.cms.status.localeDefault);
+  const block = useSelector(state => state.cms.profiles.entities.blocks[id]);
 
   const [mode, setMode] = useState(block.contentByLocale[localeDefault].content.logicEnabled ? MODES.CODE : MODES.TEXT);
 

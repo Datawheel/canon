@@ -1,17 +1,22 @@
-import React, {useEffect, useState} from "react";
+/* react */
+import React from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {ActionIcon, Group} from "@mantine/core";
+import {ActionIcon} from "@mantine/core";
 import {HiOutlinePlusCircle} from "react-icons/hi";
 
+/* components */
 import SectionHeader from "./SectionHeader";
 import EntityAddButton from "../components/EntityAddButton";
 import Block from "../blocks/Block";
 
+/* redux */
 import {newEntity} from "../../actions/profiles";
 
+/* consts */
 import {ENTITY_ADD_BUTTON_TYPES} from "../components/consts";
 import {BLOCK_TYPES, ENTITY_TYPES} from "../../utils/consts/cms";
 
+/* css */
 import "./Section.css";
 
 /**
@@ -22,12 +27,8 @@ function Section({id, isDragging, dragHandleProps}) {
   const dispatch = useDispatch();
 
   /* redux */
-  const {localeDefault, section} = useSelector(state => ({
-    localeDefault: state.cms.status.localeDefault,
-    section: state.cms.profiles.entities.sections[id]
-  }));
-
-  if (!section) return null;
+  const localeDefault = useSelector(state => state.cms.status.localeDefault);
+  const section = useSelector(state => state.cms.profiles.entities.sections[id]);
 
   const addBlock = type => {
     const payload = {
@@ -36,6 +37,8 @@ function Section({id, isDragging, dragHandleProps}) {
     };
     dispatch(newEntity(ENTITY_TYPES.BLOCK, payload));
   };
+
+  if (!section) return null;
 
   const {blocks} = section;
 

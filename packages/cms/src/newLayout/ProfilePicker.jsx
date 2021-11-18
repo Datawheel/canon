@@ -1,11 +1,14 @@
-import React, {useState, useEffect} from "react";
+/* react */
+import React from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {ActionIcon, Alert, Center, Group, Space} from "@mantine/core";
 import {HiOutlineDocumentReport, HiOutlinePlusCircle} from "react-icons/hi";
 
+/* components */
 import ProfileCard from "./ProfileCard";
 import EntityAddButton from "./components/EntityAddButton";
 
+/* redux */
 import {newProfile} from "../actions/profiles";
 
 /**
@@ -16,10 +19,7 @@ function ProfilePicker() {
   const dispatch = useDispatch();
 
   /* redux */
-  const {profiles, localeDefault} = useSelector(state => ({
-    profiles: state.cms.profiles.result,
-    localeDefault: state.cms.status.localeDefault
-  }));
+  const profiles = useSelector(state => state.cms.profiles.result);
 
   return (
     <Center

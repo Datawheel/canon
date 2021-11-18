@@ -1,12 +1,16 @@
-import React, {useEffect, useState} from "react";
+/* react */
+import React from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {ActionIcon, Button, Center, Group, Select} from "@mantine/core";
+import {ActionIcon, Center, Group, Select} from "@mantine/core";
 import {HiOutlineCog} from "react-icons/hi";
 
+/* redux */
 import {setStatus} from "../actions/status";
 
+/* consts */
 import {ENTITY_TYPES} from "../utils/consts/cms";
 
+/* css */
 import "./CMSHeader.css";
 
 /**
@@ -17,13 +21,10 @@ function CMSHeader({id}) {
   const dispatch = useDispatch();
 
   /* redux */
-  const {localeDefault, localeSecondary, locales, profiles} = useSelector(state => ({
-    localeDefault: state.cms.status.localeDefault,
-    localeSecondary: state.cms.status.localeSecondary,
-    locales: state.cms.status.locales,
-    // todo1.0 - is this too heavy to import the whole thing?
-    profiles: Object.values(state.cms.profiles.entities.profiles)
-  }));
+  const localeDefault = useSelector(state => state.cms.status.localeDefault);
+  const locales = useSelector(state => state.cms.status.locales);
+  // todo1.0 - is this too heavy to import the whole thing?
+  const profiles = useSelector(state => Object.values(state.cms.profiles.entities.profiles));
 
   const goBack = () => {
     dispatch(setStatus({pathObj: {home: true}}));

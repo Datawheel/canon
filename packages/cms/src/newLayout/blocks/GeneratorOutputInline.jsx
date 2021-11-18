@@ -1,7 +1,8 @@
-import React, {useState} from "react";
-import {Button, Intent, Icon} from "@blueprintjs/core";
+/* react */
+import React from "react";
 import {useDispatch, useSelector} from "react-redux";
 
+/* css */
 import "./GeneratorOutputInline.css";
 
 /**
@@ -16,10 +17,7 @@ function GeneratorOutputInline({id}) {
   const dispatch = useDispatch();
 
   /* redux */
-  const {localeDefault} = useSelector(state => {
-    const localeDefault = state.cms.status.localeDefault;
-    return {localeDefault};
-  });
+  const localeDefault = useSelector(state => state.cms.status.localeDefault);
 
   return (
     <div className="cms-generator-output-inline">

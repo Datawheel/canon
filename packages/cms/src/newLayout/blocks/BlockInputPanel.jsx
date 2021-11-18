@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useMemo} from "react";
 import {ActionIcon} from "@mantine/core";
 import {useDispatch, useSelector} from "react-redux";
 import {HiOutlinePlusCircle} from "react-icons/hi";
@@ -21,17 +21,15 @@ function BlockInputPanel({id}) {
   const dispatch = useDispatch();
 
   /* redux */
-  const {block, sourceBlocks} = useSelector(state => {
-    const block = state.cms.profiles.entities.blocks[id];
-    const sourceBlocks = Object.values(state.cms.profiles.entities.blocks).filter(d => {
-      const sameSection = d.section_id === block.section_id;
-      const sameBlock = d.id === block.id;
-      const inUse = block.inputs.includes(d.id);
-      return sameSection && !sameBlock && !inUse;
-    });
-    // sourceBlocks.push({type: "+New API Call", value: "api"});
-    return {block, sourceBlocks};
-  });
+  const blocks = useSelector(state => state.cms.profiles.entities.blocks);
+  const block = blocks[id];
+
+  const sourceBlocks = useMemo(() => Object.values(blocks).filter(d => {
+    const sameSection = d.section_id === block.section_id;
+    const sameBlock = d.id === block.id;
+    const inUse = block.inputs.includes(d.id);
+    return sameSection && !sameBlock && !inUse;
+  }), [blocks]);
 
   const addInput = id => {
     const payload = {

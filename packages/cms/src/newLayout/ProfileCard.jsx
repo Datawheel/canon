@@ -1,5 +1,5 @@
 /* react */
-import React, {useState} from "react";
+import React from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Card, Center, Image, Text, Badge, Button, Group, useMantineTheme} from "@mantine/core";
 import {HiOutlinePencil, HiOutlineCog} from "react-icons/hi";
@@ -31,10 +31,8 @@ function ProfileCard({id}) {
   const dispatch = useDispatch();
 
   /* redux */
-  const {localeDefault, profile} = useSelector(state => ({
-    localeDefault: state.cms.status.localeDefault,
-    profile: state.cms.profiles.entities.profiles[id]
-  }));
+  const localeDefault = useSelector(state => state.cms.status.localeDefault);
+  const profile = useSelector(state => state.cms.profiles.entities.profiles[id]);
 
   const openProfile = id => {
     dispatch(setStatus({pathObj: {profile: id}}));

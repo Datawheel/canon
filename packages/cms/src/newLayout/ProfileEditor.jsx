@@ -30,12 +30,7 @@ function ProfileEditor({id}) {
   const dispatch = useDispatch();
 
   /* redux */
-  const {localeDefault, profile} = useSelector(state => ({
-    localeDefault: state.cms.status.localeDefault,
-    profile: state.cms.profiles.entities.profiles[id]
-  }));
-
-  if (!profile) return null;
+  const profile = useSelector(state => state.cms.profiles.entities.profiles[id]);
 
   const [sections, setSections] = useState([]);
   // const [isDragging, setIsDragging] = useState(false);
@@ -63,6 +58,7 @@ function ProfileEditor({id}) {
     dispatch(newEntity(ENTITY_TYPES.SECTION, payload));
   };
 
+  if (!profile) return null;
   if (profile.error) return <div>{profile.error}</div>;
 
   return (

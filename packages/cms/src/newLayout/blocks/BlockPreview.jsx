@@ -1,5 +1,5 @@
 /* react */
-import React, {useState} from "react";
+import React from "react";
 import {useSelector} from "react-redux";
 
 /* utils */
@@ -17,12 +17,9 @@ import "./BlockPreview.css";
 function BlockPreview({id, stateContent, variables}) {
 
   /* redux */
-  const {block, formatterFunctions, localeDefault} = useSelector(state => {
-    const block = state.cms.profiles.entities.blocks[id];
-    const localeDefault = state.cms.status.localeDefault;
-    const formatterFunctions = state.cms.resources.formatterFunctions;
-    return {block, formatterFunctions, localeDefault};
-  });
+  const localeDefault = useSelector(state => state.cms.status.localeDefault);
+  const block = useSelector(state => state.cms.profiles.entities.blocks[id]);
+  const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
 
   const content = varSwapRecursive(stateContent, formatterFunctions[localeDefault], variables);
 

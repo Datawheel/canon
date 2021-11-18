@@ -1,10 +1,8 @@
 import React, {useState, useEffect} from "react";
 import {useSelector} from "react-redux";
-import {Button, Intent} from "@blueprintjs/core";
 
 import DraftWrapper from "../../components/editors/DraftWrapper";
 
-import {BLOCK_FIELDS} from "../../utils/consts/cms";
 import deepClone from "../../utils/deepClone";
 
 import "./NewRichTextEditor.css";
@@ -15,9 +13,7 @@ import "./NewRichTextEditor.css";
 function NewRichTextEditor({locale, block, fields, onChange, variables}) {
 
   /* redux */
-  const {showToolbar} = useSelector(state => ({
-    showToolbar: state.cms.status.showToolbar
-  }));
+  const showToolbar = useSelector(state => state.cms.status.showToolbar);
 
   const [stateContent] = useState(() => deepClone(block.contentByLocale[locale].content));
 
