@@ -1,14 +1,12 @@
 const PromiseThrottle = require("promise-throttle"),
       axios = require("axios"),
-      {BLOCK_MAP} = require("../utils/consts/cms"),
       collate = require("../utils/collate"),
       formatters4eval = require("../utils/formatters4eval"),
       jwt = require("jsonwebtoken"),
       libs = require("../utils/libs"), /*leave this! needed for the variable functions.*/ //eslint-disable-line
       mortarEval = require("../utils/mortarEval"),
       prepareProfile = require("../utils/prepareProfile"),
-      {profileReqFull, blockReqFull} = require("../utils/sequelize/ormHelpers"),
-      {runBlock} = require("../utils/sequelize/blockHelpers"),
+      {profileReq} = require("../utils/sequelize/ormHelpers"),
       sequelize = require("sequelize"),
       urlSwap = require("../utils/urlSwap"),
       varSwapRecursive = require("../utils/varSwapRecursive"),
@@ -24,7 +22,6 @@ const catcher = e => {
 
 const sorter = (a, b) => a.ordering - b.ordering;
 const contentReducer = (acc, d) => ({...acc, [d.locale]: d});
-const raw = {raw: true, nest: true};
 
 // Use axios interceptors to time requests for CMS front-end warnings
 axios.interceptors.request.use(d => {
@@ -274,31 +271,6 @@ module.exports = function(app) {
 
   };
 
-  /*
-  const runBlocks = async(req, section, id) => {
-    const locale = req.query.locale || LOCALE_DEFAULT;
-    const returnVariables = {};
-    const genStatus = {};
-    const durations = {};
-
-    // const blockReq = id ? {where: {id}} : {where: {section_id: section}};
-    const variables = await runBlock(id, blocks, locale);
-
-    const result = varSwapRecursive(block.contentByLocale[locale].content, formatterFunctions, variables);
-    return result;
-  };
-
-  app.get("/api/blocks/:sid", async(req, res) => res.json(await runBlocks(req, req.params.sid, req.query.block)));
-  app.post("/api/blocks/:sid", async(req, res) => res.json(await runBlocks(req, req.params.sid, req.query.block)));
-
-  */
-
-  app.get("/api/block/:id", async(req, res) => {
-    const id = Number(req.params.id);
-    const locale = req.query.locale || LOCALE_DEFAULT;
-    return res.json(await runBlock(db, id, locale));
-  });
-
   app.get("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator)));
   app.post("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator, req.body.attributes)));
 
@@ -502,7 +474,7 @@ module.exports = function(app) {
             const getNeighborsForId = async id => {
               const members = [];
               const url = `${cubeRoot}/relations.jsonrecords?cube=${cubeName}&${hierarchy}=${id}:neighbors`;
-              const config = getConfig();
+              const config = getProxyConfig();
               // Now that we have a correct hierarchy/level, query the neighbors endpoint
               const neighbors = await axios
                 .get(url, config)

@@ -123,7 +123,7 @@ function Block({id, active}) {
   />;
 
   const apiInput = <TextInput
-    placeHolder="API"
+    placeholder="API"
     key="text-input"
     defaultValue={block.api}
     type="url"

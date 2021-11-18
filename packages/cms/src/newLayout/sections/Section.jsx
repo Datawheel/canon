@@ -20,7 +20,6 @@ import {REQUEST_STATUS} from "../../utils/consts/redux";
 /* css */
 import "./Section.css";
 
-
 /**
  *
  */
@@ -52,7 +51,6 @@ function Section({id, isDragging, dragHandleProps}) {
       }
     });
   };
-
 
   if (!section) return null;
 

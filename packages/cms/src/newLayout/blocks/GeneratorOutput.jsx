@@ -12,14 +12,14 @@ import "./GeneratorOutput.css";
  * and subscribing to it as an input. However, to help hide the generators, this inline editor
  * handles everything inline, in one panel, and generators are then hidden from the user.
  */
-function GeneratorOutput({id, editors}) {
+function GeneratorOutput({id, components}) {
 
   const dispatch = useDispatch();
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
 
-  const {apiInput, codeEditor} = editors;
+  const {apiInput, codeEditor} = components;
 
   return (
     <div className="cms-generator-output">

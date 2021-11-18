@@ -173,11 +173,9 @@ module.exports = function(app) {
         inputs: d.inputs.map(d => d.id),
         consumers: d.consumers.map(d => d.id)
       };
-    });
-    const roots = blocks.filter(d => d.inputs.length === 0).reduce((acc, d) => ({...acc, [d.id]: d}), {});
-    blocks = blocks.reduce((acc, d) => ({...acc, [d.id]: d}), {});
+    }).reduce((acc, d) => ({...acc, [d.id]: d}), {});
     // todo1.0 fix formatter usage here
-    const variablesById = runConsumers(roots, blocks, locale, {});
+    const variablesById = runConsumers(blocks, locale, {});
     return res.json(variablesById);
   });
 
@@ -258,7 +256,7 @@ module.exports = function(app) {
           reqObj = Object.assign({}, sectionReqFull, {where: {id: newObj.id}});
         }
         else if (ref === "block") {
-          reqObj = {where: {id: newObj.id}, include: [{association: "contentByLocale"}, {association: "inputs"}]};
+          reqObj = {where: {id: newObj.id}, include: [{association: "contentByLocale"}, {association: "inputs"}, {association: "consumers"}]};
         }
         else {
           reqObj = {where: {id: newObj.id}, include: {association: "contentByLocale"}};

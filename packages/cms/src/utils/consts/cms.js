@@ -106,6 +106,16 @@ const BLOCK_FIELDS = {
   VALUE: "value"
 };
 
+/**
+ * When exporting content variables for use by other blocks, skip over the following fields
+ */
+const BLOCK_FIELDS_EXCLUDE = [
+  BLOCK_FIELDS.LOGIC,
+  BLOCK_FIELDS.LOGIC_ENABLED,
+  BLOCK_FIELDS.LOGIC_SIMPLE,
+  BLOCK_FIELDS.LOGIC_ENABLED
+];
+
 const BLOCK_MAP = {
   [BLOCK_TYPES.AUTHOR]: [
     BLOCK_FIELDS.AUTHOR,
@@ -161,6 +171,7 @@ const BLOCK_SETTINGS = {
 
 module.exports = {
   BLOCK_FIELDS,
+  BLOCK_FIELDS_EXCLUDE,
   BLOCK_MAP,
   BLOCK_SETTINGS,
   BLOCK_TYPES,
