@@ -1,5 +1,5 @@
 /* react */
-import React from "react";
+import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {ActionIcon} from "@mantine/core";
 import {HiOutlinePlusCircle} from "react-icons/hi";
@@ -10,14 +10,16 @@ import EntityAddButton from "../components/EntityAddButton";
 import Block from "../blocks/Block";
 
 /* redux */
-import {newEntity} from "../../actions/profiles";
+import {newEntity, activateSection} from "../../actions/profiles";
 
 /* consts */
 import {ENTITY_ADD_BUTTON_TYPES} from "../components/consts";
 import {BLOCK_TYPES, ENTITY_TYPES} from "../../utils/consts/cms";
+import {REQUEST_STATUS} from "../../utils/consts/redux";
 
 /* css */
 import "./Section.css";
+
 
 /**
  *
@@ -30,6 +32,8 @@ function Section({id, isDragging, dragHandleProps}) {
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
   const section = useSelector(state => state.cms.profiles.entities.sections[id]);
 
+  const [active, setActive] = useState(false);
+
   const addBlock = type => {
     const payload = {
       type,
@@ -38,16 +42,29 @@ function Section({id, isDragging, dragHandleProps}) {
     dispatch(newEntity(ENTITY_TYPES.BLOCK, payload));
   };
 
+  const onEdit = () => {
+    dispatch(activateSection(id)).then(resp => {
+      if (resp.status === REQUEST_STATUS.SUCCESS) {
+        setActive(true);
+      }
+      else {
+        // todo1.0 toast error
+      }
+    });
+  };
+
+
   if (!section) return null;
 
   const {blocks} = section;
 
   return (
     <div className={`cms-section${isDragging ? " isDragging" : ""}`}>
-      <SectionHeader section={section} dragHandleProps={dragHandleProps}/>
+      <SectionHeader onEdit={onEdit} section={section} dragHandleProps={dragHandleProps}/>
       <div className="cms-section-content">
+        {!active && <h1 onClick={onEdit} style={{position: "absolute", cursor: "pointer", backgroundColor: "white", marginTop: 150, outline: "1px solid black", textAlign: "center", width: "100%", zIndex: 2}}>Click to activate</h1>}
         {blocks.map(block =>
-          <Block id={block} key={`block-${block}`} entity={ENTITY_TYPES.BLOCK} />
+          <Block id={block} active={active} key={`block-${block}`} entity={ENTITY_TYPES.BLOCK} />
         )}
         <EntityAddButton
           type={ENTITY_ADD_BUTTON_TYPES.SELECT}

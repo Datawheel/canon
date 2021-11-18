@@ -82,7 +82,10 @@ const runConsumers = (updatedBlock, blocks, locale, formatterFunctions) => {
     else {
       block = blocks[bid];
       // Otherwise, get them from the result that we are *building live* while going down the tree.
-      variables = block.inputs.reduce((acc, d) => ({...acc, ...result[d]}), {});
+      // If the input node has been tread before, then it was recalculated, and the variable should come from there
+      // Otherwise, it was not recalculated, and simply needs to be fetched from its saved variables.
+      // todo1.0 deal with removals / undefined? like in original cms
+      variables = block.inputs.reduce((acc, d) => ({...acc, ...result[d] ? result[d] : blocks[d]._variables}), {});
     }
     result[bid] = generateVars(block, variables);
     for (const cid of blocks[bid].consumers) {

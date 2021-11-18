@@ -121,6 +121,11 @@ export default (profiles = {}, action) => {
       return normalize(action.data.profiles, profileSchema);
     // Block inputs
     // todo1.0, make these work
+    case "SECTION_ACTIVATE":
+      console.log("i'm back");
+      return profiles;
+    // Block inputs
+    // todo1.0, make these work
     case "BLOCK_INPUT_NEW":
       return {
         ...profiles,

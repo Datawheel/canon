@@ -158,6 +158,22 @@ export function deleteDimension(id) {
 }
 
 /** */
+export function activateSection(id) {
+  return function(dispatch, getStore) {
+    return axios.get("/api/cms/section/activate", {params: {id}})
+      .then(resp => {
+        if (resp.status === 200) {
+          dispatch({type: "SECTION_ACTIVATE", data: resp.data});
+          return {status: REQUEST_STATUS.SUCCESS};
+        }
+        else {
+          return {status: REQUEST_STATUS.ERROR, error: resp.status};
+        }
+      });
+  };
+}
+
+/** */
 export function newEntity(type, payload) {
   return function(dispatch, getStore) {
     return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/new`, payload)
@@ -179,7 +195,6 @@ export function updateEntity(type, payload) {
       if (type === ENTITY_TYPES.BLOCK) {
         // todo1.0 fix formatters here {}
         const variablesById = runConsumers(resp.data.entity, blocks, localeDefault, {});
-        console.log(variablesById);
         dispatch({type: "BLOCK_UPDATE", data: resp.data, variablesById});
       }
       else {

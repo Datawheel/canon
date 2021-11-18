@@ -1,7 +1,7 @@
 /* react */
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Modal, ActionIcon, Button, TextInput} from "@mantine/core";
+import {Modal, ActionIcon, Button, TextInput, Overlay} from "@mantine/core";
 import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";
 
 /* components */
@@ -36,11 +36,9 @@ const hasNoLocaleContent = type => [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ].incl
  * selector, or anything listed in BLOCK_TYPES.
  * id - the id for this block
  */
-function Block({id}) {
+function Block({id, active}) {
 
   const dispatch = useDispatch();
-
-  const [opened, setOpened] = useState(false);
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
@@ -55,6 +53,7 @@ function Block({id}) {
    */
   const [stateContent, setStateContent] = useState({});
   const [loading, setLoading] = useState(false);
+  const [opened, setOpened] = useState(false);
 
   const onClick = () => {
     setOpened(true);
@@ -171,6 +170,7 @@ function Block({id}) {
   return (
     <React.Fragment>
       <div className="cms-section-block" >
+        {!active && <Overlay opacity={0.7} color="#000" zIndex={5} />}
         <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
         <ActionIcon key="edit" onClick={onClick}><HiOutlinePencil size={20} /></ActionIcon>
         <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />

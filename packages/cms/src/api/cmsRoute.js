@@ -7,6 +7,7 @@ const {profileReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingT
 const {translateProfile, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
 const mortarEval = require("../utils/mortarEval");
 const {PROFILE_FIELDS} = require("../utils/consts/cms");
+const {REQUEST_STATUS} = require("../utils/consts/redux");
 
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
@@ -91,37 +92,6 @@ const sortSection = (db, section) => {
   section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
   section.blocks = flatSort(db.blocks, section.blocks);
   section.blocks.forEach(block => block.contentByLocale = block.contentByLocale.reduce(contentReducer, {}));
-
-  // todo1.0 move this somewhere to combine it with the one in mortarRoute
-  // todo1.0 this will have to consider profile-wide blocks too
-
-  const runBlock = (id, locale) => {
-    const block = section.blocks.find(d => d.id === id);
-    const {logicEnabled, logic} = block.contentByLocale[locale].content;
-    if (logicEnabled) {
-      const vars = {};
-      const evalResults = mortarEval("variables", vars, logic, {}, locale); // todo1.0 add formatterfunctions back in here
-      if (typeof evalResults.vars !== "object") evalResults.vars = {};
-      block._status = evalResults.error ? {error: evalResults.error} : "OK";
-      block._variables = Object.keys(evalResults.vars).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: evalResults.vars[d]}), {});
-    }
-    else {
-      block._variables = Object.keys(block.contentByLocale[locale].content).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
-    }
-    block._counter = 0;
-    for (const input of block.inputs) {
-      runBlock(input.block_input.input_id, localeDefault);
-    }
-  };
-
-  const leaves = section.blocks.filter(d => d.consumers.length === 0);
-  for (const leaf of leaves) {
-    for (const input of leaf.inputs) {
-      runBlock(input.block_input.input_id, localeDefault);
-    }
-  }
-
-
   // todo1.0
   // ordering is nested in section_selector - bubble for top-level sorting
   // section.selectors = bubbleSortSelectors(db.section_selector, section.selectors);
@@ -186,25 +156,18 @@ module.exports = function(app) {
     return ordering;
   };
 
-  /* BASIC GETS */
+  /* ACTIVATION */
 
-  // Top-level tables have their own special gets, so exclude them from the "simple" gets
-  const getList = cmsTables.filter(tableName =>
-    !["profile", "section", "story", "storysection"].includes(tableName)
-  );
-
-  getList.forEach(ref => {
-    app.get(`/api/cms/${ref}/get/:id`, async(req, res) => {
-      if (contentTables.includes(ref)) {
-        const u = await db[ref].findOne({where: {id: req.params.id}, include: {association: "contentByLocale"}}).catch(catcher);
-        return res.json(u);
-      }
-      else {
-        const u = await db[ref].findOne({where: {id: req.params.id}}).catch(catcher);
-        return res.json(u);
-      }
-    });
+  app.get("/api/cms/section/activate", async(req, res) => {
+    const locale = req.query.locale ? req.query.locale : localeDefault;
+    const {id} = req.query;
+    let section = await db.section.findOne({where: {id}}).catch(catcher);
+    if (!section) return res.json(REQUEST_STATUS.ERROR);
+    section = section.toJSON();
+    return res.json(section);
   });
+
+  /* GETS */
 
   app.get("/api/cms/meta", async(req, res) => {
     let meta = await db.profile_meta.findAll().catch(catcher);
@@ -410,9 +373,6 @@ module.exports = function(app) {
           let entity = await db[ref].findOne({where: {id}, include: {association: "contentByLocale"}}).catch(catcher);
           entity = entity.toJSON();
           entity.contentByLocale = entity.contentByLocale.reduce(contentReducer, {});
-          if (ref === "block") {
-
-          }
           return res.json({entity, siblings});
         }
         else {
