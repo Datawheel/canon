@@ -102,7 +102,7 @@ function NewBuilder({router}) {
     );
   }
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loading />;
 
   return (
     <MantineProvider>

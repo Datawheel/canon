@@ -6,7 +6,6 @@ import attify from "../utils/attify";
 import groupMeta from "../utils/groupMeta";
 import {REQUEST_STATUS} from "../utils/consts/redux";
 import {ENTITY_TYPES} from "../utils/consts/cms";
-import {runConsumers} from "../utils/sequelize/blockHelpers";
 
 const catcher = e => {
   console.log(`Error in profile action: ${e}`);
@@ -187,14 +186,14 @@ export function newEntity(type, payload) {
 export function updateEntity(type, payload) {
   return async function(dispatch, getStore) {
     // Formatters require locales in the payload to know what languages to compile for
-    const locales = getLocales(getStore().env);
-    const {localeDefault} = getStore().cms.status;
-    const {blocks} = getStore().cms.profiles.entities;
-    const resp = await axios.post(`${getStore().env.CANON_API}/api/cms/${type}/update`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
+    const store = getStore();
+    const locales = getLocales(store.env);
+    const {CANON_API} = store.env;
+    const resp = await axios.post(`${store.env.CANON_API}/api/cms/${type}/update`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       if (type === ENTITY_TYPES.BLOCK) {
         // todo1.0 fix formatters here {}
-        const variablesById = runConsumers(blocks, localeDefault, {}, {[resp.data.entity.id]: resp.data.entity});
+        const variablesById = await axios.get(`${CANON_API}/api/cms/block/activate`, {params: {id: payload.id}}).then(d => d.data).catch(() => {}); // todo1.0 error here
         dispatch({type: "BLOCK_UPDATE", data: resp.data, variablesById});
       }
       else {

@@ -158,11 +158,10 @@ module.exports = function(app) {
 
   /* ACTIVATION */
 
-  app.get("/api/cms/section/activate", async(req, res) => {
+  const activate = async(req, sid, bid) => {
     const locale = req.query.locale ? req.query.locale : localeDefault;
-    const {id} = req.query;
-    let blocks = await db.block.findAll({...blockReqFull, where: {section_id: id}}).catch(catcher);
-    if (!blocks) return res.json({status: REQUEST_STATUS.ERROR});
+    let blocks = await db.block.findAll({...blockReqFull, where: {section_id: sid}}).catch(catcher);
+    if (!blocks) return {status: REQUEST_STATUS.ERROR};
     blocks = blocks.map(d => {
       d = d.toJSON();
       // runConsumers requires a normalized block shape. This emulates that.
@@ -173,8 +172,23 @@ module.exports = function(app) {
         consumers: d.consumers.map(d => d.id)
       };
     }).reduce((acc, d) => ({...acc, [d.id]: d}), {});
-    // todo1.0 fix formatter usage here
-    const variablesById = runConsumers(blocks, locale, {});
+    // todo1.0 fix formatter usage here, add error logging
+    const args = [req, blocks, locale, {}];
+    if (bid) args.push({[bid]: blocks[bid]});
+    return await runConsumers(...args);
+  };
+
+  app.get("/api/cms/block/activate", async(req, res) => {
+    const {id} = req.query;
+    const block = await db.block.findOne({where: {id}}).catch(catcher);
+    if (!block) return res.json({status: REQUEST_STATUS.ERROR});
+    const variablesById = await activate(req, block.section_id, block.id);
+    return res.json(variablesById);
+  });
+
+  app.get("/api/cms/section/activate", async(req, res) => {
+    const {id} = req.query;
+    const variablesById = await activate(req, id);
     return res.json(variablesById);
   });
 
