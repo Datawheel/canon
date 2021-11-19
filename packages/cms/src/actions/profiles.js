@@ -6,6 +6,7 @@ import attify from "../utils/attify";
 import groupMeta from "../utils/groupMeta";
 import {REQUEST_STATUS} from "../utils/consts/redux";
 import {ENTITY_TYPES} from "../utils/consts/cms";
+import {actions} from "react-table";
 
 const catcher = e => {
   console.log(`Error in profile action: ${e}`);
@@ -174,11 +175,24 @@ export function activateSection(id) {
 
 /** */
 export function newEntity(type, payload) {
-  return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/new`, payload)
-      .then(({data}) => {
-        dispatch({type: `${type.toUpperCase()}_NEW`, data});
-      });
+  return async function(dispatch, getStore) {
+    const store = getStore();
+    const resp = await axios.post(`${store.env.CANON_API}/api/cms/${type}/new`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
+    if (resp.status === 200) {
+      if (type === ENTITY_TYPES.BLOCK_INPUT) {
+        const variablesById = await axios.get(`${store.env.CANON_API}/api/cms/block/activate`, {params: {id: payload.block_id}}).then(d => d.data).catch(() => {}); // todo1.0 error here
+        dispatch({type: `${type.toUpperCase()}_NEW`, data: resp.data, variablesById});
+      }
+      else {
+        dispatch({type: `${type.toUpperCase()}_NEW`, data: resp.data});
+      }
+      return {status: REQUEST_STATUS.SUCCESS};
+    }
+    else {
+      // dispatch({type: `${type.toUpperCase()}_ERROR`, data: {id: payload.id}});
+      return {status: REQUEST_STATUS.ERROR, error: resp.status};
+    }
+
   };
 }
 
@@ -192,7 +206,6 @@ export function updateEntity(type, payload) {
     const resp = await axios.post(`${store.env.CANON_API}/api/cms/${type}/update`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       if (type === ENTITY_TYPES.BLOCK) {
-        // todo1.0 fix formatters here {}
         const variablesById = await axios.get(`${CANON_API}/api/cms/block/activate`, {params: {id: payload.id}}).then(d => d.data).catch(() => {}); // todo1.0 error here
         dispatch({type: "BLOCK_UPDATE", data: resp.data, variablesById});
       }
@@ -210,15 +223,25 @@ export function updateEntity(type, payload) {
 
 /** */
 export function deleteEntity(type, payload) {
-  return function(dispatch, getStore) {
-    // Deletes might need to trigger re-running certain displays. Use diffCounter to track changes
-    const diffCounter = getStore().cms.status.diffCounter + 1;
+  return async function(dispatch, getStore) {
+    const store = getStore();
     // Formatters require locales in the payload to know what languages to compile for
-    const locales = getLocales(getStore().env);
-    axios.delete(`${getStore().env.CANON_API}/api/cms/${type}/delete`, {params: payload})
-      .then(({data}) => {
-        dispatch({type: `${type.toUpperCase()}_DELETE`, data, diffCounter, locales});
-      });
+    const locales = getLocales(store.env);
+    const resp = await axios.delete(`${store.env.CANON_API}/api/cms/${type}/delete`, {params: payload}).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
+    if (resp.status === 200) {
+      if (type === ENTITY_TYPES.BLOCK_INPUT) {
+        const variablesById = await axios.get(`${store.env.CANON_API}/api/cms/block/activate`, {params: {id: resp.data.parent_id}}).then(d => d.data).catch(() => {}); // todo1.0 error here
+        dispatch({type: `${type.toUpperCase()}_DELETE`, data: resp.data, locales, variablesById});
+      }
+      else {
+        dispatch({type: `${type.toUpperCase()}_DELETE`, data: resp.data, locales});
+      }
+      return {status: REQUEST_STATUS.SUCCESS};
+    }
+    else {
+      // dispatch({type: `${type.toUpperCase()}_ERROR`, data: {id: payload.id}});
+      return {status: REQUEST_STATUS.ERROR, error: resp.status};
+    }
   };
 }
 

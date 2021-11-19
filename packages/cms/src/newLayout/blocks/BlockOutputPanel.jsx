@@ -1,7 +1,7 @@
 /* react */
 import React, {useState, useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {ActionIcon, Button, Menu} from "@mantine/core";
+import {ThemeIcon, Button, Menu} from "@mantine/core";
 import {HiViewGridAdd, HiCheckCircle} from "react-icons/hi";
 
 /* components */
@@ -69,7 +69,7 @@ function BlockOutputPanel({id, components}) {
     <div className="cms-block-output">
       <Menu zIndex={1001} control={<Button variant="outline" style={{position: "absolute", top: -40, left: 0}} leftIcon={<HiViewGridAdd />}>Choose Inputs</Button>}>
         {sourceBlocks.map(({id}) =>
-          <Menu.Item onClick={() => handleClick(id)} icon={block.inputs.includes(id) ? <ActionIcon size="xs" color="green"><HiCheckCircle /></ActionIcon> : null} key={id}>
+          <Menu.Item onClick={() => handleClick(id)} icon={block.inputs.includes(id) ? <ThemeIcon size="xs" radius="xl" color="green"><HiCheckCircle /></ThemeIcon> : null} key={id}>
             <InputMenuItem  id={id} variables={variables[id]}/>
           </Menu.Item>)}
       </Menu>

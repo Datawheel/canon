@@ -137,6 +137,7 @@ export default (profiles = {}, action) => {
           ...profiles.entities,
           blocks: Object.values(profiles.entities.blocks)
             .map(d => d.id === action.data.id ? {...d, inputs: action.data.inputs.map(i => i.id)} : d)
+            .map(d => action.variablesById[d.id] ? {...d, _variables: action.variablesById[d.id]} : d)
             .reduce((acc, d) => ({...acc, [d.id]: d}), {}),
           inputs: {
             ...profiles.entities.inputs,
@@ -151,6 +152,7 @@ export default (profiles = {}, action) => {
           ...profiles.entities,
           blocks: Object.values(profiles.entities.blocks)
             .map(d => d.id === action.data.parent_id ? {...d, inputs: action.data.inputs.map(i => i.id)} : d)
+            .map(d => action.variablesById[d.id] ? {...d, _variables: action.variablesById[d.id]} : d)
             .reduce((acc, d) => ({...acc, [d.id]: d}), {}),
           inputs: Object.values(profiles.entities.inputs)
             .filter(d => d.block_id !== action.data.parent_id)
