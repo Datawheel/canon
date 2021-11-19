@@ -38,6 +38,7 @@ function BlockEditor({id, components}) {
    */
   components.textEditor = React.cloneElement(components.textEditor, {variables});
   components.blockPreview = React.cloneElement(components.blockPreview, {variables});
+  components.apiInput = React.cloneElement(components.apiInput, {variables});
 
   if (!block) return null;
 
@@ -47,10 +48,10 @@ function BlockEditor({id, components}) {
         <VariableList variables={variables}/>
         <Tabs>
           <Tab icon={<HiViewGridAdd />} label="Input">
-            <BlockInputPanel id={id} components={components} />
+            <BlockInputPanel id={id} />
           </Tab>
           <Tab icon={<HiOutlineDocumentText />} label="Output">
-            {block.type === BLOCK_TYPES.GENERATOR ? <GeneratorOutput id={id} components={components} /> : <BlockOutputPanel id={id} components={components} />}
+            {block.type === BLOCK_TYPES.GENERATOR ? <GeneratorOutput id={id} variables={variables} components={components} /> : <BlockOutputPanel id={id} variables={variables} components={components} />}
           </Tab>
           <Tab icon={<HiOutlineCog />} label="Settings">
             <BlockSettings />

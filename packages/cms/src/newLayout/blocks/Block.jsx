@@ -9,6 +9,7 @@ import CogMenu from "../components/CogMenu";
 import BlockEditor from "../BlockEditor";
 import NewRichTextEditor from "../editors/NewRichTextEditor";
 import AceWrapper from "../../components/editors/AceWrapper";
+import ApiInput from "../components/ApiInput";
 import BlockPreview from "./BlockPreview";
 
 /* utils */
@@ -122,12 +123,9 @@ function Block({id, active}) {
     stateContent={stateContent}
   />;
 
-  const apiInput = <TextInput
-    placeholder="API"
-    key="text-input"
+  const apiInput = <ApiInput
+    key="api-input"
     defaultValue={block.api}
-    type="url"
-    size="xs"
     onChange={onChangeInput}
   />;
 

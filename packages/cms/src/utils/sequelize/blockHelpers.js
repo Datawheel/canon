@@ -33,7 +33,9 @@ const catcher = e => {
   return {};
 };
 
-// If OLAP_PROXY_SECRET is provided, some cubes are locked down, and require special axios configs
+/**
+ * If OLAP_PROXY_SECRET is provided, some cubes are locked down, and require special axios configs
+ */
 const getProxyConfig = (opt = {}) => {
   const {CANON_CMS_MINIMUM_ROLE, OLAP_PROXY_SECRET} = process.env;
   const config = {};
@@ -48,6 +50,9 @@ const getProxyConfig = (opt = {}) => {
 
 // todo1.0 - the vars object is built like this: {...req.params, ...cache, ...attr, ...canonVars, locale}
 // decide who is responsible for which parts - (e.g., should mortarRoute package req.params into vars for its calling of this function?)
+/**
+ * Make a request to the given api endpoint, swapping in all vars for anything between <brackets>, return the result
+ */
 const apiFetch = async(req, api, locale, vars) => {
   const origin = `${ req.protocol }://${ req.headers.host }`;
   let url = urlSwap(api, {...vars, ...canonVars, locale});
@@ -71,15 +76,27 @@ const apiFetch = async(req, api, locale, vars) => {
 
 /**
  * Given a list of blocks (usually constrained to a section), create a hash object, keyed by id,
- * where each entry contains the variables which that block exports. Optionally, provide a "startBlocks"
+ * where each entry contains the variables which that block exports. Optionally, provide a "rootBlocks"
  * entry point to only calculate those blocks and their children.
  */
-const runConsumers = async(req, blocks, locale, formatterFunctions, startBlocks) => {
-  // If not given startBlocks, find the root blocks, i.e., blocks with no inputs.
-  if (!startBlocks) {
-    startBlocks = Object.values(blocks).filter(d => d.inputs.length === 0).reduce((acc, d) => ({...acc, [d.id]: d}), {});
+const runConsumers = async(req, blocks, locale, formatterFunctions, rootBlocks) => {
+  // If not given rootBlocks, find the root blocks, i.e., blocks with no inputs.
+  if (!rootBlocks) {
+    rootBlocks = Object.values(blocks).filter(d => d.inputs.length === 0).reduce((acc, d) => ({...acc, [d.id]: d}), {});
   }
-  const result = {};
+
+  /**
+   * Starting with rootBlocks, crawl down the list of consumers, storing the keyed results in downstreamResult.
+   *
+   * However, while working DOWN the tree, we may encounter a block whose inputs have not been calculated.
+   * Consider A->B->C in conjunction with D->E->C. We start at A, work down to B, but then encounter C.
+   * The values for D/E have not been calculated during this run and are unavailable. In that case, we must
+   * crawl back up backwards, from C to E to D, until we hit another root with no inputs (D). While on our way down,
+   * cache both downstreamResult AND upstreamResult, so we can use that cache instead of re-running. Ultimately,
+   * this function returns downstreamResult - upstreamResult is just a cache/helper for that.
+   */
+  let upstreamResult = {};
+  const downstreamResult = {};
   // Calculate the vars for this block, given the variables from its inputs. Each var will be prepended with the
   // block type and id, which will create variables like "stat14value" for downstream blocks.
   const generateVars = async(block, variables = {}) => {
@@ -109,34 +126,53 @@ const runConsumers = async(req, blocks, locale, formatterFunctions, startBlocks)
     }
     return result;
   };
+
+  // Given an id,
+  const crawlUp = async bid => {
+    const block = blocks[bid];
+    if (block.inputs.length === 0) return {[block.id]: await generateVars(block)};
+    let variables;
+    for (const input of block.inputs) {
+      variables = {...variables, ...await crawlUp(input)};
+    }
+    return variables;
+  };
+
   // Given an id, set result[id] to the variables that this block creates.
-  const crawl = async bid => {
+  const crawlDown = async bid => {
     let block, variables;
     // If this block has inputs, gather their results into an object and use it to help generate THIS block's variables.
-    if (startBlocks[bid]) {
-      block = startBlocks[bid];
-      // At the head of the crawl, get the inputs from precalculated saved inputs (already in tree, unchanged)
-      // Note that this lookup uses the *old* block in redux, as that's the one that has inputs. The updatedBlock is the lone
-      // block from the server, and though that block is needed for generateVars (content-wise), it has no inputs.
-      variables = blocks[bid].inputs.reduce((acc, d) => ({...acc, ...blocks[d]._variables}), {});
+    if (rootBlocks[bid]) {
+      block = rootBlocks[bid];
+      // A rootBlock may be a "true" root, one with no inputs, or a block somewhere in the chain that updated (and may have inputs)
+      // If it has inputs, crawl upwards to calculate the necessary variables, caching the results in upstreamResult as we go.
+      const variablesById = blocks[bid].inputs.length > 0 ? await crawlUp(bid) : {};
+      upstreamResult = {...upstreamResult, ...variablesById};
+      variables = Object.values(variablesById).reduce((acc, d) => ({...acc, ...d}), {});
     }
     else {
       block = blocks[bid];
-      // Otherwise, get them from the result that we are *building live* while going down the tree.
-      // If the input node has been tread before, then it was recalculated, and the variable should come from there
-      // Otherwise, it was not recalculated, and simply needs to be fetched from its saved variables.
+      // If this block is not a root, then it should get its inputs from one two places:
+      // 1. The live-building downstreamResult, meaning we visited this node on our way down.
+      // 2. A previously run upstreamResult, cached from some other crawlUp
+      // 2a. If there is no result in either downstream or upstream, run crawlUp to fill in the upstream.
       // todo1.0 deal with removals / undefined? like in original cms
-      variables = block.inputs.reduce((acc, d) => ({...acc, ...result[d] ? result[d] : blocks[d]._variables}), {});
+      if (block.inputs.some(d => !downstreamResult[d] && !upstreamResult[d])) upstreamResult = {...upstreamResult, ...await crawlUp(bid)};
+      for (const input of block.inputs) {
+        variables = {...variables, ...downstreamResult[input] ? downstreamResult[input] : upstreamResult[input]};
+      }
     }
-    result[bid] = await generateVars(block, variables).catch(catcher);
+    // rootBlock or otherwise, the variables that feed THIS BLOCK have now been calculated. Generate this block's output
+    // using those variables, and store the result in the still-growing downstreamResult.
+    downstreamResult[bid] = await generateVars(block, variables).catch(catcher);
     for (const cid of blocks[bid].consumers) {
-      await crawl(cid);
+      await crawlDown(cid);
     }
   };
-  for (const id of Object.keys(startBlocks)) {
-    await crawl(id);
+  for (const id of Object.keys(rootBlocks)) {
+    await crawlDown(id);
   }
-  return result;
+  return downstreamResult;
 };
 
 module.exports = {runConsumers};
