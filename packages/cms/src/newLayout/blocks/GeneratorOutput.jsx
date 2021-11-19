@@ -2,6 +2,9 @@
 import React from "react";
 import {useDispatch, useSelector} from "react-redux";
 
+/* components */
+import InputMenu from "../components/InputMenu";
+
 /* css */
 import "./GeneratorOutput.css";
 
@@ -23,6 +26,7 @@ function GeneratorOutput({id, components}) {
 
   return (
     <div className="cms-generator-output">
+      <InputMenu id={id}/>
       {apiInput}
       {codeEditor}
     </div>

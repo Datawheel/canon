@@ -6,7 +6,6 @@ import attify from "../utils/attify";
 import groupMeta from "../utils/groupMeta";
 import {REQUEST_STATUS} from "../utils/consts/redux";
 import {ENTITY_TYPES} from "../utils/consts/cms";
-import {actions} from "react-table";
 
 const catcher = e => {
   console.log(`Error in profile action: ${e}`);
@@ -159,7 +158,7 @@ export function deleteDimension(id) {
 
 /** */
 export function activateSection(id) {
-  return function(dispatch, getStore) {
+  return function(dispatch) {
     return axios.get("/api/cms/section/activate", {params: {id}})
       .then(resp => {
         if (resp.status === 200) {
