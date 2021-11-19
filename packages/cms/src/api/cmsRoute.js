@@ -5,7 +5,6 @@ const sequelize = require("sequelize"),
 const populateSearch = require("../utils/populateSearch");
 const {profileReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables, blockReqFull} = require("../utils/sequelize/ormHelpers");
 const {translateProfile, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
-const mortarEval = require("../utils/mortarEval");
 const {PROFILE_FIELDS} = require("../utils/consts/cms");
 const {REQUEST_STATUS} = require("../utils/consts/redux");
 const {runConsumers} = require("../utils/sequelize/blockHelpers");

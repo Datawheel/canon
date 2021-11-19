@@ -1,4 +1,3 @@
-// const {blockReqFull} = require("./ormHelpers");
 const varSwapRecursive = require("../varSwapRecursive");
 const mortarEval = require("../mortarEval");
 const yn = require("yn");
@@ -12,21 +11,22 @@ const catcher = e => {
 };
 
 /**
- * When a block is updated in the CMS, all its downstream consumers must have their variables recalculated.
- * This function returns a hash object, keyed by the id of ALL downstream consumers, with each value containing
- * the new variables that they, in turn, output. In redux, these are spread into the blocks in the reducer.
+ * Given a list of blocks (usually constrained to a section), create a hash object, keyed by id,
+ * where each entry contains the variables which that block exports. Optionally, provide a "startBlocks"
+ * entry point to only calculate those blocks and their children.
  */
 const runConsumers = (blocks, locale, formatterFunctions, startBlocks) => {
+  // If not given startBlocks, find the root blocks, i.e., blocks with no inputs.
   if (!startBlocks) {
     startBlocks = Object.values(blocks).filter(d => d.inputs.length === 0).reduce((acc, d) => ({...acc, [d.id]: d}), {});
   }
   const result = {};
-  // Create the automatic content-driven keys that come from blocks (e.g., stat7title),
-  // but calculate their values using variables from previously run inputs to this block.
-  // todo1.0 - encaspulate this "content-driven" generator into a shared function
+  // Calculate the vars for this block, given the variables from its inputs. Each var will be prepended with the
+  // block type and id, which will create variables like "stat14value" for downstream blocks.
   const generateVars = (block, variables = {}) => {
     let result;
     // todo1.0, this will have api calls
+    // If the block has logic enabled, then the variables should be calculated by running the javascript in the logic key.
     if (block.contentByLocale[locale].content.logicEnabled) {
       const vars = {};
       const {logic} = block.contentByLocale[locale].content;
@@ -35,14 +35,17 @@ const runConsumers = (blocks, locale, formatterFunctions, startBlocks) => {
       // block._status = evalResults.error ? {error: evalResults.error} : "OK";
       result = Object.keys(evalResults.vars).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: evalResults.vars[d]}), {});
     }
+    // If logic is not enabled, just varSwap the content keys and pass them downward.
     else {
       const contentObj = Object.keys(block.contentByLocale[locale].content)
+        // Exclude fields like logic and logicEnabled, which though stored in the same content object, aren't used downstream.
         .filter(d => !BLOCK_FIELDS_EXCLUDE.includes(d))
         .reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
       result = varSwapRecursive(contentObj, formatterFunctions, variables);
     }
     return result;
   };
+  // Given an id, set result[id] to the variables that this block creates.
   const crawl = bid => {
     let block, variables;
     // If this block has inputs, gather their results into an object and use it to help generate THIS block's variables.
