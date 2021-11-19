@@ -127,18 +127,19 @@ const runConsumers = async(req, blocks, locale, formatterFunctions, rootBlocks) 
     return result;
   };
 
-  // Given an id,
+  // Given the id of a block with inputs, return a hash object keyed by the input ids, whose values
+  // represent the variables those inputs provide. (Use cache as much as possible, recurse if necessary)
   const crawlUp = async bid => {
     const block = blocks[bid];
-    if (block.inputs.length === 0) return {[block.id]: await generateVars(block)};
+    if (block.inputs.length === 0) return {[block.id]: downstreamResult[block.id] || upstreamResult[block.id] || await generateVars(block)};
     let variables;
     for (const input of block.inputs) {
-      variables = {...variables, ...await crawlUp(input)};
+      variables = {...variables, ...upstreamResult[input] || await crawlUp(input)};
     }
     return variables;
   };
 
-  // Given an id, set result[id] to the variables that this block creates.
+  // Given an id, set downstreamResult[id] to the variables which that id exports.
   const crawlDown = async bid => {
     let block, variables;
     // If this block has inputs, gather their results into an object and use it to help generate THIS block's variables.
