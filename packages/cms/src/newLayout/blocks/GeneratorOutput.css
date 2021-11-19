@@ -2,7 +2,6 @@
   background-color:lightblue;
   width: 800px;
   height: 700px;
-  margin-top:40px;
   display:flex;
   flex-direction:column;
 }

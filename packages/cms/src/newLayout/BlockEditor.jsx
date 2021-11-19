@@ -9,6 +9,7 @@ import VariableList from "./VariableList";
 import BlockOutputPanel from "./blocks/BlockOutputPanel";
 import BlockSettings from "./blocks/BlockSettings";
 import GeneratorOutput from "./blocks/GeneratorOutput";
+import InputMenu from "./components/InputMenu";
 
 /* css */
 import "./BlockEditor.css";
@@ -44,7 +45,10 @@ function BlockEditor({id, components}) {
   return (
     <div className="cms-block-editor">
       <div className="cms-block-editor-content">
-        <VariableList variables={variables}/>
+        <div style={{display: "flex", flexDirection: "column"}}>
+          <InputMenu id={id}/>
+          <VariableList variables={variables}/>
+        </div>
         <Tabs>
           <Tab icon={<HiOutlineDocumentText />} label="Output">
             {block.type === BLOCK_TYPES.GENERATOR ? <GeneratorOutput id={id} components={components} /> : <BlockOutputPanel id={id} components={components} />}

@@ -3,9 +3,6 @@ import React, {useState, useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Button} from "@mantine/core";
 
-/* components */
-import InputMenu from "../components/InputMenu";
-
 /* redux */
 import {updateEntity} from "../../actions/profiles";
 
@@ -51,7 +48,6 @@ function BlockOutputPanel({id, components}) {
 
   return (
     <div className="cms-block-output">
-      <InputMenu id={id}/>
       <div key="buttons" style={{display: "flex", flexDirection: "column"}}>
         <Button onClick={() => changeMode(MODES.TEXT)}>Text</Button>
         <Button onClick={() => changeMode(MODES.CODE)}>Code</Button>

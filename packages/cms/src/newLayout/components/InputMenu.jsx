@@ -39,7 +39,7 @@ function InputMenu({id}) {
   };
 
   return (
-    <Menu zIndex={1001} control={<Button variant="outline" style={{position: "absolute", top: -40, left: 0}} leftIcon={<HiViewGridAdd />}>Choose Inputs</Button>}>
+    <Menu zIndex={1001} control={<Button style={{marginBottom: "15px"}} variant="outline" leftIcon={<HiViewGridAdd />}>Choose Inputs</Button>}>
       {sourceBlocks.map(({id}) =>
         <Menu.Item onClick={() => handleClick(id)} icon={block.inputs.includes(id) ? <ThemeIcon size="xs" radius="xl" color="green"><HiCheckCircle /></ThemeIcon> : null} key={id}>
           <InputMenuItem  id={id} variables={variables[id]}/>
