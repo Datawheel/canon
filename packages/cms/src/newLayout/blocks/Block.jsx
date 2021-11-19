@@ -1,7 +1,7 @@
 /* react */
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Modal, ActionIcon, Button, TextInput, Overlay} from "@mantine/core";
+import {Modal, ActionIcon, Button, Overlay} from "@mantine/core";
 import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";
 
 /* components */

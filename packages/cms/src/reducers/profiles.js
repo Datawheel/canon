@@ -125,7 +125,7 @@ export default (profiles = {}, action) => {
         entities: {
           ...profiles.entities,
           blocks: Object.values(profiles.entities.blocks)
-            .map(d => ({...d, _variables: action.data[d.id]}))
+            .map(d => ({...d, _variables: action.data[d.id] || {}}))
             .reduce((acc, d) => ({...acc, [d.id]: d}), {})
         }
       };

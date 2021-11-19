@@ -2,11 +2,10 @@
 import React, {useMemo} from "react";
 import {useSelector} from "react-redux";
 import {Tabs, Tab} from "@mantine/core";
-import {HiViewGridAdd, HiOutlineDocumentText, HiOutlineCog} from "react-icons/hi";
+import {HiOutlineDocumentText, HiOutlineCog} from "react-icons/hi";
 
 /* components */
 import VariableList from "./VariableList";
-import BlockInputPanel from "./blocks/BlockInputPanel";
 import BlockOutputPanel from "./blocks/BlockOutputPanel";
 import BlockSettings from "./blocks/BlockSettings";
 import GeneratorOutput from "./blocks/GeneratorOutput";
@@ -47,11 +46,8 @@ function BlockEditor({id, components}) {
       <div className="cms-block-editor-content">
         <VariableList variables={variables}/>
         <Tabs>
-          <Tab icon={<HiViewGridAdd />} label="Input">
-            <BlockInputPanel id={id} />
-          </Tab>
           <Tab icon={<HiOutlineDocumentText />} label="Output">
-            {block.type === BLOCK_TYPES.GENERATOR ? <GeneratorOutput id={id} variables={variables} components={components} /> : <BlockOutputPanel id={id} variables={variables} components={components} />}
+            {block.type === BLOCK_TYPES.GENERATOR ? <GeneratorOutput id={id} components={components} /> : <BlockOutputPanel id={id} components={components} />}
           </Tab>
           <Tab icon={<HiOutlineCog />} label="Settings">
             <BlockSettings />

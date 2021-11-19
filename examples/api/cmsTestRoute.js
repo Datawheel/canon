@@ -20,6 +20,8 @@ module.exports = function(app) {
     ]}).end();
   });
 
+  app.get("/api/yeet", (req, res) => res.json({data: req.query}));
+
   // app.post("/api/cms/customAttributes/:pid", async(req, res) => {
   //   const pid = parseInt(req.params.pid, 10); // eslint-disable-line
   //   const {variables, locale} = req.body; // eslint-disable-line
