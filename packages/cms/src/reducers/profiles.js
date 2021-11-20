@@ -60,10 +60,14 @@ export default (profiles = {}, action) => {
           blocks: Object.values(profiles.entities.blocks)
             .map(d => {
               if (d.id === action.data.entity.id) {
-                return {...d, ...action.data.entity, _variables: action.variablesById[d.id]};
+                return {...d, ...action.data.entity, _variables: action.variablesById[d.id], _status: action.statusById[d.id]};
               }
-              else if (action.variablesById[d.id]) {
-                return {...d, _variables: action.variablesById[d.id]};
+              // todo1.0 this is janky
+              else if (action.variablesById[d.id] || action.statusById[d.id]) {
+
+                if (action.variablesById[d.id]) d._variables = action.variablesById[d.id];
+                if (action.statusById[d.id]) d._status = action.statusById[d.id];
+                return d;
               }
               else return d;
             })
@@ -125,7 +129,7 @@ export default (profiles = {}, action) => {
         entities: {
           ...profiles.entities,
           blocks: Object.values(profiles.entities.blocks)
-            .map(d => ({...d, _variables: action.data[d.id] || {}}))
+            .map(d => ({...d, _variables: action.data.variablesById[d.id] || {}, _status: action.data.statusById[d.id] || {}}))
             .reduce((acc, d) => ({...acc, [d.id]: d}), {})
         }
       };
@@ -138,6 +142,7 @@ export default (profiles = {}, action) => {
           blocks: Object.values(profiles.entities.blocks)
             .map(d => d.id === action.data.id ? {...d, inputs: action.data.inputs.map(i => i.id)} : d)
             .map(d => action.variablesById[d.id] ? {...d, _variables: action.variablesById[d.id]} : d)
+            .map(d => action.statusById[d.id] ? {...d, _status: action.statusById[d.id]} : d)
             .reduce((acc, d) => ({...acc, [d.id]: d}), {}),
           inputs: {
             ...profiles.entities.inputs,
@@ -153,6 +158,7 @@ export default (profiles = {}, action) => {
           blocks: Object.values(profiles.entities.blocks)
             .map(d => d.id === action.data.parent_id ? {...d, inputs: action.data.inputs.map(i => i.id)} : d)
             .map(d => action.variablesById[d.id] ? {...d, _variables: action.variablesById[d.id]} : d)
+            .map(d => action.statusById[d.id] ? {...d, _status: action.statusById[d.id]} : d)
             .reduce((acc, d) => ({...acc, [d.id]: d}), {}),
           inputs: Object.values(profiles.entities.inputs)
             .filter(d => d.block_id !== action.data.parent_id)

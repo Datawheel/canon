@@ -1,7 +1,8 @@
 /* react */
-import React from "react";
+import React, {useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Button} from "@mantine/core";
+import {Text} from "@mantine/core";
+import {format} from "pretty-format";
 
 /* components */
 import GeneratorList from "../GeneratorList";
@@ -28,19 +29,32 @@ function GeneratorOutput({id, components}) {
 
   };
 
-  const {apiInput, codeEditor} = components;
+  const {apiInput, codeEditor, executeButton} = components;
+
+  const DURATION_CUTOFF_MS = {
+    OK: 500,
+    WARNING: 5000
+  };
+
+  const {response, duration, variables, log, durationColor} = useMemo(() => ({
+    response: format(block._status.response, {printFunctionName: false}),
+    duration: format(block._status.duration),
+    variables: format(block._variables),
+    log: block._status.error ? format(block._status.error) : block._status.log.join("\n"),
+    durationColor: block._status.duration < DURATION_CUTOFF_MS.OK ? "green" : block._status.duration >= DURATION_CUTOFF_MS.OK && block._status.duration <= DURATION_CUTOFF_MS.WARNING ? "orange" : "red"
+  }), [block]);
 
   return (
     <div style={{display: "flex"}}>
       <div className="cms-generator-output">
         {apiInput}
         {codeEditor}
-        <Button onClick={onExecute}>Execute</Button>
+        {executeButton}
       </div>
       <div style={{display: "flex", flexDirection: "column"}}>
-        <GeneratorList label="Response" json={{}} />
-        <GeneratorList label="Output" json={JSON.stringify(block._variables)} />
-        <GeneratorList label="Console" json={{}} />
+        <GeneratorList label="API Response" description={<Text size="xs" color={durationColor}>Duration: {duration}ms</Text>} value={response} />
+        <GeneratorList label="Generator Output" value={variables} />
+        <GeneratorList label="Console Logs" value={log} />
       </div>
     </div>
   );

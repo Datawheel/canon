@@ -179,8 +179,8 @@ export function newEntity(type, payload) {
     const resp = await axios.post(`${store.env.CANON_API}/api/cms/${type}/new`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       if (type === ENTITY_TYPES.BLOCK_INPUT) {
-        const variablesById = await axios.get(`${store.env.CANON_API}/api/cms/block/activate`, {params: {id: payload.block_id}}).then(d => d.data).catch(() => {}); // todo1.0 error here
-        dispatch({type: `${type.toUpperCase()}_NEW`, data: resp.data, variablesById});
+        const {variablesById, statusById} = await axios.get(`${store.env.CANON_API}/api/cms/block/activate`, {params: {id: payload.block_id}}).then(d => d.data).catch(() => {}); // todo1.0 error here
+        dispatch({type: `${type.toUpperCase()}_NEW`, data: resp.data, variablesById, statusById});
       }
       else {
         dispatch({type: `${type.toUpperCase()}_NEW`, data: resp.data});
@@ -205,8 +205,8 @@ export function updateEntity(type, payload) {
     const resp = await axios.post(`${store.env.CANON_API}/api/cms/${type}/update`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       if (type === ENTITY_TYPES.BLOCK) {
-        const variablesById = await axios.get(`${CANON_API}/api/cms/block/activate`, {params: {id: payload.id}}).then(d => d.data).catch(() => {}); // todo1.0 error here
-        dispatch({type: "BLOCK_UPDATE", data: resp.data, variablesById});
+        const {variablesById, statusById} = await axios.get(`${CANON_API}/api/cms/block/activate`, {params: {id: payload.id}}).then(d => d.data).catch(() => {}); // todo1.0 error here
+        dispatch({type: "BLOCK_UPDATE", data: resp.data, variablesById, statusById});
       }
       else {
         dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, locales});
@@ -229,8 +229,8 @@ export function deleteEntity(type, payload) {
     const resp = await axios.delete(`${store.env.CANON_API}/api/cms/${type}/delete`, {params: payload}).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       if (type === ENTITY_TYPES.BLOCK_INPUT) {
-        const variablesById = await axios.get(`${store.env.CANON_API}/api/cms/block/activate`, {params: {id: resp.data.parent_id}}).then(d => d.data).catch(() => {}); // todo1.0 error here
-        dispatch({type: `${type.toUpperCase()}_DELETE`, data: resp.data, locales, variablesById});
+        const {variablesById, statusById} = await axios.get(`${store.env.CANON_API}/api/cms/block/activate`, {params: {id: resp.data.parent_id}}).then(d => d.data).catch(() => {}); // todo1.0 error here
+        dispatch({type: `${type.toUpperCase()}_DELETE`, data: resp.data, locales, variablesById, statusById});
       }
       else {
         dispatch({type: `${type.toUpperCase()}_DELETE`, data: resp.data, locales});

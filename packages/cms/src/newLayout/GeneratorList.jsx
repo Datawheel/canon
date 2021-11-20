@@ -1,21 +1,22 @@
 import React, {useState} from "react";
 
-import {JsonInput} from "@mantine/core";
+import {Textarea} from "@mantine/core";
 
 import "./GeneratorList.css";
 
 /**
  *
  */
-function GeneratorList({label, json}) {
+function GeneratorList(props) {
 
   return (
     <div>
-      <JsonInput
-        label={label}
+      <Textarea
+        {...props}
+        style={{width: 300}}
+        styles={{input: {fontFamily: "monospace"}}}
+        size="xs"
         autosize
-        formatOnBlur
-        defaultValue={json}
         minRows={10}
       />
     </div>

@@ -33,6 +33,18 @@ const catcher = e => {
   return {};
 };
 
+// Use axios interceptors to time requests for CMS front-end warnings
+axios.interceptors.request.use(d => {
+  d.meta = d.meta || {};
+  d.meta.requestStartedAt = new Date().getTime();
+  return d;
+});
+
+axios.interceptors.response.use(d => {
+  d.requestDuration = new Date().getTime() - d.config.meta.requestStartedAt;
+  return d;
+}, e => Promise.reject(e));
+
 /**
  * If OLAP_PROXY_SECRET is provided, some cubes are locked down, and require special axios configs
  */
@@ -97,23 +109,31 @@ const runConsumers = async(req, blocks, locale, formatterFunctions, rootBlocks) 
    */
   let upstreamResult = {};
   const downstreamResult = {};
-  // Calculate the vars for this block, given the variables from its inputs. Each var will be prepended with the
+  const statusById = {};
+  // Calculate the vars/status for this block, given the variables from its inputs. Each var will be prepended with the
   // block type and id, which will create variables like "stat14value" for downstream blocks.
   const generateVars = async(block, variables = {}) => {
-    let result;
+    let result = {};
+    statusById[block.id] = {};
     // todo1.0, this will have api calls
     if (block.type === BLOCK_TYPES.GENERATOR) {
       // todo1.0, pass the correct vars here
-      const resp = await apiFetch(req, block.api, locale, variables).then(d => d.data).catch(catcher);
-      const evalResults = mortarEval("resp", resp, block.logic, {}, locale); // todo1.0 add formatters here
-      result = typeof evalResults.vars === "object" ? evalResults.vars : {};
+      const resp = await apiFetch(req, block.api, locale, variables).catch(catcher);
+      statusById[block.id].duration = resp.requestDuration;
+      statusById[block.id].response = resp.data;
+      const evalResults = mortarEval("resp", resp.data, block.logic, {}, locale); // todo1.0 add formatters here
+      if (evalResults.error) statusById[block.id].error = evalResults.error;
+      if (evalResults.log) statusById[block.id].log = evalResults.log;
+      if (typeof evalResults.vars === "object") result = evalResults.vars;
     }
     else {
       // If the block has logic enabled, then the variables should be calculated by running the javascript in the logic key.
       if (block.contentByLocale[locale].content.logicEnabled) {
         const {logic} = block.contentByLocale[locale].content;
         const evalResults =  mortarEval("variables", variables, logic, {}, locale); // todo1.0 add formatters here
-        result = typeof evalResults.vars === "object" ? Object.keys(evalResults.vars).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: evalResults.vars[d]}), {}) : {};
+        if (evalResults.error) statusById[block.id].error = evalResults.error;
+        if (evalResults.log) statusById[block.id].log = evalResults.log;
+        if (typeof evalResults.vars === "object") result = Object.keys(evalResults.vars).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: evalResults.vars[d]}), {});
       }
       // If logic is not enabled, just varSwap the content keys and pass them downward.
       else {
@@ -173,7 +193,7 @@ const runConsumers = async(req, blocks, locale, formatterFunctions, rootBlocks) 
   for (const id of Object.keys(rootBlocks)) {
     await crawlDown(id);
   }
-  return downstreamResult;
+  return {variablesById: downstreamResult, statusById};
 };
 
 module.exports = {runConsumers};

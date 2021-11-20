@@ -1,13 +1,23 @@
-const libs = require("./libs");
+const libs = require("./libs"); //eslint-disable-line
+const yn = require("yn");
 
-const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
+const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
+const verbose = yn(process.env.CANON_CMS_LOGGING);
 
-module.exports = (varInnerName, varOuterValue, logic, formatterFunctions, locale = envLoc, attributes = false) => {
-  let vars = {};
+module.exports = (varInnerName, varOuterValue, logic, formatterFunctions, locale = localeDefault, attributes = false) => { //eslint-disable-line
+  let vars = {}; //eslint-disable-line
   // Because logic is arbitrary javascript, it may be malformed. We need to wrap the
   // entire execution in a try/catch.
   try {
     if (varOuterValue) {
+
+      const log = [];
+      const mortarLog = text => { //eslint-disable-line
+        log.push(text);
+        if (verbose) console.log(text);
+      };
+      logic = logic.replace(/console\.log\(([^)]+)\)/g, "mortarLog($1)");
+
       // If attributes has been set, this is being run by a generator who is providing search attributes.
       // We want those attributes to be available as variables, so pass that in as an argument
       if (attributes) {
@@ -26,7 +36,7 @@ module.exports = (varInnerName, varOuterValue, logic, formatterFunctions, locale
         `);
       }
       // A successfully run eval will return the vars generated
-      return {vars, error: null};
+      return {vars, error: null, log};
     }
     else {
       // If varOuterValue was null, then the API that gave it to us was incorrect

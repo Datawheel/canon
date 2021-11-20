@@ -60,7 +60,8 @@ function Block({id, active}) {
     setOpened(true);
   };
 
-  const onSave = () => {
+  const onSave = keepWindowOpen => {
+    console.log(keepWindowOpen);
     // remove logicEnabled from the post - it is currently set directly when the mode is changed in BlockOutput.
     const {logicEnabled, ...restStateContent} = stateContent; //eslint-disable-line
     let payload;
@@ -86,7 +87,7 @@ function Block({id, active}) {
     setLoading(true);
     dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload)).then(resp => {
       if (resp.status === REQUEST_STATUS.SUCCESS) {
-        setOpened(false);
+        if (!keepWindowOpen) setOpened(false);
       }
       else {
         // todo1.0 toast error
@@ -146,7 +147,9 @@ function Block({id, active}) {
     // {...this.props}
   />;
 
-  const components = {textEditor, codeEditor, apiInput, blockPreview};
+  const executeButton = <Button onClick={() => onSave(true)}>Save & Execute</Button>;
+
+  const components = {textEditor, codeEditor, apiInput, blockPreview, executeButton};
 
   const modalProps = {
     title: `${upperCaseFirst(block.type)} editor`,
@@ -173,7 +176,7 @@ function Block({id, active}) {
       </div>
       <Modal key="d" {...modalProps}>
         <BlockEditor key="be" id={id} components={components}/>
-        <Button onClick={onSave}>Save</Button>
+        <Button onClick={() => onSave(false)}>Save & Close</Button>
       </Modal>
     </React.Fragment>
   );

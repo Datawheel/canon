@@ -93,6 +93,7 @@
     "multer": "^1.4.2",
     "node-yaml": "^3.1.1",
     "normalizr": "^3.6.1",
+    "pretty-format": "^27.3.1",
     "promise-throttle": "^1.0.0",
     "puppeteer": "^8.0.0",
     "puppeteer-cluster": "^0.22.0",

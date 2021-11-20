@@ -182,14 +182,14 @@ module.exports = function(app) {
     const {id} = req.query;
     const block = await db.block.findOne({where: {id}}).catch(catcher);
     if (!block) return res.json({status: REQUEST_STATUS.ERROR});
-    const variablesById = await activate(req, block.section_id, block.id);
-    return res.json(variablesById);
+    const activateResult = await activate(req, block.section_id, block.id);
+    return res.json(activateResult);
   });
 
   app.get("/api/cms/section/activate", async(req, res) => {
     const {id} = req.query;
-    const variablesById = await activate(req, id);
-    return res.json(variablesById);
+    const activateResult = await activate(req, id);
+    return res.json(activateResult);
   });
 
   /* GETS */
