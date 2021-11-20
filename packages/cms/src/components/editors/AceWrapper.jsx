@@ -43,6 +43,9 @@ export default class AceWrapper extends Component {
 
       return (
         <div /* className={`cms-ace-container${isFullscreen ? " is-fullscreen" : ""}`}*/>
+          {/*
+          // todo1.0 add this fullscreen button back in
+
           <Button
             className="cms-ace-button"
             namespace="cms"
@@ -54,6 +57,7 @@ export default class AceWrapper extends Component {
           >
             Toggle fullscreen
           </Button>
+          */}
           <Ace
             width="100%"
             height="100%"

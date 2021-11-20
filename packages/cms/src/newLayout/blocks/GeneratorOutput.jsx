@@ -1,6 +1,10 @@
 /* react */
 import React from "react";
 import {useDispatch, useSelector} from "react-redux";
+import {Button} from "@mantine/core";
+
+/* components */
+import GeneratorList from "../GeneratorList";
 
 /* css */
 import "./GeneratorOutput.css";
@@ -18,13 +22,26 @@ function GeneratorOutput({id, components}) {
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
+  const block = useSelector(state => state.cms.profiles.entities.blocks[id]);
+
+  const onExecute = () => {
+
+  };
 
   const {apiInput, codeEditor} = components;
 
   return (
-    <div className="cms-generator-output">
-      {apiInput}
-      {codeEditor}
+    <div style={{display: "flex"}}>
+      <div className="cms-generator-output">
+        {apiInput}
+        {codeEditor}
+        <Button onClick={onExecute}>Execute</Button>
+      </div>
+      <div style={{display: "flex", flexDirection: "column"}}>
+        <GeneratorList label="Response" json={{}} />
+        <GeneratorList label="Output" json={JSON.stringify(block._variables)} />
+        <GeneratorList label="Console" json={{}} />
+      </div>
     </div>
   );
 

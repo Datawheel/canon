@@ -1,12 +1,7 @@
 .cms-generator-output {
   background-color:lightblue;
-  width: 800px;
+  width: 650px;
   height: 700px;
   display:flex;
   flex-direction:column;
-}
-
-.cms-generator-output-ace {
-  min-width: 800px;
-  min-height: 550px;
 }

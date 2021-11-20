@@ -142,9 +142,7 @@ function Block({id, active}) {
     key="code-editor"
     // ref={comp => this.editor = comp}
     onChange={onChangeCode}
-    // BLOCK_INPUTS don't currently carry their content with them - todo1.0 - do they need to?
     defaultValue={hasNoLocaleContent(block.type) ? block.logic : block.contentByLocale[localeDefault].content.logic}
-    // defaultValue={}
     // {...this.props}
   />;
 
