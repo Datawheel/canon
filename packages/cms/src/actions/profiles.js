@@ -195,6 +195,8 @@ export function newEntity(type, payload) {
   };
 }
 
+// todo1.0 clear out all this formatter/locales compiling stuff
+
 /** */
 export function updateEntity(type, payload) {
   return async function(dispatch, getStore) {

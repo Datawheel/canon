@@ -11,12 +11,26 @@ const profileSchema = [new schema.Entity("profiles", {
   })]
 })];
 
+// todo1.0 ryan - blocks have a ._variables and ._status that are filled in when a section or block is activated
+// The front end expects them to be there. Decision:
+// 1. have all endpoints seed all outgoing blocks with these vars
+// 2. add them here
+
+// todo1.0 deletes are tricky. take for example deleting a section. a deleted section deletes all its blocks, and all
+// of those blocks' inputs and consumers. In the normalized data structure, this would require:
+// 1. removing the section id from profiles.sections
+// 2. remove the section from the top level sections object, and bumping all the orderings down
+// 3. remove all the blocks, inputs, and consumers that subscribe to that section from their top-level hashes.
+// Its even weirder with blocks, where deleting a block requires re-activating all downstream blocks to recalculate their variables
+// As this is a little messy, so all deletes currently get the whole profile tree (fix this)
+
 export default (profiles = {}, action) => {
   switch (action.type) {
     // Profiles
     case "PROFILES_GET":
-      console.log("redux structure", normalize(action.data, profileSchema));
-      return normalize(action.data, profileSchema);
+      const structure = normalize(action.data, profileSchema);
+      console.log("Redux Structure:", structure);
+      return structure;
     case "PROFILE_NEW":
       // todo1.0 return better hero section (don't use [0])
       return {
@@ -47,7 +61,7 @@ export default (profiles = {}, action) => {
           blocks: Object.values(profiles.entities.blocks ? profiles.entities.blocks : {})
             .filter(d => d.section_id === action.data.section_id)
             .map(d => d.ordering > action.data.ordering ? {...d, ordering: d.ordering + 1} : d)
-            .concat(action.data)
+            .concat({...action.data, _variables: {}, _status: {}})
             .reduce((acc, d) => ({...acc, [d.id]: d}), profiles.entities.blocks)
         }
       };
@@ -64,7 +78,6 @@ export default (profiles = {}, action) => {
               }
               // todo1.0 this is janky
               else if (action.variablesById[d.id] || action.statusById[d.id]) {
-
                 if (action.variablesById[d.id]) d._variables = action.variablesById[d.id];
                 if (action.statusById[d.id]) d._status = action.statusById[d.id];
                 return d;

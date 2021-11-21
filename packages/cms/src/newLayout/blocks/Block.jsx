@@ -61,7 +61,6 @@ function Block({id, active}) {
   };
 
   const onSave = keepWindowOpen => {
-    console.log(keepWindowOpen);
     // remove logicEnabled from the post - it is currently set directly when the mode is changed in BlockOutput.
     const {logicEnabled, ...restStateContent} = stateContent; //eslint-disable-line
     let payload;
