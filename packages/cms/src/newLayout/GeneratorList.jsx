@@ -17,7 +17,7 @@ function GeneratorList(props) {
         styles={{input: {fontFamily: "monospace"}}}
         size="xs"
         autosize
-        minRows={10}
+        minRows={33}
       />
     </div>
   );

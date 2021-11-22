@@ -1,7 +1,7 @@
 /* react */
-import React, {useMemo} from "react";
+import React, {useState, useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Text} from "@mantine/core";
+import {Text, Tab, Tabs} from "@mantine/core";
 import {format} from "pretty-format";
 
 /* components */
@@ -25,9 +25,7 @@ function GeneratorOutput({id, components}) {
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
   const block = useSelector(state => state.cms.profiles.entities.blocks[id]);
 
-  const onExecute = () => {
-
-  };
+  const [activeTab, setActiveTab] = useState(0);
 
   const {apiInput, codeEditor, executeButton} = components;
 
@@ -36,13 +34,17 @@ function GeneratorOutput({id, components}) {
     WARNING: 5000
   };
 
-  const {response, duration, variables, log, durationColor} = useMemo(() => ({
-    response: format(block._status.response, {printFunctionName: false}),
-    duration: format(block._status.duration),
-    variables: format(block._variables),
-    log: block._status.error ? format(block._status.error) : block._status.log.join("\n"),
-    durationColor: block._status.duration < DURATION_CUTOFF_MS.OK ? "green" : block._status.duration >= DURATION_CUTOFF_MS.OK && block._status.duration <= DURATION_CUTOFF_MS.WARNING ? "orange" : "red"
-  }), [block]);
+  const {response, duration, variables, log, error, durationColor} = useMemo(() => {
+    const showConsole = block._status.log && block._status.log.length > 0;
+    setActiveTab(showConsole ? 2 : 1);
+    const response = format(block._status.response, {printFunctionName: false});
+    const duration = format(block._status.duration);
+    const variables = format(block._variables);
+    const error = block._status.error;
+    const log = block._status.log ? block._status.log.join("\n") : [];
+    const durationColor = duration < DURATION_CUTOFF_MS.OK ? "green" : duration >= DURATION_CUTOFF_MS.OK && duration <= DURATION_CUTOFF_MS.WARNING ? "orange" : "red";
+    return {response, duration, error, variables, log, durationColor};
+  }, [block]);
 
   return (
     <div style={{display: "flex"}}>
@@ -52,9 +54,11 @@ function GeneratorOutput({id, components}) {
         {executeButton}
       </div>
       <div style={{display: "flex", flexDirection: "column"}}>
-        <GeneratorList label="API Response" description={<Text size="xs" color={durationColor}>Duration: {duration}ms</Text>} value={response} />
-        <GeneratorList label="Generator Output" value={variables} />
-        <GeneratorList label="Console Logs" value={log} />
+        <Tabs active={activeTab} onTabChange={setActiveTab}>
+          <Tab label="Response"><GeneratorList description={<Text size="xs" color={durationColor}>Duration: {duration}ms</Text>} value={response} /></Tab>
+          <Tab label="Output"><GeneratorList value={variables} error={error}/></Tab>
+          <Tab label="Console"><GeneratorList value={log} error={error}/></Tab>
+        </Tabs>
       </div>
     </div>
   );
