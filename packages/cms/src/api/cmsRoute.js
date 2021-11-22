@@ -57,16 +57,6 @@ const sortProfile = (db, profile) => {
   return profile;
 };
 
-// Using nested ORDER BY in the massive includes is incredibly difficult so do it manually here. todo: move it up to the query.
-const sortProfileTree = (db, profiles) => {
-  profiles = profiles.map(p => p.toJSON());
-  profiles = flatSort(db.profile, profiles);
-  profiles.forEach(p => {
-    sortProfile(db, p);
-  });
-  return profiles;
-};
-
 const sortSection = (db, section) => {
   section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
   section.blocks = flatSort(db.blocks, section.blocks);
@@ -93,16 +83,6 @@ const pruneSearch = async(cubeName, dimension, levels, db) => {
   else {
     if (verbose) console.log(`Skipped search cleanup - ${dimension}/${cubeName} is still in use`);
   }
-};
-
-const getProfileTree = async db => {
-  let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
-  profiles = sortProfileTree(db, profiles);
-  profiles.forEach(profile => {
-    profile.sections = profile.sections.map(section => sortSection(db, section));
-    return profile;
-  });
-  return profiles;
 };
 
 module.exports = function(app) {
@@ -175,7 +155,7 @@ module.exports = function(app) {
     res.json(meta);
   });
 
-  app.get("/api/cms/tree", async(req, res) => res.json(await getProfileTree(db)));
+  app.get("/api/cms/tree", async(req, res) => res.json(await getProfileTreeAndActivate(req)));
 
   /**
    * Returns a list of profiles including both the meta and content associations
@@ -420,6 +400,7 @@ module.exports = function(app) {
       {where: {section_id: row.section_id, ordering: {[Op.gt]: row.ordering}}}
     ).catch(catcher);
     await db.block.destroy({where: {id: req.query.id}}).catch(catcher);
+    // todo1.0 if profile-wide blocks disappear as part of a deletion, other sections will need to recalculate
     const profiles = await getProfileTreeAndActivate(req, row.section_id).catch(catcher);
     return res.json(profiles);
   });
@@ -472,7 +453,8 @@ module.exports = function(app) {
     const row = await db.section.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.section.destroy({where: {id: req.query.id}}).catch(catcher);
-    const profiles = await getProfileTree(db).catch(catcher);
+    // todo1.0 if profile-wide blocks disappear as part of a deletion, other sections will need to recalculate
+    const profiles = await getProfileTreeAndActivate(req).catch(catcher);
     return res.json({profiles});
   });
 
