@@ -301,6 +301,17 @@ module.exports = function(app) {
           await db[ref].update({ordering: item.ordering}, {where: {id: item.id}}).catch(catcher);
         }
       }
+      if (req.body.row) {
+        const entity = await db[ref].findOne({where: {id}}).catch(catcher);
+        let items = await db[ref].findAll({where: {[parentOrderingTables[ref]]: entity[parentOrderingTables[ref]], column: entity.column}}).catch(catcher);
+        items = items.sort((a, b) => a.row - b.row).map(d => d.id).filter(d => d !== id);
+        items.splice(req.body.row, 0, id);
+        items = items.map((d, i) => ({id: d, row: i}));
+        // todo1.0 this loop sucks. upgrade to sequelize 5 for updateOnDuplicate support.
+        for (const item of items) {
+          await db[ref].update({row: item.row}, {where: {id: item.id}}).catch(catcher);
+        }
+      }
       await db[ref].update(req.body, {where: {id}}).catch(catcher);
       if (contentTables.includes(ref) && req.body.content) {
         for (const content of req.body.content) {

@@ -56,6 +56,8 @@ function Block({id, active}) {
   const [loading, setLoading] = useState(false);
   const [opened, setOpened] = useState(false);
 
+  if (!block) return null;
+
   const onClick = () => {
     setOpened(true);
   };
