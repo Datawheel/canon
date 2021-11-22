@@ -28,7 +28,7 @@ function BlockEditor({id, components}) {
     Object.values(blocks)
       .filter(d => block.inputs.includes(d.id))
       .reduce((acc, d) => ({...acc, ...d._variables}), {})
-  );
+  , [blocks]);
 
   /**
    * The text editor lives in Block.jsx so that its onChange callbacks can be persisted to psql.
@@ -47,7 +47,7 @@ function BlockEditor({id, components}) {
       <div className="cms-block-editor-content">
         <div style={{display: "flex", flexDirection: "column"}}>
           <InputMenu id={id}/>
-          <VariableList variables={variables}/>
+          <VariableList id={id}/>
         </div>
         <Tabs>
           <Tab icon={<HiOutlineDocumentText />} label="Output">

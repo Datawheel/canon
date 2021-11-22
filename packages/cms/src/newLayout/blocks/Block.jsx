@@ -146,7 +146,7 @@ function Block({id, active}) {
     // {...this.props}
   />;
 
-  const executeButton = <Button onClick={() => onSave(true)}>Save & Execute</Button>;
+  const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save & Execute</Button>;
 
   const components = {textEditor, codeEditor, apiInput, blockPreview, executeButton};
 

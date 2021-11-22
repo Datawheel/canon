@@ -2,8 +2,7 @@
   width: 250px;
   background-color: white;
   border: 1px solid black;
-  height: 800px;
-  overflow-y: scroll;
+  overflow-y: auto;
   padding: 5px;
   & ul {
     margin-top: 0px;
