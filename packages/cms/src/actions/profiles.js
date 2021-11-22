@@ -178,13 +178,7 @@ export function newEntity(type, payload) {
     const store = getStore();
     const resp = await axios.post(`${store.env.CANON_API}/api/cms/${type}/new`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
-      if (type === ENTITY_TYPES.BLOCK_INPUT) {
-        const {variablesById, statusById} = await axios.get(`${store.env.CANON_API}/api/cms/block/activate`, {params: {id: payload.block_id}}).then(d => d.data).catch(() => {}); // todo1.0 error here
-        dispatch({type: `${type.toUpperCase()}_NEW`, data: resp.data, variablesById, statusById});
-      }
-      else {
-        dispatch({type: `${type.toUpperCase()}_NEW`, data: resp.data});
-      }
+      dispatch({type: `${type.toUpperCase()}_NEW`, data: resp.data});
       return {status: REQUEST_STATUS.SUCCESS};
     }
     else {
@@ -203,16 +197,9 @@ export function updateEntity(type, payload) {
     // Formatters require locales in the payload to know what languages to compile for
     const store = getStore();
     const locales = getLocales(store.env);
-    const {CANON_API} = store.env;
     const resp = await axios.post(`${store.env.CANON_API}/api/cms/${type}/update`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
-      if (type === ENTITY_TYPES.BLOCK) {
-        const {variablesById, statusById} = await axios.get(`${CANON_API}/api/cms/block/activate`, {params: {id: payload.id}}).then(d => d.data).catch(() => {}); // todo1.0 error here
-        dispatch({type: "BLOCK_UPDATE", data: resp.data, variablesById, statusById});
-      }
-      else {
-        dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, locales});
-      }
+      dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, locales});
       return {status: REQUEST_STATUS.SUCCESS};
     }
     else {
@@ -230,13 +217,7 @@ export function deleteEntity(type, payload) {
     const locales = getLocales(store.env);
     const resp = await axios.delete(`${store.env.CANON_API}/api/cms/${type}/delete`, {params: payload}).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
-      if (type === ENTITY_TYPES.BLOCK_INPUT) {
-        const {variablesById, statusById} = await axios.get(`${store.env.CANON_API}/api/cms/block/activate`, {params: {id: resp.data.parent_id}}).then(d => d.data).catch(() => {}); // todo1.0 error here
-        dispatch({type: `${type.toUpperCase()}_DELETE`, data: resp.data, locales, variablesById, statusById});
-      }
-      else {
-        dispatch({type: `${type.toUpperCase()}_DELETE`, data: resp.data, locales});
-      }
+      dispatch({type: `${type.toUpperCase()}_DELETE`, data: resp.data, locales});
       return {status: REQUEST_STATUS.SUCCESS};
     }
     else {

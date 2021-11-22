@@ -15,11 +15,6 @@ const verbose = yn(process.env.CANON_CMS_LOGGING);
 const cmsCheck = () => process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
 const cmsMinRole = () => process.env.CANON_CMS_MINIMUM_ROLE ? Number(process.env.CANON_CMS_MINIMUM_ROLE) : 1;
 
-const stripID = o => {
-  delete o.id;
-  return o;
-};
-
 const isEnabled = (req, res, next) => {
   if (cmsCheck()) return next();
   return res.status(401).send("Not Authorized");
@@ -52,22 +47,6 @@ const flatSort = (conn, array) => {
   return array;
 };
 
-const bubbleSortSelectors = (conn, selectors, accessor = "section_selector") => {
-  selectors = selectors
-    .map(s => Object.assign({}, s, {ordering: s[accessor].ordering}))
-    .sort(sorter);
-  selectors.forEach((o, i) => {
-    if (o.ordering !== i) {
-      o.ordering = i;
-      o[accessor].ordering = i;
-      conn.update({ordering: i}, {where: {id: o[accessor].id}}).catch(catcher);
-    }
-  });
-  return selectors;
-};
-
-const bubbleSortInputs = () => [];
-
 const contentReducer = (acc, d) => ({...acc, [d.locale]: d});
 
 const sortProfile = (db, profile) => {
@@ -98,23 +77,6 @@ const sortSection = (db, section) => {
   return section;
 };
 
-const duplicateSection = async(db, oldSection, pid) => {
-  // Create a new section, but with the new profile id.
-  const newSection = await db.section.create({...stripID(oldSection), profile_id: pid});
-  // Clone language content with new id
-  const newSectionContent = oldSection.content.map(d => ({...d, id: newSection.id}));
-  await db.section_content.bulkCreate(newSectionContent).catch(catcher);
-  const newRows = oldSection.blocks.map(d => ({...stripID(d), section_id: newSection.id}));
-  for (const newRow of newRows) {
-    const newBlock = await db.blocks.create(newRow).catch(catcher);
-    const newBlockContent = newRow.contentByLocale.map(d => ({...d, id: newBlock.id}));
-    await db.block_content.bulkCreate(newBlockContent).catch(catcher);
-    const newInputs = newRow.inputs.map(d => ({...stripID(d), block_id: newRow.id}));
-    await db.block_input.bulkCreate(newInputs);
-  }
-  return newSection.id;
-};
-
 const pruneSearch = async(cubeName, dimension, levels, db) => {
   const currentMeta = await db.profile_meta.findAll().catch(catcher);
   const dimensionCubePairs = currentMeta.reduce((acc, d) => acc.concat(`${d.dimension}-${d.cubeName}`), []);
@@ -131,6 +93,16 @@ const pruneSearch = async(cubeName, dimension, levels, db) => {
   else {
     if (verbose) console.log(`Skipped search cleanup - ${dimension}/${cubeName} is still in use`);
   }
+};
+
+const getProfileTree = async db => {
+  let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
+  profiles = sortProfileTree(db, profiles);
+  profiles.forEach(profile => {
+    profile.sections = profile.sections.map(section => sortSection(db, section));
+    return profile;
+  });
+  return profiles;
 };
 
 module.exports = function(app) {
@@ -187,9 +159,9 @@ module.exports = function(app) {
   });
 
   app.get("/api/cms/section/activate", async(req, res) => {
-    const {id} = req.query;
-    const activateResult = await activate(req, id);
-    return res.json(activateResult);
+    const id = Number(req.query.id);
+    const profiles = await getProfileTreeAndActivate(req, id);
+    return res.json(profiles);
   });
 
   /* GETS */
@@ -203,15 +175,7 @@ module.exports = function(app) {
     res.json(meta);
   });
 
-  app.get("/api/cms/tree", async(req, res) => {
-    let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
-    profiles = sortProfileTree(db, profiles);
-    profiles.forEach(profile => {
-      profile.sections = profile.sections.map(section => sortSection(db, section));
-      return profile;
-    });
-    return res.json(profiles);
-  });
+  app.get("/api/cms/tree", async(req, res) => res.json(await getProfileTree(db)));
 
   /**
    * Returns a list of profiles including both the meta and content associations
@@ -264,30 +228,20 @@ module.exports = function(app) {
       if (contentTables.includes(ref)) {
         const payload = Object.assign({}, req.body, {id: newObj.id, locale: localeDefault});
         await db[`${ref}_content`].create(payload).catch(catcher);
-        let reqObj;
-        if (ref === "section") {
-          reqObj = Object.assign({}, sectionReqFull, {where: {id: newObj.id}});
-        }
-        else if (ref === "block") {
-          reqObj = {where: {id: newObj.id}, include: [{association: "contentByLocale"}, {association: "inputs"}, {association: "consumers"}]};
-        }
-        else {
-          reqObj = {where: {id: newObj.id}, include: {association: "contentByLocale"}};
-        }
-        let fullObj = await db[ref].findOne(reqObj).catch(catcher);
-        fullObj = fullObj.toJSON();
-        fullObj.contentByLocale = fullObj.contentByLocale.reduce(contentReducer, {});
-        return res.json(fullObj);
+        let sid;
+        if (ref === "section") sid = newObj.id;
+        if (ref === "block") sid = newObj.section_id;
+        const profiles = await getProfileTreeAndActivate(req, sid).catch(catcher);
+        return res.json(profiles);
       }
       else {
         // If a new block_input was created, a block (block_id) subscribed to another block (input_id) as an input.
         // The requesting block needs its "inputs" array to be correct, so instead of returning the block_input relation,
         // return a full copy of the block that made the request - complete with full list of inputs.
         if (ref === "block_input") {
-          let block = await db.block.findOne({where: {id: req.body.block_id}, include: [{association: "contentByLocale"}, {association: "inputs"}]}).catch(catcher);
-          block = block.toJSON();
-          block.contentByLocale = block.contentByLocale.reduce(contentReducer, {});
-          return res.json(block);
+          const block = await db.block.findOne({where: {id: req.body.block_id}}).catch(catcher);
+          const profiles = await getProfileTreeAndActivate(req, block.section_id);
+          return res.json(profiles);
         }
         else {
           return res.json(newObj);
@@ -304,11 +258,8 @@ module.exports = function(app) {
     await db.profile_content.create({id: profile.id, locale: localeDefault, content: profileFields}).catch(catcher);
     const section = await db.section.create({ordering: 0, slug: "hero", profile_id: profile.id});
     await db.section_content.create({id: section.id, locale: localeDefault}).catch(catcher);
-    const reqObj = Object.assign({}, profileReqFull, {where: {id: profile.id}});
-    let newProfile = await db.profile.findOne(reqObj).catch(catcher);
-    newProfile = sortProfile(db, newProfile.toJSON());
-    newProfile.sections = newProfile.sections.map(section => sortSection(db, section));
-    return res.json(newProfile);
+    const profiles = await getProfileTreeAndActivate(req).catch(catcher);
+    return res.json(profiles);
   });
 
   app.post("/api/cms/profile/upsertDimension", isEnabled, async(req, res) => {
@@ -358,17 +309,13 @@ module.exports = function(app) {
     app.post(`/api/cms/${ref}/update`, isEnabled, async(req, res) => {
       const {id} = req.body;
       // When ordering is provided, this update is the result of a drag/drop reordering.
-      // Insert the item in the desired spot, bump all other orderings to match, and
-      // importantly, prepare a "siblings" lookup of the new orderings to apply in the reducer,
-      // so the whole array knows can have its ordering updated on the front end.
-      let siblings;
+      // Insert the item in the desired spot, bump all other orderings to match
       if (req.body.ordering) {
         const entity = await db[ref].findOne({where: {id}}).catch(catcher);
         let items = await db[ref].findAll({where: {[parentOrderingTables[ref]]: entity[parentOrderingTables[ref]]}}).catch(catcher);
         items = items.sort(sorter).map(d => d.id).filter(d => d !== id);
         items.splice(req.body.ordering, 0, id);
         items = items.map((d, i) => ({id: d, ordering: i}));
-        siblings = items.reduce((acc, d) => ({...acc, [d.id]: d.ordering}), {});
         // todo1.0 this loop sucks. upgrade to sequelize 5 for updateOnDuplicate support.
         for (const item of items) {
           await db[ref].update({ordering: item.ordering}, {where: {id: item.id}}).catch(catcher);
@@ -394,95 +341,17 @@ module.exports = function(app) {
         return res.json({id, formatters: rows});
       }
       else {
-        if (contentTables.includes(ref)) {
-          let entity = await db[ref].findOne({where: {id}, include: {association: "contentByLocale"}}).catch(catcher);
-          entity = entity.toJSON();
-          entity.contentByLocale = entity.contentByLocale.reduce(contentReducer, {});
-          return res.json({entity, siblings});
+        let sid;
+        if (ref === "section") sid = id;
+        if (ref === "block") {
+          const block = await db.block.findOne({where: {id}}).catch(catcher);
+          sid = block.section_id;
         }
-        else {
-          const entity = await db[ref].findOne({where: {id}}).catch(catcher);
-          return res.json(entity, siblings);
-        }
+        const profiles = await getProfileTreeAndActivate(req, sid).catch(catcher);
+        return res.json(profiles);
       }
     });
   });
-
-  /* DUPLICATES */
-
-  app.post("/api/cms/section/duplicate", isEnabled, async(req, res) => {
-    const {id, pid} = req.body;
-    const reqObj = {...sectionReqFull, where: {id}};
-    let oldSection = await db.section.findOne(reqObj).catch(catcher);
-    oldSection = oldSection.toJSON();
-    if (pid === oldSection.profile_id) {
-      // Because this is the same profile, we want its ordering to be after the duplication source.
-      // Slide up all of the other sections to make room
-      await db.section.update({ordering: sequelize.literal("ordering +1")}, {where: {profile_id: pid, ordering: {[Op.gt]: oldSection.ordering}}}).catch(catcher);
-      // Then override the ordering of oldSection to be after the source one (i.e., one higher)
-      oldSection.ordering++;
-    }
-    else {
-      // If this section is being added to a different profile, override its ordering to be the last in the list.
-      const ordering = await findMaxOrdering("section", "profile_id", pid);
-      oldSection.ordering = ordering;
-    }
-    const newSectionId = await duplicateSection(db, oldSection, pid);
-    const newReqObj = Object.assign({}, sectionReqFull, {where: {id: newSectionId}});
-    let newSection = await db.section.findOne(newReqObj).catch(catcher);
-    newSection = sortSection(db, newSection.toJSON());
-    return res.json(newSection);
-  });
-
-  app.post("/api/cms/profile/duplicate", isEnabled, async(req, res) => {
-    // Fetch the full tree for the provided ID
-    const reqObj = Object.assign({}, profileReqFull, {where: {id: req.body.id}});
-    let oldProfile = await db.profile.findOne(reqObj).catch(catcher);
-    oldProfile = oldProfile.toJSON();
-    // Make a new Profile
-    const ordering = await findMaxOrdering("profile");
-    const newProfile = await db.profile.create({ordering}).catch(catcher);
-    // Clone meta with new slugs
-    const newMeta = oldProfile.meta.map(d => Object.assign({}, stripID(d), {profile_id: newProfile.id, slug: `${d.slug}-${newProfile.id}`}));
-    await db.profile_meta.bulkCreate(newMeta).catch(catcher);
-    // Clone language content with new id
-    const newProfileContent = oldProfile.contentByLocale.map(d => Object.assign({}, d, {id: newProfile.id}));
-    await db.profile_content.bulkCreate(newProfileContent).catch(catcher);
-    // Clone Sections
-    for (const oldSection of oldProfile.sections) {
-      await duplicateSection(db, oldSection, newProfile.id);
-    }
-    // Now that all the creations are complete, fetch a new hierarchical and sorted profile.
-    const finalReqObj = {...profileReqFull, where: {id: newProfile.id}};
-    let finalProfile = await db.profile.findOne(finalReqObj).catch(catcher);
-    finalProfile = sortProfile(db, finalProfile.toJSON());
-    finalProfile.sections = finalProfile.sections.map(section => sortSection(db, section));
-    return res.json(finalProfile);
-  });
-
-  /*
-
-  // todo1.0
-  const duplicateList = ["block"];
-
-  duplicateList.forEach(ref => {
-    app.post(`/api/cms/${ref}/duplicate`, isEnabled, async(req, res) => {
-      let entity = await db[ref].findOne({where: {id: req.body.id}}).catch(catcher);
-      entity = entity.toJSON();
-      const {id, ...duplicate} = entity; //eslint-disable-line
-      if (duplicate.name) duplicate.name = `${duplicate.name}-duplicate`;
-      if (duplicate.title) duplicate.title = `${duplicate.title} (duplicate)`;
-      // Todo: make this more generic. Extract out the /new code have duplicate use it.
-      if (ref === "materializer") {
-        await db[ref].update({ordering: sequelize.literal("ordering +1")}, {where: {profile_id: entity.profile_id, ordering: {[Op.gt]: entity.ordering}}}).catch(catcher);
-        duplicate.ordering++;
-      }
-      const newEntity = await db[ref].create(duplicate).catch(catcher);
-      return res.json(newEntity);
-    });
-  });
-
-  */
 
   /* TRANSLATIONS */
   /** Translations are provided by the Google API and require an authentication key. They are requested client-side for
@@ -523,6 +392,27 @@ module.exports = function(app) {
 
   /* DELETES */
 
+  const getProfileTreeAndActivate = async(req, sid) => {
+    let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
+    profiles = profiles.map(p => p.toJSON());
+    profiles = flatSort(db.profile, profiles);
+    for (const profile of profiles) {
+      profile.meta = profile.meta.sort(sorter);
+      profile.contentByLocale = profile.contentByLocale.reduce(contentReducer, {});
+      profile.sections = flatSort(db.section, profile.sections);
+      for (const section of profile.sections) {
+        section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
+        section.blocks = flatSort(db.blocks, section.blocks);
+        section.blocks.forEach(block => block.contentByLocale = block.contentByLocale.reduce(contentReducer, {}));
+        if (section.id === sid) {
+          const {variablesById, statusById} = await activate(req, sid);
+          section.blocks = section.blocks.map(d => ({...d, _variables: variablesById[d.id] || {}, _status: statusById[d.id] || {}}));
+        }
+      }
+    }
+    return profiles;
+  };
+
   app.delete("/api/cms/block/delete", isEnabled, async(req, res) => {
     const row = await db.block.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.block.update(
@@ -530,43 +420,19 @@ module.exports = function(app) {
       {where: {section_id: row.section_id, ordering: {[Op.gt]: row.ordering}}}
     ).catch(catcher);
     await db.block.destroy({where: {id: req.query.id}}).catch(catcher);
-
-    /*
-    const reqObj = {
-      where: {section_id: row.section_id},
-      order: [["ordering", "ASC"]],
-      include: [{association: "contentByLocale"}, {association: "inputs"}]
-    };
-    let rows = await db.block.findAll(reqObj).catch(catcher);
-    rows = rows.map(d => d.toJSON);
-    rows.forEach(row => row.contentByLocale = row.contentByLocale.reduce(contentReducer, {}));
-    return res.json({parent_id: row.section_id, blocks: rows});
-    */
-    let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
-    profiles = sortProfileTree(db, profiles);
-    profiles.forEach(profile => {
-      profile.sections = profile.sections.map(section => sortSection(db, section));
-      return profile;
-    });
-    return res.json({profiles});
-
-
+    const profiles = await getProfileTreeAndActivate(req, row.section_id).catch(catcher);
+    return res.json(profiles);
   });
 
   app.delete("/api/cms/block_input/delete", isEnabled, async(req, res) => {
-    const {id} = req.query; // eslint-disable-line camelcase
+    const {id} = req.query;
     const row = await db.block_input.findOne({where: {id}}).catch(catcher);
+    // todo1.0 add this ordering back in
     // await db.block_input.update({ordering: sequelize.literal("ordering -1")}, {where: {block_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.block_input.destroy({where: {id}});
-    const reqObj = {where: {id: row.block_id}, include: [{association: "inputs"}]};
-    let block = await db.block.findOne(reqObj).catch(catcher);
-    let inputs = [];
-    if (block) {
-      block = block.toJSON();
-      // block.inputs = bubbleSortInputs(db.block_input, block.inputs);
-      inputs = block.inputs;
-    }
-    return res.json({parent_id: row.block_id, inputs});
+    const block = await db.block.findOne({where: {id: row.block_id}}).catch(catcher);
+    const profiles = await getProfileTreeAndActivate(req, block.section_id).catch(catcher);
+    return res.json(profiles);
   });
 
   app.delete("/api/cms/profile/delete", isEnabled, async(req, res) => {
@@ -575,13 +441,8 @@ module.exports = function(app) {
     await db.profile.destroy({where: {id: req.query.id}}).catch(catcher);
     // Todo: This prunesearch is outdated - need to call it multiple times for each meta row.
     // pruneSearch(row.dimension, row.levels, db);
-    let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
-    profiles = sortProfileTree(db, profiles);
-    profiles.forEach(profile => {
-      profile.sections = profile.sections.map(section => sortSection(db, section));
-      return profile;
-    });
-    return res.json({id: row.id, profiles});
+    const profiles = await getProfileTreeAndActivate(req);
+    return res.json(profiles);
   });
 
   app.delete("/api/cms/profile_meta/delete", isEnabled, async(req, res) => {
@@ -611,22 +472,7 @@ module.exports = function(app) {
     const row = await db.section.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.section.destroy({where: {id: req.query.id}}).catch(catcher);
-
-    /*
-    const reqObj = Object.assign({}, sectionReqFull, {where: {profile_id: row.profile_id}, order: [["ordering", "ASC"]]});
-    let sections = await db.section.findAll(reqObj).catch(catcher);
-    sections = sections.map(section => {
-      section = section.toJSON();
-      section = sortSection(db, section);
-      return section;
-    });
-    return res.json({id: row.id, parent_id: row.profile_id, sections});*/
-    let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
-    profiles = sortProfileTree(db, profiles);
-    profiles.forEach(profile => {
-      profile.sections = profile.sections.map(section => sortSection(db, section));
-      return profile;
-    });
+    const profiles = await getProfileTree(db).catch(catcher);
     return res.json({profiles});
   });
 
