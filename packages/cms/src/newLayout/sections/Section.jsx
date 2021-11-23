@@ -1,7 +1,7 @@
 /* react */
 import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {ActionIcon} from "@mantine/core";
+import {ActionIcon, Badge, Center, Overlay, useMantineTheme} from "@mantine/core";
 import {HiOutlinePlusCircle} from "react-icons/hi";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 
@@ -115,13 +115,12 @@ function Section({id, isDragging, dragHandleProps}) {
     dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload));
   };
 
-
+  const theme = useMantineTheme();
 
   return (
     <div className={`cms-section${isDragging ? " isDragging" : ""}`}>
       <SectionHeader onEdit={onEdit} section={section} dragHandleProps={dragHandleProps}/>
-      <div className="cms-section-content">
-        {!active && <h1 onClick={onEdit} style={{position: "absolute", cursor: "pointer", backgroundColor: "white", marginTop: 150, outline: "1px solid black", textAlign: "center", width: "100%", zIndex: 2}}>Click to activate</h1>}
+      <div className="cms-section-content" style={{padding: theme.spacing.xl}}>
         <DragDropContext
           onDragEnd={result => onDragEnd(result, columns, setColumns)}
         >
@@ -186,14 +185,12 @@ function Section({id, isDragging, dragHandleProps}) {
             </div>
           )}
         </DragDropContext>
-        <EntityAddButton
-          type={ENTITY_ADD_BUTTON_TYPES.SELECT}
-          label="Block Type"
-          onSubmit={value => addBlock(Object.keys(columns).length, value)}
-          selections={Object.values(BLOCK_TYPES).map(d => ({label: d, value: d}))}
-          target={<ActionIcon size="xl" radius="xl"><HiOutlinePlusCircle size={30} /></ActionIcon>}
-        />
+        {!active && <Center className="cms-section-click-to-edit" style={{bottom: "0", position: "absolute", width: "100%", left: "0", top: "0"}}>
+          <Badge size="xl" variant="outline" color="gray">Click to Edit</Badge>
+        </Center>}
+        {!active && <Overlay onClick={onEdit} color={theme.black} opacity={0.5} style={{cursor: "pointer"}} />}
       </div>
+      <SectionHeader active={active} section={section} isDragging={isDragging} dragHandleProps={dragHandleProps}/>
     </div>
   );
 

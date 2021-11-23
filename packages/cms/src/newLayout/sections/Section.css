@@ -1,22 +1,19 @@
 .cms-section {
-  display:flex;
+  background-color: white;
+  display: flex;
   flex-direction: column;
+  position: relative;
   width: 100%;
-  height: inherit;
-  background-color: grey;
-  outline: 1px solid black;
-  transition: background-color .3s;
-}
-
-.isDragging {
-  background-color: lightblue;
+  z-index: 1;
 }
 
 .cms-section-content {
   display: flex;
+  position: relative;
+  z-index: 0;
 }
 
-.cms-profile-add-block-button {
-  width: 50px;
-  height: 50px;
+.cms-section-click-to-edit {
+  opacity: 0;
+  transition: opacity 0.1s;
 }
