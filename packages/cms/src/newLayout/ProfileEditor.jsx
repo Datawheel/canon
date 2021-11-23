@@ -77,12 +77,12 @@ function ProfileEditor({id}) {
                   {(provided, snapshot) =>
                     <div
                       key={`section-${section}`}
-                      className="cms-section-container"
+                      className={`cms-section-container${snapshot.isDragging ? " isDragging" : ""}`}
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       style={{
                         ...provided.draggableProps.style,
-                        boxShadow: snapshot.isDragging ? theme.shadows.sm : "none"
+                        boxShadow: snapshot.isDragging ? theme.shadows.sm : undefined
                       }}
                     >
                       <Section id={section} isDragging={snapshot.isDragging} dragHandleProps={provided.dragHandleProps}/>

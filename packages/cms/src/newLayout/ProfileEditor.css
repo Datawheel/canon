@@ -3,6 +3,7 @@
   background-color: #f0f0f0;
   margin-top: 50px;
   min-height: calc(100vh - 50px);
+  padding-bottom: 50px;
 }
 
 /* plus button that appears beneath section on hover */
@@ -27,7 +28,13 @@
   opacity: 1;
 }
 
+.cms-section-container:hover .cms-section-overlay,
+.cms-section-container.isDragging .cms-section-overlay {
+  box-shadow: inset 3px 3px rgba(255, 255, 255, 0.75), inset -3px -3px rgba(255, 255, 255, 0.75);
+}
+
 .cms-section-container {
+  box-shadow: inset 10px 10px 10px 10px red;
   & .cms-section-content {
     min-height: 40vh;
   }
