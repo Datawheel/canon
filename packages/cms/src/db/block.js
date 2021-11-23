@@ -33,10 +33,6 @@ module.exports = function(sequelize, db) {
         type: db.INTEGER,
         default: 0
       },
-      ordering: {
-        type: db.INTEGER,
-        default: 0
-      },
 
       /* generators & vizes */
       api: {

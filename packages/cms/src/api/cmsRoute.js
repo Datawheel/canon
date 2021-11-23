@@ -47,6 +47,20 @@ const flatSort = (conn, array) => {
   return array;
 };
 
+const flatRows = (conn, array) => {
+  return array;
+  if (!array) return [];
+  // First, gather all the indexes of columns.
+  const columns = [...new Set(array.map(d => d.column))];
+  for (const column of columns) {
+    array.filter(d => d.column === column).sort((a, b) => a.row - b.row).forEach((block, i) => {
+      block.row = i;
+      conn.update({row: i}, {where: {id: block.id}});
+    });
+  }
+  return array;
+};
+
 const contentReducer = (acc, d) => ({...acc, [d.locale]: d});
 
 const sortProfile = (db, profile) => {
@@ -59,7 +73,6 @@ const sortProfile = (db, profile) => {
 
 const sortSection = (db, section) => {
   section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
-  section.blocks = flatSort(db.blocks, section.blocks);
   section.blocks.forEach(block => block.contentByLocale = block.contentByLocale.reduce(contentReducer, {}));
   // todo1.0
   // ordering is nested in section_selector - bubble for top-level sorting
@@ -185,53 +198,9 @@ module.exports = function(app) {
     res.json(formatters);
   });
 
-  /* BASIC INSERTS */
-  const newList = cmsTables;
-  newList.forEach(ref => {
-    app.post(`/api/cms/${ref}/new`, isEnabled, async(req, res) => {
-      // If the order was provided, we need to bump all siblings up to make room.
-      if (req.body.ordering) {
-        const where = {
-          ordering: {[Op.gte]: req.body.ordering},
-          [parentOrderingTables[ref]]: req.body[parentOrderingTables[ref]]
-        };
-        await db[ref].update({ordering: sequelize.literal("ordering +1")}, {where}).catch(catcher);
-      }
-      // If it was not provided, but this is a table that needs them, append it to the end and
-      // insert the derived ordering into req.body
-      else if (parentOrderingTables[ref]) {
-        req.body.ordering = await findMaxOrdering(ref, parentOrderingTables[ref], req.body[parentOrderingTables[ref]]).catch(catcher);
-      }
-      // First, create the metadata object in the top-level table
-      const newObj = await db[ref].create(req.body).catch(catcher);
-      // For a certain subset of translated tables, we need to also insert a new, corresponding english content row.
-      if (contentTables.includes(ref)) {
-        const payload = Object.assign({}, req.body, {id: newObj.id, locale: localeDefault});
-        await db[`${ref}_content`].create(payload).catch(catcher);
-        let sid;
-        if (ref === "section") sid = newObj.id;
-        if (ref === "block") sid = newObj.section_id;
-        const profiles = await getProfileTreeAndActivate(req, sid).catch(catcher);
-        return res.json(profiles);
-      }
-      else {
-        // If a new block_input was created, a block (block_id) subscribed to another block (input_id) as an input.
-        // The requesting block needs its "inputs" array to be correct, so instead of returning the block_input relation,
-        // return a full copy of the block that made the request - complete with full list of inputs.
-        if (ref === "block_input") {
-          const block = await db.block.findOne({where: {id: req.body.block_id}}).catch(catcher);
-          const profiles = await getProfileTreeAndActivate(req, block.section_id);
-          return res.json(profiles);
-        }
-        else {
-          return res.json(newObj);
-        }
-      }
-    });
-  });
+  /* INSERTS */
 
-  /* CUSTOM INSERTS */
-  app.post("/api/cms/profile/newScaffold", isEnabled, async(req, res) => {
+  app.post("/api/cms/profile/new", isEnabled, async(req, res) => {
     const ordering = await findMaxOrdering("profile").catch(catcher);
     const profileFields = Object.values(PROFILE_FIELDS).reduce((acc, d) => req.body[d] ? {...acc, [d]: req.body[d]} : acc, {});
     const profile = await db.profile.create({ordering}).catch(catcher);
@@ -241,6 +210,51 @@ module.exports = function(app) {
     const profiles = await getProfileTreeAndActivate(req).catch(catcher);
     return res.json(profiles);
   });
+
+  app.post("/api/cms/section/new", isEnabled, async(req, res) => {
+    // If the order was provided, we need to bump all siblings up to make room.
+    if (req.body.ordering) {
+      await db.section.update(
+        {ordering: sequelize.literal("ordering +1")},
+        {where: {ordering: {[Op.gte]: req.body.ordering}, profile_id: req.body.profile_id}}).catch(catcher);
+    }
+    else {
+      // If it was not provided, but this is a table that needs them, append it to the end and
+      // insert the derived ordering into req.body
+      req.body.ordering = await findMaxOrdering("section", "profile_id", req.body.profile_id).catch(catcher);
+    }
+    const newSection = await db.section.create(req.body).catch(catcher);
+    await db.section_content.create({...req.body, id: newSection.id, locale: localeDefault}).catch(catcher);
+    const profiles = await getProfileTreeAndActivate(req, newSection.id).catch(catcher);
+    return res.json(profiles);
+  });
+
+  app.post("/api/cms/block_input/new", isEnabled, async(req, res) => {
+    await db.block_input.create(req.body).catch(catcher);
+    const block = await db.block.findOne({where: {id: req.body.block_id}}).catch(catcher);
+    const profiles = await getProfileTreeAndActivate(req, block.section_id);
+    return res.json(profiles);
+  });
+
+  app.post("/api/cms/block/new", isEnabled, async(req, res) => {
+    // If the row was provided, we need to bump all siblings up to make room.
+    const siblings = {column: req.body.column, section_id: req.body.section_id};
+    if (req.body.row) {
+      await db.block.update({row: sequelize.literal("row +1")}, {where: {row: {[Op.gte]: req.body.row}, ...siblings}}).catch(catcher);
+    }
+    else {
+      // If it was not provided, but this is a table that needs them, append it to the end and
+      // insert the derived ordering into req.body
+      const blocks = await db.block.findAll({where: siblings}).catch(catcher);
+      req.body.row = blocks.length > 0 ? blocks.sort((a, b) => a.row - b.row)[blocks.length - 1].row + 1 : 0;
+    }
+    const newBlock = await db.block.create(req.body).catch(catcher);
+    await db.block_content.create({...req.body, id: newBlock.id, locale: localeDefault}).catch(catcher);
+    const profiles = await getProfileTreeAndActivate(req, newBlock.section_id).catch(catcher);
+    return res.json(profiles);
+  });
+
+  /* CUSTOM INSERTS */
 
   app.post("/api/cms/profile/upsertDimension", isEnabled, async(req, res) => {
     req.setTimeout(1000 * 60 * 5);
@@ -283,7 +297,7 @@ module.exports = function(app) {
     return res.json({});
   });
 
-  /* BASIC UPDATES */
+  /* UPDATES */
   const updateList = cmsTables;
   updateList.forEach(ref => {
     app.post(`/api/cms/${ref}/update`, isEnabled, async(req, res) => {
@@ -302,15 +316,16 @@ module.exports = function(app) {
         }
       }
       if (req.body.row) {
-        const entity = await db[ref].findOne({where: {id}}).catch(catcher);
-        let items = await db[ref].findAll({where: {[parentOrderingTables[ref]]: entity[parentOrderingTables[ref]], column: entity.column}}).catch(catcher);
-        items = items.sort((a, b) => a.row - b.row).map(d => d.id).filter(d => d !== id);
-        items.splice(req.body.row, 0, id);
-        items = items.map((d, i) => ({id: d, row: i}));
+        const block = await db.block.findOne({where: {id}}).catch(catcher);
+        let blocks = await db.block.findAll({where: {section_id: block.section_id, column: req.body.column}}).catch(catcher);
+        blocks = blocks.sort((a, b) => a.row - b.row).map(d => d.id).filter(d => d !== id);
+        blocks.splice(req.body.row, 0, id);
+        blocks = blocks.map((d, i) => ({id: d, row: i}));
         // todo1.0 this loop sucks. upgrade to sequelize 5 for updateOnDuplicate support.
-        for (const item of items) {
-          await db[ref].update({row: item.row}, {where: {id: item.id}}).catch(catcher);
+        for (const block of blocks) {
+          await db.block.update({row: block.row}, {where: {id: block.id}}).catch(catcher);
         }
+        delete req.body.row;
       }
       await db[ref].update(req.body, {where: {id}}).catch(catcher);
       if (contentTables.includes(ref) && req.body.content) {
@@ -393,8 +408,8 @@ module.exports = function(app) {
       profile.sections = flatSort(db.section, profile.sections);
       for (const section of profile.sections) {
         section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
-        section.blocks = flatSort(db.blocks, section.blocks);
         section.blocks.forEach(block => block.contentByLocale = block.contentByLocale.reduce(contentReducer, {}));
+        section.blocks = flatRows(db.block, section.blocks);
         if (section.id === sid) {
           const {variablesById, statusById} = await activate(req, sid);
           section.blocks = section.blocks.map(d => ({...d, _variables: variablesById[d.id] || {}, _status: statusById[d.id] || {}}));
@@ -406,10 +421,7 @@ module.exports = function(app) {
 
   app.delete("/api/cms/block/delete", isEnabled, async(req, res) => {
     const row = await db.block.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.block.update(
-      {ordering: sequelize.literal("ordering -1")},
-      {where: {section_id: row.section_id, ordering: {[Op.gt]: row.ordering}}}
-    ).catch(catcher);
+    await db.block.update({row: sequelize.literal("row -1")}, {where: {section_id: row.section_id, column: row.column, row: {[Op.gt]: row.row}}}).catch(catcher);
     await db.block.destroy({where: {id: req.query.id}}).catch(catcher);
     // todo1.0 if profile-wide blocks disappear as part of a deletion, other sections will need to recalculate
     const profiles = await getProfileTreeAndActivate(req, row.section_id).catch(catcher);

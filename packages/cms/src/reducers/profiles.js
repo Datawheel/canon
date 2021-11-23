@@ -1,7 +1,5 @@
 const {normalize, schema} = require("normalizr");
 
-const sorter = (a, b) => a.ordering - b.ordering;
-
 const profileSchema = [new schema.Entity("profiles", {
   sections: [new schema.Entity("sections", {
     blocks: [new schema.Entity("blocks", {

@@ -92,11 +92,7 @@ function Section({id, isDragging, dragHandleProps}) {
           items: destItems
         }
       });
-      const payload = {
-        id: Number(result.draggableId),
-        column: Number(destination.droppableId)
-      };
-      dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload));
+
     }
     else {
       const column = columns[source.droppableId];
@@ -110,12 +106,13 @@ function Section({id, isDragging, dragHandleProps}) {
           items: copiedItems
         }
       });
-      const payload = {
-        id: Number(result.draggableId),
-        row: Number(destination.index)
-      };
-      dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload));
     }
+    const payload = {
+      id: Number(result.draggableId),
+      row: Number(destination.index),
+      column: Number(destination.droppableId)
+    };
+    dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload));
   };
 
 

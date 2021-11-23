@@ -22,8 +22,7 @@ module.exports = function(sequelize, db) {
           model: "canon_cms_block",
           key: "id"
         }
-      },
-      ordering: db.INTEGER
+      }
     },
     {
       tableName: "canon_cms_block_input",
