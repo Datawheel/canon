@@ -51,6 +51,7 @@ function EntityAddButton({type = ENTITY_ADD_BUTTON_TYPES.TEXT, label, onSubmit, 
 
   return (
     <Popover
+      className="cms-entity-add-button"
       withArrow
       {...popoverProps}
     >

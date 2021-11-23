@@ -1,7 +1,6 @@
 .cms-section-block {
   display: block;
-  width: 200px;
-  height: 100px;
+  min-height: 50px;
   background-color: rgb(255, 206, 206);
   border: 1px solid black;
   position: relative;

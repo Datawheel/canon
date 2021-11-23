@@ -2,7 +2,7 @@
 import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {ActionIcon, Badge, Center, Overlay, useMantineTheme} from "@mantine/core";
-import {HiOutlinePlusCircle} from "react-icons/hi";
+import {HiPlusCircle} from "react-icons/hi";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 
 /* components */
@@ -119,84 +119,88 @@ function Section({id, isDragging, dragHandleProps}) {
   const theme = useMantineTheme();
 
   return (
-    <div className={`cms-section${isDragging ? " isDragging" : ""}`}>
-      <SectionHeader onEdit={onEdit} section={section} dragHandleProps={dragHandleProps}/>
-      <div className="cms-section-content" style={{padding: theme.spacing.xl}}>
+    <div className={`cms-section${isDragging || active ? " active" : ""}`}>
+      <div className="cms-section-content"
+        style={{
+          alignItems: "stretch",
+          display: "flex",
+          padding: theme.spacing.xl,
+          position: "relative",
+          zIndex: "0"
+        }}
+      >
         <DragDropContext
           onDragEnd={result => onDragEnd(result, columns, setColumns)}
         >
           {Object.entries(columns).map(([columnId, column], index) =>
             <div
+              className="cms-section-column"
               style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                overflowY: "auto",
-                height: "500px"
+                flex: "1 1 100%",
+                padding: theme.spacing.sm
               }}
               key={columnId}
             >
-              <div style={{margin: 8}}>
-                <Droppable droppableId={columnId} key={columnId}>
-                  {(provided, snapshot) =>
-                    <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      style={{
-                        background: snapshot.isDraggingOver
-                          ? "lightblue"
-                          : "lightgrey",
-                        padding: 4,
-                        width: 210,
-                        minHeight: 500
-                      }}
-                    >
-                      {column.items.map((item, index) =>
-                        <Draggable
-                          key={item.id}
-                          draggableId={item.id}
-                          index={index}
-                        >
-                          {(provided, snapshot) =>
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              style={{
-                                ...provided.draggableProps.style
-                              }}
-                            >
-                              <Block id={Number(item.id)} active={active} key={`block-${item.id}`} entity={ENTITY_TYPES.BLOCK} />
-                            </div>
-                          }
-                        </Draggable>
-                      )}
-                      <EntityAddButton
-                        type={ENTITY_ADD_BUTTON_TYPES.SELECT}
-                        label="Block Type"
-                        onSubmit={value => addBlock(index, value)}
-                        selections={Object.values(BLOCK_TYPES).map(d => ({label: d, value: d}))}
-                        target={<ActionIcon size="xl" radius="xl"><HiOutlinePlusCircle size={30} /></ActionIcon>}
-                      />
-                      {provided.placeholder}
-                    </div>
-                  }
-                </Droppable>
-              </div>
+              <Droppable droppableId={columnId} key={columnId}>
+                {(provided, snapshot) =>
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    style={{
+                      background: snapshot.isDraggingOver
+                        ? theme.colors[theme.primaryColor][0]
+                        : "inherit",
+                      display: "flex",
+                      flexDirection: "column",
+                      height: "100%"
+                    }}
+                  >
+                    {column.items.map((item, index) =>
+                      <Draggable
+                        key={item.id}
+                        draggableId={item.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) =>
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={{
+                              ...provided.draggableProps.style,
+                              width: "100%"
+                            }}
+                          >
+                            <Block id={Number(item.id)} active={active} key={`block-${item.id}`} entity={ENTITY_TYPES.BLOCK} />
+                          </div>
+                        }
+                      </Draggable>
+                    )}
+                    {active && <EntityAddButton
+                      type={ENTITY_ADD_BUTTON_TYPES.SELECT}
+                      label="Block Type"
+                      onSubmit={value => addBlock(index, value)}
+                      selections={Object.values(BLOCK_TYPES).map(d => ({label: d, value: d}))}
+                      target={<ActionIcon size="md" radius="lg"><HiPlusCircle size={20} /></ActionIcon>}
+                    />}
+                    {provided.placeholder}
+                  </div>
+                }
+              </Droppable>
             </div>
           )}
         </DragDropContext>
-        <EntityAddButton
+        {active && <EntityAddButton
           type={ENTITY_ADD_BUTTON_TYPES.SELECT}
           label="Block Type"
           onSubmit={value => addBlock(Object.keys(columns).length, value)}
           selections={Object.values(BLOCK_TYPES).map(d => ({label: d, value: d}))}
-          target={<ActionIcon size="xl" radius="xl"><HiOutlinePlusCircle size={30} /></ActionIcon>}
-        />
+          target={<ActionIcon size="md" radius="lg"><HiPlusCircle size={20} /></ActionIcon>}
+        />}
         {!active && <Center className="cms-section-click-to-edit" style={{bottom: "0", position: "absolute", width: "100%", left: "0", top: "0"}}>
           <Badge size="xl" variant="outline" color="gray">Click to Edit</Badge>
         </Center>}
-        {!active && <Overlay onClick={onEdit} color={theme.black} opacity={0.5} style={{cursor: "pointer"}} />}
+        {!active && <Overlay className="cms-section-overlay" onClick={onEdit} color={theme.black} opacity={0.5} style={{cursor: "pointer"}} />}
       </div>
       <SectionHeader active={active} section={section} isDragging={isDragging} dragHandleProps={dragHandleProps}/>
     </div>

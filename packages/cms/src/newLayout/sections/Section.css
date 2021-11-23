@@ -5,12 +5,41 @@
   position: relative;
   width: 100%;
   z-index: 1;
-}
 
-.cms-section-content {
-  display: flex;
-  position: relative;
-  z-index: 0;
+  &.active, &:hover {
+    box-shadow: inset 10px 10px white, inset -10px -10px white;
+  }
+
+  & .cms-section-column {
+    & .cms-entity-add-button {
+      align-self: center;
+      height: 0;
+      opacity: 0;
+      transition: opacity 0.1s;
+    }
+    &:hover {
+      & .cms-entity-add-button {
+        opacity: 1;
+      }
+    }
+  }
+
+  & .cms-section-content {
+    & .cms-section-column + .cms-entity-add-button {
+      align-self: center;
+      opacity: 0;
+      transition: opacity 0.1s;
+      width: 0;
+      & > * {
+        margin-left: -10px;
+      }
+    }
+    & .cms-section-column:hover + .cms-entity-add-button,
+    & .cms-section-column + .cms-entity-add-button:hover {
+      opacity: 1;
+    }
+  }
+
 }
 
 .cms-section-click-to-edit {

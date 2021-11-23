@@ -169,7 +169,7 @@ function Block({id, active}) {
 
   return (
     <React.Fragment>
-      <div className="cms-section-block" >
+      <div className="cms-section-block">
         {!active && <Overlay opacity={0.7} color="#000" zIndex={5} />}
         <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
         <ActionIcon key="edit" onClick={onClick}><HiOutlinePencil size={20} /></ActionIcon>
