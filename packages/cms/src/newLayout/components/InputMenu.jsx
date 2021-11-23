@@ -23,7 +23,7 @@ function InputMenu({id}) {
 
   const block = blocks[id];
   const inputs = useSelector(state => state.cms.profiles.entities.inputs);
-  const inputBlocks = useMemo(() => Object.values(inputs).filter(d => block.inputs.includes(d.id)).reduce((acc, d) => ({...acc, [d.id]: d}), {}), [inputs]);
+  const inputBlocks = useMemo(() => Object.values(inputs || []).filter(d => block.inputs.includes(d.id)).reduce((acc, d) => ({...acc, [d.id]: d}), {}), [inputs]);
 
   const sectionBlocks = useMemo(() => Object.values(blocks).filter(d => d.section_id === block.section_id), [blocks]);
   const sourceBlocks = useMemo(() => Object.values(sectionBlocks).filter(d => d.id !== block.id), [sectionBlocks]);
