@@ -185,6 +185,13 @@ function Section({id, isDragging, dragHandleProps}) {
             </div>
           )}
         </DragDropContext>
+        <EntityAddButton
+          type={ENTITY_ADD_BUTTON_TYPES.SELECT}
+          label="Block Type"
+          onSubmit={value => addBlock(Object.keys(columns).length, value)}
+          selections={Object.values(BLOCK_TYPES).map(d => ({label: d, value: d}))}
+          target={<ActionIcon size="xl" radius="xl"><HiOutlinePlusCircle size={30} /></ActionIcon>}
+        />
         {!active && <Center className="cms-section-click-to-edit" style={{bottom: "0", position: "absolute", width: "100%", left: "0", top: "0"}}>
           <Badge size="xl" variant="outline" color="gray">Click to Edit</Badge>
         </Center>}
