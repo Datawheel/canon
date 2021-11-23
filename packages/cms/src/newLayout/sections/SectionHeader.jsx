@@ -1,11 +1,15 @@
+/* react */
 import React from "react";
 import {ActionIcon, Code, useMantineTheme} from "@mantine/core";
 import {HiOutlineCog, HiOutlineMenuAlt4} from "react-icons/hi";
 
+/* component */
 import CogMenu from "../components/CogMenu";
 
+/* enums */
 import {ENTITY_TYPES} from "../../utils/consts/cms";
 
+/* css */
 import "./SectionHeader.css";
 
 /**

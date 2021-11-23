@@ -47,20 +47,6 @@ const flatSort = (conn, array) => {
   return array;
 };
 
-const flatRows = (conn, array) => {
-  return array;
-  if (!array) return [];
-  // First, gather all the indexes of columns.
-  const columns = [...new Set(array.map(d => d.column))];
-  for (const column of columns) {
-    array.filter(d => d.column === column).sort((a, b) => a.row - b.row).forEach((block, i) => {
-      block.row = i;
-      conn.update({row: i}, {where: {id: block.id}});
-    });
-  }
-  return array;
-};
-
 const contentReducer = (acc, d) => ({...acc, [d.locale]: d});
 
 const sortProfile = (db, profile) => {
@@ -414,7 +400,6 @@ module.exports = function(app) {
       for (const section of profile.sections) {
         section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
         section.blocks.forEach(block => block.contentByLocale = block.contentByLocale.reduce(contentReducer, {}));
-        section.blocks = flatRows(db.block, section.blocks);
         if (section.id === sid) {
           const {variablesById, statusById} = await activate(req, sid);
           section.blocks = section.blocks.map(d => ({...d, _variables: variablesById[d.id] || {}, _status: statusById[d.id] || {}}));
