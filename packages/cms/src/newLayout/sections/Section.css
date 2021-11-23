@@ -6,10 +6,6 @@
   width: 100%;
   z-index: 1;
 
-  &.active, &:hover {
-    box-shadow: inset 10px 10px white, inset -10px -10px white;
-  }
-
   & .cms-section-column {
     & .cms-entity-add-button {
       align-self: center;
@@ -37,6 +33,12 @@
     & .cms-section-column:hover + .cms-entity-add-button,
     & .cms-section-column + .cms-entity-add-button:hover {
       opacity: 1;
+    }
+    & .cms-entity-add-button:only-child {
+      align-self: center;
+      display: flex;
+      flex: 1;
+      justify-content: center;
     }
   }
 
