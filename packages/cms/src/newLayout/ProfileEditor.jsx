@@ -1,8 +1,8 @@
 /* react */
 import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {ActionIcon, Center} from "@mantine/core";
-import {HiOutlinePlusCircle} from "react-icons/hi";
+import {ActionIcon, AppShell, Center, useMantineTheme} from "@mantine/core";
+import {HiPlusCircle} from "react-icons/hi";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 
 /* components */
@@ -61,29 +61,37 @@ function ProfileEditor({id}) {
   if (!profile) return null;
   if (profile.error) return <div>{profile.error}</div>;
 
+  const theme = useMantineTheme();
+
   return (
-    <div className="cms-profile">
-      <CMSHeader id={profile.id}/>
+    <AppShell
+      padding="0"
+      header={<CMSHeader id={profile.id} />}
+    >
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="sections">
           {provided =>
             <div ref={provided.innerRef} {...provided.droppableProps} className="cms-droppable-container">
               {sections.map((section, i) =>
-                <Draggable key={section} draggableId={`${section}`} index={i} >
+                <Draggable key={section} draggableId={`${section}`} index={i}>
                   {(provided, snapshot) =>
                     <div
                       key={`section-${section}`}
                       className="cms-section-container"
                       ref={provided.innerRef}
                       {...provided.draggableProps}
+                      style={{
+                        ...provided.draggableProps.style,
+                        boxShadow: snapshot.isDragging ? theme.shadows.sm : "none"
+                      }}
                     >
                       <Section id={section} isDragging={snapshot.isDragging} dragHandleProps={provided.dragHandleProps}/>
-                      <Center>
+                      <Center className="cms-section-controls">
                         <EntityAddButton
                           label="Section Slug"
                           urlSafe={true}
                           onSubmit={name => addSection(name, i + 1)}
-                          target={<ActionIcon variant="filled" color="blue" className="cms-profile-add-section-button" size="xl" radius="xl"><HiOutlinePlusCircle size={30} /></ActionIcon>}
+                          target={<ActionIcon color="theme" size="md" radius="lg" style={{boxShadow: theme.shadows.xs}}><HiPlusCircle size={20} /></ActionIcon>}
                         />
                       </Center>
                     </div>
@@ -95,7 +103,7 @@ function ProfileEditor({id}) {
           }
         </Droppable>
       </DragDropContext>
-    </div>
+    </AppShell>
   );
 
 }

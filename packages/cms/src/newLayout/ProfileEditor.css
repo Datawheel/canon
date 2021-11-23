@@ -1,20 +1,39 @@
-.cms-profile {
-  display: flex;
-  flex-direction: column;
-  align-items:center;
+/* applies overall top margin for the Editor header */
+.mantine-Header-root ~ .mantine-AppShell-body {
+  background-color: #f0f0f0;
+  margin-top: 50px;
+  min-height: calc(100vh - 50px);
+}
+
+/* plus button that appears beneath section on hover */
+.cms-section-controls {
+  height: 0;
+  & button {
+    background-color: white;
+    opacity: 0;
+    transition: opacity 0.1s;
+    z-index: 2;
+  }
+}
+.cms-section-container:hover > .cms-section-controls {
+  & button {
+    opacity: 1;
+  }
+}
+
+.cms-section-container:hover .cms-section-header,
+.cms-section-container:hover .cms-section-click-to-edit,
+.cms-section-header.active {
+  opacity: 1;
 }
 
 .cms-section-container {
-  width: 100%;
-  height: 700px;
+  & .cms-section-content {
+    min-height: 40vh;
+  }
+  &:only-child {
+    & .cms-section-content {
+      min-height: 60vh;
+    }
+  }
 }
-
-.cms-droppable-container {
-  width: 100%;
-}
-
-.cms-profile-add-section-button {
-  margin-top: -21px;
-}
-
-
