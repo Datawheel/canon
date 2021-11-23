@@ -16,10 +16,8 @@ function SectionHeader({active, isDragging, section, dragHandleProps}) {
   const theme = useMantineTheme();
 
   return (
-    <div className={`cms-section-header${active || isDragging ? " active" : ""}`} style={{padding: `0 ${theme.spacing.xs}px`}}>
+    <div className={`cms-section-header${active || isDragging ? " active" : ""}`} style={{padding: `2px ${theme.spacing.xs}px 0`}}>
       <Code key="s1" style={{backgroundColor: "transparent"}}>#{section.slug}</Code>
-      {/* todo1.0 - for some reason neither an html button nor a mantine button can accept these dragHandleProps - need to revisit why */}
-      {/* <span key="b1" className="cms-section-drag-button">drag</span> */}
       <ActionIcon key="b1" {...dragHandleProps}><HiOutlineMenuAlt4 size={16} /></ActionIcon>
       <CogMenu key="cog" type={ENTITY_TYPES.SECTION} id={section.id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
     </div>
