@@ -35,9 +35,9 @@ function Section({id, isDragging, dragHandleProps}) {
 
   const [active, setActive] = useState(false);
 
-  const addBlock = (column, type) => {
+  const addBlock = (blockcol, type) => {
     const payload = {
-      column,
+      blockcol,
       type,
       section_id: section.id
     };
@@ -112,6 +112,7 @@ function Section({id, isDragging, dragHandleProps}) {
       blockrow: Number(destination.index),
       blockcol: Number(destination.droppableId)
     };
+    console.log(payload);
     dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload));
   };
 
