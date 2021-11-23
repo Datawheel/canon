@@ -58,7 +58,7 @@ function Section({id, isDragging, dragHandleProps}) {
   const [columns, setColumns] = useState([]);
 
   useEffect(() => {
-    const columns = Object.values(blocks).filter(d => d.section_id === id).sort((a, b) => a.row - b.row).reduce((acc, d) => {
+    const columns = Object.values(blocks || {}).filter(d => d.section_id === id).sort((a, b) => a.row - b.row).reduce((acc, d) => {
       if (!acc[String(d.column)]) {
         acc[String(d.column)] = {items: [{id: String(d.id)}]};
       }
