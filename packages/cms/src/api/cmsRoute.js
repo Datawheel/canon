@@ -237,16 +237,16 @@ module.exports = function(app) {
   });
 
   app.post("/api/cms/block/new", isEnabled, async(req, res) => {
-    // If the row was provided, we need to bump all siblings up to make room.
-    const siblings = {column: req.body.column, section_id: req.body.section_id};
-    if (req.body.row) {
-      await db.block.update({row: sequelize.literal("row +1")}, {where: {row: {[Op.gte]: req.body.row}, ...siblings}}).catch(catcher);
+    // If the blockrow was provided, we need to bump all siblings up to make room.
+    const siblings = {blockcol: req.body.blockcol, section_id: req.body.section_id};
+    if (req.body.blockrow) {
+      await db.block.update({blockrow: sequelize.literal("blockrow +1")}, {where: {blockrow: {[Op.gte]: req.body.blockrow}, ...siblings}}).catch(catcher);
     }
     else {
       // If it was not provided, but this is a table that needs them, append it to the end and
       // insert the derived ordering into req.body
       const blocks = await db.block.findAll({where: siblings}).catch(catcher);
-      req.body.row = blocks.length > 0 ? blocks.sort((a, b) => a.row - b.row)[blocks.length - 1].row + 1 : 0;
+      req.body.blockrow = blocks.length > 0 ? blocks.sort((a, b) => a.blockrow - b.blockrow)[blocks.length - 1].blockrow + 1 : 0;
     }
     const newBlock = await db.block.create(req.body).catch(catcher);
     await db.block_content.create({...req.body, id: newBlock.id, locale: localeDefault}).catch(catcher);
@@ -315,17 +315,22 @@ module.exports = function(app) {
           await db[ref].update({ordering: item.ordering}, {where: {id: item.id}}).catch(catcher);
         }
       }
-      if (req.body.row) {
+      if (req.body.blockrow) {
         const block = await db.block.findOne({where: {id}}).catch(catcher);
-        let blocks = await db.block.findAll({where: {section_id: block.section_id, column: req.body.column}}).catch(catcher);
-        blocks = blocks.sort((a, b) => a.row - b.row).map(d => d.id).filter(d => d !== id);
-        blocks.splice(req.body.row, 0, id);
-        blocks = blocks.map((d, i) => ({id: d, row: i}));
+        let blocks = await db.block.findAll({where: {section_id: block.section_id, blockcol: req.body.blockcol}}).catch(catcher);
+        blocks = blocks.sort((a, b) => a.blockrow - b.blockrow).map(d => d.id).filter(d => d !== id);
+        blocks.splice(req.body.blockrow, 0, id);
+        blocks = blocks.map((d, i) => ({id: d, blockrow: i}));
         // todo1.0 this loop sucks. upgrade to sequelize 5 for updateOnDuplicate support.
         for (const block of blocks) {
-          await db.block.update({row: block.row}, {where: {id: block.id}}).catch(catcher);
+          await db.block.update({blockrow: block.blockrow}, {where: {id: block.id}}).catch(catcher);
         }
-        delete req.body.row;
+        delete req.body.blockrow;
+        // If the last block of its column has been moved, all higher columns must be bumped down
+        const siblings = await db.block.findAll({where: {section_id: block.section_id, blockcol: block.blockcol}}).catch(catcher);
+        if (siblings.length === 1 && block.blockcol !== req.body.blockcol) {
+          await db.block.update({blockcol: sequelize.literal("blockcol -1")}, {where: {section_id: block.section_id, blockcol: {[Op.gt]: block.blockcol}}}).catch(catcher);
+        }
       }
       await db[ref].update(req.body, {where: {id}}).catch(catcher);
       if (contentTables.includes(ref) && req.body.content) {
@@ -420,11 +425,13 @@ module.exports = function(app) {
   };
 
   app.delete("/api/cms/block/delete", isEnabled, async(req, res) => {
-    const row = await db.block.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.block.update({row: sequelize.literal("row -1")}, {where: {section_id: row.section_id, column: row.column, row: {[Op.gt]: row.row}}}).catch(catcher);
+    const block = await db.block.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.block.update({blockrow: sequelize.literal("blockrow -1")}, {where: {section_id: block.section_id, blockcol: block.blockcol, blockrow: {[Op.gt]: block.blockrow}}}).catch(catcher);
+    const siblings = await db.block.findAll({where: {section_id: block.section_id, blockcol: block.blockcol}}).catch(catcher);
+    if (siblings.length === 1) await db.block.update({blockcol: sequelize.literal("blockcol -1")}, {where: {section_id: block.section_id, blockcol: {[Op.gt]: block.blockcol}}}).catch(catcher);
     await db.block.destroy({where: {id: req.query.id}}).catch(catcher);
     // todo1.0 if profile-wide blocks disappear as part of a deletion, other sections will need to recalculate
-    const profiles = await getProfileTreeAndActivate(req, row.section_id).catch(catcher);
+    const profiles = await getProfileTreeAndActivate(req, block.section_id).catch(catcher);
     return res.json(profiles);
   });
 
@@ -440,8 +447,8 @@ module.exports = function(app) {
   });
 
   app.delete("/api/cms/profile/delete", isEnabled, async(req, res) => {
-    const row = await db.profile.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    const profile = await db.profile.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: profile.ordering}}}).catch(catcher);
     await db.profile.destroy({where: {id: req.query.id}}).catch(catcher);
     // Todo: This prunesearch is outdated - need to call it multiple times for each meta row.
     // pruneSearch(row.dimension, row.levels, db);
@@ -450,16 +457,16 @@ module.exports = function(app) {
   });
 
   app.delete("/api/cms/profile_meta/delete", isEnabled, async(req, res) => {
-    const row = await db.profile_meta.findOne({where: {id: req.query.id}}).catch(catcher);
+    const meta = await db.profile_meta.findOne({where: {id: req.query.id}}).catch(catcher);
     // Profile meta can have multiple variants now sharing the same index.
-    const variants = await db.profile_meta.findAll({where: {profile_id: row.profile_id, ordering: row.ordering}}).catch(catcher);
+    const variants = await db.profile_meta.findAll({where: {profile_id: meta.profile_id, ordering: meta.ordering}}).catch(catcher);
     // Only "slide down" others if we are deleting the last one at this ordering.
     if (variants.length === 1) {
-      await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+      await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: meta.ordering}}}).catch(catcher);
     }
     await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
-    pruneSearch(row.cubeName, row.dimension, row.levels, db);
-    const reqObj = Object.assign({}, profileReqFull, {where: {id: row.profile_id}});
+    pruneSearch(meta.cubeName, meta.dimension, meta.levels, db);
+    const reqObj = Object.assign({}, profileReqFull, {where: {id: meta.profile_id}});
     let newProfile = await db.profile.findOne(reqObj).catch(catcher);
     newProfile = sortProfile(db, newProfile.toJSON());
     newProfile.sections = newProfile.sections.map(section => sortSection(db, section));

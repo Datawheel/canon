@@ -58,12 +58,12 @@ function Section({id, isDragging, dragHandleProps}) {
   const [columns, setColumns] = useState([]);
 
   useEffect(() => {
-    const columns = Object.values(blocks || {}).filter(d => d.section_id === id).sort((a, b) => a.row - b.row).reduce((acc, d) => {
-      if (!acc[String(d.column)]) {
-        acc[String(d.column)] = {items: [{id: String(d.id)}]};
+    const columns = Object.values(blocks || {}).filter(d => d.section_id === id).sort((a, b) => a.blockrow - b.blockrow).reduce((acc, d) => {
+      if (!acc[String(d.blockcol)]) {
+        acc[String(d.blockcol)] = {items: [{id: String(d.id)}]};
       }
       else {
-        acc[String(d.column)].items.push({id: String(d.id)});
+        acc[String(d.blockcol)].items.push({id: String(d.id)});
       }
       return acc;
     }, {});
@@ -109,8 +109,8 @@ function Section({id, isDragging, dragHandleProps}) {
     }
     const payload = {
       id: Number(result.draggableId),
-      row: Number(destination.index),
-      column: Number(destination.droppableId)
+      blockrow: Number(destination.index),
+      blockcol: Number(destination.droppableId)
     };
     dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload));
   };

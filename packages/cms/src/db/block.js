@@ -25,11 +25,11 @@ module.exports = function(sequelize, db) {
       },
 
       /* layout */
-      row: {
+      blockrow: {
         type: db.INTEGER,
         default: 0
       },
-      column: {
+      blockcol: {
         type: db.INTEGER,
         default: 0
       },
