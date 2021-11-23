@@ -1,18 +1,30 @@
 .cms-section-header {
-  background-color: rgb(237, 209, 140);
-  display:block;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.75);
+  display: flex;
+  justify-content: space-between;
+  left: 0;
+  margin: 0;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  transition: opacity 0.1s;
   width: 100%;
-  height: 35px;
-}
-
-.cms-section-drag-button {
-
-}
-
-.cms-section-header-slug {
-  font-family: "Courier New";
-  margin-left: 40px;
-  line-height: 35px;
-  font-size: 20px;
-  font-weight: bold;
+  z-index: 2;
+  & > * {
+    flex: 1 0 33%;
+    &:first-child {
+      text-align: left;
+    }
+    &:not(:first-child):not(:last-child) {
+      text-align: center;
+      & svg {
+        width: 100%;
+      }
+    }
+    &:last-child {
+      display: flex !important;
+      justify-content: flex-end;
+    }
+  }
 }
