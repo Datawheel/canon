@@ -6,6 +6,7 @@ import {format} from "pretty-format";
 
 /* components */
 import GeneratorList from "../GeneratorList";
+import ConsumerMenu from "../components/ConsumerMenu";
 
 /* css */
 import "./GeneratorOutput.css";
@@ -44,7 +45,10 @@ function GeneratorOutput({id, components}) {
         {executeButton}
         {log && <Textarea label="Console" minRows={3} value={log} error="Warning - Remove console.log after debugging"/>}
       </div>
-      <GeneratorList label="Output" value={variables} error={error}/>
+      <div style={{display: "flex", flexDirection: "column"}}>
+        <GeneratorList label="Output" value={variables} error={error}/>
+        <ConsumerMenu id={id} />
+      </div>
     </div>
   );
 

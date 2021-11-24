@@ -4,10 +4,7 @@ import {ActionIcon, Code, useMantineTheme} from "@mantine/core";
 import {HiOutlineCog, HiOutlineMenuAlt4} from "react-icons/hi";
 
 /* component */
-import CogMenu from "../components/CogMenu";
-
-/* enums */
-import {ENTITY_TYPES} from "../../utils/consts/cms";
+import SectionMenu from "../components/SectionMenu";
 
 /* css */
 import "./SectionHeader.css";
@@ -15,7 +12,7 @@ import "./SectionHeader.css";
 /**
  *
  */
-function SectionHeader({active, isDragging, section, dragHandleProps}) {
+function SectionHeader({active, isDragging, section, dragHandleProps, toggleDependencies, showDependencies}) {
 
   const theme = useMantineTheme();
 
@@ -23,7 +20,7 @@ function SectionHeader({active, isDragging, section, dragHandleProps}) {
     <div className={`cms-section-header${active || isDragging ? " active" : ""}`} style={{padding: `2px ${theme.spacing.xs}px 0`}}>
       <Code key="s1" style={{backgroundColor: "transparent"}}>#{section.slug}</Code>
       <ActionIcon key="b1" {...dragHandleProps}><HiOutlineMenuAlt4 size={16} /></ActionIcon>
-      <CogMenu key="cog" type={ENTITY_TYPES.SECTION} id={section.id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
+      <SectionMenu key="cog" id={section.id} showDependencies={showDependencies} toggleDependencies={toggleDependencies} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
     </div>
   );
 

@@ -1,4 +1,5 @@
 .cms-block-output {
   margin-top:40px;
   display:flex;
+  position: relative;
 }

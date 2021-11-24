@@ -3,6 +3,9 @@ import React, {useState, useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Button} from "@mantine/core";
 
+/* components */
+import ConsumerMenu from "../components/ConsumerMenu";
+
 /* redux */
 import {updateEntity} from "../../actions/profiles";
 
@@ -55,6 +58,7 @@ function BlockOutputPanel({id, components}) {
       {mode === MODES.TEXT && components.textEditor}
       {mode === MODES.CODE && components.codeEditor}
       {components.blockPreview}
+      <ConsumerMenu id={id} />
     </div>
   );
 

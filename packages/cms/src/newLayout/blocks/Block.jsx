@@ -37,7 +37,7 @@ const hasNoLocaleContent = type => [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ].incl
  * selector, or anything listed in BLOCK_TYPES.
  * id - the id for this block
  */
-function Block({id, active}) {
+function Block({id, setHoverBlock, isInput, isConsumer, showDependencies}) {
 
   const dispatch = useDispatch();
 
@@ -167,10 +167,16 @@ function Block({id, active}) {
     type: ENTITY_TYPES.BLOCK
   };
 
+  const hoverActions = showDependencies ? {
+    onMouseEnter: () => setHoverBlock(id),
+    onMouseLeave: () => setHoverBlock(false)
+  } : {};
+
   return (
     <React.Fragment>
-      <div className="cms-section-block">
-        {!active && <Overlay opacity={0.7} color="#000" zIndex={5} />}
+      <div className="cms-section-block" {...hoverActions}>
+        {isInput && <Overlay opacity={0.7} color="blue" zIndex={5}/>}
+        {isConsumer && <Overlay opacity={0.7} color="orange" zIndex={5} />}
         <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
         <ActionIcon key="edit" onClick={onClick}><HiOutlinePencil size={20} /></ActionIcon>
         <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
