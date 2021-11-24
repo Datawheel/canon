@@ -172,11 +172,16 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
     onMouseLeave: () => setHoverBlock(false)
   };
 
+  const overlayStyle = {width: "100%", height: "100%", position: "absolute", opacity: 0.3, zIndex: 5, textAlign: "center"};
+
+  const inputOverlay = <div style={{...overlayStyle, backgroundColor: "lightgreen"}} key="input" ><span style={{fontSize: 60}}>INPUT</span></div>;
+  const consumerOverlay = <div style={{...overlayStyle, backgroundColor: "lightblue"}} key="input" ><span style={{fontSize: 60}}>CONSUMER</span></div>;
+
   return (
     <React.Fragment>
       <div className="cms-section-block" {...hoverActions}>
-        {isInput && <Overlay key="input" opacity={0.7} color="blue" zIndex={5}/>}
-        {isConsumer && <Overlay key="consumer" opacity={0.7} color="orange" zIndex={5} />}
+        {isInput && inputOverlay}
+        {isConsumer && consumerOverlay}
         <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
         <ActionIcon key="edit" onClick={onClick}><HiOutlinePencil size={20} /></ActionIcon>
         <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
