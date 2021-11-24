@@ -24,7 +24,7 @@ function BlockPreview({id, stateContent, variables}) {
   const content = varSwapRecursive(stateContent, formatterFunctions[localeDefault], variables);
 
   const Renderer = TypeRenderers[block.type];
-  console.log(block.type, content);
+
   return (
     <div className="cms-block-preview">
       { Renderer
