@@ -290,7 +290,7 @@ module.exports = function(app) {
       const {id} = req.body;
       // When ordering is provided, this update is the result of a drag/drop reordering.
       // Insert the item in the desired spot, bump all other orderings to match
-      if (req.body.ordering) {
+      if (req.body.ordering !== undefined) {
         const entity = await db[ref].findOne({where: {id}}).catch(catcher);
         let items = await db[ref].findAll({where: {[parentOrderingTables[ref]]: entity[parentOrderingTables[ref]]}}).catch(catcher);
         items = items.sort(sorter).map(d => d.id).filter(d => d !== id);
@@ -301,10 +301,10 @@ module.exports = function(app) {
           await db[ref].update({ordering: item.ordering}, {where: {id: item.id}}).catch(catcher);
         }
       }
-      if (req.body.blockrow) {
+      if (req.body.blockrow !== undefined) {
         const block = await db.block.findOne({where: {id}}).catch(catcher);
         let blocks = await db.block.findAll({where: {section_id: block.section_id, blockcol: req.body.blockcol}}).catch(catcher);
-        blocks = blocks.sort((a, b) => a.blockrow - b.blockrow).map(d => d.id).filter(d => d !== id);
+        blocks = blocks.map(d => d.toJSON()).sort((a, b) => a.blockrow - b.blockrow).map(d => d.id).filter(d => d !== id);
         blocks.splice(req.body.blockrow, 0, id);
         blocks = blocks.map((d, i) => ({id: d, blockrow: i}));
         // todo1.0 this loop sucks. upgrade to sequelize 5 for updateOnDuplicate support.

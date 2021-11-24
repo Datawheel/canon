@@ -99,6 +99,7 @@ const BLOCK_FIELDS = {
   SELECTOR_DYNAMIC: "selectorDynamic",
   SELECTOR_NAME: "selectorName",
   SELECTOR_TYPE: "selectorType",
+  SLUG: "slug",
   SUBTITLE: "subtitle",
   TITLE: "title",
   TOOLTIP: "tooltip",
@@ -145,7 +146,8 @@ const BLOCK_MAP = {
     BLOCK_FIELDS.SUBTITLE
   ],
   [BLOCK_TYPES.TITLE]: [
-    BLOCK_FIELDS.TITLE
+    BLOCK_FIELDS.TITLE,
+    BLOCK_FIELDS.SLUG
   ],
   [BLOCK_TYPES.GENERATOR]: [],
   [BLOCK_TYPES.VIZ]: []

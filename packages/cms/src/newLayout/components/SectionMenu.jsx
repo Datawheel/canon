@@ -38,7 +38,6 @@ function SectionMenu({id, control, toggleDependencies, showDependencies}) {
     <React.Fragment>
       <Menu zIndex={1001} control={control}>
         <Menu.Label>Settings</Menu.Label>
-        <Menu.Item icon={<MdOutlineAccountTree />} onClick={toggleDependencies}>{`${showDependencies ? "Hide" : "Show"} Dependencies`}</Menu.Item>
         <Menu.Item icon={<HiOutlineTrash />} onClick={maybeDelete}>Delete</Menu.Item>
       </Menu>
       <Modal {...modalProps} key="modal">

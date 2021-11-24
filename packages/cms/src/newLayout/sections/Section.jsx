@@ -29,15 +29,13 @@ function Section({id, isDragging, dragHandleProps}) {
   const dispatch = useDispatch();
 
   /* redux */
-  const localeDefault = useSelector(state => state.cms.status.localeDefault);
   const section = useSelector(state => state.cms.profiles.entities.sections[id]);
   const blocks = useSelector(state => state.cms.profiles.entities.blocks);
 
   const [hoverBlock, setHoverBlock] = useState();
-  const [showDependencies, setShowDependencies] = useState(false);
 
   const {inputs, consumers} = useMemo(() => {
-    if (showDependencies && hoverBlock) {
+    if (hoverBlock) {
       const block = blocks[hoverBlock];
       const {inputs, consumers} = block;
       return {inputs, consumers};
@@ -45,7 +43,7 @@ function Section({id, isDragging, dragHandleProps}) {
     else {
       return {inputs: [], consumers: []};
     }
-  }, [hoverBlock, showDependencies]);
+  }, [hoverBlock]);
 
   const [active, setActive] = useState(false);
 
@@ -129,10 +127,6 @@ function Section({id, isDragging, dragHandleProps}) {
     dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload));
   };
 
-  const toggleDependencies = () => {
-    setShowDependencies(!showDependencies);
-  };
-
   const theme = useMantineTheme();
 
   return (
@@ -178,7 +172,7 @@ function Section({id, isDragging, dragHandleProps}) {
                         draggableId={item.id}
                         index={index}
                       >
-                        {(provided, snapshot) =>
+                        {(provided, snapshot) =>  //eslint-disable-line
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
@@ -193,7 +187,6 @@ function Section({id, isDragging, dragHandleProps}) {
                               key={`block-${item.id}`}
                               isInput={inputs.includes(Number(item.id))}
                               isConsumer={consumers.includes(Number(item.id))}
-                              showDependencies={showDependencies}
                               setHoverBlock={setHoverBlock}/>
                           </div>
                         }
@@ -225,7 +218,7 @@ function Section({id, isDragging, dragHandleProps}) {
         </Center>}
         {!active && <Overlay className="cms-section-overlay" onClick={onEdit} color={theme.black} opacity={0.5} style={{cursor: "pointer"}} />}
       </div>
-      <SectionHeader showDependencies={showDependencies} toggleDependencies={toggleDependencies} active={active} section={section} isDragging={isDragging} dragHandleProps={dragHandleProps}/>
+      <SectionHeader active={active} section={section} isDragging={isDragging} dragHandleProps={dragHandleProps}/>
     </div>
   );
 

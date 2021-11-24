@@ -12,7 +12,7 @@ import "./SectionHeader.css";
 /**
  *
  */
-function SectionHeader({active, isDragging, section, dragHandleProps, toggleDependencies, showDependencies}) {
+function SectionHeader({active, isDragging, section, dragHandleProps}) {
 
   const theme = useMantineTheme();
 
@@ -20,7 +20,7 @@ function SectionHeader({active, isDragging, section, dragHandleProps, toggleDepe
     <div className={`cms-section-header${active || isDragging ? " active" : ""}`} style={{padding: `2px ${theme.spacing.xs}px 0`}}>
       <Code key="s1" style={{backgroundColor: "transparent"}}>#{section.slug}</Code>
       <ActionIcon key="b1" {...dragHandleProps}><HiOutlineMenuAlt4 size={16} /></ActionIcon>
-      <SectionMenu key="cog" id={section.id} showDependencies={showDependencies} toggleDependencies={toggleDependencies} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
+      <SectionMenu key="cog" id={section.id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
     </div>
   );
 
