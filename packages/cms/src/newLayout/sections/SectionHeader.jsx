@@ -18,7 +18,7 @@ function SectionHeader({active, isDragging, section, dragHandleProps}) {
 
   return (
     <div className={`cms-section-header${active || isDragging ? " active" : ""}`} style={{padding: `2px ${theme.spacing.xs}px 0`}}>
-      <Code key="s1" style={{backgroundColor: "transparent"}}>#{section.slug}</Code>
+      <Code key="s1" style={{backgroundColor: "transparent"}}>#{section.id}</Code>
       <ActionIcon key="b1" {...dragHandleProps}><HiOutlineMenuAlt4 size={16} /></ActionIcon>
       <SectionMenu key="cog" id={section.id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
     </div>

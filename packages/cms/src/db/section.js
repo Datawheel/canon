@@ -7,10 +7,6 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         autoIncrement: true
       },
-      slug: {
-        type: db.STRING,
-        defaultValue: ""
-      },
 
       /* metadata */
       settings: {

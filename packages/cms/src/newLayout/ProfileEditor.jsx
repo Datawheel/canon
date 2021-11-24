@@ -49,10 +49,9 @@ function ProfileEditor({id}) {
     dispatch(updateEntity(ENTITY_TYPES.SECTION, payload));
   };
 
-  const addSection = (slug, ordering) => {
+  const addSection = ordering => {
     const payload = {
       profile_id: id,
-      slug,
       ordering
     };
     dispatch(newEntity(ENTITY_TYPES.SECTION, payload));
@@ -87,12 +86,7 @@ function ProfileEditor({id}) {
                     >
                       <Section id={section} isDragging={snapshot.isDragging} dragHandleProps={provided.dragHandleProps}/>
                       <Center className="cms-section-controls">
-                        <EntityAddButton
-                          label="Section Slug"
-                          urlSafe={true}
-                          onSubmit={name => addSection(name, i + 1)}
-                          target={<ActionIcon color="theme" size="md" radius="lg" style={{boxShadow: theme.shadows.xs}}><HiPlusCircle size={20} /></ActionIcon>}
-                        />
+                        <ActionIcon onClick={() => addSection(i + 1)} color="theme" size="md" radius="lg" style={{boxShadow: theme.shadows.xs}}><HiPlusCircle size={20} /></ActionIcon>
                       </Center>
                     </div>
                   }
