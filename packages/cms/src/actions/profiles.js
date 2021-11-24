@@ -5,7 +5,6 @@ import getLocales from "../utils/getLocales";
 import attify from "../utils/attify";
 import groupMeta from "../utils/groupMeta";
 import {REQUEST_STATUS} from "../utils/consts/redux";
-import {ENTITY_TYPES} from "../utils/consts/cms";
 
 const catcher = e => {
   console.log(`Error in profile action: ${e}`);

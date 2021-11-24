@@ -20,7 +20,7 @@ function VariableList({id}) {
     const variables = Object.values(blocks)
       .filter(d => block.inputs.includes(d.id))
       .reduce((acc, d) => ({...acc, ...d._variables}), {});
-    const response = block._status.response ? format(block._status.response) : false;
+    const response = block._status && block._status.response ? format(block._status.response) : false;
     return {variables, response};
   }, [blocks]);
 

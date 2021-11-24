@@ -135,6 +135,10 @@ class DraftWrapper extends Component {
       this.editor.focus();
     };
 
+    this.keyBindingFn = event => {
+      if (this.props.keyBindingFn) this.props.keyBindingFn(event);
+    };
+
     this.handleKeyCommand = (command, editorState) => {
       const newState = RichUtils.handleKeyCommand(editorState, command);
       if (newState) {
@@ -190,6 +194,7 @@ class DraftWrapper extends Component {
         <Editor
           editorState={this.state.editorState}
           handleKeyCommand={this.handleKeyCommand}
+          keyBindingFn={this.keyBindingFn}
           onChange={this.onChange}
           plugins={plugins}
           ref={c => this.editor = c}

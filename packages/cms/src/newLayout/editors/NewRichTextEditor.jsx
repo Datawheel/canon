@@ -10,7 +10,7 @@ import "./NewRichTextEditor.css";
 /**
  *
  */
-function NewRichTextEditor({locale, block, fields, onChange, variables}) {
+function NewRichTextEditor({locale, block, fields, onChange, variables, setModified}) {
 
   /* redux */
   const showToolbar = useSelector(state => state.cms.status.showToolbar);
@@ -30,6 +30,10 @@ function NewRichTextEditor({locale, block, fields, onChange, variables}) {
     onChange({[field]: text});
   };
 
+  const keyBindingFn = event => {
+    setModified(true);
+  };
+
   return (
     <div className="cms-new-rich-text-editor">
       {fields.map(field =>
@@ -40,6 +44,7 @@ function NewRichTextEditor({locale, block, fields, onChange, variables}) {
           <DraftWrapper
             id={field}
             key="draft-wrapper"
+            keyBindingFn={keyBindingFn}
             selectors={[]}
             formatters={[]}
             variables={variables}

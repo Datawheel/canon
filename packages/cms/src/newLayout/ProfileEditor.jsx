@@ -8,7 +8,6 @@ import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 /* components */
 import CMSHeader from "./CMSHeader";
 import Section from "./sections/Section";
-import EntityAddButton from "./components/EntityAddButton";
 
 /* redux */
 import {newEntity, updateEntity} from "../actions/profiles";

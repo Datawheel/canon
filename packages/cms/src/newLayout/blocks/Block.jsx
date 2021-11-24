@@ -1,7 +1,7 @@
 /* react */
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Modal, ActionIcon, Button, Overlay} from "@mantine/core";
+import {Modal, ActionIcon, Button, Group} from "@mantine/core";
 import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";
 
 /* components */
@@ -55,6 +55,8 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
   const [stateContent, setStateContent] = useState({});
   const [loading, setLoading] = useState(false);
   const [opened, setOpened] = useState(false);
+  const [alertOpened, setAlertOpened] = useState(false);
+  const [modified, setModified] = useState(false);
 
   if (!block) return null;
 
@@ -97,9 +99,7 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
     });
   };
 
-  const maybeCloseEditorWithoutSaving = () => {
-
-  };
+  const maybeCloseEditorWithoutSaving = () => modified ? setAlertOpened(true) : setOpened(false);
 
   const onChangeText = content => {
     setStateContent({...stateContent, ...content});
@@ -137,6 +137,9 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
     block={block}
     fields={BLOCK_MAP[block.type]}
     onChange={onChangeText}
+    setModified={() => {
+      if (!modified) setModified(true);
+    }}
   />;
 
   const codeEditor = <AceWrapper
@@ -157,9 +160,15 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
     size: "70%",
     opened,
     // onClose: this.maybeCloseEditorWithoutSaving.bind(this),
-    onClose: () => setOpened(false)
+    onClose: maybeCloseEditorWithoutSaving
     // onDelete: this.maybeDelete.bind(this),
     // onSave: this.save.bind(this)
+  };
+
+  const alertProps = {
+    title: "Close without saving?",
+    opened: alertOpened,
+    onClose: () => setAlertOpened(false)
   };
 
   const cogProps = {
@@ -189,6 +198,15 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
       <Modal key="d" {...modalProps}>
         <BlockEditor key="be" id={id} components={components}/>
         <Button onClick={() => onSave(false)}>Save & Close</Button>
+      </Modal>
+      <Modal {...alertProps} key="alert">
+        <Group position="right" style={{marginTop: 10}}>
+          <Button onClick={() => setAlertOpened(false)}>Cancel</Button>
+          <Button color="red" onClick={() => {
+            setOpened(false);
+            setAlertOpened(false);
+          }}>Yes, abandon changes.</Button>
+        </Group>
       </Modal>
     </React.Fragment>
   );
