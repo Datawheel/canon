@@ -11,6 +11,7 @@ import NewRichTextEditor from "../editors/NewRichTextEditor";
 import AceWrapper from "../../components/editors/AceWrapper";
 import ApiInput from "../components/ApiInput";
 import BlockPreview from "./BlockPreview";
+import BlockSettings from "./BlockSettings";
 
 /* utils */
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
@@ -121,6 +122,11 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
     setStateContent({...stateContent, api: e.target.value});
   };
 
+  // todo1.0 this will have to be some kind of merge/spread
+  const onChangeSettings = settings => {
+    setStateContent({...stateContent, ...block.settings, settings});
+  };
+
   /**
    * A number of components embedded in this block need access to content here, either the ever-changing
    * stateContent, or the various callbacks that change it. It is recommended here https://reactjs.org/docs/composition-vs-inheritance.html
@@ -155,9 +161,14 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
     defaultValue={hasNoLocaleContent(block.type) ? block.logic : block.contentByLocale[localeDefault].content.logic}
   />;
 
+  const blockSettings = <BlockSettings
+    id={id}
+    onChange={onChangeSettings}
+  />;
+
   const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save & Execute</Button>;
 
-  const components = {textEditor, codeEditor, apiInput, blockPreview, executeButton};
+  const components = {textEditor, codeEditor, apiInput, blockPreview, executeButton, blockSettings};
 
   const modalProps = {
     title: `${upperCaseFirst(block.type)} editor`,

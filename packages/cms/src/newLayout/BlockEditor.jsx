@@ -7,7 +7,6 @@ import {HiOutlineDocumentText, HiOutlineCog} from "react-icons/hi";
 /* components */
 import VariableList from "./VariableList";
 import BlockOutputPanel from "./blocks/BlockOutputPanel";
-import BlockSettings from "./blocks/BlockSettings";
 import GeneratorOutput from "./blocks/GeneratorOutput";
 import InputMenu from "./components/InputMenu";
 
@@ -54,7 +53,7 @@ function BlockEditor({id, components}) {
             {block.type === BLOCK_TYPES.GENERATOR ? <GeneratorOutput id={id} components={components} /> : <BlockOutputPanel id={id} components={components} />}
           </Tab>
           <Tab icon={<HiOutlineCog />} label="Settings">
-            <BlockSettings />
+            {components.blockSettings}
           </Tab>
         </Tabs>
       </div>
