@@ -204,12 +204,13 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
         {isInput && inputOverlay}
         {isConsumer && consumerOverlay}
         <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
+        <BlockPreview id={block.id} stateContent={block.contentByLocale[localeDefault].content} />
         <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
         <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
       </div>
       <Modal key="d" {...modalProps}>
         <BlockEditor key="be" id={id} components={components}/>
-        <Button onClick={() => onSave(false)}>Save & Close</Button>
+        <Button onClick={() => onSave(false)}>Save &amp; Close</Button>
       </Modal>
       <Modal {...alertProps} key="alert">
         <Group position="right" style={{marginTop: 10}}>

@@ -1,6 +1,5 @@
 .cms-block-preview {
-  width: 300px;
-  display:flex;
-  flex-direction:column;
+  display: flex;
+  flex-direction: column;
   margin-left: 15px;
 }

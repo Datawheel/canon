@@ -1,13 +1,13 @@
 /* react */
 import React from "react";
 import {useSelector} from "react-redux";
+import {Badge, Center} from "@mantine/core";
 
 /* utils */
 import varSwapRecursive from "../../utils/varSwapRecursive";
-import sanitizeBlockContent from "../../utils/sanitizeBlockContent";
 
-/* css */
-import "./BlockPreview.css";
+/* type-specific render components */
+import TypeRenderers from "./types/index.jsx";
 
 /**
  * BlockPreview shows the varswapped version of the content currently being edited. It is instantiated in
@@ -23,9 +23,13 @@ function BlockPreview({id, stateContent, variables}) {
 
   const content = varSwapRecursive(stateContent, formatterFunctions[localeDefault], variables);
 
+  const Renderer = TypeRenderers[block.type];
+  console.log(block.type, content);
   return (
     <div className="cms-block-preview">
-      {Object.keys(content).map((d, i) => <span key={i}>{sanitizeBlockContent(content[d])}</span>)}
+      { Renderer
+        ? <Renderer {...content} />
+        : <Center><Badge color="gray" variant="outline">{block.type}</Badge></Center> }
     </div>
   );
 
