@@ -10,7 +10,7 @@ import "./NewRichTextEditor.css";
 /**
  *
  */
-function NewRichTextEditor({locale, block, fields, onChange, variables, setModified}) {
+function NewRichTextEditor({locale, block, fields, onChange, variables, onTextModify}) {
 
   /* redux */
   const showToolbar = useSelector(state => state.cms.status.showToolbar);
@@ -31,7 +31,7 @@ function NewRichTextEditor({locale, block, fields, onChange, variables, setModif
   };
 
   const keyBindingFn = event => {
-    setModified(true);
+    onTextModify(true);
   };
 
   return (

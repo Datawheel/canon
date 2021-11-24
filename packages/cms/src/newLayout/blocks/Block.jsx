@@ -60,8 +60,10 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
 
   if (!block) return null;
 
-  const onClick = () => {
-    setOpened(true);
+  const onCloseAll = () => {
+    setOpened(false);
+    setAlertOpened(false);
+    setModified(false);
   };
 
   const onSave = keepWindowOpen => {
@@ -90,7 +92,10 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
     setLoading(true);
     dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload)).then(resp => {
       if (resp.status === REQUEST_STATUS.SUCCESS) {
-        if (!keepWindowOpen) setOpened(false);
+        setModified(false);
+        if (!keepWindowOpen) {
+          setOpened(false);
+        }
       }
       else {
         // todo1.0 toast error
@@ -105,7 +110,12 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
     setStateContent({...stateContent, ...content});
   };
 
+  const onTextModify = () =>  {
+    if (!modified) setModified(true);
+  };
+
   const onChangeCode = logic => {
+    if (!modified) setModified(true);
     setStateContent({...stateContent, logic});
   };
 
@@ -137,18 +147,14 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
     block={block}
     fields={BLOCK_MAP[block.type]}
     onChange={onChangeText}
-    setModified={() => {
-      if (!modified) setModified(true);
-    }}
+    onTextModify={onTextModify}
   />;
 
   const codeEditor = <AceWrapper
     className="cms-block-output-ace"
     key="code-editor"
-    // ref={comp => this.editor = comp}
     onChange={onChangeCode}
     defaultValue={hasNoLocaleContent(block.type) ? block.logic : block.contentByLocale[localeDefault].content.logic}
-    // {...this.props}
   />;
 
   const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save & Execute</Button>;
@@ -159,10 +165,7 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
     title: `${upperCaseFirst(block.type)} editor`,
     size: "70%",
     opened,
-    // onClose: this.maybeCloseEditorWithoutSaving.bind(this),
     onClose: maybeCloseEditorWithoutSaving
-    // onDelete: this.maybeDelete.bind(this),
-    // onSave: this.save.bind(this)
   };
 
   const alertProps = {
@@ -192,7 +195,7 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
         {isInput && inputOverlay}
         {isConsumer && consumerOverlay}
         <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
-        <ActionIcon key="edit" onClick={onClick}><HiOutlinePencil size={20} /></ActionIcon>
+        <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
         <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
       </div>
       <Modal key="d" {...modalProps}>
@@ -202,10 +205,7 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
       <Modal {...alertProps} key="alert">
         <Group position="right" style={{marginTop: 10}}>
           <Button onClick={() => setAlertOpened(false)}>Cancel</Button>
-          <Button color="red" onClick={() => {
-            setOpened(false);
-            setAlertOpened(false);
-          }}>Yes, abandon changes.</Button>
+          <Button color="red" onClick={onCloseAll}>Yes, abandon changes.</Button>
         </Group>
       </Modal>
     </React.Fragment>
