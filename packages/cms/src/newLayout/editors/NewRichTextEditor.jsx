@@ -1,3 +1,4 @@
+import {TextInput} from "@mantine/core";
 import React, {useState, useEffect} from "react";
 import {useSelector} from "react-redux";
 
@@ -30,9 +31,7 @@ function NewRichTextEditor({locale, block, fields, onChange, variables, onTextMo
     onChange({[field]: text});
   };
 
-  const keyBindingFn = event => {
-    onTextModify(true);
-  };
+  const keyBindingFn = () => onTextModify(true);
 
   return (
     <div className="cms-new-rich-text-editor">

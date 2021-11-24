@@ -110,16 +110,14 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
     setStateContent({...stateContent, ...content});
   };
 
-  const onTextModify = () =>  {
-    if (!modified) setModified(true);
-  };
+  const onTextModify = () => !modified ? setModified(true) : null;
 
   const onChangeCode = logic => {
     if (!modified) setModified(true);
     setStateContent({...stateContent, logic});
   };
 
-  const onChangeInput = e => {
+  const onChangeAPI = e => {
     setStateContent({...stateContent, api: e.target.value});
   };
 
@@ -138,7 +136,7 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
   const apiInput = <ApiInput
     key="api-input"
     defaultValue={block.api}
-    onChange={onChangeInput}
+    onChange={onChangeAPI}
   />;
 
   const textEditor = <NewRichTextEditor

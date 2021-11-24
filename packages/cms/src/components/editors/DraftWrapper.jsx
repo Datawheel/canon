@@ -85,8 +85,14 @@ class DraftWrapper extends Component {
     let editorState = EditorState.createEmpty();
 
     if (this.props.defaultValue && this.props.defaultValue !== "") {
+
       const blocks = convertFromHTML(this.props.defaultValue);
-      editorState = EditorState.createWithContent(ContentState.createFromBlockArray(blocks.contentBlocks, blocks.entityMap));
+      if (this.props.raw) {
+        editorState = EditorState.createWithContent(ContentState.createFromText(this.props.defaultValue));
+      }
+      else {
+        editorState = EditorState.createWithContent(ContentState.createFromBlockArray(blocks.contentBlocks, blocks.entityMap));
+      }
     }
 
     const {variables} = this.props;
@@ -108,8 +114,10 @@ class DraftWrapper extends Component {
 
     this.onChange = editorState => {
       this.setState({editorState});
-      const html = stateToHTML(editorState.getCurrentContent());
-      if (this.props.onChange) this.props.onChange(html);
+      const text = this.props.raw
+        ? editorState.getCurrentContent().getPlainText("\u0001")
+        : stateToHTML(editorState.getCurrentContent());
+      if (this.props.onChange) this.props.onChange(text);
     };
 
     // variables
@@ -141,7 +149,7 @@ class DraftWrapper extends Component {
 
     this.handleKeyCommand = (command, editorState) => {
       const newState = RichUtils.handleKeyCommand(editorState, command);
-      if (newState) {
+      if (newState && !this.props.raw) {
         this.onChange(newState);
         return "handled";
       }
