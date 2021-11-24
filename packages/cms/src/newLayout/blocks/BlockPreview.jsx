@@ -14,7 +14,7 @@ import TypeRenderers from "./types/index.jsx";
  * Block.jsx and directly passed "stateContent" from there, which represents the live-editing content.
  * Though instantiated in Block, it is not rendered until BlockOutput.
  */
-function BlockPreview({id, stateContent, variables = {}}) {
+function BlockPreview({id, stateContent, variables}) {
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);

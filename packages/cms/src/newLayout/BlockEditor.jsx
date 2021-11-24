@@ -23,22 +23,6 @@ function BlockEditor({id, components}) {
   const blocks = useSelector(state => state.cms.profiles.entities.blocks);
   const block = blocks[id];
 
-  const variables = useMemo(() =>
-    Object.values(blocks)
-      .filter(d => block.inputs.includes(d.id))
-      .reduce((acc, d) => ({...acc, ...d._variables}), {})
-  , [blocks]);
-
-  /**
-   * The text editor lives in Block.jsx so that its onChange callbacks can be persisted to psql.
-   * However, the variables live here in the editor, so that they are only calculated when the editor opens.
-   * Add variables as a prop to the text editor "on its way down," so it has access to them.
-   * todo1.0 - is this too heavy to do each render?
-   */
-  components.textEditor = React.cloneElement(components.textEditor, {variables});
-  components.blockPreview = React.cloneElement(components.blockPreview, {variables});
-  components.apiInput = React.cloneElement(components.apiInput, {variables});
-
   if (!block) return null;
 
   return (

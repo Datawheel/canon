@@ -1,5 +1,5 @@
 /* react */
-import React, {useState} from "react";
+import React, {useState, useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Modal, ActionIcon, Button, Group} from "@mantine/core";
 import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";
@@ -44,7 +44,8 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
-  const block = useSelector(state => state.cms.profiles.entities.blocks[id]);
+  const blocks = useSelector(state => state.cms.profiles.entities.blocks);
+  const block = blocks[id];
 
   /**
    * The content of the entire CMS is kept in a normalized redux object called profiles.
@@ -58,6 +59,12 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
   const [opened, setOpened] = useState(false);
   const [alertOpened, setAlertOpened] = useState(false);
   const [modified, setModified] = useState(false);
+
+  const variables = useMemo(() =>
+    Object.values(blocks)
+      .filter(d => block.inputs.includes(d.id))
+      .reduce((acc, d) => ({...acc, ...d._variables}), {})
+  , [blocks]);
 
   if (!block) return null;
 
@@ -137,12 +144,14 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
     id={id}
     key="block-preview"
     stateContent={stateContent}
+    variables={variables}
   />;
 
   const apiInput = <ApiInput
     key="api-input"
     defaultValue={block.api}
     onChange={onChangeAPI}
+    variables={variables}
   />;
 
   const textEditor = <NewRichTextEditor
@@ -150,6 +159,7 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
     key="text-editor"
     block={block}
     fields={BLOCK_MAP[block.type]}
+    variables={variables}
     onChange={onChangeText}
     onTextModify={onTextModify}
   />;
@@ -204,7 +214,7 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
         {isInput && inputOverlay}
         {isConsumer && consumerOverlay}
         <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
-        <BlockPreview id={block.id} stateContent={block.contentByLocale[localeDefault].content} />
+        <BlockPreview id={block.id} stateContent={block.contentByLocale[localeDefault].content} variables={variables}/>
         <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
         <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
       </div>
