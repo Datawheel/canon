@@ -143,6 +143,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const blockPreview = <BlockPreview
     id={id}
     key="block-preview"
+    active={true}
     stateContent={stateContent}
     variables={variables}
   />;
