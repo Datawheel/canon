@@ -9,8 +9,6 @@ import varSwapRecursive from "../../utils/varSwapRecursive";
 /* type-specific render components */
 import TypeRenderers from "./types/index.jsx";
 
-const spoiler = obj => Object.keys(obj).reduce((acc, d) => ({...acc, [d]: typeof obj[d] === "string" ? obj[d].replace(/\{\{/g, "<span style=\"background-color:lightgrey; color:lightgrey;\">").replace(/\}\}/g, "</span>") : obj[d]}), {});
-
 /**
  * BlockPreview shows the varswapped version of the content currently being edited. It is instantiated in
  * Block.jsx and directly passed "stateContent" from there, which represents the live-editing content.
@@ -22,6 +20,8 @@ function BlockPreview({id, stateContent, active, variables}) {
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
   const block = useSelector(state => state.cms.profiles.entities.blocks[id]);
   const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
+
+  const spoiler = obj => Object.keys(obj).reduce((acc, d) => ({...acc, [d]: typeof obj[d] === "string" ? obj[d].replace(/[A-z0-9]*\{\{[^\}]+\}\}/g, "<span style=\"background-color:lightgrey; color:lightgrey;\">spoiler</span>") : obj[d]}), {});
 
   const content = active
     ? varSwapRecursive(stateContent, formatterFunctions[localeDefault], variables)
