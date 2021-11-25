@@ -185,6 +185,7 @@ function Section({id, isDragging, dragHandleProps}) {
                             <Block
                               id={Number(item.id)}
                               key={`block-${item.id}`}
+                              active={active}
                               isInput={inputs.includes(Number(item.id))}
                               isConsumer={consumers.includes(Number(item.id))}
                               setHoverBlock={setHoverBlock}/>

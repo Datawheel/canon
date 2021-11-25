@@ -38,7 +38,7 @@ const hasNoLocaleContent = type => [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ].incl
  * selector, or anything listed in BLOCK_TYPES.
  * id - the id for this block
  */
-function Block({id, setHoverBlock, isInput, isConsumer}) {
+function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const dispatch = useDispatch();
 
@@ -214,7 +214,7 @@ function Block({id, setHoverBlock, isInput, isConsumer}) {
         {isInput && inputOverlay}
         {isConsumer && consumerOverlay}
         <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
-        <BlockPreview id={block.id} stateContent={block.contentByLocale[localeDefault].content} variables={variables}/>
+        <BlockPreview id={block.id} stateContent={block.contentByLocale[localeDefault].content} active={active} variables={variables}/>
         <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
         <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
       </div>

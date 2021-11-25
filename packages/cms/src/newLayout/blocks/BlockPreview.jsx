@@ -14,14 +14,18 @@ import TypeRenderers from "./types/index.jsx";
  * Block.jsx and directly passed "stateContent" from there, which represents the live-editing content.
  * Though instantiated in Block, it is not rendered until BlockOutput.
  */
-function BlockPreview({id, stateContent, variables}) {
+function BlockPreview({id, stateContent, active, variables}) {
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
   const block = useSelector(state => state.cms.profiles.entities.blocks[id]);
   const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
 
-  const content = varSwapRecursive(stateContent, formatterFunctions[localeDefault], variables);
+  const spoiler = obj => Object.keys(obj).reduce((acc, d) => ({...acc, [d]: typeof obj[d] === "string" ? obj[d].replace(/\{\{/g, "<span style=\"background-color:lightgrey; color:lightgrey;\">").replace(/\}\}/g, "</span>") : obj[d]}), {});
+
+  const content = active
+    ? varSwapRecursive(stateContent, formatterFunctions[localeDefault], variables)
+    : spoiler(stateContent);
 
   const Renderer = TypeRenderers[block.type];
 
