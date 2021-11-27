@@ -17,6 +17,7 @@ function NewRichTextEditor({locale, defaultContent, fields, onChange, variables,
   /* redux */
   const showToolbar = useSelector(state => state.cms.status.showToolbar);
 
+  /* state */
   const [stateContent, setStateContent] = useState(() => defaultContent);
 
   /**
@@ -28,19 +29,19 @@ function NewRichTextEditor({locale, defaultContent, fields, onChange, variables,
     onChange(stateContent, locale);
   }, []);
 
+  /* Update *local* state on each keystroke, but use the debouncer below to space out update callbacks */
   const handleEditor = (field, text) => {
     setStateContent({...stateContent, [field]: text});
   };
 
+  /* Rate-limit the slightly expensive state update out in Block.jsx */
   const [debounced] = useDebouncedValue(stateContent, 500);
 
   useEffect(() => {
-    console.log("going up");
     onChange(stateContent, locale);
   }, [debounced]);
 
-
-
+  /* onChange fires on load - only set the block as "modified" when a true keystroke is entered */
   const keyBindingFn = () => onTextModify(true);
 
   return (

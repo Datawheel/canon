@@ -114,7 +114,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   };
 
   const onChangeText = (content, locale) => upsertLocaleContent(content, locale);
-  const onTextModify = () => !modified ? setModified(true) : null;
+  const onTextModify = () => !modified && setModified(true);
 
   const onChangeCode = (logic, locale) => {
     if (!modified) setModified(true);
@@ -127,8 +127,8 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     setBlockState({...blockState, api: e.target.value});
   };
 
-  // todo1.0 this will have to be some kind of merge/spread
   const onChangeSettings = settings => {
+    if (!modified) setModified(true);
     setBlockState({...blockState, settings: {...blockState.settings, ...settings}});
   };
 
