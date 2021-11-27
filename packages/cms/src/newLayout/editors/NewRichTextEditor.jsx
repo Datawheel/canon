@@ -1,11 +1,12 @@
-import {TextInput} from "@mantine/core";
+/* react */
 import React, {useState, useEffect} from "react";
 import {useSelector} from "react-redux";
+import {useDebouncedValue} from "@mantine/hooks";
 
+/* components */
 import DraftWrapper from "../../components/editors/DraftWrapper";
 
-import deepClone from "../../utils/deepClone";
-
+/* css */
 import "./NewRichTextEditor.css";
 
 /**
@@ -16,7 +17,7 @@ function NewRichTextEditor({locale, defaultContent, fields, onChange, variables,
   /* redux */
   const showToolbar = useSelector(state => state.cms.status.showToolbar);
 
-  const [stateContent] = useState(() => defaultContent);
+  const [stateContent, setStateContent] = useState(() => defaultContent);
 
   /**
    * There is a race condition when this component is mounted with several fields. Each of the fields
@@ -28,8 +29,17 @@ function NewRichTextEditor({locale, defaultContent, fields, onChange, variables,
   }, []);
 
   const handleEditor = (field, text) => {
-    onChange({[field]: text}, locale);
+    setStateContent({...stateContent, [field]: text});
   };
+
+  const [debounced] = useDebouncedValue(stateContent, 500);
+
+  useEffect(() => {
+    console.log("going up");
+    onChange(stateContent, locale);
+  }, [debounced]);
+
+
 
   const keyBindingFn = () => onTextModify(true);
 

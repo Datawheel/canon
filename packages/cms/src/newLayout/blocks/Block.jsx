@@ -80,7 +80,6 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   };
 
   const onSave = keepWindowOpen => {
-    console.log(blockState.logic);
     const {settings} = blockState;
     const sanitizeContentObject = content => Object.keys(content).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(content[d])}), {});
     const contentByLocale = Object.values(blockState.contentByLocale).reduce((acc, d) => ({[d.locale]: {...d, content: sanitizeContentObject(d.content)}}), {});
