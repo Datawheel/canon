@@ -15,7 +15,7 @@ module.exports = function(sequelize, db) {
       },
       heading: {
         type: db.INTEGER,
-        default: 1
+        defaultValue: 1
       },
       ordering: db.INTEGER,
 

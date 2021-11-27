@@ -1,5 +1,5 @@
 import React from "react";
-import {Skeleton, Text} from "@mantine/core";
+import {Text} from "@mantine/core";
 
 
 /**

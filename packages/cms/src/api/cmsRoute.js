@@ -284,7 +284,7 @@ module.exports = function(app) {
   });
 
   /* UPDATES */
-  const updateList = cmsTables;
+  const updateList = cmsTables.filter(d => d !== "block");
   updateList.forEach(ref => {
     app.post(`/api/cms/${ref}/update`, isEnabled, async(req, res) => {
       const {id} = req.body;
@@ -348,6 +348,41 @@ module.exports = function(app) {
         return res.json(profiles);
       }
     });
+  });
+
+  app.post("/api/cms/block/update", isEnabled, async(req, res) => {
+    const {id} = req.body;
+    const block = await db.block.findOne({where: {id}}).catch(catcher);
+    if (req.body.blockrow !== undefined) {
+      let blocks = await db.block.findAll({where: {section_id: block.section_id, blockcol: req.body.blockcol}}).catch(catcher);
+      blocks = blocks.map(d => d.toJSON()).sort((a, b) => a.blockrow - b.blockrow).map(d => d.id).filter(d => d !== id);
+      blocks.splice(req.body.blockrow, 0, id);
+      blocks = blocks.map((d, i) => ({id: d, blockrow: i}));
+      // todo1.0 this loop sucks. upgrade to sequelize 5 for updateOnDuplicate support.
+      for (const block of blocks) {
+        await db.block.update({blockrow: block.blockrow}, {where: {id: block.id}}).catch(catcher);
+      }
+      delete req.body.blockrow;
+      // If the last block of its column has been moved, all higher columns must be bumped down
+      const siblings = await db.block.findAll({where: {section_id: block.section_id, blockcol: block.blockcol}}).catch(catcher);
+      if (siblings.length === 1 && block.blockcol !== req.body.blockcol) {
+        await db.block.update({blockcol: sequelize.literal("blockcol -1")}, {where: {section_id: block.section_id, blockcol: {[Op.gt]: block.blockcol}}}).catch(catcher);
+      }
+    }
+    await db.block.update(req.body, {where: {id}}).catch(catcher);
+    for (const content of Object.values(req.body.contentByLocale)) {
+      // todo1.0. it is bad to do this get/put, but we need to merge the jsonb. can this be done at the db level?
+      // await db[`${ref}_content`].upsert(content, {where: {id, locale: content.locale}}).catch(catcher);
+      const contentRow = await db.block_content.findOne({where: {id, locale: content.locale}}).catch(catcher);
+      if (contentRow) {
+        await db.block_content.update({content: {...contentRow.content, ...content.content}}, {where: {id, locale: content.locale}}).catch(catcher);
+      }
+      else {
+        await db.block_content.create(content).catch(catcher);
+      }
+    }
+    const profiles = await getProfileTreeAndActivate(req, block.section_id).catch(catcher);
+    return res.json(profiles);
   });
 
   /* TRANSLATIONS */

@@ -11,12 +11,12 @@ import "./NewRichTextEditor.css";
 /**
  *
  */
-function NewRichTextEditor({locale, block, fields, onChange, variables, onTextModify}) {
+function NewRichTextEditor({locale, defaultContent, fields, onChange, variables, onTextModify}) {
 
   /* redux */
   const showToolbar = useSelector(state => state.cms.status.showToolbar);
 
-  const [stateContent] = useState(() => deepClone(block.contentByLocale[locale].content));
+  const [stateContent] = useState(() => defaultContent);
 
   /**
    * There is a race condition when this component is mounted with several fields. Each of the fields
@@ -24,11 +24,11 @@ function NewRichTextEditor({locale, block, fields, onChange, variables, onTextMo
    * On mount, call onChange *one* time to send up the full object so that the preview can be populated.
    */
   useEffect(() => {
-    onChange(stateContent);
+    onChange(stateContent, locale);
   }, []);
 
   const handleEditor = (field, text) => {
-    onChange({[field]: text});
+    onChange({[field]: text}, locale);
   };
 
   const keyBindingFn = () => onTextModify(true);

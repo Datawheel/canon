@@ -11,29 +11,27 @@ import TypeRenderers from "./types/index.jsx";
 
 /**
  * BlockPreview shows the varswapped version of the content currently being edited. It is instantiated in
- * Block.jsx and directly passed "stateContent" from there, which represents the live-editing content.
+ * Block.jsx and directly passed "blockState" from there, which represents the live-editing content.
  * Though instantiated in Block, it is not rendered until BlockOutput.
  */
-function BlockPreview({id, stateContent, active, variables}) {
+function BlockPreview({blockState, active, variables, locale}) {
 
   /* redux */
-  const localeDefault = useSelector(state => state.cms.status.localeDefault);
-  const block = useSelector(state => state.cms.profiles.entities.blocks[id]);
   const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
 
   const spoiler = obj => Object.keys(obj).reduce((acc, d) => ({...acc, [d]: typeof obj[d] === "string" ? obj[d].replace(/[A-z0-9]*\{\{[^\}]+\}\}/g, "<span style=\"background-color:lightgrey; color:lightgrey;\">spoiler</span>") : obj[d]}), {});
 
   const content = active
-    ? varSwapRecursive(stateContent, formatterFunctions[localeDefault], variables)
-    : spoiler(stateContent);
+    ? varSwapRecursive(blockState.contentByLocale[locale].content, formatterFunctions[locale], variables)
+    : spoiler(blockState.contentByLocale[locale].content);
 
-  const Renderer = TypeRenderers[block.type];
+  const Renderer = TypeRenderers[blockState.type];
 
   return (
     <div className="cms-block-preview">
       { Renderer
         ? <Renderer {...content} />
-        : <Center><Badge color="gray" variant="outline">{block.type}</Badge></Center> }
+        : <Center><Badge color="gray" variant="outline">{blockState.type}</Badge></Center> }
     </div>
   );
 

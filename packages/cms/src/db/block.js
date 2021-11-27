@@ -21,17 +21,17 @@ module.exports = function(sequelize, db) {
       },
       shared: {
         type: db.BOOLEAN,
-        default: false
+        defaultValue: false
       },
 
       /* layout */
       blockrow: {
         type: db.INTEGER,
-        default: 0
+        defaultValue: 0
       },
       blockcol: {
         type: db.INTEGER,
-        default: 0
+        defaultValue: 0
       },
 
       /* generators & vizes */

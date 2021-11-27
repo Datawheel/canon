@@ -1,5 +1,5 @@
 /* react */
-import React, {useState, useMemo} from "react";
+import React, {useState, useMemo, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Modal, ActionIcon, Button, Group} from "@mantine/core";
 import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";
@@ -26,6 +26,7 @@ import {REQUEST_STATUS} from "../../utils/consts/redux";
 
 /* css */
 import "./Block.css";
+import deepClone from "../../utils/deepClone";
 
 /**
  * Most blocks have translatable content, and store their locale-specific copies in a content table.
@@ -51,10 +52,10 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
    * The content of the entire CMS is kept in a normalized redux object called profiles.
    * These redux-level props cannot be edited directly, so each of the editors (draft, ace)
    * will clone their contents on mount, and report their new states here via callbacks.
-   * When the user presses save, we have access to the current stateContent here, so it can
+   * When the user presses save, we have access to the current blockState here, so it can
    * be persisted to psql, pulled back into redux, and redistributed as props again.
    */
-  const [stateContent, setStateContent] = useState({});
+  const [blockState, setBlockState] = useState({});
   const [loading, setLoading] = useState(false);
   const [opened, setOpened] = useState(false);
   const [alertOpened, setAlertOpened] = useState(false);
@@ -66,7 +67,11 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
       .reduce((acc, d) => ({...acc, ...d._variables}), {})
   , [blocks]);
 
-  if (!block) return null;
+  useEffect(() => {
+    if (opened) {
+      setBlockState(deepClone(block));
+    }
+  }, [opened, block]);
 
   const onCloseAll = () => {
     setOpened(false);
@@ -75,28 +80,16 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   };
 
   const onSave = keepWindowOpen => {
-    // remove logicEnabled from the post - it is currently set directly when the mode is changed in BlockOutput.
-    const {logicEnabled, ...restStateContent} = stateContent; //eslint-disable-line
-    let payload;
-    // Blocks and Vizes, which are not locale-specific, save their data directly on the block, not in a content table.
-    if (hasNoLocaleContent(block.type)) {
-      payload = {
-        id: block.id,
-        ...restStateContent
-      };
-    }
-    else {
-      // Remove draftjs html cruft and leading/trailing spaces from all content fields
-      const content = Object.keys(restStateContent).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(restStateContent[d])}), {});
-      payload = {
-        id: block.id,
-        content: [{
-          id: block.id,
-          locale: localeDefault,
-          content
-        }]
-      };
-    }
+    console.log(blockState.logic);
+    const {settings} = blockState;
+    const sanitizeContentObject = content => Object.keys(content).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(content[d])}), {});
+    const contentByLocale = Object.values(blockState.contentByLocale).reduce((acc, d) => ({[d.locale]: {...d, content: sanitizeContentObject(d.content)}}), {});
+    const properties = ["id", "api", "logic", "logicSimple", "logicSimpleEnabled", "shared", "type"].reduce((acc, d) => ({...acc, [d]: blockState[d]}), {});
+    const payload = {
+      ...properties,
+      contentByLocale,
+      settings
+    };
     setLoading(true);
     dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload)).then(resp => {
       if (resp.status === REQUEST_STATUS.SUCCESS) {
@@ -114,37 +107,46 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const maybeCloseEditorWithoutSaving = () => modified ? setAlertOpened(true) : setOpened(false);
 
-  const onChangeText = content => {
-    setStateContent({...stateContent, ...content});
+  /* CHANGE HANDLERS */
+
+  const upsertLocaleContent = (content, locale) => {
+    const existingContent = blockState.contentByLocale[locale] || {id, locale, content: {}};
+    setBlockState({...blockState, contentByLocale: {...blockState.contentByLocale, [locale]: {...existingContent, content: {...existingContent.content, ...content}}}});
   };
 
+  const onChangeText = (content, locale) => upsertLocaleContent(content, locale);
   const onTextModify = () => !modified ? setModified(true) : null;
 
-  const onChangeCode = logic => {
+  const onChangeCode = (logic, locale) => {
     if (!modified) setModified(true);
-    setStateContent({...stateContent, logic});
+    hasNoLocaleContent(block.type)
+      ? setBlockState({...blockState, logic})
+      : upsertLocaleContent({logic}, locale);
   };
 
   const onChangeAPI = e => {
-    setStateContent({...stateContent, api: e.target.value});
+    setBlockState({...blockState, api: e.target.value});
   };
 
   // todo1.0 this will have to be some kind of merge/spread
   const onChangeSettings = settings => {
-    setStateContent({...stateContent, ...block.settings, settings});
+    setBlockState({...blockState, settings: {...blockState.settings, ...settings}});
   };
 
   /**
    * A number of components embedded in this block need access to content here, either the ever-changing
-   * stateContent, or the various callbacks that change it. It is recommended here https://reactjs.org/docs/composition-vs-inheritance.html
+   * blockState, or the various callbacks that change it. It is recommended here https://reactjs.org/docs/composition-vs-inheritance.html
    * to achieve this by passing these components down as props for deep embedding.
    */
+
+  /* EDITORS TO PASS DOWN */
 
   const blockPreview = <BlockPreview
     id={id}
     key="block-preview"
     active={true}
-    stateContent={stateContent}
+    blockState={blockState}
+    locale={localeDefault}
     variables={variables}
   />;
 
@@ -158,7 +160,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const textEditor = <NewRichTextEditor
     locale={localeDefault}
     key="text-editor"
-    block={block}
+    defaultContent={block.contentByLocale[localeDefault].content || {}}
     fields={BLOCK_MAP[block.type]}
     variables={variables}
     onChange={onChangeText}
@@ -168,7 +170,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const codeEditor = <AceWrapper
     className="cms-block-output-ace"
     key="code-editor"
-    onChange={onChangeCode}
+    onChange={logic => onChangeCode(logic, localeDefault)}
     defaultValue={hasNoLocaleContent(block.type) ? block.logic : block.contentByLocale[localeDefault].content.logic}
   />;
 
@@ -179,7 +181,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save & Execute</Button>;
 
-  const components = {textEditor, codeEditor, apiInput, blockPreview, executeButton, blockSettings};
+  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton};
 
   const modalProps = {
     title: `${upperCaseFirst(block.type)} editor`,
@@ -215,7 +217,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
         {isInput && inputOverlay}
         {isConsumer && consumerOverlay}
         <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
-        <BlockPreview id={block.id} stateContent={block.contentByLocale[localeDefault].content} active={active} variables={variables}/>
+        <BlockPreview blockState={block} active={active} variables={variables} locale={localeDefault}/>
         <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
         <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
       </div>
