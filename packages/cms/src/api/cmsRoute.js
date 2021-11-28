@@ -370,15 +370,17 @@ module.exports = function(app) {
       }
     }
     await db.block.update(req.body, {where: {id}}).catch(catcher);
-    for (const content of Object.values(req.body.contentByLocale)) {
-      // todo1.0. it is bad to do this get/put, but we need to merge the jsonb. can this be done at the db level?
-      // await db[`${ref}_content`].upsert(content, {where: {id, locale: content.locale}}).catch(catcher);
-      const contentRow = await db.block_content.findOne({where: {id, locale: content.locale}}).catch(catcher);
-      if (contentRow) {
-        await db.block_content.update({content: {...contentRow.content, ...content.content}}, {where: {id, locale: content.locale}}).catch(catcher);
-      }
-      else {
-        await db.block_content.create(content).catch(catcher);
+    if (req.body.contentByLocale) {
+      for (const content of Object.values(req.body.contentByLocale)) {
+        // todo1.0. it is bad to do this get/put, but we need to merge the jsonb. can this be done at the db level?
+        // await db[`${ref}_content`].upsert(content, {where: {id, locale: content.locale}}).catch(catcher);
+        const contentRow = await db.block_content.findOne({where: {id, locale: content.locale}}).catch(catcher);
+        if (contentRow) {
+          await db.block_content.update({content: {...contentRow.content, ...content.content}}, {where: {id, locale: content.locale}}).catch(catcher);
+        }
+        else {
+          await db.block_content.create(content).catch(catcher);
+        }
       }
     }
     const profiles = await getProfileTreeAndActivate(req, block.section_id).catch(catcher);

@@ -62,16 +62,18 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const [modified, setModified] = useState(false);
 
   const variables = useMemo(() =>
-    Object.values(blocks)
+    block ? Object.values(blocks)
       .filter(d => block.inputs.includes(d.id))
-      .reduce((acc, d) => ({...acc, ...d._variables}), {})
-  , [blocks]);
+      .reduce((acc, d) => ({...acc, ...d._variables}), {}) : {}
+  , [blocks, block]);
 
   useEffect(() => {
     if (opened) {
       setBlockState(deepClone(block));
     }
   }, [opened, block]);
+
+  if (!block) return null;
 
   const onCloseAll = () => {
     setOpened(false);
@@ -129,7 +131,10 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const onChangeSettings = settings => {
     if (!modified) setModified(true);
-    setBlockState({...blockState, settings: {...blockState.settings, ...settings}});
+    // Unlike other settings, type is top-level, not stored in the settings object
+    settings.type
+      ? setBlockState({...blockState, ...settings})
+      : setBlockState({...blockState, settings: {...blockState.settings, ...settings}});
   };
 
   /**

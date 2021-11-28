@@ -1,15 +1,20 @@
+/* react */
 import React, {useEffect, useState, useCallback} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import yn from "yn";
 import {MantineProvider} from "@mantine/core";
 
-import {fetchData, isAuthenticated} from "@datawheel/canon-core";
+/* components */
 import Loading from "$app/components/Loading";
-
 import AuthForm from "./components/interface/AuthForm";
 import ProfilePicker from "./newLayout/ProfilePicker";
 import ProfileEditor from "./newLayout/ProfileEditor";
 
+/* hooks */
+import {ConfirmationDialogProvider} from "./newLayout/hooks/interactions/ConfirmationDialog";
+
+/* redux */
+import {fetchData, isAuthenticated} from "@datawheel/canon-core";
 import {getFormatters} from "./actions/formatters";
 import {setStatus} from "./actions/status";
 import {getProfiles} from "./actions/profiles";
@@ -18,6 +23,8 @@ import {getProfiles} from "./actions/profiles";
  * Builder - The outermost component of the CMS, exported in index.js, and embedded in a canon site.
  */
 function NewBuilder({router}) {
+
+
 
   const dispatch = useDispatch();
 
@@ -106,10 +113,12 @@ function NewBuilder({router}) {
 
   return (
     <MantineProvider>
-      {pathObj.profile
-        ? <ProfileEditor id={Number(pathObj.profile)}/>
-        : <ProfilePicker />
-      }
+      <ConfirmationDialogProvider>
+        {pathObj.profile
+          ? <ProfileEditor id={Number(pathObj.profile)}/>
+          : <ProfilePicker />
+        }
+      </ConfirmationDialogProvider>
     </MantineProvider>
   );
 
