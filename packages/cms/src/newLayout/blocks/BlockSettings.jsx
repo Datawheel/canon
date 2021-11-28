@@ -38,7 +38,7 @@ function BlockSettings({id, onChange}) {
     return [{value: "always", label: "always"}].concat(Object.keys(variables).map(d => ({value: d, label: `${d}: ${variables[d]}`})));
   }, [blocks]);
 
-  const deleteBlock = async() => {
+  const maybeDelete = async() => {
     const confirmed = await getConfirmation({
       title: "Are you sure?",
       message: "Delete this block and all its contents? This action cannot be undone.",
@@ -57,7 +57,7 @@ function BlockSettings({id, onChange}) {
     <div>
       <Select label="Block Type" defaultValue={block.type} onChange={e => handleChange("type", e)} data={types} />
       <Select label="Allowed" defaultValue={block.settings.allowed || "always"} onChange={e => handleChange("allowed", e)} data={allowed} />
-      <Button variant="outline" color="red" onClick={deleteBlock}>Delete Block</Button>
+      <Button variant="outline" color="red" onClick={maybeDelete}>Delete Block</Button>
     </div>
   );
 

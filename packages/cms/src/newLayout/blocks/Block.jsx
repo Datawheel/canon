@@ -17,6 +17,9 @@ import BlockSettings from "./BlockSettings";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 import sanitizeBlockContent from "../../utils/sanitizeBlockContent";
 
+/* hooks */
+import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
+
 /* redux */
 import {updateEntity} from "../../actions/profiles";
 
@@ -42,6 +45,7 @@ const hasNoLocaleContent = type => [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ].incl
 function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const dispatch = useDispatch();
+  const {getConfirmation} = useConfirmationDialog();
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
@@ -58,7 +62,6 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const [blockState, setBlockState] = useState({});
   const [loading, setLoading] = useState(false);
   const [opened, setOpened] = useState(false);
-  const [alertOpened, setAlertOpened] = useState(false);
   const [modified, setModified] = useState(false);
 
   const variables = useMemo(() =>
@@ -74,12 +77,6 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   }, [opened, block]);
 
   if (!block) return null;
-
-  const onCloseAll = () => {
-    setOpened(false);
-    setAlertOpened(false);
-    setModified(false);
-  };
 
   const onSave = keepWindowOpen => {
     const {settings} = blockState;
@@ -106,7 +103,22 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     });
   };
 
-  const maybeCloseEditorWithoutSaving = () => modified ? setAlertOpened(true) : setOpened(false);
+  const maybeCloseWithoutSaving = async() => {
+    if (modified) {
+      const confirmed = await getConfirmation({
+        title: "Close editor without saving?",
+        confirmText: "Yes, abandon changes."
+      });
+      if (confirmed) {
+        setOpened(false);
+        setModified(false);
+      }
+    }
+    else {
+      setOpened(false);
+      setModified(false);
+    }
+  };
 
   /* CHANGE HANDLERS */
 
@@ -191,13 +203,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     title: `${upperCaseFirst(block.type)} editor`,
     size: "70%",
     opened,
-    onClose: maybeCloseEditorWithoutSaving
-  };
-
-  const alertProps = {
-    title: "Close without saving?",
-    opened: alertOpened,
-    onClose: () => setAlertOpened(false)
+    onClose: maybeCloseWithoutSaving
   };
 
   const cogProps = {
@@ -228,12 +234,6 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
       <Modal key="d" {...modalProps}>
         <BlockEditor key="be" id={id} components={components}/>
         <Button onClick={() => onSave(false)}>Save &amp; Close</Button>
-      </Modal>
-      <Modal {...alertProps} key="alert">
-        <Group position="right" style={{marginTop: 10}}>
-          <Button onClick={() => setAlertOpened(false)}>Cancel</Button>
-          <Button color="red" onClick={onCloseAll}>Yes, abandon changes.</Button>
-        </Group>
       </Modal>
     </React.Fragment>
   );

@@ -82,6 +82,8 @@ function Section({id, isDragging, dragHandleProps}) {
     setColumns(columns);
   }, [blocks]);
 
+  if (!section) return null;
+
   const onDragEnd = (result, columns, setColumns) => {
     if (!result.destination) return;
     const {source, destination} = result;
