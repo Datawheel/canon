@@ -1,0 +1,10 @@
+.cms-block-editor {
+  padding: 10px;
+  height: 800px;
+  position: relative;
+}
+
+.cms-block-editor-content {
+  display: flex;
+  max-height: 100%;
+}

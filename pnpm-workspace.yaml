@@ -5,3 +5,4 @@ packages:
   - 'packages/logiclayer'
   - 'packages/vizbuilder'
   - 'packages/test'
+  - 'packages/reports'

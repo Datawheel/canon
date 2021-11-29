@@ -1,0 +1,35 @@
+.cms-section-block {
+  display: block;
+  min-height: 50px;
+  background-color: rgb(255, 206, 206);
+  border: 1px solid black;
+  position: relative;
+  cursor: pointer;
+}
+
+.cms-section-block-header {
+  background-color: white;
+  border-bottom: 1px solid black;
+  height: 20px;
+}
+
+.cms-block-cog-button {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+
+.cms-block-edit-button {
+  position: absolute;
+  bottom: 5px;
+  right: 33px;
+}
+
+.cms-block-editor-dialog{
+  width: 80%;
+}
+
+.cms-block-output-ace {
+  min-width: 500px;
+  min-height: 550px;
+}

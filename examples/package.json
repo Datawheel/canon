@@ -20,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "@datawheel/canon-cms": "workspace:*",
+    "@datawheel/canon-reports": "workspace:*",
     "@datawheel/canon-core": "workspace:*",
     "@datawheel/canon-logiclayer": "*",
     "axios": "^0.21.1",

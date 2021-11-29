@@ -1,0 +1,30 @@
+.cms-section-header {
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  justify-content: space-between;
+  left: 0;
+  margin: 0;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  transition: opacity 0.1s;
+  width: 100%;
+  z-index: 2;
+  & > * {
+    flex: 1 0 33%;
+    &:first-child {
+      text-align: left;
+    }
+    &:not(:first-child):not(:last-child) {
+      text-align: center;
+      & svg {
+        width: 100%;
+      }
+    }
+    &:last-child {
+      display: flex !important;
+      justify-content: flex-end;
+    }
+  }
+}
