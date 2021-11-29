@@ -88,8 +88,8 @@ module.exports = function(app) {
 
   const {db} = app.settings;
 
-  app.get("/api/cms", (req, res) => res.json(cmsCheck()));
-  app.get("/api/cms/minRole", (req, res) => res.json(cmsMinRole()));
+  app.get("/api/reports", (req, res) => res.json(cmsCheck()));
+  app.get("/api/reports/minRole", (req, res) => res.json(cmsMinRole()));
 
   /**
    * ref: the table being maxed, like "block"
@@ -129,7 +129,7 @@ module.exports = function(app) {
     return await runConsumers(...args);
   };
 
-  app.get("/api/cms/block/activate", async(req, res) => {
+  app.get("/api/reports/block/activate", async(req, res) => {
     const {id} = req.query;
     const block = await db.block.findOne({where: {id}}).catch(catcher);
     if (!block) return res.json({status: REQUEST_STATUS.ERROR});
@@ -137,7 +137,7 @@ module.exports = function(app) {
     return res.json(activateResult);
   });
 
-  app.get("/api/cms/section/activate", async(req, res) => {
+  app.get("/api/reports/section/activate", async(req, res) => {
     const id = Number(req.query.id);
     const profiles = await getProfileTreeAndActivate(req, id);
     return res.json(profiles);
@@ -145,7 +145,7 @@ module.exports = function(app) {
 
   /* GETS */
 
-  app.get("/api/cms/meta", async(req, res) => {
+  app.get("/api/reports/meta", async(req, res) => {
     let meta = await db.profile_meta.findAll().catch(catcher);
     meta = meta.map(m => m.toJSON());
     for (const m of meta) {
@@ -154,13 +154,13 @@ module.exports = function(app) {
     res.json(meta);
   });
 
-  app.get("/api/cms/tree", async(req, res) => res.json(await getProfileTreeAndActivate(req)));
+  app.get("/api/reports/tree", async(req, res) => res.json(await getProfileTreeAndActivate(req)));
 
   /**
    * Returns a list of profiles including both the meta and content associations
    * for the current language. Primarily used by the ProfileSearch component.
    */
-  app.get("/api/cms/profiles", async(req, res) => {
+  app.get("/api/reports/profiles", async(req, res) => {
     let meta = await db.profile.findAll({
       include: [
         {association: "meta", separate: true},
@@ -179,14 +179,14 @@ module.exports = function(app) {
     res.json(meta);
   });
 
-  app.get("/api/cms/formatter", async(req, res) => {
+  app.get("/api/reports/formatter", async(req, res) => {
     const formatters = await db.formatter.findAll().catch(catcher);
     res.json(formatters);
   });
 
   /* INSERTS */
 
-  app.post("/api/cms/profile/new", isEnabled, async(req, res) => {
+  app.post("/api/reports/profile/new", isEnabled, async(req, res) => {
     const ordering = await findMaxOrdering("profile").catch(catcher);
     const profileFields = Object.values(PROFILE_FIELDS).reduce((acc, d) => req.body[d] ? {...acc, [d]: req.body[d]} : acc, {});
     const profile = await db.profile.create({ordering}).catch(catcher);
@@ -197,7 +197,7 @@ module.exports = function(app) {
     return res.json(profiles);
   });
 
-  app.post("/api/cms/section/new", isEnabled, async(req, res) => {
+  app.post("/api/reports/section/new", isEnabled, async(req, res) => {
     // If the order was provided, we need to bump all siblings up to make room.
     if (req.body.ordering) {
       await db.section.update(
@@ -215,14 +215,14 @@ module.exports = function(app) {
     return res.json(profiles);
   });
 
-  app.post("/api/cms/block_input/new", isEnabled, async(req, res) => {
+  app.post("/api/reports/block_input/new", isEnabled, async(req, res) => {
     await db.block_input.create(req.body).catch(catcher);
     const block = await db.block.findOne({where: {id: req.body.block_id}}).catch(catcher);
     const profiles = await getProfileTreeAndActivate(req, block.section_id);
     return res.json(profiles);
   });
 
-  app.post("/api/cms/block/new", isEnabled, async(req, res) => {
+  app.post("/api/reports/block/new", isEnabled, async(req, res) => {
     // If the blockrow was provided, we need to bump all siblings up to make room.
     const siblings = {blockcol: req.body.blockcol, section_id: req.body.section_id};
     if (req.body.blockrow) {
@@ -242,7 +242,7 @@ module.exports = function(app) {
 
   /* CUSTOM INSERTS */
 
-  app.post("/api/cms/profile/upsertDimension", isEnabled, async(req, res) => {
+  app.post("/api/reports/profile/upsertDimension", isEnabled, async(req, res) => {
     req.setTimeout(1000 * 60 * 5);
     const {profileData, includeAllMembers} = req.body;
     const {profile_id} = profileData;  // eslint-disable-line
@@ -274,7 +274,7 @@ module.exports = function(app) {
     return res.json(newProfile);
   });
 
-  app.post("/api/cms/repopulateSearch", isEnabled, async(req, res) => {
+  app.post("/api/reports/repopulateSearch", isEnabled, async(req, res) => {
     req.setTimeout(1000 * 60 * 5);
     const {id, newSlugs, includeAllMembers} = req.body;
     let profileData = await db.profile_meta.findOne({where: {id}});
@@ -286,7 +286,7 @@ module.exports = function(app) {
   /* UPDATES */
   const updateList = cmsTables.filter(d => d !== "block");
   updateList.forEach(ref => {
-    app.post(`/api/cms/${ref}/update`, isEnabled, async(req, res) => {
+    app.post(`/api/reports/${ref}/update`, isEnabled, async(req, res) => {
       const {id} = req.body;
       // When ordering is provided, this update is the result of a drag/drop reordering.
       // Insert the item in the desired spot, bump all other orderings to match
@@ -350,7 +350,7 @@ module.exports = function(app) {
     });
   });
 
-  app.post("/api/cms/block/update", isEnabled, async(req, res) => {
+  app.post("/api/reports/block/update", isEnabled, async(req, res) => {
     const {id} = req.body;
     const block = await db.block.findOne({where: {id}}).catch(catcher);
     if (req.body.blockrow !== undefined) {
@@ -391,7 +391,7 @@ module.exports = function(app) {
   /** Translations are provided by the Google API and require an authentication key. They are requested client-side for
    * card-by-card translations (allowing for in-place editing) but can be batch-translated here.
    */
-  app.post("/api/cms/section/translate", async(req, res) => {
+  app.post("/api/reports/section/translate", async(req, res) => {
     const sid = req.body.id;
     const {variables, source, target} = req.body;
     const reqObj = {...sectionReqFull, where: {id: sid}};
@@ -410,7 +410,7 @@ module.exports = function(app) {
     return res.json(newSection);
   });
 
-  app.post("/api/cms/profile/translate", async(req, res) => {
+  app.post("/api/reports/profile/translate", async(req, res) => {
     const pid = req.body.id;
     const {variables, source, target} = req.body;
     const config = {variables, source, target};
@@ -446,7 +446,7 @@ module.exports = function(app) {
     return profiles;
   };
 
-  app.delete("/api/cms/block/delete", isEnabled, async(req, res) => {
+  app.delete("/api/reports/block/delete", isEnabled, async(req, res) => {
     const block = await db.block.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.block.update({blockrow: sequelize.literal("blockrow -1")}, {where: {section_id: block.section_id, blockcol: block.blockcol, blockrow: {[Op.gt]: block.blockrow}}}).catch(catcher);
     const siblings = await db.block.findAll({where: {section_id: block.section_id, blockcol: block.blockcol}}).catch(catcher);
@@ -457,7 +457,7 @@ module.exports = function(app) {
     return res.json(profiles);
   });
 
-  app.delete("/api/cms/block_input/delete", isEnabled, async(req, res) => {
+  app.delete("/api/reports/block_input/delete", isEnabled, async(req, res) => {
     const {id} = req.query;
     const row = await db.block_input.findOne({where: {id}}).catch(catcher);
     // todo1.0 add this ordering back in
@@ -468,7 +468,7 @@ module.exports = function(app) {
     return res.json(profiles);
   });
 
-  app.delete("/api/cms/profile/delete", isEnabled, async(req, res) => {
+  app.delete("/api/reports/profile/delete", isEnabled, async(req, res) => {
     const profile = await db.profile.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: profile.ordering}}}).catch(catcher);
     await db.profile.destroy({where: {id: req.query.id}}).catch(catcher);
@@ -478,7 +478,7 @@ module.exports = function(app) {
     return res.json(profiles);
   });
 
-  app.delete("/api/cms/profile_meta/delete", isEnabled, async(req, res) => {
+  app.delete("/api/reports/profile_meta/delete", isEnabled, async(req, res) => {
     const meta = await db.profile_meta.findOne({where: {id: req.query.id}}).catch(catcher);
     // Profile meta can have multiple variants now sharing the same index.
     const variants = await db.profile_meta.findAll({where: {profile_id: meta.profile_id, ordering: meta.ordering}}).catch(catcher);
@@ -495,13 +495,13 @@ module.exports = function(app) {
     return res.json(newProfile);
   });
 
-  app.delete("/api/cms/formatter/delete", isEnabled, async(req, res) => {
+  app.delete("/api/reports/formatter/delete", isEnabled, async(req, res) => {
     await db.formatter.destroy({where: {id: req.query.id}}).catch(catcher);
     const rows = await db.formatter.findAll().catch(catcher);
     return res.json(rows);
   });
 
-  app.delete("/api/cms/section/delete", isEnabled, async(req, res) => {
+  app.delete("/api/reports/section/delete", isEnabled, async(req, res) => {
     const row = await db.section.findOne({where: {id: req.query.id}}).catch(catcher);
     await db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.section.destroy({where: {id: req.query.id}}).catch(catcher);

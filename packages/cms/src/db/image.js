@@ -23,7 +23,7 @@ module.exports = function(sequelize, db) {
   );
 
   image.associate = models => {
-    image.hasMany(models.image_content, {foreignKey: "id", sourceKey: "id", as: "contentByLocale"});
+    image.hasMany(models.image_content, {foreignKey: "id", sourceKey: "id", as: "content"});
   };
 
   return image;

@@ -7,7 +7,8 @@ import ButtonGroup from "../fields/ButtonGroup";
 import Select from "../fields/Select";
 import Alert from "../interface/Alert";
 
-import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection, translateSection, translateProfile} from "../../actions/profiles";
+import {deleteEntity, deleteProfile, duplicateProfile, duplicateSection, translateSection, translateProfile, fetchSectionPreview} from "../../actions/profiles";
+import {deleteStory} from "../../actions/stories";
 import {setStatus} from "../../actions/status";
 
 import PropTypes from "prop-types";
@@ -376,6 +377,8 @@ const mapDispatchToProps = dispatch => ({
   duplicateSection: (id, pid) => dispatch(duplicateSection(id, pid)),
   translateSection: (id, variables, source, target) => dispatch(translateSection(id, variables, source, target)),
   translateProfile: (id, variables, source, target) => dispatch(translateProfile(id, variables, source, target)),
+  fetchSectionPreview: (id, locale) => dispatch(fetchSectionPreview(id, locale)),
+  deleteStory: id => dispatch(deleteStory(id)),
   setStatus: status => dispatch(setStatus(status))
 });
 

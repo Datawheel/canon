@@ -3,4 +3,4 @@ const ReportBuilder = chunkify(/* #__LOADABLE__ */ () => import(/* webpackChunkN
 export {ReportBuilder};
 
 // Redux
-export {default as cmsReducer} from "./reducers/index.js";
+export {default as reportsReducer} from "./reducers/index.js";

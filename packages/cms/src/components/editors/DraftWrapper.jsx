@@ -20,11 +20,10 @@ import {
 // import Textarea from "../fields/components/Textarea";
 import DraftEntry from "./components/DraftEntry";
 import "./DraftWrapper.css";
-import "draft-js-mention-plugin/lib/plugin.css";
+// import "draft-js-mention-plugin/lib/plugin.css";
 import "draft-js-static-toolbar-plugin/lib/plugin.css";
 
 class DraftWrapper extends Component {
-
   constructor(props) {
     super(props);
 
@@ -85,21 +84,15 @@ class DraftWrapper extends Component {
     let editorState = EditorState.createEmpty();
 
     if (this.props.defaultValue && this.props.defaultValue !== "") {
-
       const blocks = convertFromHTML(this.props.defaultValue);
-      if (this.props.raw) {
-        editorState = EditorState.createWithContent(ContentState.createFromText(this.props.defaultValue));
-      }
-      else {
-        editorState = EditorState.createWithContent(ContentState.createFromBlockArray(blocks.contentBlocks, blocks.entityMap));
-      }
+      editorState = EditorState.createWithContent(ContentState.createFromBlockArray(blocks.contentBlocks, blocks.entityMap));
     }
 
-    const {variables} = this.props;
+    const {_genStatus, _matStatus, ...variables} = this.props.variables; //eslint-disable-line
 
     const suggestions = Object.keys(variables).map(k => ({
       name: `{{${k}}}`,
-      value: variables[k]
+      value: this.props.variables[k]
     }));
 
     const suggestionsFormatter = this.props.formatters.map(f => ({name: f.name}));
@@ -114,10 +107,8 @@ class DraftWrapper extends Component {
 
     this.onChange = editorState => {
       this.setState({editorState});
-      const text = this.props.raw
-        ? editorState.getCurrentContent().getPlainText("\u0001")
-        : stateToHTML(editorState.getCurrentContent());
-      if (this.props.onChange) this.props.onChange(text);
+      const html = stateToHTML(editorState.getCurrentContent());
+      if (this.props.onChange) this.props.onChange(html);
     };
 
     // variables
@@ -143,13 +134,9 @@ class DraftWrapper extends Component {
       this.editor.focus();
     };
 
-    this.keyBindingFn = event => {
-      if (this.props.keyBindingFn) this.props.keyBindingFn(event);
-    };
-
     this.handleKeyCommand = (command, editorState) => {
       const newState = RichUtils.handleKeyCommand(editorState, command);
-      if (newState && !this.props.raw) {
+      if (newState) {
         this.onChange(newState);
         return "handled";
       }
@@ -171,9 +158,9 @@ class DraftWrapper extends Component {
     const MentionSuggestionsFormatter = this.mentionPluginFormatter.MentionSuggestions;
     const MentionSuggestionsSelector = this.mentionPluginSelector.MentionSuggestions;
     const plugins = [
-      this.mentionPlugin,
-      this.mentionPluginFormatter,
-      this.mentionPluginSelector,
+      this.mentionPlugin, 
+      this.mentionPluginFormatter, 
+      this.mentionPluginSelector, 
       this.staticToolbarPlugin,
       this.customLinkifyPlugin
     ];
@@ -202,13 +189,12 @@ class DraftWrapper extends Component {
         <Editor
           editorState={this.state.editorState}
           handleKeyCommand={this.handleKeyCommand}
-          keyBindingFn={this.keyBindingFn}
           onChange={this.onChange}
           plugins={plugins}
           ref={c => this.editor = c}
           key="draft-editor"
         />
-
+        
 
         {/* variables dropdown (generators, materializers) */}
         <span className="cms-draft-entry cms-variable-draft-entry">

@@ -2,7 +2,7 @@ const yn = require("yn");
 const formatters4eval = require("../formatters4eval");
 const translateContent = require("./translateContent");
 const translateText = require("./translateText");
-const {profileReqFull} = require("../sequelize/ormHelpers");
+const {profileReqFull} = require("../sequelize/models");
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 const catcher = e => {
@@ -15,10 +15,9 @@ const catcher = e => {
 /**
  * The config objects for the methods below require formatters and selectors for the ensuing
  * varSwapRecursive in translateContent. Export a function so external invokers can easily get these
- */
+ */ 
 const fetchUpsertHelpers = async(db, pid, source) => {
   const formatterFunctions = await formatters4eval(db, source);
-  // todo1.0 selectors will come from a different place
   let allSelectors = await db.selector.findAll({where: {profile_id: pid}}).catch(catcher);
   allSelectors = allSelectors.map(d => d.toJSON());
   return {formatterFunctions, allSelectors};
@@ -26,7 +25,7 @@ const fetchUpsertHelpers = async(db, pid, source) => {
 
 /**
  * - contentArray of a cms entity
- * - sequelize db and string table ref to process the upsert
+ * - sequelize db and string table ref to process the upsert 
  * - config object with source, target, variables, formatterFunctions and allSelectors
  * - req, to pass through to translateContent, so the API can determine path with origin/host
  * This method updates the translation in-place, returning any errors (or false if successful)
@@ -61,7 +60,7 @@ const upsertTranslation = async(contentArray, db, ref, config) => {
   }
 };
 
-/**
+/** 
  * translateProfile is used both by translateRoute and the npx translation script
  */
 const translateProfile = async(db, pid, config) => {

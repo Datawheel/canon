@@ -38,7 +38,7 @@ module.exports = {
       user: env.CANON_DB_USER,
       pass: env.CANON_DB_PW,
       tables: [
-        require("@datawheel/canon-cms/models"),
+        require("@datawheel/canon-reports/models"),
         require("@datawheel/canon-core/models")
       ]
     }

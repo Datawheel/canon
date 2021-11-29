@@ -4,22 +4,27 @@ import {connect} from "react-redux";
 import blueprintIcons from "../utils/blueprintIcons";
 import deepClone from "../utils/deepClone";
 import toSpacedCase from "../utils/formatters/toSpacedCase";
+import stripHTML from "../utils/formatters/stripHTML";
 
 import ButtonGroup from "../components/fields/ButtonGroup";
 import Select from "../components/fields/Select";
 import TextButtonGroup from "../components/fields/TextButtonGroup";
 
 import Deck from "../components/interface/Deck";
+import Dialog from "../components/interface/Dialog";
 import VisibleSelector from "../components/interface/VisibleSelector";
+import PreviewHeader from "../components/interface/PreviewHeader";
 import SelectorUsage from "../components/interface/SelectorUsage";
 
 import TextCard from "../components/cards/TextCard";
 import VisualizationCard from "../components/cards/VisualizationCard";
 
+import ProfileRenderer from "../components/ProfileRenderer.jsx";
+
 import {newEntity, updateEntity} from "../actions/profiles";
 import {setStatus} from "../actions/status";
 
-import {SELECTOR_TYPES} from "../utils/consts/cms";
+import {PARENT_TYPES, SELECTOR_TYPES} from "../utils/consts/cms";
 
 import "./SectionEditor.css";
 
@@ -77,9 +82,9 @@ class SectionEditor extends Component {
   }
 
   render() {
-    const {minData, allSelectors} = this.props;
+    const {minData, allSelectors, formatters, setStatus} = this.props;
     const {variables, children} = this.props;
-    const {localeDefault, localeSecondary} = this.props.status;
+    const {localeDefault, localeSecondary, useLocaleSecondary, sectionPreview} = this.props.status;
 
     const minDataState = this.state.minData;
 
@@ -91,6 +96,17 @@ class SectionEditor extends Component {
     if (!dataLoaded) return null;
 
     const allLoaded = dataLoaded && varsLoaded && defLoaded && locLoaded;
+
+    const varOptions = [<option key="always" value="always">Always</option>]
+      .concat(Object.keys(variables[localeDefault] || {})
+        .filter(key => !key.startsWith("_"))
+        .sort((a, b) => a.localeCompare(b))
+        .map(key => {
+          const value = variables[localeDefault][key];
+          const type = typeof value;
+          const label = !["string", "number", "boolean"].includes(type) ? ` <i>(${type})</i>` : `: ${`${value}`.slice(0, 20)}${`${value}`.length > 20 ? "..." : ""}`;
+          return <option key={key} value={key} dangerouslySetInnerHTML={{__html: `${key}${label}`}}></option>;
+        }));
 
     const iconList = [<option key="none" value="none">None</option>]
       .concat(blueprintIcons.map(icon =>
@@ -108,6 +124,31 @@ class SectionEditor extends Component {
         {toSpacedCase(l)}
       </option>
     );
+
+    // mini profile with one section
+    const profileRendererProps = {
+      profile: sectionPreview,  // The entire profile, filtered to a single section, as loaded in Header.jsx
+      sectionID: minData.id,    // Limit the Profile and its onSelect reloads to the given sectionID
+      formatters,               // The RAW formatters - ProfileRenderer handles turning them into Functions
+      isModal: true,            // only used by componentDidUpdate
+      hideAnchor: true,
+      hideHero: false,
+      hideSubnav: true,
+      hideOptions: true,
+      locale: useLocaleSecondary ? localeSecondary : localeDefault
+    };
+
+    // additional config based on preview profile
+    let previewTitle = null;
+    if (profileRendererProps.profile && profileRendererProps.profile.sections) {
+      const previewSection = profileRendererProps.profile.sections[0];
+      // used in dialog title
+      previewTitle = stripHTML(previewSection.title);
+      // if the preview section is a hero section, we need to render it
+      profileRendererProps.hideHero = previewSection.type.toLowerCase() !== "hero";
+      // it's already in a modal
+      if (previewSection.position === "modal") previewSection.position = "default";
+    }
 
     return (
       <div className="cms-editor-inner">
@@ -299,6 +340,16 @@ class SectionEditor extends Component {
           </Fragment>
         }
 
+        {/* preview section dialog */}
+        <Dialog
+          title={`Section preview: ${previewTitle}`}
+          isOpen={sectionPreview}
+          onClose={() => setStatus({sectionPreview: null})}
+          fullWidth
+        >
+          <PreviewHeader />
+          <ProfileRenderer {...profileRendererProps} />
+        </Dialog>
       </div>
     );
   }

@@ -1,5 +1,3 @@
-const {PROFILE_TYPES} = require("../utils/consts/cms");
-
 module.exports = function(sequelize, db) {
 
   const p = sequelize.define("profile",
@@ -9,23 +7,11 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         autoIncrement: true
       },
+      ordering: db.INTEGER,
       visible: {
         type: db.BOOLEAN,
         defaultValue: true
-      },
-      date: {
-        type: db.DATE,
-        defaultValue: null
-      },
-      type: {
-        type: db.STRING,
-        defaultValue: PROFILE_TYPES.PROFILE
-      },
-      settings: {
-        type: db.JSON,
-        default: {}
-      },
-      ordering: db.INTEGER
+      }
     },
     {
       tableName: "canon_cms_profile",
@@ -36,8 +22,11 @@ module.exports = function(sequelize, db) {
 
   p.associate = models => {
     p.hasMany(models.profile_meta, {foreignKey: "profile_id", sourceKey: "id", as: "meta"});
-    p.hasMany(models.profile_content, {foreignKey: "id", sourceKey: "id", as: "contentByLocale"});
+    p.hasMany(models.profile_content, {foreignKey: "id", sourceKey: "id", as: "content"});
     p.hasMany(models.section, {foreignKey: "profile_id", sourceKey: "id", as: "sections"});
+    p.hasMany(models.generator, {foreignKey: "profile_id", sourceKey: "id", as: "generators"});
+    p.hasMany(models.materializer, {foreignKey: "profile_id", sourceKey: "id", as: "materializers"});
+    p.hasMany(models.selector, {foreignKey: "profile_id", sourceKey: "id", as: "selectors"});
   };
 
   return p;

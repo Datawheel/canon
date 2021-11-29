@@ -25,7 +25,7 @@ axios.interceptors.response.use(d => {
 /** */
 export function getProfiles() {
   return function(dispatch, getStore) {
-    return axios.get(`${getStore().env.CANON_API}/api/cms/tree`)
+    return axios.get(`${getStore().env.CANON_API}/api/reports/tree`)
       .then(({data}) => {
         dispatch({type: "PROFILES_GET", data});
       });
@@ -35,7 +35,7 @@ export function getProfiles() {
 /** */
 export function newProfile(payload) {
   return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/cms/profile/new`, payload)
+    return axios.post(`${getStore().env.CANON_API}/api/reports/profile/new`, payload)
       .then(({data}) => {
         dispatch({type: "PROFILE_NEW", data});
       });
@@ -45,7 +45,7 @@ export function newProfile(payload) {
 /** */
 export function deleteProfile(id) {
   return function(dispatch, getStore) {
-    return axios.delete(`${getStore().env.CANON_API}/api/cms/profile/delete`, {params: {id}})
+    return axios.delete(`${getStore().env.CANON_API}/api/reports/profile/delete`, {params: {id}})
       .then(({data}) => {
         dispatch({type: "PROFILE_DELETE", data});
       });
@@ -55,7 +55,7 @@ export function deleteProfile(id) {
 /** */
 export function duplicateProfile(id) {
   return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/cms/profile/duplicate`, {id})
+    return axios.post(`${getStore().env.CANON_API}/api/reports/profile/duplicate`, {id})
       .then(({data}) => {
         dispatch({type: "PROFILE_DUPLICATE", data});
       });
@@ -67,7 +67,7 @@ export function translateProfile(id, variables, source, target) {
   return function(dispatch, getStore) {
     const translationCounter = getStore().cms.status.translationCounter + 1;
     dispatch({type: "TRANSLATE_START"});
-    return axios.post(`${getStore().env.CANON_API}/api/cms/profile/translate`, {id, variables, source, target})
+    return axios.post(`${getStore().env.CANON_API}/api/reports/profile/translate`, {id, variables, source, target})
       .then(({data}) => {
         if (data.error) {
           dispatch({type: "TRANSLATE_ERROR", error: data.error, translationCounter});
@@ -86,7 +86,7 @@ export function translateSection(id, variables, source, target) {
   return function(dispatch, getStore) {
     const translationCounter = getStore().cms.status.translationCounter + 1;
     dispatch({type: "TRANSLATE_START"});
-    return axios.post(`${getStore().env.CANON_API}/api/cms/section/translate`, {id, variables, source, target})
+    return axios.post(`${getStore().env.CANON_API}/api/reports/section/translate`, {id, variables, source, target})
       .then(({data}) => {
         if (data.error) {
           dispatch({type: "TRANSLATE_ERROR", error: data.error, translationCounter});
@@ -103,7 +103,7 @@ export function translateSection(id, variables, source, target) {
 /** */
 export function duplicateSection(id, pid) {
   return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/cms/section/duplicate`, {id, pid})
+    return axios.post(`${getStore().env.CANON_API}/api/reports/section/duplicate`, {id, pid})
       .then(({data}) => {
         dispatch({type: "SECTION_DUPLICATE", data});
       });
@@ -113,7 +113,7 @@ export function duplicateSection(id, pid) {
 /** */
 export function duplicateEntity(type, payload) {
   return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/duplicate`, payload)
+    return axios.post(`${getStore().env.CANON_API}/api/reports/${type}/duplicate`, payload)
       .then(({data}) => {
         dispatch({type: `${type.toUpperCase()}_DUPLICATE`, data});
       });
@@ -123,7 +123,7 @@ export function duplicateEntity(type, payload) {
 /** */
 export function swapEntity(type, id) {
   return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/swap`, {id})
+    return axios.post(`${getStore().env.CANON_API}/api/reports/${type}/swap`, {id})
       .then(({data}) => {
         dispatch({type: `${type.toUpperCase()}_SWAP`, data});
       });
@@ -135,7 +135,7 @@ export function modifyDimension(payload) {
   return function(dispatch, getStore) {
     dispatch({type: "SEARCH_LOADING"});
     const diffCounter = getStore().cms.status.diffCounter + 1;
-    return axios.post("/api/cms/profile/upsertDimension", payload)
+    return axios.post("/api/reports/profile/upsertDimension", payload)
       .then(({data}) => {
         dispatch({type: "DIMENSION_MODIFY", data, diffCounter});
         // TODO: Remove reset previews - have all profiles come from the server
@@ -148,7 +148,7 @@ export function modifyDimension(payload) {
 export function deleteDimension(id) {
   return function(dispatch, getStore) {
     const diffCounter = getStore().cms.status.diffCounter + 1;
-    return axios.delete("/api/cms/profile_meta/delete", {params: {id}})
+    return axios.delete("/api/reports/profile_meta/delete", {params: {id}})
       .then(({data}) => {
         dispatch({type: "DIMENSION_MODIFY", data, diffCounter});
       });
@@ -158,7 +158,7 @@ export function deleteDimension(id) {
 /** */
 export function activateSection(id) {
   return function(dispatch) {
-    return axios.get("/api/cms/section/activate", {params: {id}})
+    return axios.get("/api/reports/section/activate", {params: {id}})
       .then(resp => {
         if (resp.status === 200) {
           dispatch({type: "SECTION_ACTIVATE", data: resp.data});
@@ -175,7 +175,7 @@ export function activateSection(id) {
 export function newEntity(type, payload) {
   return async function(dispatch, getStore) {
     const store = getStore();
-    const resp = await axios.post(`${store.env.CANON_API}/api/cms/${type}/new`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
+    const resp = await axios.post(`${store.env.CANON_API}/api/reports/${type}/new`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       dispatch({type: `${type.toUpperCase()}_NEW`, data: resp.data});
       return {status: REQUEST_STATUS.SUCCESS};
@@ -196,7 +196,7 @@ export function updateEntity(type, payload) {
     // Formatters require locales in the payload to know what languages to compile for
     const store = getStore();
     const locales = getLocales(store.env);
-    const resp = await axios.post(`${store.env.CANON_API}/api/cms/${type}/update`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
+    const resp = await axios.post(`${store.env.CANON_API}/api/reports/${type}/update`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, locales});
       return {status: REQUEST_STATUS.SUCCESS};
@@ -214,7 +214,7 @@ export function deleteEntity(type, payload) {
     const store = getStore();
     // Formatters require locales in the payload to know what languages to compile for
     const locales = getLocales(store.env);
-    const resp = await axios.delete(`${store.env.CANON_API}/api/cms/${type}/delete`, {params: payload}).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
+    const resp = await axios.delete(`${store.env.CANON_API}/api/reports/${type}/delete`, {params: payload}).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       dispatch({type: `${type.toUpperCase()}_DELETE`, data: resp.data, locales});
       return {status: REQUEST_STATUS.SUCCESS};
@@ -346,7 +346,7 @@ export function fetchVariables(config) {
     const locales = [localeDefault];
     if (localeSecondary) locales.push(localeSecondary);
 
-    const magicURL = `/api/cms/customAttributes/${currentPid}`;
+    const magicURL = `/api/reports/customAttributes/${currentPid}`;
     const attributesByLocale = {};
     const durationByLocale = {};
     for (const thisLocale of locales) {

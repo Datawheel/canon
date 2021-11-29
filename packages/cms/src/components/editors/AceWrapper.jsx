@@ -12,7 +12,6 @@ export default class AceWrapper extends Component {
   }
 
   componentDidUpdate() {
-
     if (this.editor) {
       clearTimeout(this.resize);
       this.resize = setTimeout(editor => editor.resize(), 400, this.editor.editor);
@@ -32,9 +31,9 @@ export default class AceWrapper extends Component {
 
       const options = {
         fontSize: "14px",
-        useWorker: "false",
-        enableBasicAutocompletion: true,
-        enableLiveAutocompletion: true
+        useWorker: "false"
+        // enableBasicAutocompletion: true,
+        // enableLiveAutocompletion: true
       };
 
       const editorProps = {
@@ -42,10 +41,7 @@ export default class AceWrapper extends Component {
       };
 
       return (
-        <div /* className={`cms-ace-container${isFullscreen ? " is-fullscreen" : ""}`}*/>
-          {/*
-          // todo1.0 add this fullscreen button back in
-
+        <div className={`cms-ace-container${isFullscreen ? " is-fullscreen" : ""}`}>
           <Button
             className="cms-ace-button"
             namespace="cms"
@@ -53,11 +49,10 @@ export default class AceWrapper extends Component {
             active={isFullscreen}
             icon={isFullscreen ? "minimize" : "fullscreen"}
             onClick={() => this.setState({isFullscreen: !isFullscreen})}
-            key="fullscreen-button"
+            key="b"
           >
             Toggle fullscreen
           </Button>
-          */}
           <Ace
             width="100%"
             height="100%"
@@ -68,7 +63,7 @@ export default class AceWrapper extends Component {
             mode="javascript"
             setOptions={options}
             editorProps={editorProps}
-            key="ace-editor"
+            key="e"
             {...this.props}
           />
         </div>

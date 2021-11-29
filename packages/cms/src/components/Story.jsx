@@ -9,7 +9,7 @@ import {Helmet} from "react-helmet-async";
 import deepClone from "../utils/deepClone.js";
 import funcifyFormatterByLocale from "../utils/funcifyFormatterByLocale";
 import mortarEval from "../utils/mortarEval";
-// import prepareStory from "../utils/prepareStory";
+import prepareStory from "../utils/prepareStory";
 import stripHTML from "../utils/formatters/stripHTML";
 
 /* Sections */

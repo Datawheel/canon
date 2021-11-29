@@ -13,6 +13,7 @@ export default (profiles = {}, action) => {
   switch (action.type) {
     // Profiles
     case "PROFILES_GET":
+      console.log("wat");
       const structure = normalize(action.data, profileSchema);
       console.log("Redux Structure:", structure);
       return structure;

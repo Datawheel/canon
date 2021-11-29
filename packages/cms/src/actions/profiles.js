@@ -4,7 +4,6 @@ import deepClone from "../utils/deepClone";
 import getLocales from "../utils/getLocales";
 import attify from "../utils/attify";
 import groupMeta from "../utils/groupMeta";
-import {REQUEST_STATUS} from "../utils/consts/redux";
 
 const catcher = e => {
   console.log(`Error in profile action: ${e}`);
@@ -33,9 +32,9 @@ export function getProfiles() {
 }
 
 /** */
-export function newProfile(payload) {
+export function newProfile() {
   return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/cms/profile/new`, payload)
+    return axios.post(`${getStore().env.CANON_API}/api/cms/profile/newScaffold`)
       .then(({data}) => {
         dispatch({type: "PROFILE_NEW", data});
       });
@@ -156,73 +155,64 @@ export function deleteDimension(id) {
 }
 
 /** */
-export function activateSection(id) {
-  return function(dispatch) {
-    return axios.get("/api/cms/section/activate", {params: {id}})
-      .then(resp => {
-        if (resp.status === 200) {
-          dispatch({type: "SECTION_ACTIVATE", data: resp.data});
-          return {status: REQUEST_STATUS.SUCCESS};
-        }
-        else {
-          return {status: REQUEST_STATUS.ERROR, error: resp.status};
-        }
+export function newEntity(type, payload) {
+  return function(dispatch, getStore) {
+    return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/new`, payload)
+      .then(({data}) => {
+        dispatch({type: `${type.toUpperCase()}_NEW`, data});
       });
   };
 }
 
 /** */
-export function newEntity(type, payload) {
-  return async function(dispatch, getStore) {
-    const store = getStore();
-    const resp = await axios.post(`${store.env.CANON_API}/api/cms/${type}/new`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
-    if (resp.status === 200) {
-      dispatch({type: `${type.toUpperCase()}_NEW`, data: resp.data});
-      return {status: REQUEST_STATUS.SUCCESS};
-    }
-    else {
-      // dispatch({type: `${type.toUpperCase()}_ERROR`, data: {id: payload.id}});
-      return {status: REQUEST_STATUS.ERROR, error: resp.status};
-    }
-
-  };
-}
-
-// todo1.0 clear out all this formatter/locales compiling stuff
-
-/** */
 export function updateEntity(type, payload) {
-  return async function(dispatch, getStore) {
+  return function(dispatch, getStore) {
+    dispatch({type: "CLEAR_UPDATED"});
+    // Updates might need to trigger re-running certain displays. Use diffCounter to track changes
+    const diffCounter = getStore().cms.status.diffCounter + 1;
     // Formatters require locales in the payload to know what languages to compile for
-    const store = getStore();
-    const locales = getLocales(store.env);
-    const resp = await axios.post(`${store.env.CANON_API}/api/cms/${type}/update`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
-    if (resp.status === 200) {
-      dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, locales});
-      return {status: REQUEST_STATUS.SUCCESS};
-    }
-    else {
-      // dispatch({type: `${type.toUpperCase()}_ERROR`, data: {id: payload.id}});
-      return {status: REQUEST_STATUS.ERROR, error: resp.status};
-    }
+    const locales = getLocales(getStore().env);
+    return axios.post(`${getStore().env.CANON_API}/api/cms/${type}/update`, payload)
+      .then(resp => {
+        if (resp.status === 200) {
+          dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, diffCounter, locales});
+        }
+        else {
+          dispatch({type: `${type.toUpperCase()}_ERROR`, data: {id: payload.id}});
+        }
+      }).catch(() => {
+        dispatch({type: `${type.toUpperCase()}_ERROR`, data: {id: payload.id}});
+      });
   };
 }
 
 /** */
 export function deleteEntity(type, payload) {
-  return async function(dispatch, getStore) {
-    const store = getStore();
+  return function(dispatch, getStore) {
+    // Deletes might need to trigger re-running certain displays. Use diffCounter to track changes
+    const diffCounter = getStore().cms.status.diffCounter + 1;
     // Formatters require locales in the payload to know what languages to compile for
-    const locales = getLocales(store.env);
-    const resp = await axios.delete(`${store.env.CANON_API}/api/cms/${type}/delete`, {params: payload}).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
-    if (resp.status === 200) {
-      dispatch({type: `${type.toUpperCase()}_DELETE`, data: resp.data, locales});
-      return {status: REQUEST_STATUS.SUCCESS};
-    }
-    else {
-      // dispatch({type: `${type.toUpperCase()}_ERROR`, data: {id: payload.id}});
-      return {status: REQUEST_STATUS.ERROR, error: resp.status};
-    }
+    const locales = getLocales(getStore().env);
+    axios.delete(`${getStore().env.CANON_API}/api/cms/${type}/delete`, {params: payload})
+      .then(({data}) => {
+        dispatch({type: `${type.toUpperCase()}_DELETE`, data, diffCounter, locales});
+      });
+  };
+}
+
+/** */
+export function fetchSectionPreview(id, locale) {
+  return function(dispatch, getStore) {
+    dispatch({type: "SECTION_PREVIEW_FETCH"});
+    const {currentPid, pathObj} = getStore().cms.status;
+    const {variables} = getStore().cms.variables[locale];
+    const {previews} = pathObj;
+    const idString = previews.reduce((acc, id, i) => `${acc}&slug${i + 1}=${id.slug}&id${i + 1}=${id.id}`, "");
+    const url = `${getStore().env.CANON_API}/api/profile?profile=${currentPid}&section=${id}&locale=${locale}${idString}`;
+    axios.post(url, {variables})
+      .then(({data}) => {
+        dispatch({type: "SECTION_PREVIEW_SET", data});
+      });
   };
 }
 

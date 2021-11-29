@@ -29,7 +29,7 @@ const initialState = {
 };
 
 /** */
-export default function cmsReducer(state = initialState, action) {
+export default function reportsReducer(state = initialState, action) {
   return {
     status: status(state.status, action),
     cubeData: cubeData(state.cubeData, action),

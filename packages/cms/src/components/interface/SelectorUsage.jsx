@@ -9,8 +9,7 @@ import scaffoldDynamic from "../../utils/selectors/scaffoldDynamic";
 import {newEntity, deleteEntity, swapEntity} from "../../actions/profiles";
 import {setStatus} from "../../actions/status";
 
-// import {SELECTOR_TYPES} from "../../utils/consts/cms";
-const SELECTOR_TYPES = {};
+import {SELECTOR_TYPES} from "../../utils/consts/cms";
 
 import "./SelectorUsage.css";
 

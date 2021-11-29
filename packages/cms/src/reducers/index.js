@@ -7,6 +7,7 @@ import profiles from "./profiles.js";
 import cubeData from "./cubeData.js";
 import status from "./status.js";
 import formatters from "./formatters.js";
+import stories from "./stories.js";
 import resources from "./resources.js";
 import variables from "./variables.js";
 
@@ -20,10 +21,11 @@ const initialState = {
     pathObj: {}
   },
   cubeData: false,
-  profiles: {},
+  profiles: [],
+  stories: [],
   formatters: [],
   resources: {
-    formatterFunctions: false
+    formatterFunctions: {}
   },
   variables: {}
 };
@@ -34,6 +36,7 @@ export default function cmsReducer(state = initialState, action) {
     status: status(state.status, action),
     cubeData: cubeData(state.cubeData, action),
     profiles: profiles(state.profiles, action),
+    stories: stories(state.stories, action),
     formatters: formatters(state.formatters, action),
     resources: resources(state.resources, action),
     variables: variables(state.variables, action)

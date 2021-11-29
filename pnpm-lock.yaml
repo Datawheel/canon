@@ -44,20 +44,12 @@ importers:
     specifiers:
       '@blueprintjs/core': ^3.51.3
       '@blueprintjs/datetime': ^3.23.4
-      '@blueprintjs/popover2': ^0.12.8
       '@blueprintjs/select': ^3.16.4
       '@datawheel/canon-core': workspace:^
       '@datawheel/canon-logiclayer': workspace:^
       '@datawheel/olap-client': ^2.0.0-beta.1
       '@google-cloud/storage': 5.3.0
       '@google-cloud/translate': ^6.0.3
-      '@mantine/core': ~3.1.8
-      '@mantine/dates': ~3.1.8
-      '@mantine/dropzone': ~3.1.8
-      '@mantine/hooks': ~3.1.8
-      '@mantine/notifications': ~3.1.8
-      '@mantine/prism': ~3.1.8
-      '@mantine/rte': ~3.1.8
       ace-builds: ^1.4.12
       axios: ^0.21.1
       base58: ^2.0.1
@@ -74,14 +66,13 @@ importers:
       d3plus-react: ^1.0.0
       d3plus-text: ^1.0.1
       d3plus-viz: ^1.0.3
-      draft-js: ^0.11.7
+      draft-js: ^0.11.3
       draft-js-buttons: ^2.0.2
       draft-js-export-html: ^1.4.1
       draft-js-mention-plugin: ^3.1.5
       draft-js-plugins-editor: ^3.0.0
       draft-js-static-toolbar-plugin: ^3.0.1
       draft-js-toolbar-link-plugin: ^1.0.1
-      eslint-plugin-react-hooks: ^4.2.0
       file-saver: ^2.0.2
       flickr-sdk: ^3.9.0
       getopts: ^2.2.5
@@ -91,15 +82,11 @@ importers:
       localforage: ^1.7.2
       multer: ^1.4.2
       node-yaml: ^3.1.1
-      normalizr: ^3.6.1
-      pretty-format: ^27.3.1
       promise-throttle: ^1.0.0
       puppeteer: ^8.0.0
       puppeteer-cluster: ^0.22.0
       react-ace: 9.4.1
-      react-beautiful-dnd: ^13.1.0
       react-clipboard.js: ^2.0.7
-      react-icons: ^4.3.1
       react-sizeme: ^2.6.7
       react-table: 6.10.3
       sharp: ^0.28.1
@@ -107,18 +94,10 @@ importers:
     dependencies:
       '@blueprintjs/core': 3.51.3
       '@blueprintjs/datetime': 3.23.4
-      '@blueprintjs/popover2': 0.12.8
       '@blueprintjs/select': 3.16.4
       '@datawheel/olap-client': 2.0.0-beta.2
       '@google-cloud/storage': 5.3.0
       '@google-cloud/translate': 6.1.0
-      '@mantine/core': 3.1.8_@mantine+hooks@3.1.8
-      '@mantine/dates': 3.1.8_12d0e54b21138a557fe1098b89e65fc2
-      '@mantine/dropzone': 3.1.8_12d0e54b21138a557fe1098b89e65fc2
-      '@mantine/hooks': 3.1.8
-      '@mantine/notifications': 3.1.8_12d0e54b21138a557fe1098b89e65fc2
-      '@mantine/prism': 3.1.8_12d0e54b21138a557fe1098b89e65fc2
-      '@mantine/rte': 3.1.8_12d0e54b21138a557fe1098b89e65fc2
       ace-builds: 1.4.12
       axios: 0.21.1
       base58: 2.0.1
@@ -142,7 +121,6 @@ importers:
       draft-js-plugins-editor: 3.0.0_draft-js@0.11.7
       draft-js-static-toolbar-plugin: 3.0.1_draft-js@0.11.7
       draft-js-toolbar-link-plugin: 1.0.1_draft-js-plugins-editor@3.0.0
-      eslint-plugin-react-hooks: 4.2.0
       file-saver: 2.0.5
       flickr-sdk: 3.10.0
       getopts: 2.2.5
@@ -152,15 +130,11 @@ importers:
       localforage: 1.9.0
       multer: 1.4.2
       node-yaml: 3.2.0
-      normalizr: 3.6.1
-      pretty-format: 27.3.1
       promise-throttle: 1.1.2
       puppeteer: 8.0.0
       puppeteer-cluster: 0.22.0_puppeteer@8.0.0
       react-ace: 9.4.1
-      react-beautiful-dnd: 13.1.0
       react-clipboard.js: 2.0.16
-      react-icons: 4.3.1
       react-sizeme: 2.6.12
       react-table: 6.10.3
       sharp: 0.28.1
