@@ -5,7 +5,7 @@ import {Menu} from "@mantine/core";
 import {HiOutlineTrash, HiOutlineEye} from "react-icons/hi";
 
 /* redux */
-import {deleteEntity, deleteProfile} from "../../actions/profiles";
+import {deleteEntity, deleteReport} from "../../actions/reports";
 
 /* hooks */
 import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
@@ -35,8 +35,8 @@ function CogMenu({type, id, control}) {
     });
 
     if (confirmed) {
-      if (type === ENTITY_TYPES.PROFILE) {
-        dispatch(deleteProfile(id));
+      if (type === ENTITY_TYPES.REPORT) {
+        dispatch(deleteReport(id));
       }
       else {
         dispatch(deleteEntity(type, {id}));

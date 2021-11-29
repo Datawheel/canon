@@ -1,5 +1,5 @@
 /* react */
-import React, {useState, useMemo} from "react";
+import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Button} from "@mantine/core";
 
@@ -7,7 +7,7 @@ import {Button} from "@mantine/core";
 import ConsumerMenu from "../components/ConsumerMenu";
 
 /* redux */
-import {updateEntity} from "../../actions/profiles";
+import {updateEntity} from "../../actions/reports";
 
 /* consts */
 import {ENTITY_TYPES} from "../../utils/consts/cms";
@@ -29,7 +29,7 @@ function BlockOutputPanel({id, components}) {
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
-  const blocks = useSelector(state => state.cms.profiles.entities.blocks);
+  const blocks = useSelector(state => state.cms.reports.entities.blocks);
 
   const block = blocks[id];
 

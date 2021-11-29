@@ -8,7 +8,7 @@ import {HiViewGridAdd, HiCheckCircle} from "react-icons/hi";
 import InputMenuItem from "./InputMenuItem";
 
 /* redux */
-import {newEntity, deleteEntity} from "../../actions/profiles";
+import {newEntity, deleteEntity} from "../../actions/reports";
 
 /* consts */
 import {ENTITY_TYPES} from "../../utils/consts/cms";
@@ -19,10 +19,10 @@ function InputMenu({id}) {
   const dispatch = useDispatch();
 
   /* redux */
-  const blocks = useSelector(state => state.cms.profiles.entities.blocks);
+  const blocks = useSelector(state => state.cms.reports.entities.blocks);
 
   const block = blocks[id];
-  const inputs = useSelector(state => state.cms.profiles.entities.inputs);
+  const inputs = useSelector(state => state.cms.reports.entities.inputs);
   const inputBlocks = useMemo(() => Object.values(inputs || []).filter(d => block.inputs.includes(d.id)).reduce((acc, d) => ({...acc, [d.id]: d}), {}), [inputs]);
 
   const sectionBlocks = useMemo(() => Object.values(blocks).filter(d => d.section_id === block.section_id), [blocks]);

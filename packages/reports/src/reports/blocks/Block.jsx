@@ -22,7 +22,7 @@ import sanitizeBlockContent from "../../utils/sanitizeBlockContent";
 import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
 
 /* redux */
-import {updateEntity} from "../../actions/profiles";
+import {updateEntity} from "../../actions/reports";
 
 /* enums */
 import {ENTITY_TYPES, BLOCK_MAP, BLOCK_TYPES} from "../../utils/consts/cms";
@@ -50,11 +50,11 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
-  const blocks = useSelector(state => state.cms.profiles.entities.blocks);
+  const blocks = useSelector(state => state.cms.reports.entities.blocks);
   const block = blocks[id];
 
   /**
-   * The content of the entire CMS is kept in a normalized redux object called profiles.
+   * The content of the entire CMS is kept in a normalized redux object called reports.
    * These redux-level props cannot be edited directly, so each of the editors (draft, ace)
    * will clone their contents on mount, and report their new states here via callbacks.
    * When the user presses save, we have access to the current blockState here, so it can

@@ -1,5 +1,5 @@
 /* react */
-import React, {useMemo} from "react";
+import React from "react";
 import {useSelector} from "react-redux";
 import {Tabs, Tab} from "@mantine/core";
 import {HiOutlineDocumentText, HiOutlineCog} from "react-icons/hi";
@@ -20,7 +20,7 @@ import {BLOCK_TYPES} from "../utils/consts/cms";
 function BlockEditor({id, components}) {
 
   /* redux */
-  const blocks = useSelector(state => state.cms.profiles.entities.blocks);
+  const blocks = useSelector(state => state.cms.reports.entities.blocks);
   const block = blocks[id];
 
   if (!block) return null;

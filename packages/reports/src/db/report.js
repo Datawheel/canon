@@ -1,8 +1,8 @@
-const {PROFILE_TYPES} = require("../utils/consts/cms");
+const {REPORT_TYPES} = require("../utils/consts/cms");
 
 module.exports = function(sequelize, db) {
 
-  const p = sequelize.define("profile",
+  const p = sequelize.define("report",
     {
       id: {
         type: db.INTEGER,
@@ -19,7 +19,7 @@ module.exports = function(sequelize, db) {
       },
       type: {
         type: db.STRING,
-        defaultValue: PROFILE_TYPES.PROFILE
+        defaultValue: REPORT_TYPES.REPORT
       },
       settings: {
         type: db.JSON,
@@ -28,16 +28,16 @@ module.exports = function(sequelize, db) {
       ordering: db.INTEGER
     },
     {
-      tableName: "canon_cms_profile",
+      tableName: "canon_cms_report",
       freezeTableName: true,
       timestamps: false
     }
   );
 
   p.associate = models => {
-    p.hasMany(models.profile_meta, {foreignKey: "profile_id", sourceKey: "id", as: "meta"});
-    p.hasMany(models.profile_content, {foreignKey: "id", sourceKey: "id", as: "contentByLocale"});
-    p.hasMany(models.section, {foreignKey: "profile_id", sourceKey: "id", as: "sections"});
+    p.hasMany(models.report_meta, {foreignKey: "report_id", sourceKey: "id", as: "meta"});
+    p.hasMany(models.report_content, {foreignKey: "id", sourceKey: "id", as: "contentByLocale"});
+    p.hasMany(models.section, {foreignKey: "report_id", sourceKey: "id", as: "sections"});
   };
 
   return p;

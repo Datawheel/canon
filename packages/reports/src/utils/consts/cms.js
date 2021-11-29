@@ -3,7 +3,7 @@
  * and has CRUD operations accordingly.
  */
 const ENTITY_TYPES = {
-  PROFILE: "profile",
+  REPORT: "report",
   SECTION: "section",
   BLOCK: "block",
   BLOCK_INPUT: "block_input"
@@ -13,18 +13,18 @@ const ENTITY_TYPES = {
  * For each ENTITY_TYPE, store a pretty name for window titles, etc.
  */
 const ENTITY_PRETTY_NAMES = {
-  profile: "Profile",
+  report: "Report",
   section: "Section",
   block: "Block",
   block_input: "Input"
 };
 
 /**
- * Profiles and stories are nearly identical, but stories have a
+ * Reports and stories are nearly identical, but stories have a
  * publish date, and support for footnotes / authors
  */
-const PROFILE_TYPES = {
-  PROFILE: "profile",
+const REPORT_TYPES = {
+  REPORT: "report",
   STORY: "story"
 };
 
@@ -38,18 +38,18 @@ const PROFILE_TYPES = {
  * SETTINGS - a list of settings keys expected in the settings object
  */
 
-const PROFILE_FIELDS = {
+const REPORT_FIELDS = {
   TITLE: "title",
   SUBTITLE: "subtitle",
   LABEL: "label"
 };
 
-const PROFILE_MAP = {
-  [PROFILE_TYPES.PROFILE]: Object.values(PROFILE_FIELDS),
-  [PROFILE_TYPES.STORY]: Object.values(PROFILE_FIELDS)
+const REPORT_MAP = {
+  [REPORT_TYPES.REPORT]: Object.values(REPORT_FIELDS),
+  [REPORT_TYPES.STORY]: Object.values(REPORT_FIELDS)
 };
 
-const PROFILE_SETTINGS = {
+const REPORT_SETTINGS = {
   ALLOWED: "allowed",
   LOGIC_ALLOWED: "logicAllowed",
   LOGIC_ALLOWED_ENABLED: "logicAllowedEnabled"
@@ -180,10 +180,10 @@ module.exports = {
   BLOCK_TYPES,
   ENTITY_TYPES,
   ENTITY_PRETTY_NAMES,
-  PROFILE_FIELDS,
-  PROFILE_MAP,
-  PROFILE_SETTINGS,
-  PROFILE_TYPES,
+  REPORT_FIELDS,
+  REPORT_MAP,
+  REPORT_SETTINGS,
+  REPORT_TYPES,
   SECTION_FIELDS,
   SECTION_SETTINGS
 };

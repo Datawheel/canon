@@ -8,10 +8,10 @@ import {HiOutlineRss} from "react-icons/hi";
 function ConsumerMenu({id}) {
 
   /* redux */
-  const blocks = useSelector(state => state.cms.profiles.entities.blocks);
+  const blocks = useSelector(state => state.cms.reports.entities.blocks);
 
   const block = blocks[id];
-  const consumers = useSelector(state => state.cms.profiles.entities.consumers);
+  const consumers = useSelector(state => state.cms.reports.entities.consumers);
   const consumerBlocks = useMemo(() => Object.values(consumers || []).filter(d => block.consumers.includes(d.id)), [consumers]);
 
   return (

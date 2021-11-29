@@ -13,7 +13,7 @@ import "./VariableList.css";
 function VariableList({id}) {
 
   /* redux */
-  const blocks = useSelector(state => state.cms.profiles.entities.blocks);
+  const blocks = useSelector(state => state.cms.reports.entities.blocks);
   const block = blocks[id];
 
   const {variables, response} = useMemo(() => {

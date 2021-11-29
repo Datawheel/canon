@@ -10,7 +10,7 @@ import {BLOCK_TYPES, ENTITY_TYPES} from "../../utils/consts/cms";
 import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
 
 /* redux */
-import {deleteEntity} from "../../actions/profiles";
+import {deleteEntity} from "../../actions/reports";
 
 /* utils */
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
@@ -24,7 +24,7 @@ function BlockSettings({id, onChange}) {
   const {getConfirmation} = useConfirmationDialog();
 
   /* redux */
-  const blocks = useSelector(state => state.cms.profiles.entities.blocks);
+  const blocks = useSelector(state => state.cms.reports.entities.blocks);
   const block = blocks[id];
 
   const types = useMemo(() => Object.values(BLOCK_TYPES)

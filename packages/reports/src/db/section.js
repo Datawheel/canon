@@ -20,11 +20,11 @@ module.exports = function(sequelize, db) {
       ordering: db.INTEGER,
 
       /* relations */
-      profile_id: {
+      report_id: {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {
-          model: "canon_cms_profile",
+          model: "canon_cms_report",
           key: "id"
         }
       }

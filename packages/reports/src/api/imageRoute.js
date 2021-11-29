@@ -73,7 +73,7 @@ module.exports = function(app) {
     const jsonError = () => res.json({error: "Not Found"});
     const imageError = () => res.sendFile(`${process.cwd()}/static/images/transparent.png`);
     const reqObj = req.query.dimension && req.query.cubeName ? {where: {dimension: req.query.dimension, cubeName: req.query.cubeName}} : {where: {slug}};
-    const meta = await db.profile_meta.findOne(reqObj).catch(catcher);
+    const meta = await db.report_meta.findOne(reqObj).catch(catcher);
     if (!meta) return type === "json" ? jsonError() : imageError();
     const {dimension, cubeName} = meta;
     const searchWhere = {

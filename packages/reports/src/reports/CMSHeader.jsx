@@ -21,17 +21,17 @@ function CMSHeader({id}) {
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
   const locales = useSelector(state => state.cms.status.locales);
   // todo1.0 - is this too heavy to import the whole thing?
-  const profiles = useSelector(state => Object.values(state.cms.profiles.entities.profiles));
+  const reports = useSelector(state => Object.values(state.cms.reports.entities.reports));
 
   const goBack = () => {
     dispatch(setStatus({pathObj: {home: true}}));
   };
 
   const onChangeReport = value => {
-    dispatch(setStatus({pathObj: {[ENTITY_TYPES.PROFILE]: Number(value)}}));
+    dispatch(setStatus({pathObj: {[ENTITY_TYPES.REPORT]: Number(value)}}));
   };
 
-  const reportOptions = profiles.map(d => ({value: String(d.id), label: d.contentByLocale[localeDefault].content.label}));
+  const reportOptions = reports.map(d => ({value: String(d.id), label: d.contentByLocale[localeDefault].content.label}));
   const previewOptions = ["Massachusetts", "New York", "California"].map(d => ({value: d, label: d}));
   const localeOptions = [localeDefault].concat(locales).map(d => ({value: d, label: d}));
 

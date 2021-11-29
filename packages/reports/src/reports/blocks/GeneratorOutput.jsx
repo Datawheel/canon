@@ -24,7 +24,7 @@ function GeneratorOutput({id, components}) {
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
-  const block = useSelector(state => state.cms.profiles.entities.blocks[id]);
+  const block = useSelector(state => state.cms.reports.entities.blocks[id]);
 
   const {apiInput, codeEditor, executeButton} = components;
 

@@ -3,9 +3,9 @@ const sequelize = require("sequelize"),
       yn = require("yn");
 
 const populateSearch = require("../utils/populateSearch");
-const {profileReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables, blockReqFull} = require("../utils/sequelize/ormHelpers");
-const {translateProfile, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
-const {PROFILE_FIELDS} = require("../utils/consts/cms");
+const {reportReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables, blockReqFull} = require("../utils/sequelize/ormHelpers");
+const {translateReport, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
+const {REPORT_FIELDS} = require("../utils/consts/cms");
 const {REQUEST_STATUS} = require("../utils/consts/redux");
 const {runConsumers} = require("../utils/sequelize/blockHelpers");
 
@@ -49,12 +49,12 @@ const flatSort = (conn, array) => {
 
 const contentReducer = (acc, d) => ({...acc, [d.locale]: d});
 
-const sortProfile = (db, profile) => {
+const sortReport = (db, report) => {
   // Don't use flatSort for meta. Meta can have multiple entities in the same ordering, so do not attempt to "flatten" them out
-  profile.meta = profile.meta.sort(sorter);
-  profile.contentByLocale = profile.contentByLocale.reduce(contentReducer, {});
-  profile.sections = flatSort(db.section, profile.sections);
-  return profile;
+  report.meta = report.meta.sort(sorter);
+  report.contentByLocale = report.contentByLocale.reduce(contentReducer, {});
+  report.sections = flatSort(db.section, report.sections);
+  return report;
 };
 
 const sortSection = (db, section) => {
@@ -67,11 +67,11 @@ const sortSection = (db, section) => {
 };
 
 const pruneSearch = async(cubeName, dimension, levels, db) => {
-  const currentMeta = await db.profile_meta.findAll().catch(catcher);
+  const currentMeta = await db.report_meta.findAll().catch(catcher);
   const dimensionCubePairs = currentMeta.reduce((acc, d) => acc.concat(`${d.dimension}-${d.cubeName}`), []);
 
   /**
-   * Only clear the search table of dimensions that NO remaining profiles are currently making use of.
+   * Only clear the search table of dimensions that NO remaining reports are currently making use of.
    * Don't need to prune levels - they will be filtered automatically in searches.
    * If it gets unwieldy in size however, an optimization could be made here
    */
@@ -139,14 +139,14 @@ module.exports = function(app) {
 
   app.get("/api/reports/section/activate", async(req, res) => {
     const id = Number(req.query.id);
-    const profiles = await getProfileTreeAndActivate(req, id);
-    return res.json(profiles);
+    const reports = await getReportTreeAndActivate(req, id);
+    return res.json(reports);
   });
 
   /* GETS */
 
   app.get("/api/reports/meta", async(req, res) => {
-    let meta = await db.profile_meta.findAll().catch(catcher);
+    let meta = await db.report_meta.findAll().catch(catcher);
     meta = meta.map(m => m.toJSON());
     for (const m of meta) {
       m.top = await db.search.findOne({where: {dimension: m.dimension, cubeName: m.cubeName}, order: [["zvalue", "DESC"]], limit: 1}).catch(catcher);
@@ -154,14 +154,14 @@ module.exports = function(app) {
     res.json(meta);
   });
 
-  app.get("/api/reports/tree", async(req, res) => res.json(await getProfileTreeAndActivate(req)));
+  app.get("/api/reports/tree", async(req, res) => res.json(await getReportTreeAndActivate(req)));
 
   /**
-   * Returns a list of profiles including both the meta and content associations
-   * for the current language. Primarily used by the ProfileSearch component.
+   * Returns a list of reports including both the meta and content associations
+   * for the current language. Primarily used by the ReportSearch component.
    */
-  app.get("/api/reports/profiles", async(req, res) => {
-    let meta = await db.profile.findAll({
+  app.get("/api/reports/reports", async(req, res) => {
+    let meta = await db.report.findAll({
       include: [
         {association: "meta", separate: true},
         {association: "contentByLocale", separate: true}
@@ -186,15 +186,15 @@ module.exports = function(app) {
 
   /* INSERTS */
 
-  app.post("/api/reports/profile/new", isEnabled, async(req, res) => {
-    const ordering = await findMaxOrdering("profile").catch(catcher);
-    const profileFields = Object.values(PROFILE_FIELDS).reduce((acc, d) => req.body[d] ? {...acc, [d]: req.body[d]} : acc, {});
-    const profile = await db.profile.create({ordering}).catch(catcher);
-    await db.profile_content.create({id: profile.id, locale: localeDefault, content: profileFields}).catch(catcher);
-    const section = await db.section.create({ordering: 0, slug: "hero", profile_id: profile.id});
+  app.post("/api/reports/report/new", isEnabled, async(req, res) => {
+    const ordering = await findMaxOrdering("report").catch(catcher);
+    const reportFields = Object.values(REPORT_FIELDS).reduce((acc, d) => req.body[d] ? {...acc, [d]: req.body[d]} : acc, {});
+    const report = await db.report.create({ordering}).catch(catcher);
+    await db.report_content.create({id: report.id, locale: localeDefault, content: reportFields}).catch(catcher);
+    const section = await db.section.create({ordering: 0, slug: "hero", report_id: report.id});
     await db.section_content.create({id: section.id, locale: localeDefault}).catch(catcher);
-    const profiles = await getProfileTreeAndActivate(req).catch(catcher);
-    return res.json(profiles);
+    const reports = await getReportTreeAndActivate(req).catch(catcher);
+    return res.json(reports);
   });
 
   app.post("/api/reports/section/new", isEnabled, async(req, res) => {
@@ -202,24 +202,24 @@ module.exports = function(app) {
     if (req.body.ordering) {
       await db.section.update(
         {ordering: sequelize.literal("ordering +1")},
-        {where: {ordering: {[Op.gte]: req.body.ordering}, profile_id: req.body.profile_id}}).catch(catcher);
+        {where: {ordering: {[Op.gte]: req.body.ordering}, report_id: req.body.report_id}}).catch(catcher);
     }
     else {
       // If it was not provided, but this is a table that needs them, append it to the end and
       // insert the derived ordering into req.body
-      req.body.ordering = await findMaxOrdering("section", "profile_id", req.body.profile_id).catch(catcher);
+      req.body.ordering = await findMaxOrdering("section", "report_id", req.body.report_id).catch(catcher);
     }
     const newSection = await db.section.create(req.body).catch(catcher);
     await db.section_content.create({...req.body, id: newSection.id, locale: localeDefault}).catch(catcher);
-    const profiles = await getProfileTreeAndActivate(req, newSection.id).catch(catcher);
-    return res.json(profiles);
+    const reports = await getReportTreeAndActivate(req, newSection.id).catch(catcher);
+    return res.json(reports);
   });
 
   app.post("/api/reports/block_input/new", isEnabled, async(req, res) => {
     await db.block_input.create(req.body).catch(catcher);
     const block = await db.block.findOne({where: {id: req.body.block_id}}).catch(catcher);
-    const profiles = await getProfileTreeAndActivate(req, block.section_id);
-    return res.json(profiles);
+    const reports = await getReportTreeAndActivate(req, block.section_id);
+    return res.json(reports);
   });
 
   app.post("/api/reports/block/new", isEnabled, async(req, res) => {
@@ -236,50 +236,50 @@ module.exports = function(app) {
     }
     const newBlock = await db.block.create(req.body).catch(catcher);
     await db.block_content.create({...req.body, id: newBlock.id, locale: localeDefault}).catch(catcher);
-    const profiles = await getProfileTreeAndActivate(req, newBlock.section_id).catch(catcher);
-    return res.json(profiles);
+    const reports = await getReportTreeAndActivate(req, newBlock.section_id).catch(catcher);
+    return res.json(reports);
   });
 
   /* CUSTOM INSERTS */
 
-  app.post("/api/reports/profile/upsertDimension", isEnabled, async(req, res) => {
+  app.post("/api/reports/report/upsertDimension", isEnabled, async(req, res) => {
     req.setTimeout(1000 * 60 * 5);
-    const {profileData, includeAllMembers} = req.body;
-    const {profile_id} = profileData;  // eslint-disable-line
-    profileData.dimension = profileData.dimName;
-    const oldmeta = await db.profile_meta.findOne({where: {id: profileData.id}}).catch(catcher);
+    const {reportData, includeAllMembers} = req.body;
+    const {report_id} = reportData;  // eslint-disable-line
+    reportData.dimension = reportData.dimName;
+    const oldmeta = await db.report_meta.findOne({where: {id: reportData.id}}).catch(catcher);
     // Inserts are simple
     if (!oldmeta) {
       // If no ordering was provided, divine ordering from meta length.
-      if (isNaN(profileData.ordering)) {
-        const ordering = await findMaxOrdering("profile_meta", "profile_id", profile_id);
-        profileData.ordering = ordering;
+      if (isNaN(reportData.ordering)) {
+        const ordering = await findMaxOrdering("report_meta", "report_id", report_id);
+        reportData.ordering = ordering;
       }
-      await db.profile_meta.create(profileData);
-      await populateSearch(profileData, db, false, false, includeAllMembers);
+      await db.report_meta.create(reportData);
+      await populateSearch(reportData, db, false, false, includeAllMembers);
     }
     // Updates are more complex - the user may have changed levels, or even modified the dimension
     // entirely. We have to prune the search before repopulating it.
     else {
-      await db.profile_meta.update(profileData, {where: {id: profileData.id}});
-      if (oldmeta.cubeName !== profileData.cubeName || oldmeta.dimension !== profileData.dimension || oldmeta.levels.join() !== profileData.levels.join()) {
+      await db.report_meta.update(reportData, {where: {id: reportData.id}});
+      if (oldmeta.cubeName !== reportData.cubeName || oldmeta.dimension !== reportData.dimension || oldmeta.levels.join() !== reportData.levels.join()) {
         pruneSearch(oldmeta.cubeName, oldmeta.dimension, oldmeta.levels, db);
-        await populateSearch(profileData, db, false, false, includeAllMembers);
+        await populateSearch(reportData, db, false, false, includeAllMembers);
       }
     }
-    const reqObj = Object.assign({}, profileReqFull, {where: {id: profile_id}});
-    let newProfile = await db.profile.findOne(reqObj).catch(catcher);
-    newProfile = sortProfile(db, newProfile.toJSON());
-    newProfile.sections = newProfile.sections.map(section => sortSection(db, section));
-    return res.json(newProfile);
+    const reqObj = Object.assign({}, reportReqFull, {where: {id: report_id}});
+    let newReport = await db.report.findOne(reqObj).catch(catcher);
+    newReport = sortReport(db, newReport.toJSON());
+    newReport.sections = newReport.sections.map(section => sortSection(db, section));
+    return res.json(newReport);
   });
 
   app.post("/api/reports/repopulateSearch", isEnabled, async(req, res) => {
     req.setTimeout(1000 * 60 * 5);
     const {id, newSlugs, includeAllMembers} = req.body;
-    let profileData = await db.profile_meta.findOne({where: {id}});
-    profileData = profileData.toJSON();
-    await populateSearch(profileData, db, false, newSlugs, includeAllMembers);
+    let reportData = await db.report_meta.findOne({where: {id}});
+    reportData = reportData.toJSON();
+    await populateSearch(reportData, db, false, newSlugs, includeAllMembers);
     return res.json({});
   });
 
@@ -344,8 +344,8 @@ module.exports = function(app) {
           const block = await db.block.findOne({where: {id}}).catch(catcher);
           sid = block.section_id;
         }
-        const profiles = await getProfileTreeAndActivate(req, sid).catch(catcher);
-        return res.json(profiles);
+        const reports = await getReportTreeAndActivate(req, sid).catch(catcher);
+        return res.json(reports);
       }
     });
   });
@@ -383,8 +383,8 @@ module.exports = function(app) {
         }
       }
     }
-    const profiles = await getProfileTreeAndActivate(req, block.section_id).catch(catcher);
-    return res.json(profiles);
+    const reports = await getReportTreeAndActivate(req, block.section_id).catch(catcher);
+    return res.json(reports);
   });
 
   /* TRANSLATIONS */
@@ -397,7 +397,7 @@ module.exports = function(app) {
     const reqObj = {...sectionReqFull, where: {id: sid}};
     let section = await db.section.findOne(reqObj);
     section = section.toJSON();
-    const helpers = await fetchUpsertHelpers(db, section.profile_id, source);
+    const helpers = await fetchUpsertHelpers(db, section.report_id, source);
     const {formatterFunctions, allSelectors} = helpers;
     // todo1.0 selector refactor
     const config = {variables, source, target, formatterFunctions, allSelectors};
@@ -410,31 +410,31 @@ module.exports = function(app) {
     return res.json(newSection);
   });
 
-  app.post("/api/reports/profile/translate", async(req, res) => {
+  app.post("/api/reports/report/translate", async(req, res) => {
     const pid = req.body.id;
     const {variables, source, target} = req.body;
     const config = {variables, source, target};
-    const error = await translateProfile(db, pid, config);
+    const error = await translateReport(db, pid, config);
     if (error) return res.json({error});
-    // If there were no errors, fetch and return updated profile
-    const reqObj = {...profileReqFull, where: {id: pid}};
-    let newProfile = await db.profile.findOne(reqObj).catch(catcher);
-    newProfile = sortProfile(db, newProfile.toJSON());
-    newProfile.sections = newProfile.sections.map(section => sortSection(db, section));
-    return res.json(newProfile);
+    // If there were no errors, fetch and return updated report
+    const reqObj = {...reportReqFull, where: {id: pid}};
+    let newReport = await db.report.findOne(reqObj).catch(catcher);
+    newReport = sortReport(db, newReport.toJSON());
+    newReport.sections = newReport.sections.map(section => sortSection(db, section));
+    return res.json(newReport);
   });
 
   /* DELETES */
 
-  const getProfileTreeAndActivate = async(req, sid) => {
-    let profiles = await db.profile.findAll(profileReqFull).catch(catcher);
-    profiles = profiles.map(p => p.toJSON());
-    profiles = flatSort(db.profile, profiles);
-    for (const profile of profiles) {
-      profile.meta = profile.meta.sort(sorter);
-      profile.contentByLocale = profile.contentByLocale.reduce(contentReducer, {});
-      profile.sections = flatSort(db.section, profile.sections);
-      for (const section of profile.sections) {
+  const getReportTreeAndActivate = async(req, sid) => {
+    let reports = await db.report.findAll(reportReqFull).catch(catcher);
+    reports = reports.map(p => p.toJSON());
+    reports = flatSort(db.report, reports);
+    for (const report of reports) {
+      report.meta = report.meta.sort(sorter);
+      report.contentByLocale = report.contentByLocale.reduce(contentReducer, {});
+      report.sections = flatSort(db.section, report.sections);
+      for (const section of report.sections) {
         section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
         section.blocks.forEach(block => block.contentByLocale = block.contentByLocale.reduce(contentReducer, {}));
         if (section.id === sid) {
@@ -443,7 +443,7 @@ module.exports = function(app) {
         }
       }
     }
-    return profiles;
+    return reports;
   };
 
   app.delete("/api/reports/block/delete", isEnabled, async(req, res) => {
@@ -452,9 +452,9 @@ module.exports = function(app) {
     const siblings = await db.block.findAll({where: {section_id: block.section_id, blockcol: block.blockcol}}).catch(catcher);
     if (siblings.length === 1) await db.block.update({blockcol: sequelize.literal("blockcol -1")}, {where: {section_id: block.section_id, blockcol: {[Op.gt]: block.blockcol}}}).catch(catcher);
     await db.block.destroy({where: {id: req.query.id}}).catch(catcher);
-    // todo1.0 if profile-wide blocks disappear as part of a deletion, other sections will need to recalculate
-    const profiles = await getProfileTreeAndActivate(req, block.section_id).catch(catcher);
-    return res.json(profiles);
+    // todo1.0 if report-wide blocks disappear as part of a deletion, other sections will need to recalculate
+    const reports = await getReportTreeAndActivate(req, block.section_id).catch(catcher);
+    return res.json(reports);
   });
 
   app.delete("/api/reports/block_input/delete", isEnabled, async(req, res) => {
@@ -464,35 +464,35 @@ module.exports = function(app) {
     // await db.block_input.update({ordering: sequelize.literal("ordering -1")}, {where: {block_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.block_input.destroy({where: {id}});
     const block = await db.block.findOne({where: {id: row.block_id}}).catch(catcher);
-    const profiles = await getProfileTreeAndActivate(req, block.section_id).catch(catcher);
-    return res.json(profiles);
+    const reports = await getReportTreeAndActivate(req, block.section_id).catch(catcher);
+    return res.json(reports);
   });
 
-  app.delete("/api/reports/profile/delete", isEnabled, async(req, res) => {
-    const profile = await db.profile.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.profile.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: profile.ordering}}}).catch(catcher);
-    await db.profile.destroy({where: {id: req.query.id}}).catch(catcher);
+  app.delete("/api/reports/report/delete", isEnabled, async(req, res) => {
+    const report = await db.report.findOne({where: {id: req.query.id}}).catch(catcher);
+    await db.report.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: report.ordering}}}).catch(catcher);
+    await db.report.destroy({where: {id: req.query.id}}).catch(catcher);
     // Todo: This prunesearch is outdated - need to call it multiple times for each meta row.
     // pruneSearch(row.dimension, row.levels, db);
-    const profiles = await getProfileTreeAndActivate(req);
-    return res.json(profiles);
+    const reports = await getReportTreeAndActivate(req);
+    return res.json(reports);
   });
 
-  app.delete("/api/reports/profile_meta/delete", isEnabled, async(req, res) => {
-    const meta = await db.profile_meta.findOne({where: {id: req.query.id}}).catch(catcher);
-    // Profile meta can have multiple variants now sharing the same index.
-    const variants = await db.profile_meta.findAll({where: {profile_id: meta.profile_id, ordering: meta.ordering}}).catch(catcher);
+  app.delete("/api/reports/report_meta/delete", isEnabled, async(req, res) => {
+    const meta = await db.report_meta.findOne({where: {id: req.query.id}}).catch(catcher);
+    // report meta can have multiple variants now sharing the same index.
+    const variants = await db.report_meta.findAll({where: {report_id: meta.report_id, ordering: meta.ordering}}).catch(catcher);
     // Only "slide down" others if we are deleting the last one at this ordering.
     if (variants.length === 1) {
-      await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: meta.ordering}}}).catch(catcher);
+      await db.report_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: meta.ordering}}}).catch(catcher);
     }
-    await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
+    await db.report_meta.destroy({where: {id: req.query.id}}).catch(catcher);
     pruneSearch(meta.cubeName, meta.dimension, meta.levels, db);
-    const reqObj = Object.assign({}, profileReqFull, {where: {id: meta.profile_id}});
-    let newProfile = await db.profile.findOne(reqObj).catch(catcher);
-    newProfile = sortProfile(db, newProfile.toJSON());
-    newProfile.sections = newProfile.sections.map(section => sortSection(db, section));
-    return res.json(newProfile);
+    const reqObj = Object.assign({}, reportReqFull, {where: {id: meta.report_id}});
+    let newReport = await db.report.findOne(reqObj).catch(catcher);
+    newReport = sortReport(db, newReport.toJSON());
+    newReport.sections = newReport.sections.map(section => sortSection(db, section));
+    return res.json(newReport);
   });
 
   app.delete("/api/reports/formatter/delete", isEnabled, async(req, res) => {
@@ -503,11 +503,11 @@ module.exports = function(app) {
 
   app.delete("/api/reports/section/delete", isEnabled, async(req, res) => {
     const row = await db.section.findOne({where: {id: req.query.id}}).catch(catcher);
-    await db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+    await db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {report_id: row.report_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     await db.section.destroy({where: {id: req.query.id}}).catch(catcher);
-    // todo1.0 if profile-wide blocks disappear as part of a deletion, other sections will need to recalculate
-    const profiles = await getProfileTreeAndActivate(req).catch(catcher);
-    return res.json({profiles});
+    // todo1.0 if report-wide blocks disappear as part of a deletion, other sections will need to recalculate
+    const reports = await getReportTreeAndActivate(req).catch(catcher);
+    return res.json({reports});
   });
 
 };

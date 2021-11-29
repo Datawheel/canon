@@ -5,7 +5,7 @@ import {Menu} from "@mantine/core";
 import {HiOutlineTrash} from "react-icons/hi";
 
 /* redux */
-import {deleteEntity} from "../../actions/profiles";
+import {deleteEntity} from "../../actions/reports";
 
 /* hooks */
 import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";

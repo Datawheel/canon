@@ -3,7 +3,7 @@
   combined with the internal default canon reducers.
 */
 
-import profiles from "./profiles.js";
+import reports from "./reports.js";
 import cubeData from "./cubeData.js";
 import status from "./status.js";
 import formatters from "./formatters.js";
@@ -20,7 +20,7 @@ const initialState = {
     pathObj: {}
   },
   cubeData: false,
-  profiles: {},
+  reports: {},
   formatters: [],
   resources: {
     formatterFunctions: false
@@ -33,7 +33,7 @@ export default function reportsReducer(state = initialState, action) {
   return {
     status: status(state.status, action),
     cubeData: cubeData(state.cubeData, action),
-    profiles: profiles(state.profiles, action),
+    reports: reports(state.reports, action),
     formatters: formatters(state.formatters, action),
     resources: resources(state.resources, action),
     variables: variables(state.variables, action)

@@ -10,7 +10,7 @@ import CMSHeader from "./CMSHeader";
 import Section from "./sections/Section";
 
 /* redux */
-import {newEntity, updateEntity} from "../actions/profiles";
+import {newEntity, updateEntity} from "../actions/reports";
 
 /* utils */
 import insertAtOrdering from "../utils/insertAtOrdering";
@@ -19,24 +19,24 @@ import insertAtOrdering from "../utils/insertAtOrdering";
 import {ENTITY_TYPES} from "../utils/consts/cms";
 
 /* css */
-import "./ProfileEditor.css";
+import "./ReportEditor.css";
 
 /**
  *
  */
-function ProfileEditor({id}) {
+function ReportEditor({id}) {
 
   const dispatch = useDispatch();
 
   /* redux */
-  const profile = useSelector(state => state.cms.profiles.entities.profiles[id]);
+  const report = useSelector(state => state.cms.reports.entities.reports[id]);
 
   const [sections, setSections] = useState([]);
   // const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
-    setSections(profile ? profile.sections : []);
-  }, [profile]);
+    setSections(report ? report.sections : []);
+  }, [report]);
 
   const onDragEnd = result => {
     if (!result.destination || result.source.index === result.destination.index) return;
@@ -50,21 +50,21 @@ function ProfileEditor({id}) {
 
   const addSection = ordering => {
     const payload = {
-      profile_id: id,
+      report_id: id,
       ordering
     };
     dispatch(newEntity(ENTITY_TYPES.SECTION, payload));
   };
 
-  if (!profile) return null;
-  if (profile.error) return <div>{profile.error}</div>;
+  if (!report) return null;
+  if (report.error) return <div>{report.error}</div>;
 
   const theme = useMantineTheme();
 
   return (
     <AppShell
       padding="0"
-      header={<CMSHeader id={profile.id} />}
+      header={<CMSHeader id={report.id} />}
     >
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="sections">
@@ -101,4 +101,4 @@ function ProfileEditor({id}) {
 
 }
 
-export default ProfileEditor;
+export default ReportEditor;

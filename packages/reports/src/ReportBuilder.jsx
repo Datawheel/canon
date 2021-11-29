@@ -7,8 +7,8 @@ import {MantineProvider} from "@mantine/core";
 /* components */
 import Loading from "$app/components/Loading";
 // import AuthForm from "./components/interface/AuthForm";
-import ProfilePicker from "./reports/ProfilePicker";
-import ProfileEditor from "./reports/ProfileEditor";
+import ReportPicker from "./reports/ReportPicker";
+import ReportEditor from "./reports/ReportEditor";
 
 /* hooks */
 import {ConfirmationDialogProvider} from "./reports/hooks/interactions/ConfirmationDialog";
@@ -17,7 +17,7 @@ import {ConfirmationDialogProvider} from "./reports/hooks/interactions/Confirmat
 import {fetchData, isAuthenticated} from "@datawheel/canon-core";
 import {getFormatters} from "./actions/formatters";
 import {setStatus} from "./actions/status";
-import {getProfiles} from "./actions/profiles";
+import {getReports} from "./actions/reports";
 
 /**
  * Builder - The outermost component of the CMS, exported in index.js, and embedded in a canon site.
@@ -36,9 +36,9 @@ function ReportBuilder({router}) {
   const minRole = useSelector(state => state.data.minRole);
   const pathObj = useSelector(state => state.cms.status.pathObj);
 
-  const loadProfiles = useCallback(() => {
+  const loadReports = useCallback(() => {
     setLoading(true);
-    dispatch(getProfiles()).then(() => {
+    dispatch(getReports()).then(() => {
       setLoading(false);
     });
   }, []);
@@ -49,14 +49,14 @@ function ReportBuilder({router}) {
     dispatch(isAuthenticated());
     // todo1.0 potentially move formatters out of redux, and more importantly, locale/status stuff
     dispatch(getFormatters());
-    loadProfiles();
+    loadReports();
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
     const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
     const localeCurrent = localeDefault;
     const locales = env.CANON_LANGUAGES?.includes(",") ? env.CANON_LANGUAGES.split(",").filter(l => l !== localeDefault) : undefined;
     const localeSecondary = null;
-    const {profile, section, previews} = router.location.query;
-    const pathObj = {profile, previews, section};
+    const {report, section, previews} = router.location.query;
+    const pathObj = {report, previews, section};
     dispatch(setStatus({localeDefault, localeSecondary, localeCurrent, locales, pathObj}));
     // Prevent leaving the page accidentally, disabled during heavy 1.0 development
     /*
@@ -68,13 +68,13 @@ function ReportBuilder({router}) {
     */
   }, []);
 
-  const pathObjString = `${pathObj?.profile}-${pathObj.section}-${typeof pathObj?.previews === "string" ? pathObj?.previews : pathObj?.previews?.map(d => d.memberSlug).join()}`;
+  const pathObjString = `${pathObj?.report}-${pathObj.section}-${typeof pathObj?.previews === "string" ? pathObj?.previews : pathObj?.previews?.map(d => d.memberSlug).join()}`;
 
   // todo1.0 make routing work
   useEffect(() => {
     const {pathname} = router.location;
     const params = {
-      profile: pathObj?.profile,
+      report: pathObj?.report,
       section: pathObj?.section,
       home: pathObj?.home
     };
@@ -111,9 +111,9 @@ function ReportBuilder({router}) {
   return (
     <MantineProvider>
       <ConfirmationDialogProvider>
-        {pathObj.profile
-          ? <ProfileEditor id={Number(pathObj.profile)}/>
-          : <ProfilePicker />
+        {pathObj.report
+          ? <ReportEditor id={Number(pathObj.report)}/>
+          : <ReportPicker />
         }
       </ConfirmationDialogProvider>
     </MantineProvider>

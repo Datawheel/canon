@@ -1,17 +1,17 @@
 module.exports = function(sequelize, db) {
 
-  const p = sequelize.define("profile_meta",
+  const p = sequelize.define("report_meta",
     {
       id: {
         type: db.INTEGER,
         primaryKey: true,
         autoIncrement: true
       },
-      profile_id: {
+      report_id: {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {
-          model: "canon_cms_profile",
+          model: "canon_cms_report",
           key: "id"
         }
       },
@@ -30,7 +30,7 @@ module.exports = function(sequelize, db) {
       }
     },
     {
-      tableName: "canon_cms_profile_meta",
+      tableName: "canon_cms_report_meta",
       freezeTableName: true,
       timestamps: false
     }
@@ -38,7 +38,7 @@ module.exports = function(sequelize, db) {
 
   p.associate = models => {
     p.hasMany(models.search, {foreignKey: "cubeName", sourceKey: "cubeName", as: "members", constraints: false});
-    p.belongsTo(models.profile, {foreignKey: "id", sourceKey: "profile_id", as: "profile", constraints: false});
+    p.belongsTo(models.report, {foreignKey: "id", sourceKey: "report_id", as: "report", constraints: false});
   };
 
   return p;

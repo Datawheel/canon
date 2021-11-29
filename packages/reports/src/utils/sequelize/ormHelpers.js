@@ -20,7 +20,7 @@ const sectionReqFull = {
   ]
 };
 
-const profileReqFull = {
+const reportReqFull = {
   include: [
     {association: "meta", separate: true},
     {association: "contentByLocale", separate: true},
@@ -46,18 +46,18 @@ const blockReqWithInputs = {
  * automatically generate Create, Update, and Delete Routes (as specified later in the get/post methods)
  */
 const cmsTables = [
-  "block", "block_input", "profile", "profile_meta", "section"
+  "block", "block_input", "report", "report_meta", "section"
 ];
 
 /**
- * Some tables are translated to different languages using a corresponding "content" table, like "profile_content".
+ * Some tables are translated to different languages using a corresponding "content" table, like "report_content".
  * As such, some of the following functions need to take compound actions, e.g., insert a metadata record into
- * profile, THEN insert the "real" data into "profile_content." This list (subset of cmsTables) represents those
+ * report, THEN insert the "real" data into "report_content." This list (subset of cmsTables) represents those
  * tables that need corresponding _content updates.
  */
 
 const contentTables = [
-  "block", "profile", "section"
+  "block", "report", "section"
 ];
 
 /**
@@ -68,8 +68,8 @@ const contentTables = [
 const parentOrderingTables = {
   block: "section_id",
   block_input: "block_id",
-  profile_meta: "profile_id",
-  section: "profile_id"
+  report_meta: "report_id",
+  section: "report_id"
 };
 
-module.exports = {profileReqFull, sectionReqFull, blockReqFull, blockReqWithInputs, cmsTables, contentTables, parentOrderingTables};
+module.exports = {reportReqFull, sectionReqFull, blockReqFull, blockReqWithInputs, cmsTables, contentTables, parentOrderingTables};

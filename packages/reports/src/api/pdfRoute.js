@@ -89,7 +89,7 @@ const generate = async(path, userOptions = {}, viewportOptions = {}) => {
 };
 
 /**
- * Without access to routes.jsx, the custom URL pattern for a profile can't be divined.
+ * Without access to routes.jsx, the custom URL pattern for a report can't be divined.
  * Make a best guess here using the recommended pathing from the documentation
  */
 const verify = async(db, path) => {
@@ -100,31 +100,31 @@ const verify = async(db, path) => {
     .filter(d =>
       !LANGUAGES.includes(d) &&  // strip out language code
       !d.startsWith("?") &&      // strip out query params
-      d !== "profile");          // "profile" is the standard route identifier
+      d !== "report");          // "report" is the standard route identifier
   if (!params) return false;
-  // Try to discern the profile
+  // Try to discern the report
   let pid;
-  // It's most likely that the first slug is the first param, try that first. Because all profile slugs are unique,
-  // Finding just the first one (slug1) is sufficient for gaining the entire profile
-  const meta = await db.profile_meta.findOne({where: {slug: params[0]}}).catch(catcher);
+  // It's most likely that the first slug is the first param, try that first. Because all report slugs are unique,
+  // Finding just the first one (slug1) is sufficient for gaining the entire report
+  const meta = await db.report_meta.findOne({where: {slug: params[0]}}).catch(catcher);
   if (meta) {
-    pid = meta.profile_id;
+    pid = meta.report_id;
   }
   // Otherwise, try all the params, searching for a match
   else {
-    const meta = await db.profile_meta.findOne({where: {slug: params}}).catch(catcher);
-    if (meta) pid = meta.profile_id;
+    const meta = await db.report_meta.findOne({where: {slug: params}}).catch(catcher);
+    if (meta) pid = meta.report_id;
   }
-  // If no profile was found, eject
+  // If no report was found, eject
   if (!pid) return false;
-  // Get all profile-slugs associated with this profile
-  const allMeta = await db.profile_meta.findAll({where: {profile_id: pid}}).catch(catcher);
+  // Get all report-slugs associated with this report
+  const allMeta = await db.report_meta.findAll({where: {report_id: pid}}).catch(catcher);
   if (!allMeta) return false;
   for (const meta of allMeta) {
     const {slug, dimension, levels, cubeName} = meta;
     const slugLoc = params.indexOf(slug);
     if (slugLoc === -1) return false;
-    // Assume, at the very least, that the member for a given profile immediately follows it in the path
+    // Assume, at the very least, that the member for a given report immediately follows it in the path
     const member = params[slugLoc + 1];
     const check = await db.search.findOne({where: {slug: member, dimension, hierarchy: levels, cubeName}}).catch(catcher);
     if (!check) return false;

@@ -2,7 +2,7 @@ const yn = require("yn");
 const formatters4eval = require("../formatters4eval");
 const translateContent = require("./translateContent");
 const translateText = require("./translateText");
-const {profileReqFull} = require("../sequelize/ormHelpers");
+const {reportReqFull} = require("../sequelize/ormHelpers");
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 
 const catcher = e => {
@@ -19,7 +19,7 @@ const catcher = e => {
 const fetchUpsertHelpers = async(db, pid, source) => {
   const formatterFunctions = await formatters4eval(db, source);
   // todo1.0 selectors will come from a different place
-  let allSelectors = await db.selector.findAll({where: {profile_id: pid}}).catch(catcher);
+  let allSelectors = await db.selector.findAll({where: {report_id: pid}}).catch(catcher);
   allSelectors = allSelectors.map(d => d.toJSON());
   return {formatterFunctions, allSelectors};
 };
@@ -62,18 +62,18 @@ const upsertTranslation = async(contentArray, db, ref, config) => {
 };
 
 /**
- * translateProfile is used both by translateRoute and the npx translation script
+ * translateReport is used both by translateRoute and the npx translation script
  */
-const translateProfile = async(db, pid, config) => {
+const translateReport = async(db, pid, config) => {
   const {source} = config;
   const helpers = await fetchUpsertHelpers(db, pid, source);
   const combinedConfig = {...config, ...helpers};
-  const reqObj = Object.assign({}, profileReqFull, {where: {id: pid}});
-  let profile = await db.profile.findOne(reqObj);
-  profile = profile.toJSON();
-  const error = await upsertTranslation(profile.content, db, "profile_content", combinedConfig);
+  const reqObj = Object.assign({}, reportReqFull, {where: {id: pid}});
+  let report = await db.report.findOne(reqObj);
+  report = report.toJSON();
+  const error = await upsertTranslation(report.content, db, "report_content", combinedConfig);
   if (error) return error;
-  for (const section of profile.sections) {
+  for (const section of report.sections) {
     await translateSection(db, section, combinedConfig);
   }
   return false;
@@ -81,8 +81,8 @@ const translateProfile = async(db, pid, config) => {
 
 /**
  * translateSection may be called by translateRoute route as one-off, or it may be invoked
- * many times by translateProfile (above). Therefore translate section receives a fully-qualified
- * section object (not an id) to avoid doing a ton of db gets (profiles can just pass sections)
+ * many times by translateReport (above). Therefore translate section receives a fully-qualified
+ * section object (not an id) to avoid doing a ton of db gets (reports can just pass sections)
  */
 const translateSection = async(db, section, config) => {
   // Crawl through the object and translate each of its individual content rows, then update it in place
@@ -96,4 +96,4 @@ const translateSection = async(db, section, config) => {
   return false;
 };
 
-module.exports = {upsertTranslation, translateProfile, translateSection, fetchUpsertHelpers};
+module.exports = {upsertTranslation, translateReport, translateSection, fetchUpsertHelpers};

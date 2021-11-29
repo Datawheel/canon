@@ -5,8 +5,8 @@ const PromiseThrottle = require("promise-throttle"),
       jwt = require("jsonwebtoken"),
       libs = require("../utils/libs"), /*leave this! needed for the variable functions.*/ //eslint-disable-line
       mortarEval = require("../utils/mortarEval"),
-      prepareProfile = require("../utils/prepareProfile"),
-      {profileReq} = require("../utils/sequelize/ormHelpers"),
+      prepareReport = require("../utils/prepareProfile"), // todo1.0 rename/rework to report
+      {reportReq} = require("../utils/sequelize/ormHelpers"),
       sequelize = require("sequelize"),
       varSwap = require("../utils/varSwap"),
       varSwapRecursive = require("../utils/varSwapRecursive"),
@@ -82,7 +82,7 @@ const throttle = new PromiseThrottle({
 });
 
 /**
- * Lang-specific content is stored in secondary tables, and are part of profiles as an
+ * Lang-specific content is stored in secondary tables, and are part of reports as an
  * array called "content," which contains objects of region-specific translated keys.
  * We don't want the front end to have to even know about this sub-table or sub-array.
  * Therefore, bubble up the appropriate content to the top-level of the object
@@ -97,17 +97,17 @@ module.exports = function(app) {
   const {cache, db} = app.settings;
 
   const fetchAttr = async(pid, dims, locale) => {
-    // Fetch the profile itself, along with its meta content. The meta content will be used
+    // Fetch the report itself, along with its meta content. The meta content will be used
     // to determine which levels should be used to filter the search results
-    let profile = await db.profile.findOne({where: {id: pid}, include: [{association: "meta"}]}).catch(catcher);
-    profile = profile.toJSON();
+    let report = await db.report.findOne({where: {id: pid}, include: [{association: "meta"}]}).catch(catcher);
+    report = report.toJSON();
     // The attr object is used in createGeneratorFetch to swap things like <id> into the
     // id that is passed to the fetch. Create a lookup object of the search rows, of the
-    // pattern (id/id1),id2,id3, so that unary profiles can access it without an integer.
+    // pattern (id/id1),id2,id3, so that unary reports can access it without an integer.
     let attr = {};
     for (let i = 0; i < dims.length; i++) {
       const dim = dims[i];
-      const thisMeta = profile.meta.find(d => d.slug === dim.slug);
+      const thisMeta = report.meta.find(d => d.slug === dim.slug);
       const levels = thisMeta ? thisMeta.levels : [];
       const cubeName = thisMeta ? thisMeta.cubeName : null;
       let searchReq;
@@ -192,7 +192,7 @@ module.exports = function(app) {
       }
 
     }
-    const genObj = id ? {where: {id}} : {where: {profile_id: pid}};
+    const genObj = id ? {where: {id}} : {where: {report_id: pid}};
     let generators = await db.generator.findAll(genObj).catch(catcher);
     generators = generators
       .map(g => g.toJSON())
@@ -283,7 +283,7 @@ module.exports = function(app) {
       materializers = await db.story_materializer.findAll({where: {story_id: pid}}).catch(catcher);
     }
     else {
-      materializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
+      materializers = await db.materializer.findAll({where: {report_id: pid}}).catch(catcher);
     }
     materializers = materializers
       .map(m => m.toJSON())
@@ -308,9 +308,9 @@ module.exports = function(app) {
   app.post("/api/materializers/:pid", async(req, res) => {
     const {pid} = req.params;
     const {variables} = req.body;
-    const materializer = await db.materializer.findOne({where: {profile_id: pid}}).catch(catcher);
+    const materializer = await db.materializer.findOne({where: {report_id: pid}}).catch(catcher);
     if (!materializer) return res.json({});
-    return res.json(await runMaterializers(req, variables, materializer.profile_id));
+    return res.json(await runMaterializers(req, variables, materializer.report_id));
   });
 
   app.post("/api/story_materializers/:pid", async(req, res) => {
@@ -321,12 +321,12 @@ module.exports = function(app) {
     return res.json(await runMaterializers(req, variables, materializer.story_id, true));
   });
 
-  /* Main API Route to fetch a profile, given a list of slug/id pairs
+  /* Main API Route to fetch a report, given a list of slug/id pairs
    * slugs represent the type of page (geo, naics, soc, cip, university)
    * ids represent actual entities / locations (nyc, bu)
   */
 
-  const fetchProfile = async(req, res) => {
+  const fetchReport = async(req, res) => {
     // take an arbitrary-length query of slugs and ids and turn them into objects
     req.setTimeout(1000 * 60 * 30); // 30 minute timeout for non-cached cube queries
     const locale = req.query.locale || LOCALE_DEFAULT;
@@ -335,48 +335,48 @@ module.exports = function(app) {
     const dims = collate(req.query);
 
     const sectionID = req.query.section;
-    const profileID = req.query.profile;
+    const reportID = req.query.report;
 
     let pid = null;
-    // map slugs to their profile_meta row, for when we query profile_meta below
+    // map slugs to their report_meta row, for when we query report_meta below
     const slugMap = {};
     // If the user provided variables, this is a POST request.
     if (req.body.variables) {
-      // If the user gave us a section or a profile id, use that to fetch the pid.
+      // If the user gave us a section or a report id, use that to fetch the pid.
       if (sectionID) {
         const where = isNaN(parseInt(sectionID, 10)) ? {slug: sectionID} : {id: sectionID};
         const t = await db.section.findOne({where}).catch(catcher);
         if (t) {
-          pid = t.profile_id;
+          pid = t.report_id;
         }
         else {
-          if (verbose) console.error(`Profile not found for section: ${sectionID}`);
-          return res.json({error: `Profile not found for section: ${sectionID}`, errorCode: 404});
+          if (verbose) console.error(`Report not found for section: ${sectionID}`);
+          return res.json({error: `Report not found for section: ${sectionID}`, errorCode: 404});
         }
       }
-      else if (profileID) {
-        pid = profileID;
+      else if (reportID) {
+        pid = reportID;
       }
     }
-    // Otherwise, we need to reverse lookup the profile id, using the slug combinations
+    // Otherwise, we need to reverse lookup the report id, using the slug combinations
     else {
-      // Given a list of dimension slugs, use the meta table to reverse-lookup which profile this is
+      // Given a list of dimension slugs, use the meta table to reverse-lookup which report this is
       // TODO: In good-dooby land, this should be a massive, complicated sequelize Op.AND lookup.
       // To avoid that complexity, I am fetching the entire (small) meta table and using JS to find the right one.
-      let meta = await db.profile_meta.findAll();
+      let meta = await db.report_meta.findAll();
       meta = meta.map(d => d.toJSON());
       meta.forEach(d => slugMap[d.slug] = d);
       const match = dims.map(d => d.slug).join();
-      let profiles = await db.profile.findAll();
-      profiles = profiles.map(d => d.toJSON());
-      const pidvisible = profiles.reduce((acc, d) => ({...acc, [d.id]: d.visible}), {});
+      let reports = await db.report.findAll();
+      reports = reports.map(d => d.toJSON());
+      const pidvisible = reports.reduce((acc, d) => ({...acc, [d.id]: d.visible}), {});
 
       try {
-        // Profile slugs are unique, so it is sufficient to use the first slug as a "profile finder"
-        const potentialPid = meta.find(m => m.slug === dims[0].slug && m.ordering === 0 && m.visible).profile_id;
+        // report slugs are unique, so it is sufficient to use the first slug as a "report finder"
+        const potentialPid = meta.find(m => m.slug === dims[0].slug && m.ordering === 0 && m.visible).report_id;
         // However, still confirm that the second slug matches (if provided)
         if (dims[1] && dims[1].slug) {
-          const potentialSecondSlugs = meta.filter(m => m.profile_id === potentialPid && m.ordering === 1).map(d => d.slug);
+          const potentialSecondSlugs = meta.filter(m => m.report_id === potentialPid && m.ordering === 1).map(d => d.slug);
           if (potentialSecondSlugs.includes(dims[1].slug)) {
             if (pidvisible[potentialPid]) pid = potentialPid;
           }
@@ -386,22 +386,22 @@ module.exports = function(app) {
         }
       }
       catch (e) {
-        if (verbose) console.error(`Profile not found for slug: ${match}. Error: ${e}`);
-        return res.json({error: `Profile not found for slug: ${match}`, errorCode: 404});
+        if (verbose) console.error(`Report not found for slug: ${match}. Error: ${e}`);
+        return res.json({error: `Report not found for slug: ${match}`, errorCode: 404});
       }
       if (!pid) {
-        if (verbose) console.error(`Profile not found for slug: ${match}`);
-        return res.json({error: `Profile not found for slug: ${match}`, errorCode: 404});
+        if (verbose) console.error(`Report not found for slug: ${match}`);
+        return res.json({error: `Report not found for slug: ${match}`, errorCode: 404});
       }
     }
 
     // Sometimes the id provided will be a "slug" like massachusetts instead of 0400025US
     // Replace that slug with the actual real id from the search table. To do this, however,
-    // We need the meta from the profile so we can filter by cubename.
+    // We need the meta from the report so we can filter by cubename.
     let idCount = 0;
     for (let i = 0; i < dims.length; i++) {
       const dim = dims[i];
-      const meta = await db.profile_meta.findOne({where: {slug: dim.slug}});
+      const meta = await db.report_meta.findOne({where: {slug: dim.slug}});
       if (meta && meta.cubeName) {
         const attribute = await db.search.findOne({where: {slug: dim.id, cubeName: meta.cubeName}}).catch(catcher);
         if (attribute && attribute.id) {
@@ -414,7 +414,7 @@ module.exports = function(app) {
       }
     }
     // To support redirects, track whether any of the provided ids were raw ids like 0400025US. Later in the code, once the
-    // profile routing has been confirmed, return a redirect to the slug version if any raw ids were used.
+    // report routing has been confirmed, return a redirect to the slug version if any raw ids were used.
     const usedIDs = idCount > 0;
 
     let returnObject = {};
@@ -423,7 +423,7 @@ module.exports = function(app) {
     // And skip the entire variable fetching process.
     if (req.body.variables) {
       // If the forceMats option was provided, use the POSTed variables to run
-      // Materializers. Used for Login in ProfileRenderer.jsx
+      // Materializers. Used for Login in reportRenderer.jsx
       if (req.query.forceMats === "true") {
         variables = await runMaterializers(req, req.body.variables, pid);
       }
@@ -451,7 +451,7 @@ module.exports = function(app) {
           }
           else {
             // Prime the top result of the neighbors with this member itself. This will be
-            // needed later if we need to build bilateral profiles
+            // needed later if we need to build bilateral reports
             searchrow = searchrow.toJSON();
             foundMembers.push(searchrow);
             const defCon = searchrow.content.find(c => c.locale === LOCALE_DEFAULT);
@@ -535,9 +535,9 @@ module.exports = function(app) {
       // todo - catch for no neighbors ?
       returnObject.neighbors = [];
       // Using the now-populated neighborsByDimSlug, construct a "neighbors" array filled
-      // with profile objects that can be linkify'd on the front end
+      // with report objects that can be linkify'd on the front end
       const neighborDims = Object.keys(neighborsByDimSlug);
-      // If this is a unary profile, just use the neighbors straight-up
+      // If this is a unary report, just use the neighbors straight-up
       if (neighborDims.length === 1) {
         const thisSlug = neighborDims[0];
         // Remember - remove the self-referential first element!
@@ -612,47 +612,47 @@ module.exports = function(app) {
 
     const formatterFunctions = await formatters4eval(db, locale);
     // Given the completely built returnVariables and all the formatters (formatters are global)
-    // Get the raw, unswapped, user-authored profile itself and all its dependencies and prepare
+    // Get the raw, unswapped, user-authored report itself and all its dependencies and prepare
     // it to be formatted and regex replaced.
-    // Go through the profile and replace all the provided {{vars}} with the actual variables we've built
-    // Create a "post-processed" profile by swapping every {{var}} with a formatted variable
+    // Go through the report and replace all the provided {{vars}} with the actual variables we've built
+    // Create a "post-processed" report by swapping every {{var}} with a formatted variable
     if (verbose) console.log("Variables Loaded, starting varSwap...");
-    // See profileReq above to see the sequelize formatting for fetching the entire profile
-    let profile;
-    if (variables._rawProfile) {
-      profile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, req.query);
+    // See reportReq above to see the sequelize formatting for fetching the entire report
+    let report;
+    if (variables._rawReport) {
+      report = prepareReport(variables._rawReport, variables, formatterFunctions, locale, req.query);
     }
     else {
-      const reqObj = Object.assign({}, profileReq, {where: {id: pid}});
-      const rawProfile = await db.profile.findOne(reqObj).catch(catcher);
-      if (rawProfile) {
-        variables._rawProfile = rawProfile.toJSON();
+      const reqObj = Object.assign({}, reportReq, {where: {id: pid}});
+      const rawReport = await db.report.findOne(reqObj).catch(catcher);
+      if (rawReport) {
+        variables._rawReport = rawReport.toJSON();
         // The ensuing varSwap requires a top-level array of all possible selectors, so that it can apply
         // their selSwap lookups to all contained sections. This is separate from the section-level selectors (below)
-        // which power the actual rendered dropdowns on the front-end profile page.
-        let allSelectors = await db.selector.findAll({where: {profile_id: pid}}).catch(catcher);
+        // which power the actual rendered dropdowns on the front-end report page.
+        let allSelectors = await db.selector.findAll({where: {report_id: pid}}).catch(catcher);
         allSelectors = allSelectors.map(d => d.toJSON());
-        variables._rawProfile.allSelectors = allSelectors;
-        let allMaterializers = await db.materializer.findAll({where: {profile_id: pid}}).catch(catcher);
+        variables._rawReport.allSelectors = allSelectors;
+        let allMaterializers = await db.materializer.findAll({where: {report_id: pid}}).catch(catcher);
         allMaterializers = allMaterializers.map(d => {
           d = d.toJSON();
           // make use of varswap for its buble transpiling, so the front end can run es5 code.
           d = varSwapRecursive(d, formatterFunctions, variables);
           return d;
         }).sort((a, b) => a.ordering - b.ordering);
-        variables._rawProfile.allMaterializers = allMaterializers;
-        profile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, req.query);
+        variables._rawReport.allMaterializers = allMaterializers;
+        report = prepareReport(variables._rawReport, variables, formatterFunctions, locale, req.query);
       }
       else {
-        if (verbose) console.error(`Profile not found for id: ${pid}`);
-        return res.json({error: `Profile not found for id: ${pid}`, errorCode: 404});
+        if (verbose) console.error(`Report not found for id: ${pid}`);
+        return res.json({error: `Report not found for id: ${pid}`, errorCode: 404});
       }
     }
     // If the user provided a section ID in the query, that's all they want. Filter to return just that.
     if (sectionID) {
-      profile.sections = profile.sections.filter(t => Number(t.id) === Number(sectionID) || t.slug === sectionID);
+      report.sections = report.sections.filter(t => Number(t.id) === Number(sectionID) || t.slug === sectionID);
     }
-    returnObject = Object.assign({}, returnObject, profile);
+    returnObject = Object.assign({}, returnObject, report);
     returnObject.ids = dims.map(d => d.id).join();
     returnObject.dims = dims;
     // The provided ids may have images associated with them, and these images have metadata. Before we send
@@ -669,14 +669,14 @@ module.exports = function(app) {
     return res.json(returnObject);
   };
 
-  /* There are two ways to fetch a profile:
+  /* There are two ways to fetch a report:
    * GET - the initial GET operation on pageload, performed by a need
    * POST - a subsequent reload, caused by a dropdown change, requiring the user
    *        to provide the variables object previous received in the GET
    * The following two endpoints route those two option to the same code.
   */
 
-  app.get("/api/profile", async(req, res) => await fetchProfile(req, res));
-  app.post("/api/profile", async(req, res) => await fetchProfile(req, res));
+  app.get("/api/report", async(req, res) => await fetchReport(req, res));
+  app.post("/api/report", async(req, res) => await fetchReport(req, res));
 
 };

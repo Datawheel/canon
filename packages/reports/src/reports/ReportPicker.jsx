@@ -5,21 +5,21 @@ import {ActionIcon, Alert, Center, Group, Space} from "@mantine/core";
 import {HiOutlineDocumentReport, HiOutlinePlusCircle} from "react-icons/hi";
 
 /* components */
-import ProfileCard from "./ProfileCard";
+import ReportCard from "./ReportCard";
 import EntityAddButton from "./components/EntityAddButton";
 
 /* redux */
-import {newProfile} from "../actions/profiles";
+import {newReport} from "../actions/reports";
 
 /**
  *
  */
-function ProfilePicker() {
+function ReportPicker() {
 
   const dispatch = useDispatch();
 
   /* redux */
-  const profiles = useSelector(state => state.cms.profiles.result);
+  const reports = useSelector(state => state.cms.reports.result);
 
   return (
     <Center
@@ -29,8 +29,8 @@ function ProfilePicker() {
       }}>
       <h1>Reports</h1>
       <Group withGutter position="center" style={{width: "100%"}}>
-        {profiles.length
-          ? profiles.map(profile => <ProfileCard key={profile} id={profile} />)
+        {reports.length
+          ? reports.map(report => <ReportCard key={report} id={report} />)
           : <Alert
             icon={<HiOutlineDocumentReport size={22} />}
             title="No Saved Reports"
@@ -40,8 +40,8 @@ function ProfilePicker() {
       </Group>
       <Space size="xl" />
       <EntityAddButton
-        label="Profile Name"
-        onSubmit={name => dispatch(newProfile({label: name}))}
+        label="Report Name"
+        onSubmit={name => dispatch(newReport({label: name}))}
         target={<ActionIcon size="xl" radius="xl"><HiOutlinePlusCircle size={30} /></ActionIcon>}
       />
     </Center>
@@ -49,4 +49,4 @@ function ProfilePicker() {
 
 }
 
-export default ProfilePicker;
+export default ReportPicker;

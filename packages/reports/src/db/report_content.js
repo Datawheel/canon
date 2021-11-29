@@ -1,13 +1,13 @@
 module.exports = function(sequelize, db) {
 
-  const p = sequelize.define("profile_content",
+  const p = sequelize.define("report_content",
     {
       id: {
         type: db.INTEGER,
         primaryKey: true,
         onDelete: "cascade",
         references: {
-          model: "canon_cms_profile",
+          model: "canon_cms_report",
           key: "id"
         }
       },
@@ -21,7 +21,7 @@ module.exports = function(sequelize, db) {
       }
     },
     {
-      tableName: "canon_cms_profile_content",
+      tableName: "canon_cms_report_content",
       freezeTableName: true,
       timestamps: false
     }

@@ -9,7 +9,7 @@ import {} from "@mantine/core";
 /** */
 function InputMenuItem({id, variables}) {
 
-  const block = useSelector(state => state.cms.profiles.entities.blocks[id]);
+  const block = useSelector(state => state.cms.reports.entities.blocks[id]);
 
   const label = block.type;
 

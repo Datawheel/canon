@@ -16,7 +16,7 @@ import {ENTITY_TYPES} from "../utils/consts/cms";
 /**
  *
  */
-function ProfileCard({id}) {
+function ReportCard({id}) {
 
   const theme = useMantineTheme();
 
@@ -28,13 +28,13 @@ function ProfileCard({id}) {
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
-  const profile = useSelector(state => state.cms.profiles.entities.profiles[id]);
+  const report = useSelector(state => state.cms.reports.entities.reports[id]);
 
-  const openProfile = id => {
-    dispatch(setStatus({pathObj: {profile: id}}));
+  const openReport = id => {
+    dispatch(setStatus({pathObj: {report: id}}));
   };
 
-  const label = profile.contentByLocale[localeDefault].content.label;
+  const label = report.contentByLocale[localeDefault].content.label;
 
   return (
     <Card shadow="xs" padding="lg" withBorder style={{margin: theme.spacing.sm}}>
@@ -44,21 +44,21 @@ function ProfileCard({id}) {
           <Space w="xs" />
           <Text margin="xl" weight="bold">{label}</Text>
         </Center>
-        <Badge variant="light">{profile.type}</Badge>
+        <Badge variant="light">{report.type}</Badge>
       </Group>
       <Text size="sm" style={{color: secondaryColor, lineHeight: 2}}>
-        Description of profile will go here
+        Description of report will go here
       </Text>
       <Space w="xs" />
       <Group>
-        <Button onClick={() => openProfile(id)} leftIcon={<HiOutlinePencil />} compact>
+        <Button onClick={() => openReport(id)} leftIcon={<HiOutlinePencil />} compact>
           Edit
         </Button>
-        <CogMenu type={ENTITY_TYPES.PROFILE} id={id} control={<Button leftIcon={<HiOutlineCog size={16} />} compact>Settings</Button>}/>
+        <CogMenu type={ENTITY_TYPES.REPORT} id={id} control={<Button leftIcon={<HiOutlineCog size={16} />} compact>Settings</Button>}/>
       </Group>
     </Card>
   );
 
 }
 
-export default ProfileCard;
+export default ReportCard;

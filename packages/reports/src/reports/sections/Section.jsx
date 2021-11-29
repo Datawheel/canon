@@ -11,7 +11,7 @@ import EntityAddButton from "../components/EntityAddButton";
 import Block from "../blocks/Block";
 
 /* redux */
-import {newEntity, activateSection, updateEntity} from "../../actions/profiles";
+import {newEntity, activateSection, updateEntity} from "../../actions/reports";
 
 /* consts */
 import {ENTITY_ADD_BUTTON_TYPES} from "../components/consts";
@@ -29,8 +29,8 @@ function Section({id, isDragging, dragHandleProps}) {
   const dispatch = useDispatch();
 
   /* redux */
-  const section = useSelector(state => state.cms.profiles.entities.sections[id]);
-  const blocks = useSelector(state => state.cms.profiles.entities.blocks);
+  const section = useSelector(state => state.cms.reports.entities.sections[id]);
+  const blocks = useSelector(state => state.cms.reports.entities.blocks);
 
   const [hoverBlock, setHoverBlock] = useState();
 
