@@ -7,11 +7,11 @@ import {MantineProvider} from "@mantine/core";
 /* components */
 import Loading from "$app/components/Loading";
 // import AuthForm from "./components/interface/AuthForm";
-import ProfilePicker from "./newLayout/ProfilePicker";
-import ProfileEditor from "./newLayout/ProfileEditor";
+import ProfilePicker from "./reports/ProfilePicker";
+import ProfileEditor from "./reports/ProfileEditor";
 
 /* hooks */
-import {ConfirmationDialogProvider} from "./newLayout/hooks/interactions/ConfirmationDialog";
+import {ConfirmationDialogProvider} from "./reports/hooks/interactions/ConfirmationDialog";
 
 /* redux */
 import {fetchData, isAuthenticated} from "@datawheel/canon-core";

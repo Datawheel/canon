@@ -1,4 +1,4 @@
-@import "../css/mixins.css";
+@import "../../css/mixins.css";
 
 :root {
   --ace-light-RGB: 207, 218, 226;

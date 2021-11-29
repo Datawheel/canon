@@ -8,8 +8,8 @@ import {AiOutlineGlobal} from "react-icons/ai";
 /* components */
 import CogMenu from "../components/CogMenu";
 import BlockEditor from "../BlockEditor";
-import NewRichTextEditor from "../editors/NewRichTextEditor";
-import AceWrapper from "../../editors/AceWrapper";
+import RichTextEditor from "../editors/RichTextEditor";
+import AceWrapper from "../editors/AceWrapper";
 import ApiInput from "../components/ApiInput";
 import BlockPreview from "./BlockPreview";
 import BlockSettings from "./BlockSettings";
@@ -174,7 +174,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     variables={variables}
   />;
 
-  const textEditor = <NewRichTextEditor
+  const textEditor = <RichTextEditor
     locale={localeDefault}
     key="text-editor"
     defaultContent={block.contentByLocale[localeDefault].content || {}}

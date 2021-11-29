@@ -4,15 +4,15 @@ import {useSelector} from "react-redux";
 import {useDebouncedValue} from "@mantine/hooks";
 
 /* components */
-import DraftWrapper from "../../editors/DraftWrapper";
+import DraftWrapper from "./DraftWrapper";
 
 /* css */
-import "./NewRichTextEditor.css";
+import "./RichTextEditor.css";
 
 /**
  *
  */
-function NewRichTextEditor({locale, defaultContent, fields, onChange, variables, onTextModify}) {
+function RichTextEditor({locale, defaultContent, fields, onChange, variables, onTextModify}) {
 
   /* redux */
   const showToolbar = useSelector(state => state.cms.status.showToolbar);
@@ -70,4 +70,4 @@ function NewRichTextEditor({locale, defaultContent, fields, onChange, variables,
 
 }
 
-export default NewRichTextEditor;
+export default RichTextEditor;

@@ -1,4 +1,4 @@
-@import "../css/mixins.css";
+@import "../../css/mixins.css";
 
 /* the "textarea" */
 .cms-draft-wrapper [contenteditable] {
