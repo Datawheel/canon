@@ -144,7 +144,7 @@ class Subnav extends Component {
         sections.forEach(section => {
           const elem = this.getSectionWrapper(section.slug);
           const top = elem ? elem.getBoundingClientRect().top : 1;
-          if (top <= topBorder) {
+          if (Math.floor(top) <= topBorder) {
             newSection = section;
           }
         });
@@ -153,7 +153,7 @@ class Subnav extends Component {
           newSection.children.forEach(section => {
             const elem = this.getSectionWrapper(section.slug);
             const top = elem ? elem.getBoundingClientRect().top : 1;
-            if (top <= topBorder) {
+            if (Math.floor(top) <= topBorder) {
               newSubSection = section;
             }
           });
