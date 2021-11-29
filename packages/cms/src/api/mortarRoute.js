@@ -8,7 +8,7 @@ const PromiseThrottle = require("promise-throttle"),
       prepareProfile = require("../utils/prepareProfile"),
       {profileReq} = require("../utils/sequelize/ormHelpers"),
       sequelize = require("sequelize"),
-      urlSwap = require("../utils/urlSwap"),
+      varSwap = require("../utils/varSwap"),
       varSwapRecursive = require("../utils/varSwapRecursive"),
       yn = require("yn");
 
@@ -135,7 +135,8 @@ module.exports = function(app) {
   const createGeneratorFetch = (req, locale, r, attr) => {
     // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
     const origin = `${ req.protocol }://${ req.headers.host }`;
-    let url = urlSwap(r, {...req.params, ...cache, ...attr, ...canonVars, locale});
+    // todo1.0 add formatters here
+    let url = varSwap(r, {}, {...req.params, ...cache, ...attr, ...canonVars, locale});
     if (url.indexOf("http") !== 0) {
       url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
     }
@@ -208,7 +209,8 @@ module.exports = function(app) {
       try {
         // slugs may include <vars> from magic generators (e.g., &slugs=Exporter:<hierarchy>). Run them through urlswap to sub in vars.
         const origin = `${ req.protocol }://${ req.headers.host }`;
-        let thisURL = urlSwap(requests[i], {...req.params, ...cache, ...smallAttr, ...canonVars, locale});
+        // todo1.0 add formatters here
+        let thisURL = varSwap(requests[i], {}, {...req.params, ...cache, ...smallAttr, ...canonVars, locale});
         if (thisURL.indexOf("http") !== 0) {
           thisURL = `${origin}${thisURL.indexOf("/") === 0 ? "" : "/"}${thisURL}`;
         }

@@ -38,7 +38,7 @@ function BlockSettings({id, onChange}) {
     return [{value: "always", label: "always"}].concat(Object.keys(variables).map(d => ({value: d, label: `${d}: ${variables[d]}`})));
   }, [blocks, block]);
 
-  const shared = [{label: "Section-wide", value: "false"}, {label: "Profile-wide", value: "true"}];
+  const shared = [{label: "Section-wide", value: "false"}, {label: "Report-wide", value: "true"}];
 
   const maybeDelete = async() => {
     const confirmed = await getConfirmation({
@@ -61,6 +61,7 @@ function BlockSettings({id, onChange}) {
       <Select label="Allowed" defaultValue={block.settings.allowed || "always"} onChange={e => handleChange("allowed", e)} data={allowed} />
       Sharing
       <SegmentedControl defaultValue={String(block.shared)} onChange={e => handleChange("shared", e === "true")} data={shared}/>
+      [Coming soon - Viz Options]
       <Button variant="outline" color="red" onClick={maybeDelete}>Delete Block</Button>
     </div>
   );

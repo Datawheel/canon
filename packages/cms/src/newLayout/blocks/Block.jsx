@@ -138,8 +138,8 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
       : upsertLocaleContent({logic}, locale);
   };
 
-  const onChangeAPI = e => {
-    setBlockState({...blockState, api: e.target.value});
+  const onChangeAPI = api => {
+    setBlockState({...blockState, api});
   };
 
   const onChangeSettings = settings => {

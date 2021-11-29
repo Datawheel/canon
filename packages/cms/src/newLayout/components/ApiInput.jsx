@@ -5,16 +5,17 @@ import React, {useState} from "react";
 import {TextInput} from "@mantine/core";
 
 /* utils */
-import urlSwap from "../../utils/urlSwap";
+import varSwap from "../../utils/varSwap";
 
 /** */
 function ApiInput({defaultValue, onChange, variables}) {
 
-  const [preview, setPreview] = useState(() => urlSwap(defaultValue, variables));
+  const [preview, setPreview] = useState(() => varSwap(defaultValue, {}, variables));
 
   const onChangeLocal = e => {
-    setPreview(urlSwap(e.target.value, variables));
-    onChange(e);
+    // todo1.0 put formatters in here
+    setPreview(varSwap(e.target.value, {}, variables));
+    onChange(e.target.value);
   };
 
   return (

@@ -4,7 +4,7 @@ const mortarEval = require("../mortarEval");
 const jwt = require("jsonwebtoken");
 const yn = require("yn");
 const {BLOCK_FIELDS_EXCLUDE, BLOCK_TYPES} = require("../consts/cms");
-const urlSwap = require("../urlSwap");
+const varSwap = require("../varSwap");
 
 const LOCALE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const LOCALES = process.env.CANON_LANGUAGES || LOCALE_DEFAULT;
@@ -67,7 +67,8 @@ const getProxyConfig = (opt = {}) => {
  */
 const apiFetch = async(req, api, locale, vars) => {
   const origin = `${ req.protocol }://${ req.headers.host }`;
-  let url = urlSwap(api, {...vars, ...canonVars, locale});
+  // todo1.0 add formatters here
+  let url = varSwap(api, {}, {...vars, ...canonVars, locale});
   if (url.indexOf("http") !== 0) {
     url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
   }
