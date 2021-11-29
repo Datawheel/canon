@@ -29,7 +29,7 @@ const ConfirmationDialogProvider = ({children}) => {
 
   const resetDialog = () => {
     setOpened(false);
-    // The disappearing text is a little jarring - clear it out just a bit later
+    // The disappearing text is visually jarring - clear it out just a bit later
     setTimeout(() => setConfig({}), 200);
   };
 

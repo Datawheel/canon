@@ -1,7 +1,7 @@
 /* react */
 import React, {useMemo} from "react";
 import {useSelector, useDispatch} from "react-redux";
-import {Select, Button} from "@mantine/core";
+import {Select, Button, SegmentedControl} from "@mantine/core";
 
 /* enums */
 import {BLOCK_TYPES, ENTITY_TYPES} from "../../utils/consts/cms";
@@ -36,7 +36,9 @@ function BlockSettings({id, onChange}) {
       .filter(d => block.inputs.includes(d.id))
       .reduce((acc, d) => ({...acc, ...d._variables}), {});
     return [{value: "always", label: "always"}].concat(Object.keys(variables).map(d => ({value: d, label: `${d}: ${variables[d]}`})));
-  }, [blocks]);
+  }, [blocks, block]);
+
+  const shared = [{label: "Section-wide", value: "false"}, {label: "Profile-wide", value: "true"}];
 
   const maybeDelete = async() => {
     const confirmed = await getConfirmation({
@@ -54,9 +56,11 @@ function BlockSettings({id, onChange}) {
   };
 
   return (
-    <div>
+    <div style={{display: "flex", flexDirection: "column"}}>
       <Select label="Block Type" defaultValue={block.type} onChange={e => handleChange("type", e)} data={types} />
       <Select label="Allowed" defaultValue={block.settings.allowed || "always"} onChange={e => handleChange("allowed", e)} data={allowed} />
+      Sharing
+      <SegmentedControl defaultValue={String(block.shared)} onChange={e => handleChange("shared", e === "true")} data={shared}/>
       <Button variant="outline" color="red" onClick={maybeDelete}>Delete Block</Button>
     </div>
   );

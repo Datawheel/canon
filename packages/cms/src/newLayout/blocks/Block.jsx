@@ -1,8 +1,9 @@
 /* react */
 import React, {useState, useMemo, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Modal, ActionIcon, Button, Group} from "@mantine/core";
+import {Modal, ActionIcon, Button, Tooltip} from "@mantine/core";
 import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";
+import {AiOutlineGlobal} from "react-icons/ai";
 
 /* components */
 import CogMenu from "../components/CogMenu";
@@ -143,8 +144,8 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const onChangeSettings = settings => {
     if (!modified) setModified(true);
-    // Unlike other settings, type is top-level, not stored in the settings object
-    settings.type
+    // Unlike other settings, type and shared are top-level, not stored in the settings object
+    settings.type || settings.shared !== undefined
       ? setBlockState({...blockState, ...settings})
       : setBlockState({...blockState, settings: {...blockState.settings, ...settings}});
   };
@@ -230,6 +231,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
         <BlockPreview blockState={block} active={active} variables={variables} locale={localeDefault}/>
         <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
         <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
+        {block.shared && <Tooltip withArrow label="Sharing: Enabled"><AiOutlineGlobal color="yellow" size={20} /></Tooltip>}
       </div>
       <Modal key="d" {...modalProps}>
         <BlockEditor key="be" id={id} components={components}/>
