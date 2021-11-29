@@ -422,10 +422,6 @@ importers:
 
   packages/reports:
     specifiers:
-      '@blueprintjs/core': ^3.51.3
-      '@blueprintjs/datetime': ^3.23.4
-      '@blueprintjs/popover2': ^0.12.8
-      '@blueprintjs/select': ^3.16.4
       '@datawheel/canon-core': workspace:^
       '@datawheel/canon-logiclayer': workspace:^
       '@datawheel/olap-client': ^2.0.0-beta.1
@@ -485,10 +481,6 @@ importers:
       sharp: ^0.28.1
       xlsx: ^0.17.3
     dependencies:
-      '@blueprintjs/core': 3.51.3
-      '@blueprintjs/datetime': 3.23.4
-      '@blueprintjs/popover2': 0.12.8
-      '@blueprintjs/select': 3.16.4
       '@datawheel/olap-client': 2.0.0-beta.2
       '@google-cloud/storage': 5.3.0
       '@google-cloud/translate': 6.1.0
@@ -1954,22 +1946,6 @@ packages:
     dependencies:
       classnames: 2.3.1
       tslib: 1.13.0
-    dev: false
-
-  /@blueprintjs/popover2/0.12.8:
-    resolution: {integrity: sha512-BuMcrx4BfjRHYfj1qai3gPq+nlI5pnsh0wGAkcindwDSugJYGq+pQh/CEkm6PfX4cQXwBH5yFhhiW/FSPzCs7g==}
-    peerDependencies:
-      react: ^16.8.0 || ^17
-    dependencies:
-      '@blueprintjs/core': 3.51.3
-      '@popperjs/core': 2.10.2
-      classnames: 2.3.1
-      dom4: 2.1.6
-      react-popper: 2.2.5_@popperjs+core@2.10.2
-      resize-observer-polyfill: 1.5.1
-      tslib: 1.13.0
-    transitivePeerDependencies:
-      - react-dom
     dev: false
 
   /@blueprintjs/select/3.15.4_react-dom@16.14.0+react@16.14.0:
