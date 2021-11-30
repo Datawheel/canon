@@ -24,7 +24,7 @@ function InputMenu({id}) {
   const block = blocks[id];
   const inputs = useSelector(state => state.cms.reports.entities.inputs);
   // Lookup object of the input blocks this block is subscribed to. Note that there may be no inputs in the entire project (yet), necessitating the || [] 
-  const inputBlocks = useMemo(() => Object.values(inputs || []).filter(d => block.inputs.includes(d.id)).reduce((acc, d) => ({...acc, [d.id]: d}), {}), [inputs]);
+  const inputBlocks = useMemo(() => Object.values(inputs || []).filter(d => block.inputs.includes(d.id)).reduce((acc, d) => ({...acc, [d.id]: d}), {}), [inputs, block]);
 
   // Blocks from this section are always available, as well as ones that are shared by other sections.
   const availableBlocks = useMemo(() => Object.values(blocks)
@@ -36,7 +36,7 @@ function InputMenu({id}) {
 
   const handleClick = id => {
     if (inputBlocks[id]) {
-      dispatch(deleteEntity(ENTITY_TYPES.BLOCK_INPUT, {id: inputBlocks[id].block_input.id}));
+      dispatch(deleteEntity(ENTITY_TYPES.BLOCK_INPUT, {input_id: Number(id), block_id: block.id}));
     }
     else {
       dispatch(newEntity(ENTITY_TYPES.BLOCK_INPUT, {input_id: Number(id), block_id: block.id}));

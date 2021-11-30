@@ -100,21 +100,18 @@ const runConsumers = async(req, blocks, locale, formatterFunctions, rootBlocks) 
    * However, while working DOWN the tree, we may encounter a block whose inputs have not been calculated.
    * Consider A->B->C in conjunction with D->E->C. We start at A, work down to B, but then encounter C.
    * The values for D/E have not been calculated during this run and are unavailable. In that case, we must
-   * crawl back up backwards, from C to E to D, until we hit another root with no inputs (D). While on our way down,
-   * cache both downstreamResult AND upstreamResult, so we can use that cache instead of re-running. Ultimately,
-   * this function returns downstreamResult - upstreamResult is just a cache/helper for that.
+   * crawl back up backwards, from C to E to D, until we hit another root with no inputs (D). While on our way 
+   * up or down, cache results so we can use that cache instead of re-running.
    */
-  let upstreamResult = {};
-  const downstreamResult = {};
+  const cache = {};
   const statusById = {};
   // Calculate the vars/status for this block, given the variables from its inputs. Each var will be prepended with the
   // block type and id, which will create variables like "stat14value" for downstream blocks.
   const generateVars = async(block, variables = {}) => {
     let result = {};
     statusById[block.id] = {};
-    // todo1.0, this will have api calls
     if (block.type === BLOCK_TYPES.GENERATOR) {
-      // todo1.0, pass the correct vars here
+      // todo1.0, pass the correct vars here, including canonVars, etc
       const resp = await apiFetch(req, block.api, locale, variables).catch(catcher);
       statusById[block.id].duration = resp.requestDuration;
       statusById[block.id].response = resp.data;
@@ -144,45 +141,48 @@ const runConsumers = async(req, blocks, locale, formatterFunctions, rootBlocks) 
     return result;
   };
 
-  // Given the id of a block with inputs, return a hash object keyed by the input ids, whose values
+  // Given the id of a block with inputs, fill the cache with objects keyed by the input ids, whose values
   // represent the variables those inputs provide. (Use cache as much as possible, recurse if necessary)
-  const crawlUp = async bid => {
+  const crawlUp = async bid => { 
     const block = blocks[bid];
-    if (block.inputs.length === 0) return {[block.id]: downstreamResult[block.id] || upstreamResult[block.id] || await generateVars(block)};
-    let variables;
+    if (block.inputs.length === 0) {
+      if (!cache[bid]) cache[bid] = await generateVars(block);
+      return;
+    } 
     for (const input of block.inputs) {
-      variables = {...variables, ...upstreamResult[input] || await crawlUp(input)};
+      if (!cache[input]) await crawlUp(input);
     }
-    return variables;
+    const variables = block.inputs.reduce((acc, d) => ({...acc, ...cache[d]}), {});
+    if (!cache[bid]) cache[bid] = await generateVars(block, variables);
   };
 
-  // Given an id, set downstreamResult[id] to the variables which that id exports.
+  // Given an id, set cache[id] to the variables which that id exports.
   const crawlDown = async bid => {
-    let block, variables;
+    let block;
+    let variables = {};
     // If this block has inputs, gather their results into an object and use it to help generate THIS block's variables.
     if (rootBlocks[bid]) {
       block = rootBlocks[bid];
       // A rootBlock may be a "true" root, one with no inputs, or a block somewhere in the chain that updated (and may have inputs)
-      // If it has inputs, crawl upwards to calculate the necessary variables, caching the results in upstreamResult as we go.
-      const variablesById = blocks[bid].inputs.length > 0 ? await crawlUp(bid) : {};
-      upstreamResult = {...upstreamResult, ...variablesById};
-      variables = Object.values(variablesById).reduce((acc, d) => ({...acc, ...d}), {});
+      // If it has inputs, crawl upwards to calculate the necessary variables, caching the results as we go.
+      if (blocks[bid].inputs.length > 0) {
+        await crawlUp(bid);
+        variables = block.inputs.reduce((acc, d) => ({...acc, ...cache[d]}), {});
+      }
     }
     else {
       block = blocks[bid];
       // If this block is not a root, then it should get its inputs from one two places:
-      // 1. The live-building downstreamResult, meaning we visited this node on our way down.
-      // 2. A previously run upstreamResult, cached from some other crawlUp
-      // 2a. If there is no result in either downstream or upstream, run crawlUp to fill in the upstream.
+      // 1. The cache, from a previous up/down run
+      // 2. If some aren't cached, go back and run them
       // todo1.0 deal with removals / undefined? like in original cms
-      if (block.inputs.some(d => !downstreamResult[d] && !upstreamResult[d])) upstreamResult = {...upstreamResult, ...await crawlUp(bid)};
-      for (const input of block.inputs) {
-        variables = {...variables, ...downstreamResult[input] ? downstreamResult[input] : upstreamResult[input]};
-      }
+      if (block.inputs.some(d => !cache[d])) await crawlUp(bid);
+      variables = block.inputs.reduce((acc, d) => ({...acc, ...cache[d]}), {});
     }
     // rootBlock or otherwise, the variables that feed THIS BLOCK have now been calculated. Generate this block's output
-    // using those variables, and store the result in the still-growing downstreamResult.
-    downstreamResult[bid] = await generateVars(block, variables).catch(catcher);
+    // using those variables, and store the result in the cache.
+    // todo1.0 check whether this needs to be a spread - I'm concerned there's some last-run/race condition here
+    cache[bid] = await generateVars(block, variables).catch(catcher);
     for (const cid of blocks[bid].consumers) {
       await crawlDown(cid);
     }
@@ -191,7 +191,7 @@ const runConsumers = async(req, blocks, locale, formatterFunctions, rootBlocks) 
     await crawlDown(id);
   }
   // todo1.0 ask ryan if i can combine upstream and downstream 
-  return {variablesById: {...upstreamResult, ...downstreamResult}, statusById};
+  return {variablesById: cache, statusById};
 };
 
 module.exports = {runConsumers};

@@ -114,6 +114,7 @@ module.exports = function(app) {
     let blocks = await db.block.findAll(blockReqFull).catch(catcher);
     if (!blocks) return {status: REQUEST_STATUS.ERROR};
     blocks = blocks.map(d => d.toJSON());
+    const nonNativeBlocks = blocks.filter(d => d.shared && d.section_id !== sid).map(d => d.id);
     // runConsumers requires a normalized block shape. This emulates that.
     // todo1.0, either normalize this or create a different way of using runConsumers
     blocks = blocks.map(d => ({...d,
@@ -121,7 +122,6 @@ module.exports = function(app) {
       inputs: d.inputs.map(d => d.id),
       consumers: d.consumers.map(d => d.id)
     })).reduce((acc, d) => ({...acc, [d.id]: d}), {});
-    // todo1.0 fix formatter usage here, add error logging
     // If a block has been provided, a single block has been saved or changed - start there.
     // Otherwise, a section is being activated in the report builder, so fetch all roots, which are either:
     // 1. blocks in this section that have no inputs 
@@ -129,8 +129,9 @@ module.exports = function(app) {
     const rootBlocks = bid
       ? {[bid]: blocks[bid]}
       : Object.values(blocks)
-        .filter(d => d.section_id === sid && (d.inputs.length === 0 || d.inputs.length > 0 && d.inputs.every(i => i.section_id !== sid)))
+        .filter(d => d.section_id === sid && (d.inputs.length === 0 || d.inputs.length > 0 && d.inputs.every(i => nonNativeBlocks.includes(i))))
         .reduce((acc, d) => ({...acc, [d.id]: d}), {});
+    // todo1.0 fix formatter usage here, add error logging
     return await runConsumers(req, blocks, locale, {}, rootBlocks);
   };
 
@@ -470,11 +471,11 @@ module.exports = function(app) {
   });
 
   app.delete("/api/reports/block_input/delete", isEnabled, async(req, res) => {
-    const {id} = req.query;
-    const row = await db.block_input.findOne({where: {id}}).catch(catcher);
+    const {block_id, input_id} = req.query; //eslint-disable-line
+    const row = await db.block_input.findOne({where: {block_id, input_id}}).catch(catcher);
     // todo1.0 add this ordering back in
     // await db.block_input.update({ordering: sequelize.literal("ordering -1")}, {where: {block_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    await db.block_input.destroy({where: {id}});
+    await db.block_input.destroy({where: {block_id, input_id}});
     const block = await db.block.findOne({where: {id: row.block_id}}).catch(catcher);
     const reports = await getReportTreeAndActivate(req, block.section_id).catch(catcher);
     return res.json(reports);
