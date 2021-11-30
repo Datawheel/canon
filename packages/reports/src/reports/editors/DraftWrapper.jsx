@@ -123,19 +123,19 @@ class DraftWrapper extends Component {
     // variables
     this.onSearchChange = ({value}) => {
       this.setState({
-        suggestions: defaultSuggestionsFilter(value, suggestions)
+        suggestions: defaultSuggestionsFilter(value, this.state.suggestions)
       });
     };
     // formatters
     this.onSearchChangeFormatter = ({value}) => {
       this.setState({
-        suggestionsFormatter: defaultSuggestionsFilter(value, suggestionsFormatter)
+        suggestionsFormatter: defaultSuggestionsFilter(value, this.state.suggestionsFormatter)
       });
     };
     // selectors
     this.onSearchChangeSelector = ({value}) => {
       this.setState({
-        suggestionsSelector: defaultSuggestionsFilter(value, suggestionsSelector)
+        suggestionsSelector: defaultSuggestionsFilter(value, this.state.suggestionsSelector)
       });
     };
 
@@ -164,6 +164,16 @@ class DraftWrapper extends Component {
         this.setState({editorState});
       }
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.variables !== this.props.variables) {
+      const suggestions = Object.keys(this.props.variables).map(k => ({
+        name: `{{${k}}}`,
+        value: this.props.variables[k]
+      }));
+      this.setState({suggestions});
+    }
   }
 
   render() {
