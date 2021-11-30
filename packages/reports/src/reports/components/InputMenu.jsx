@@ -23,11 +23,16 @@ function InputMenu({id}) {
 
   const block = blocks[id];
   const inputs = useSelector(state => state.cms.reports.entities.inputs);
+  // Lookup object of the input blocks this block is subscribed to. Note that there may be no inputs in the entire project (yet), necessitating the || [] 
   const inputBlocks = useMemo(() => Object.values(inputs || []).filter(d => block.inputs.includes(d.id)).reduce((acc, d) => ({...acc, [d.id]: d}), {}), [inputs]);
 
-  const sectionBlocks = useMemo(() => Object.values(blocks).filter(d => d.section_id === block.section_id), [blocks]);
-  const sourceBlocks = useMemo(() => Object.values(sectionBlocks).filter(d => d.id !== block.id), [sectionBlocks]);
-  const variables = useMemo(() => Object.values(blocks).reduce((acc, d) => ({...acc, [d.id]: d._variables}), {}), [blocks]);
+  // Blocks from this section are always available, as well as ones that are shared by other sections.
+  const availableBlocks = useMemo(() => Object.values(blocks)
+    .filter(d => d.id !== block.id && (d.section_id === block.section_id || d.shared))
+    .sort(d => d.shared ? 1 : -1), 
+  [blocks]);
+  // When reaching across sections to shared blocks, their variables may not yet be loaded, necessitating the || {}
+  const variables = useMemo(() => Object.values(blocks).reduce((acc, d) => ({...acc, [d.id]: d._variables || {}}), {}), [blocks]);
 
   const handleClick = id => {
     if (inputBlocks[id]) {
@@ -40,9 +45,9 @@ function InputMenu({id}) {
 
   return (
     <Menu zIndex={1001} control={<Button style={{marginBottom: "15px"}} variant="outline" leftIcon={<HiViewGridAdd />}>Choose Inputs</Button>}>
-      {sourceBlocks.map(({id}) =>
+      {availableBlocks.map(({id}) =>
         <Menu.Item onClick={() => handleClick(id)} icon={block.inputs.includes(id) ? <ThemeIcon size="xs" radius="xl" color="green"><HiCheckCircle /></ThemeIcon> : null} key={id}>
-          <InputMenuItem  id={id} variables={variables[id]}/>
+          <InputMenuItem id={id} variables={variables[id]}/>
         </Menu.Item>)}
     </Menu>
   );

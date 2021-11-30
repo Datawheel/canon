@@ -88,16 +88,12 @@ const apiFetch = async(req, api, locale, vars) => {
 };
 
 /**
- * Given a list of blocks (usually constrained to a section), create a hash object, keyed by id,
- * where each entry contains the variables which that block exports. Optionally, provide a "rootBlocks"
- * entry point to only calculate those blocks and their children.
+ * Given a list of all possible blocks, create a hash object, keyed by id,
+ * where each entry contains the variables which that block exports. Requires a "rootBlocks"
+ * entry point to determine starting blocks.
  */
 const runConsumers = async(req, blocks, locale, formatterFunctions, rootBlocks) => {
-  // If not given rootBlocks, find the root blocks, i.e., blocks with no inputs.
-  if (!rootBlocks) {
-    rootBlocks = Object.values(blocks).filter(d => d.inputs.length === 0).reduce((acc, d) => ({...acc, [d.id]: d}), {});
-  }
-
+  
   /**
    * Starting with rootBlocks, crawl down the list of consumers, storing the keyed results in downstreamResult.
    *
@@ -194,7 +190,8 @@ const runConsumers = async(req, blocks, locale, formatterFunctions, rootBlocks) 
   for (const id of Object.keys(rootBlocks)) {
     await crawlDown(id);
   }
-  return {variablesById: downstreamResult, statusById};
+  // todo1.0 ask ryan if i can combine upstream and downstream 
+  return {variablesById: {...upstreamResult, ...downstreamResult}, statusById};
 };
 
 module.exports = {runConsumers};

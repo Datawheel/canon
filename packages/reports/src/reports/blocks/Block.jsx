@@ -220,7 +220,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const overlayStyle = {width: "100%", height: "100%", position: "absolute", opacity: 0.3, zIndex: 5, textAlign: "center"};
 
   const inputOverlay = <div style={{...overlayStyle, backgroundColor: "lightgreen"}} key="input" ><span style={{fontSize: 60}}>INPUT</span></div>;
-  const consumerOverlay = <div style={{...overlayStyle, backgroundColor: "lightblue"}} key="input" ><span style={{fontSize: 60}}>CONSUMER</span></div>;
+  const consumerOverlay = <div style={{...overlayStyle, backgroundColor: "lightblue"}} key="consumer" ><span style={{fontSize: 60}}>CONSUMER</span></div>;
 
   return (
     <React.Fragment>
@@ -228,14 +228,14 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
         {isInput && inputOverlay}
         {isConsumer && consumerOverlay}
         <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
-        <BlockPreview blockState={block} active={active} variables={variables} locale={localeDefault}/>
+        <BlockPreview key="bp" blockState={block} active={active} variables={variables} locale={localeDefault}/>
         <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
         <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
-        {block.shared && <Tooltip withArrow label="Sharing: Enabled"><AiOutlineGlobal color="yellow" size={20} /></Tooltip>}
+        {block.shared && <Tooltip key="tt" withArrow label="Sharing: Enabled"><AiOutlineGlobal color="yellow" size={20} /></Tooltip>}
       </div>
       <Modal key="d" {...modalProps}>
         <BlockEditor key="be" id={id} components={components}/>
-        <Button onClick={() => onSave(false)}>Save &amp; Close</Button>
+        <Button key="button" onClick={() => onSave(false)}>Save &amp; Close</Button>
       </Modal>
     </React.Fragment>
   );

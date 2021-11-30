@@ -22,7 +22,7 @@ const isEnabled = (req, res, next) => {
 
 const catcher = e => {
   if (verbose) {
-    console.error("Error in cmsRoute: ", e.message);
+    console.error("Error in builderRoute: ", e.message);
   }
   return [];
 };
@@ -111,22 +111,27 @@ module.exports = function(app) {
 
   const activate = async(req, sid, bid) => {
     const locale = req.query.locale ? req.query.locale : localeDefault;
-    let blocks = await db.block.findAll({...blockReqFull, where: {section_id: sid}}).catch(catcher);
+    let blocks = await db.block.findAll(blockReqFull).catch(catcher);
     if (!blocks) return {status: REQUEST_STATUS.ERROR};
-    blocks = blocks.map(d => {
-      d = d.toJSON();
-      // runConsumers requires a normalized block shape. This emulates that.
-      // todo1.0, either normalize this or create a different way of using runConsumers
-      return {...d,
-        contentByLocale: d.contentByLocale.reduce(contentReducer, {}),
-        inputs: d.inputs.map(d => d.id),
-        consumers: d.consumers.map(d => d.id)
-      };
-    }).reduce((acc, d) => ({...acc, [d.id]: d}), {});
+    blocks = blocks.map(d => d.toJSON());
+    // runConsumers requires a normalized block shape. This emulates that.
+    // todo1.0, either normalize this or create a different way of using runConsumers
+    blocks = blocks.map(d => ({...d,
+      contentByLocale: d.contentByLocale.reduce(contentReducer, {}),
+      inputs: d.inputs.map(d => d.id),
+      consumers: d.consumers.map(d => d.id)
+    })).reduce((acc, d) => ({...acc, [d.id]: d}), {});
     // todo1.0 fix formatter usage here, add error logging
-    const args = [req, blocks, locale, {}];
-    if (bid) args.push({[bid]: blocks[bid]});
-    return await runConsumers(...args);
+    // If a block has been provided, a single block has been saved or changed - start there.
+    // Otherwise, a section is being activated in the report builder, so fetch all roots, which are either:
+    // 1. blocks in this section that have no inputs 
+    // 2. blocks in this section that have inputs entirely consisting of shared / global blocks.
+    const rootBlocks = bid
+      ? {[bid]: blocks[bid]}
+      : Object.values(blocks)
+        .filter(d => d.section_id === sid && (d.inputs.length === 0 || d.inputs.length > 0 && d.inputs.every(i => i.section_id !== sid)))
+        .reduce((acc, d) => ({...acc, [d.id]: d}), {});
+    return await runConsumers(req, blocks, locale, {}, rootBlocks);
   };
 
   app.get("/api/reports/block/activate", async(req, res) => {
@@ -424,8 +429,6 @@ module.exports = function(app) {
     return res.json(newReport);
   });
 
-  /* DELETES */
-
   const getReportTreeAndActivate = async(req, sid) => {
     let reports = await db.report.findAll(reportReqFull).catch(catcher);
     reports = reports.map(p => p.toJSON());
@@ -434,17 +437,28 @@ module.exports = function(app) {
       report.meta = report.meta.sort(sorter);
       report.contentByLocale = report.contentByLocale.reduce(contentReducer, {});
       report.sections = flatSort(db.section, report.sections);
+      let results;
+      // While traversing/preparing the sections, the activated section will eventually be reached. However, due to global/shared
+      // blocks, this may have effects outside of the scope of this section. Store the result to be spread later.
       for (const section of report.sections) {
         section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
         section.blocks.forEach(block => block.contentByLocale = block.contentByLocale.reduce(contentReducer, {}));
         if (section.id === sid) {
-          const {variablesById, statusById} = await activate(req, sid);
+          results = await activate(req, sid);
+        }
+      }
+      // If the activation was run, spread its results over all possible sections/blocks, because shared blocks may have been run.
+      if (results) {
+        const {variablesById, statusById} = results;
+        for (const section of report.sections) {
           section.blocks = section.blocks.map(d => ({...d, _variables: variablesById[d.id] || {}, _status: statusById[d.id] || {}}));
         }
       }
     }
     return reports;
   };
+
+  /* DELETES */
 
   app.delete("/api/reports/block/delete", isEnabled, async(req, res) => {
     const block = await db.block.findOne({where: {id: req.query.id}}).catch(catcher);
