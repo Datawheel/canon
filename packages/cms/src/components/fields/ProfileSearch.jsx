@@ -6,7 +6,6 @@ import {Link} from "react-router";
 import axios from "axios";
 import "./ProfileSearch.css";
 import linkify from "../../utils/linkify";
-import {formatTitle} from "../../utils/profileTitleFormat";
 import stripHTML from "../../utils/formatters/stripHTML";
 import groupMeta from "../../utils/groupMeta";
 import {Icon, NonIdealState, Spinner} from "@blueprintjs/core";
@@ -482,7 +481,7 @@ class ProfileSearch extends Component {
                             result,
                             j,
                             linkify(router, result, locale),
-                            result.map(d => formatTitle(d.name)).join(joiner),
+                            result.map(d => d.name).join(joiner),
                             result.map(subtitleFormat).join(joiner)
                           ))}
                         </ul>
