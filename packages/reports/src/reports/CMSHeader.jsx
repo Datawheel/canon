@@ -1,8 +1,11 @@
 /* react */
-import React from "react";
+import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {ActionIcon, Center, Group, Header, Select} from "@mantine/core";
+import {ActionIcon, Center, Group, Header, Select, Modal} from "@mantine/core";
 import {HiChevronLeft, HiOutlineCog} from "react-icons/hi";
+
+/* components */
+import DimensionBuilder from "./DimensionBuilder";
 
 /* redux */
 import {setStatus} from "../actions/status";
@@ -23,12 +26,21 @@ function CMSHeader({id}) {
   // todo1.0 - is this too heavy to import the whole thing?
   const reports = useSelector(state => Object.values(state.cms.reports.entities.reports));
 
+  const [opened, setOpened] = useState(false);
+
   const goBack = () => {
     dispatch(setStatus({pathObj: {home: true}}));
   };
 
   const onChangeReport = value => {
     dispatch(setStatus({pathObj: {[ENTITY_TYPES.REPORT]: Number(value)}}));
+  };
+
+  const modalProps = {
+    title: "Dimension Builder",
+    opened,
+    size: "50%",
+    onClose: () => setOpened(false)
   };
 
   const reportOptions = reports.map(d => ({value: String(d.id), label: d.contentByLocale[localeDefault].content.label}));
@@ -62,10 +74,13 @@ function CMSHeader({id}) {
             defaultValue={localeOptions[0].value}
           />
           <ActionIcon color="theme">
-            <HiOutlineCog size={20}/>
+            <HiOutlineCog onClick={() => setOpened(true)} size={20}/>
           </ActionIcon>
         </Group>
       </Center>
+      <Modal {...modalProps}>
+        <DimensionBuilder id={id}/>
+      </Modal>
 
     </Header>
   );

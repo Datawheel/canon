@@ -37,7 +37,7 @@ module.exports = function(sequelize, db) {
   );
 
   p.associate = models => {
-    p.hasMany(models.search, {foreignKey: "cubeName", sourceKey: "cubeName", as: "members", constraints: false});
+    p.hasMany(models.search, {foreignKey: "namespace", sourceKey: "cubeName", as: "members", constraints: false});
     p.belongsTo(models.report, {foreignKey: "id", sourceKey: "report_id", as: "report", constraints: false});
   };
 

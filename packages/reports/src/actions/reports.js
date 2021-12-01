@@ -128,14 +128,16 @@ export function swapEntity(type, id) {
 
 /** */
 export function modifyDimension(payload) {
-  return function(dispatch, getStore) {
-    dispatch({type: "SEARCH_LOADING"});
-    const diffCounter = getStore().cms.status.diffCounter + 1;
-    return axios.post("/api/reports/report/upsertDimension", payload)
-      .then(({data}) => {
-        dispatch({type: "DIMENSION_MODIFY", data, diffCounter});
-        // TODO: Remove reset previews - have all reports come from the server
-        // with their default values already set.
+  return function(dispatch) {
+    return axios.post("/api/reports/ingest", payload)
+      .then(resp => {
+        if (resp.status === 200) {
+          dispatch({type: "DIMENSION_MODIFY", data: resp.data});
+          return {status: REQUEST_STATUS.SUCCESS};
+        }
+        else {
+          return {status: REQUEST_STATUS.ERROR, error: resp.status};
+        }
       });
   };
 }

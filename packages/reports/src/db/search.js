@@ -7,14 +7,6 @@ module.exports = function(sequelize, db) {
         type: db.TEXT
       },
       zvalue: db.DOUBLE,
-      dimension: {
-        primaryKey: true,
-        type: db.TEXT
-      },
-      hierarchy: {
-        primaryKey: true,
-        type: db.TEXT
-      },
       slug: db.TEXT,
       imageId: db.INTEGER,
       contentId: {
@@ -22,9 +14,10 @@ module.exports = function(sequelize, db) {
         type: db.INTEGER,
         unique: true
       },
-      cubeName: {
-        primaryKey: true,
-        type: db.TEXT
+      namespace: db.TEXT,
+      visible: {
+        type: db.BOOLEAN,
+        defaultValue: true
       }
     },
     {

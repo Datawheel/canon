@@ -32,7 +32,8 @@ export default (reports = {}, action) => {
       return normalize(action.data, reportSchema);
     // Dimensions
     case "DIMENSION_MODIFY":
-      return reports.map(p => p.id === action.data.id ? Object.assign({}, p, {...action.data}) : p);
+      console.log(action.data);
+      return reports;
 
     // Sections
     case "SECTION_NEW":

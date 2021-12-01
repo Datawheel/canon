@@ -11,7 +11,9 @@ const models = {
   search: require.resolve("./src/db/search.js"),
   search_content: require.resolve("./src/db/search_content.js"),
   section: require.resolve("./src/db/section.js"),
-  section_content: require.resolve("./src/db/section_content.js")
+  section_content: require.resolve("./src/db/section_content.js"),
+  tesseract: require.resolve("./src/db/tesseract.js"),
+  tesseract_content: require.resolve("./src/db/tesseract_content.js")
 };
 
 module.exports = {
