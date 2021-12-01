@@ -329,6 +329,7 @@ class ProfileSearch extends Component {
       renderListItem,
       renderTile,
       subtitleFormat,
+      titleFormat,
       t
     } = this.props;
 
@@ -451,7 +452,7 @@ class ProfileSearch extends Component {
 
                       return (
                         <ul key="grid" className="cms-profilesearch-grid">
-                          {gridProfiles.map((data, j) => renderTile(data, j, {joiner, subtitleFormat}))}
+                          {gridProfiles.map((data, j) => renderTile(data, j, {joiner, subtitleFormat, titleFormat}))}
                         </ul>
                       );
 
@@ -470,7 +471,7 @@ class ProfileSearch extends Component {
                           return aIndex - bIndex;
                         })
                         .map(profile => results.profiles[profile] || []);
-                      return <ProfileColumns columnFormat={subtitleFormat} columnTitles={columnTitles} joiner={joiner} renderTile={renderTile} tileProps={{joiner, subtitleFormat}} data={columnProfiles} />;
+                      return <ProfileColumns columnFormat={subtitleFormat} columnTitles={columnTitles} joiner={joiner} renderTile={renderTile} tileProps={{joiner, subtitleFormat, titleFormat}} data={columnProfiles} />;
 
                     default:
                       const listProfiles = (results.grouped || [])
@@ -481,7 +482,7 @@ class ProfileSearch extends Component {
                             result,
                             j,
                             linkify(router, result, locale),
-                            result.map(d => d.name).join(joiner),
+                            result.map(titleFormat).join(joiner),
                             result.map(subtitleFormat).join(joiner)
                           ))}
                         </ul>
@@ -551,7 +552,8 @@ ProfileSearch.defaultProps = {
     return <ProfileTile key={`r-${i}`} {...tileProps} data={result} />;
   },
   showExamples: false,
-  subtitleFormat: d => d.memberHierarchy
+  subtitleFormat: d => d.memberHierarchy,
+  titleFormat: d => d.name
 };
 
 ProfileSearch = withNamespaces()(ProfileSearch);

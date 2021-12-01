@@ -640,7 +640,8 @@ import {ProfileSearch} from "@datawheel/canon-cms";
       </a>
     </li>} // component that is rendered when display is "list"
   renderTile={(result, i, tileProps) => <ProfileTile key={`r-${i}`} {...tileProps} data={result} />} // component that is rendered when display is "columns" or "grid"
-  subtitleFormat={result => result.memberHierarchy} // overrides for the default result subtitles
+  subtitleFormat={result => result.memberHierarchy} // overrides the default result subtitles
+  titleFormat={d => d.name} // overrides the default result title
   showExamples={false} // setting this to `true` will display results when no query has been entered
   showFilters={false} // show a faceted search underneath the input box
   showLaterals={false} // Force to return top 5 combination for bilaterals results, even with just one word in q.

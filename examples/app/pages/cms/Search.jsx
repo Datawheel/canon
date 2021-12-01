@@ -81,6 +81,7 @@ class Search extends Component {
           // renderTile={(result, i, tileProps) => <div>Ceci n'est pas une tuile.</div>}
           showExamples={true}
           ignoredTerms={["of", "the"]}
+          titleFormat={d => (console.log(d), d.name.toUpperCase())}
         />
       </div>
     );
