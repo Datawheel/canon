@@ -3,7 +3,6 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {Link} from "react-router";
 import linkify from "../../utils/linkify";
-import {formatTitle} from "../../utils/profileTitleFormat";
 import {max} from "d3-array";
 import {trim} from "d3plus-text";
 import "./ProfileTile.css";
@@ -27,14 +26,15 @@ class ProfileTile extends Component {
     const {
       data,
       joiner,
-      subtitleFormat
+      subtitleFormat,
+      titleFormat
     } = this.props;
 
     return (
       <li className="cms-profilesearch-tile">
         <Link to={linkify(router, data, locale)} className="cms-profilesearch-tile-link">
           {data.map((r, i) => {
-            const title = formatTitle(r.name);
+            const title = titleFormat(r);
             return (
               <React.Fragment key={`tile-entity-${i}`}>
                 { i > 0 && <span className="cms-profilesearch-tile-link-joiner u-font-md">{trim(joiner)}</span> }
@@ -63,7 +63,8 @@ ProfileTile.contextTypes = {
 
 ProfileTile.defaultProps = {
   joiner: " & ",
-  subtitleFormat: d => d.memberHierarchy
+  subtitleFormat: d => d.memberHierarchy,
+  titleFormat: d => d.name
 };
 
 export default connect(state => ({
