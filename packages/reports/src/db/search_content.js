@@ -7,7 +7,7 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         onDelete: "cascade",
         references: {
-          model: "canon_cms_search",
+          model: "canon_reports_search",
           key: "contentId"
         }
       },
@@ -20,7 +20,7 @@ module.exports = function(sequelize, db) {
       keywords: db.ARRAY(db.TEXT)
     },
     {
-      tableName: "canon_cms_search_content",
+      tableName: "canon_reports_search_content",
       freezeTableName: true,
       timestamps: false
     }

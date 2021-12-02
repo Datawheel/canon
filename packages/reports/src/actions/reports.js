@@ -129,7 +129,7 @@ export function swapEntity(type, id) {
 /** */
 export function modifyDimension(payload) {
   return function(dispatch) {
-    return axios.post("/api/reports/ingest", payload)
+    return axios.post("/api/reports/dimension/upsert", payload)
       .then(resp => {
         if (resp.status === 200) {
           dispatch({type: "DIMENSION_MODIFY", data: resp.data});

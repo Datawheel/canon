@@ -28,7 +28,7 @@ module.exports = function(sequelize, db) {
       ordering: db.INTEGER
     },
     {
-      tableName: "canon_cms_report",
+      tableName: "canon_reports_report",
       freezeTableName: true,
       timestamps: false
     }

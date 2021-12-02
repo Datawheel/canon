@@ -32,7 +32,7 @@ module.exports = function(sequelize, db) {
       }
     },
     {
-      tableName: "canon_cms_tesseract",
+      tableName: "canon_reports_tesseract",
       freezeTableName: true,
       timestamps: false
     }

@@ -25,7 +25,7 @@ module.exports = function(sequelize, db) {
       }
     },
     {
-      tableName: "canon_cms_formatter",
+      tableName: "canon_reports_formatter",
       freezeTableName: true,
       timestamps: false
     }

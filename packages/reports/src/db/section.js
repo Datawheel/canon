@@ -24,13 +24,13 @@ module.exports = function(sequelize, db) {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {
-          model: "canon_cms_report",
+          model: "canon_reports_report",
           key: "id"
         }
       }
     },
     {
-      tableName: "canon_cms_section",
+      tableName: "canon_reports_section",
       freezeTableName: true,
       timestamps: false
     }

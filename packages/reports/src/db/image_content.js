@@ -7,7 +7,7 @@ module.exports = function(sequelize, db) {
         primaryKey: true,
         onDelete: "cascade",
         references: {
-          model: "canon_cms_image",
+          model: "canon_reports_image",
           key: "id"
         }
       },
@@ -18,7 +18,7 @@ module.exports = function(sequelize, db) {
       meta: db.TEXT
     },
     {
-      tableName: "canon_cms_image_content",
+      tableName: "canon_reports_image_content",
       freezeTableName: true,
       timestamps: false
     }

@@ -8,6 +8,7 @@ const models = {
   report: require.resolve("./src/db/report.js"),
   report_content: require.resolve("./src/db/report_content.js"),
   report_meta: require.resolve("./src/db/report_meta.js"),
+  report_tesseract_meta: require.resolve("./src/db/report_tesseract_meta.js"),
   search: require.resolve("./src/db/search.js"),
   search_content: require.resolve("./src/db/search_content.js"),
   section: require.resolve("./src/db/section.js"),

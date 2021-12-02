@@ -1,6 +1,6 @@
 module.exports = function(sequelize, db) {
 
-  const p = sequelize.define("report_meta",
+  const p = sequelize.define("report_tesseract_meta",
     {
       id: {
         type: db.INTEGER,
@@ -11,7 +11,7 @@ module.exports = function(sequelize, db) {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {
-          model: "canon_reports_report",
+          model: "canon_reports_report_tesseract_meta",
           key: "id"
         }
       },
@@ -19,37 +19,25 @@ module.exports = function(sequelize, db) {
         type: db.STRING,
         defaultValue: ""
       },
-      accessor: {
-        type: db.STRING,
-        defaultValue: ""
-      },
-      path: {
-        type: db.STRING,
-        defaultValue: ""
-      },
-      namespace: {
-        type: db.STRING,
-        defaultValue: ""
-      },
-      properties: {
-        type: db.JSONB,
-        defaultValue: {}
-      },
+      dimension: db.STRING,
+      levels: db.ARRAY(db.TEXT),
+      measure: db.STRING,
       ordering: db.INTEGER,
+      cubeName: db.STRING,
       visible: {
         type: db.BOOLEAN,
         defaultValue: true
       }
     },
     {
-      tableName: "canon_reports_report_meta",
+      tableName: "canon_reports_report_tesseract_meta",
       freezeTableName: true,
       timestamps: false
     }
   );
 
   p.associate = models => {
-    p.hasMany(models.search, {foreignKey: "namespace", sourceKey: "namespace", as: "members", constraints: false});
+    p.hasMany(models.tesseract, {foreignKey: "cubeName", sourceKey: "cubeName", as: "members", constraints: false});
     p.belongsTo(models.report, {foreignKey: "id", sourceKey: "report_id", as: "report", constraints: false});
   };
 

@@ -26,7 +26,7 @@ function DimensionBuilder({id}) {
 
   /* state */
   const [sample, setSample] = useState();
-  const [config, setConfig] = useState({});
+  const [config, setConfig] = useState({report_id: id});
   const [loading, setLoading] = useState(false);
   const [payload, setPayload] = useState();
   const [accessors, setAccessors] = useState([]);
@@ -54,7 +54,8 @@ function DimensionBuilder({id}) {
       ...config,
       label: upperCaseFirst(guessSlug),
       slug: guessSlug,
-      id: guessId,
+      namespace: guessSlug,
+      idKey: guessId,
       name: guessName,
       accessor
     });
@@ -78,7 +79,7 @@ function DimensionBuilder({id}) {
 
   const onSubmit = () => {
     setLoading(true);
-    dispatch(modifyDimension(config)).then(resp => {
+    dispatch(modifyDimension({config})).then(resp => {
       console.log(resp);
       setLoading(false);
 
@@ -91,7 +92,7 @@ function DimensionBuilder({id}) {
   if (config.path && enterPress) getMembers();
 
   const keys = Object.keys(sample || {}).map(d => ({value: d, label: `${d}: ${sample[d]}`}));
-  const complete = ["id", "name", "slug", "label"].every(d => config[d]);
+  const complete = ["idKey", "name", "slug", "label"].every(d => config[d]);
   const accessorSelectData = accessors.map(d => ({value: d, label: d}));
 
   return (
@@ -105,7 +106,8 @@ function DimensionBuilder({id}) {
             <React.Fragment>
               <TextInput value={config.label} label="label" onChange={e => onChange("label", e.target.value)} />
               <TextInput value={config.slug} label="slug" onChange={e => onChange("slug", e.target.value)} />
-              <Select value={config.id} label="id" data={keys} onChange={e => onChange("id", e)}></Select>
+              <TextInput value={config.namespace} label="namespace" onChange={e => onChange("namespace", e.target.value)} />
+              <Select value={config.idKey} label="idKey" data={keys} onChange={e => onChange("idKey", e)}></Select>
               <Select value={config.name} label="name" data={keys} onChange={e => onChange("name", e)}></Select>
               <Button disabled={!complete} loading={loading} onClick={onSubmit}>{loading ? "Ingesting" : "Ingest"}</Button>
             </React.Fragment>

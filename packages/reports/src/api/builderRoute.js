@@ -2,7 +2,7 @@ const sequelize = require("sequelize"),
       Op = sequelize.Op, // eslint-disable-line
       yn = require("yn");
 
-const populateSearch = require("../utils/populateSearch");
+const {searchIngest} = require("../utils/searchIngest");
 const {reportReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables, blockReqFull} = require("../utils/sequelize/ormHelpers");
 const {translateReport, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
 const {REPORT_FIELDS} = require("../utils/consts/cms");
@@ -124,7 +124,7 @@ module.exports = function(app) {
     })).reduce((acc, d) => ({...acc, [d.id]: d}), {});
     // If a block has been provided, a single block has been saved or changed - start there.
     // Otherwise, a section is being activated in the report builder, so fetch all roots, which are either:
-    // 1. blocks in this section that have no inputs 
+    // 1. blocks in this section that have no inputs
     // 2. blocks in this section that have inputs entirely consisting of shared / global blocks.
     const rootBlocks = bid
       ? {[bid]: blocks[bid]}
@@ -248,36 +248,11 @@ module.exports = function(app) {
 
   /* CUSTOM INSERTS */
 
-  app.post("/api/reports/report/upsertDimension", isEnabled, async(req, res) => {
-    req.setTimeout(1000 * 60 * 5);
-    const {reportData, includeAllMembers} = req.body;
-    const {report_id} = reportData;  // eslint-disable-line
-    reportData.dimension = reportData.dimName;
-    const oldmeta = await db.report_meta.findOne({where: {id: reportData.id}}).catch(catcher);
-    // Inserts are simple
-    if (!oldmeta) {
-      // If no ordering was provided, divine ordering from meta length.
-      if (isNaN(reportData.ordering)) {
-        const ordering = await findMaxOrdering("report_meta", "report_id", report_id);
-        reportData.ordering = ordering;
-      }
-      await db.report_meta.create(reportData);
-      await populateSearch(reportData, db, false, false, includeAllMembers);
-    }
-    // Updates are more complex - the user may have changed levels, or even modified the dimension
-    // entirely. We have to prune the search before repopulating it.
-    else {
-      await db.report_meta.update(reportData, {where: {id: reportData.id}});
-      if (oldmeta.cubeName !== reportData.cubeName || oldmeta.dimension !== reportData.dimension || oldmeta.levels.join() !== reportData.levels.join()) {
-        pruneSearch(oldmeta.cubeName, oldmeta.dimension, oldmeta.levels, db);
-        await populateSearch(reportData, db, false, false, includeAllMembers);
-      }
-    }
-    const reqObj = Object.assign({}, reportReqFull, {where: {id: report_id}});
-    let newReport = await db.report.findOne(reqObj).catch(catcher);
-    newReport = sortReport(db, newReport.toJSON());
-    newReport.sections = newReport.sections.map(section => sortSection(db, section));
-    return res.json(newReport);
+  app.post("/api/reports/dimension/upsert", async(req, res) => {
+    const {config} = req.body;
+    await db.report_meta.upsert(config);
+    await searchIngest(db, config);
+    return res.json("OK");
   });
 
   app.post("/api/reports/repopulateSearch", isEnabled, async(req, res) => {
@@ -285,7 +260,7 @@ module.exports = function(app) {
     const {id, newSlugs, includeAllMembers} = req.body;
     let reportData = await db.report_meta.findOne({where: {id}});
     reportData = reportData.toJSON();
-    await populateSearch(reportData, db, false, newSlugs, includeAllMembers);
+    // await populateSearch(reportData, db, false, newSlugs, includeAllMembers);
     return res.json({});
   });
 

@@ -11,7 +11,7 @@ module.exports = function(sequelize, db) {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {
-          model: "canon_cms_block",
+          model: "canon_reports_block",
           key: "id"
         }
       },
@@ -19,13 +19,13 @@ module.exports = function(sequelize, db) {
         type: db.INTEGER,
         onDelete: "cascade",
         references: {
-          model: "canon_cms_block",
+          model: "canon_reports_block",
           key: "id"
         }
       }
     },
     {
-      tableName: "canon_cms_block_input",
+      tableName: "canon_reports_block_input",
       freezeTableName: true,
       timestamps: false
     }

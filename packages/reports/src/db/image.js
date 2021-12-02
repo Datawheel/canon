@@ -17,7 +17,7 @@ module.exports = function(sequelize, db) {
       thumb: db.BLOB
     },
     {
-      tableName: "canon_cms_image",
+      tableName: "canon_reports_image",
       freezeTableName: true
     }
   );
