@@ -1,5 +1,6 @@
 const sequelize = require("sequelize");
 
+
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
 module.exports = function(app) {
@@ -16,13 +17,12 @@ module.exports = function(app) {
       .then(res => res.map(d => d.toJSON()))
       .catch(() => []);
 
-    /*
-    const members = results.map(d => {
-      const res = ["id", "slug", "namespace"].reduce((acc, d) => )
-    })
-    */
-    const members = [];
-
+    const members = results.map(result => {
+      const res = ["id", "slug", "namespace"].reduce((acc, d) => ({...acc, [d]: result[d]}), {});
+      const content = result.contentByLocale.find(d => d.locale === locale);
+      res.name = content && content.name ? content.name : result.slug;
+      return res;
+    });
 
     return res.json(members);
 

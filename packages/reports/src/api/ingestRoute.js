@@ -3,6 +3,7 @@ const axios = require("axios");
 const {strip} = require("d3plus-text");
 const stripHTML = require("../utils/formatters/stripHTML");
 const slugify = str => strip(stripHTML(str)).replace(/-{2,}/g, "-").toLowerCase();
+const {keyDiver} = require("../utils/arrayFinder");
 
 module.exports = function(app) {
 
@@ -14,7 +15,9 @@ module.exports = function(app) {
 
     const memberFetch = await axios.get(path).catch(e => ({error: e}));
     if (memberFetch.error) return res.json(memberFetch);
-    const members = memberFetch.data[accessor];
+    console.log(accessor);
+    const members = keyDiver(memberFetch.data, accessor);
+
     const searchMembers = members.map(d => ({
       id: d[id],
       slug: slugify(d[name]),
