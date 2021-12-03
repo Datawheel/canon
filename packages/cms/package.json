@@ -4,7 +4,7 @@
     "*.css"
   ],
   "description": "Content Management System for Canon sites.",
-  "version": "0.21.7",
+  "version": "0.21.8",
   "author": "James Mullen",
   "license": "MIT",
   "bin": {
