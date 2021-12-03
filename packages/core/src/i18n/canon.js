@@ -65,6 +65,9 @@ export default {
       "Related Profiles": "Related Profiles",
       "Search profiles": "Search profiles"
     },
+    "Selector": {
+      "Add a Comparison": "Add a Comparison"
+    },
     "Section": {
       "Reset visualizations": "Reset visualizations"
     },

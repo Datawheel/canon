@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
+import {withNamespaces} from "react-i18next";
 
 import {Select as BlueprintSelect} from "@blueprintjs/select";
 import {MenuItem} from "@blueprintjs/core";
@@ -60,7 +61,7 @@ class Selector extends Component {
   render() {
     const {activeValue, comparisons} = this.state;
     const {onSelector, print, variables} = this.context;
-    const {fontSize, id, loading, options, name, selectCutoff, title, type} = this.props;
+    const {fontSize, id, loading, options, name, selectCutoff, title, type, t} = this.props;
     const slug = `${name}-${id}`;
     const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label}), {});
 
@@ -84,7 +85,7 @@ class Selector extends Component {
             items={options.map(d => d.option)}
             itemRenderer={this.renderItem.bind(this)}>
             <button type="button" className="multi-add bp3-button bp3-icon-plus">
-              Add a Comparison
+              {t("CMS.Selector.Add a Comparison")}
             </button>
           </BlueprintSelect>
           : null
@@ -157,4 +158,4 @@ Selector.defaultProps = {
   selectCutoff: 3
 };
 
-export default Selector;
+export default withNamespaces()(Selector);
