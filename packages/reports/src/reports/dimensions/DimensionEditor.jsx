@@ -5,24 +5,23 @@ import {TextInput, Button, Group, Select} from "@mantine/core";
 import axios from "axios";
 
 /* hooks */
-import useKeyPress from "./hooks/listeners/useKeyPress";
+import useKeyPress from "../hooks/listeners/useKeyPress";
 
 /* redux */
-import {modifyDimension} from "../actions/reports";
+import {modifyDimension} from "../../actions/reports";
 
 /* utils */
-import slugifyInput from "../utils/web/slugifyInput";
-import {arrayFinder, keyDiver} from "../utils/arrayFinder";
-import upperCaseFirst from "../utils/formatters/upperCaseFirst";
+import slugifyInput from "../../utils/web/slugifyInput";
+import {arrayFinder, keyDiver} from "../../utils/arrayFinder";
+import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 
 /**
  *
  */
-function DimensionBuilder({id}) {
+function DimensionEditor({id}) {
 
   /* redux */
   const dispatch = useDispatch();
-  const report = useSelector(state => state.cms.reports.entities.reports[id]);
 
   /* state */
   const [sample, setSample] = useState();
@@ -119,4 +118,4 @@ function DimensionBuilder({id}) {
 
 }
 
-export default DimensionBuilder;
+export default DimensionEditor;

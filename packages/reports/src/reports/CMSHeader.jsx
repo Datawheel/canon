@@ -1,13 +1,13 @@
 /* react */
 import axios from "axios";
-import React, {forwardRef, useState, useEffect} from "react";
+import React, {forwardRef, useState, useEffect, useRef} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {ActionIcon, Center, Group, Header, Select, Modal, Autocomplete} from "@mantine/core";
+import {ActionIcon, Center, Group, Header, Select, Modal, Autocomplete, Button} from "@mantine/core";
 import {useDebouncedValue} from "@mantine/hooks";
 import {HiChevronLeft, HiOutlineCog} from "react-icons/hi";
 
 /* components */
-import DimensionBuilder from "./DimensionBuilder";
+import DimensionBuilder from "./dimensions/DimensionBuilder";
 
 /* redux */
 import {setStatus} from "../actions/status";
@@ -25,20 +25,28 @@ function CMSHeader({id}) {
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
   const locales = useSelector(state => state.cms.status.locales);
-  const preview = useSelector(state => state.cms.status.preview);
-  // todo1.0 - is this too heavy to import the whole thing?
-  const reports = useSelector(state => Object.values(state.cms.reports.entities.reports));
+  const previews = useSelector(state => state.cms.status.pathObj.previews);
+  const currentReport = useSelector(state => state.cms.status.currentReport);
+  const reports = useSelector(state => state.cms.reports.entities.reports);
+  const pathObj = useSelector(state => state.cms.status.pathObj);
+  const meta = reports[currentReport].meta;
 
   const [opened, setOpened] = useState(false);
   const [query, setQuery] = useState("");
   const [debouncedQuery] = useDebouncedValue(query, 500);
   const [results, setResults] = useState([]);
 
+  const inputRef = useRef();
+
   useEffect(() => {
     axios.get(`/api/reports/newsearch?query=${debouncedQuery}`).then(resp => {
       setResults(resp.data);
     });
   }, [debouncedQuery]);
+
+  useEffect(() => {
+    if (previews) setQuery(previews[0].name);
+  }, [previews]);
 
   const goBack = () => {
     dispatch(setStatus({pathObj: {home: true}}));
@@ -49,7 +57,8 @@ function CMSHeader({id}) {
   };
 
   const onSelectPreview = preview => {
-    dispatch(setStatus({preview}));
+    const newPathObj = {...pathObj, previews: [preview]}; // todo1.0 fix this spread
+    dispatch(setStatus({pathObj: newPathObj}));
     setQuery(preview.name);
   };
 
@@ -60,8 +69,10 @@ function CMSHeader({id}) {
     onClose: () => setOpened(false)
   };
 
-  const reportOptions = reports.map(d => ({value: String(d.id), label: d.contentByLocale[localeDefault].content.label}));
+  const reportOptions = Object.values(reports).map(d => ({value: String(d.id), label: d.contentByLocale[localeDefault].content.label}));
   const localeOptions = [localeDefault].concat(locales).map(d => ({value: d, label: d}));
+
+  const showPreviewSelector = meta.length > 0;
 
   return (
     <Header fixed height={50} padding="xs">
@@ -77,16 +88,22 @@ function CMSHeader({id}) {
             value={String(id)}
             onChange={onChangeReport}
           />
-          <Autocomplete
-            style={{width: 300}}
-            filter={(value, item) => item.name.toLowerCase().includes(value.toLowerCase().trim())}
-            size="xs"
-            itemComponent={forwardRef(({name, ...others}, ref) => <div {...others} ref={ref}>{name}</div>)} //eslint-disable-line
-            value={query}
-            onChange={e => setQuery(e)}
-            onItemSubmit={onSelectPreview}
-            data={results}
-          />
+          {showPreviewSelector
+            ? <Autocomplete
+              style={{width: 300}}
+              filter={(value, item) => item.name.toLowerCase().includes(value.toLowerCase().trim())}
+              size="xs"
+              ref={inputRef}
+              onClick={() => inputRef.current.select()}
+              placeholder="Choose a member to preview"
+              itemComponent={forwardRef(({id, name, ...others}, ref) => <div {...others} key={`${id}-${name}`} ref={ref}>{name}</div>)} //eslint-disable-line
+              value={query}
+              onChange={e => setQuery(e)}
+              onItemSubmit={onSelectPreview}
+              data={results}
+            />
+            : <Button variant="outline" onClick={() => setOpened(true)}>Import Data</Button>
+          }
           <Select
             style={{width: 50}}
             size="xs"

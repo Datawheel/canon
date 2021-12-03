@@ -1,6 +1,7 @@
 const {normalize, schema} = require("normalizr");
 
 const reportSchema = [new schema.Entity("reports", {
+  meta: [new schema.Entity("meta")],
   sections: [new schema.Entity("sections", {
     blocks: [new schema.Entity("blocks", {
       inputs: [new schema.Entity("inputs")],

@@ -18,6 +18,7 @@ import {fetchData, isAuthenticated} from "@datawheel/canon-core";
 import {getFormatters} from "./actions/formatters";
 import {setStatus} from "./actions/status";
 import {getReports} from "./actions/reports";
+import axios from "axios";
 
 /**
  * Builder - The outermost component of the CMS, exported in index.js, and embedded in a canon site.
@@ -56,8 +57,25 @@ function ReportBuilder({router}) {
     const locales = env.CANON_LANGUAGES?.includes(",") ? env.CANON_LANGUAGES.split(",").filter(l => l !== localeDefault) : undefined;
     const localeSecondary = null;
     const {report, section, previews} = router.location.query;
-    const pathObj = {report, previews, section};
-    dispatch(setStatus({localeDefault, localeSecondary, localeCurrent, locales, pathObj}));
+    const pathObj = {report, section};
+    // todo1.0 move this out and abstract it somewhere (useSearchAPI?)
+    if (previews) {
+      const previewFetch = async() => {
+        const fullPreviews = await axios.get(`/api/reports/newsearch?slug=${router.location.query.previews}`).then(d => d.data);
+        pathObj.previews = fullPreviews.map(d => ({
+          id: d.id,
+          slug: d.slug,
+          namespace: d.namespace,
+          name: d.contentByLocale[localeDefault].name
+        }));
+        dispatch(setStatus({localeDefault, localeSecondary, localeCurrent, locales, pathObj}));
+      };
+      previewFetch();
+    }
+    else {
+      dispatch(setStatus({localeDefault, localeSecondary, localeCurrent, locales, pathObj}));
+    }
+
     // Prevent leaving the page accidentally, disabled during heavy 1.0 development
     /*
     const unload = e => e.returnValue = "Are you sure you want to leave?";
@@ -68,7 +86,7 @@ function ReportBuilder({router}) {
     */
   }, []);
 
-  const pathObjString = `${pathObj?.report}-${pathObj.section}-${typeof pathObj?.previews === "string" ? pathObj?.previews : pathObj?.previews?.map(d => d.memberSlug).join()}`;
+  const pathObjString = `${pathObj?.report}-${pathObj.section}-${typeof pathObj?.previews === "string" ? pathObj?.previews : pathObj?.previews?.map(d => d.slug).join()}`;
 
   // todo1.0 make routing work
   useEffect(() => {
@@ -81,13 +99,14 @@ function ReportBuilder({router}) {
     // Previews may come in as a string (from the URL) or an array (from the app).
     // Set the url correctly either way.
     if (pathObj?.previews) {
-      params.previews = typeof pathObj?.previews === "string" ? pathObj?.previews : pathObj?.previews.map(d => d.memberSlug).join();
+      params.previews = typeof pathObj?.previews === "string" ? pathObj?.previews : pathObj?.previews.map(d => d.slug).join();
     }
     const hasParams = Object.values(params).some(d => d);
     if (hasParams) {
       const url = `${pathname}?${Object.keys(params).filter(d => params[d]).map(key => `${key}=${params[key]}`).join("&")}`;
       router.replace(url);
     }
+    if (params.report) dispatch(setStatus({currentReport: params.report})); // todo1.0 should this be done here?
   }, [pathObjString]);
 
   if (!isEnabled) return null;
