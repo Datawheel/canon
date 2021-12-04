@@ -8,6 +8,8 @@ import {format} from "pretty-format";
 import GeneratorList from "../GeneratorList";
 import ConsumerMenu from "../components/ConsumerMenu";
 
+/* hooks */
+
 /* css */
 import "./GeneratorOutput.css";
 

@@ -4,6 +4,8 @@ import {useSelector} from "react-redux";
 import {Textarea} from "@mantine/core";
 import {format} from "pretty-format";
 
+import {useVariables} from "./hooks/blocks/useVariables";
+
 /* css */
 import "./VariableList.css";
 
@@ -16,13 +18,8 @@ function VariableList({id}) {
   const blocks = useSelector(state => state.cms.reports.entities.blocks);
   const block = blocks[id];
 
-  const {variables, response} = useMemo(() => {
-    const variables = Object.values(blocks)
-      .filter(d => block.inputs.includes(d.id))
-      .reduce((acc, d) => ({...acc, ...d._variables}), {});
-    const response = block._status && block._status.response ? format(block._status.response) : false;
-    return {variables, response};
-  }, [blocks]);
+  const variables = useVariables(id);
+  const response = useMemo(() => block._status && block._status.response ? format(block._status.response) : false, [blocks]);
 
   return (
     <div style={{display: "flex", flexDirection: "column"}}>

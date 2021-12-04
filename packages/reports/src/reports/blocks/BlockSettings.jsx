@@ -14,6 +14,7 @@ import {deleteEntity} from "../../actions/reports";
 
 /* utils */
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
+import {useVariables} from "../hooks/blocks/useVariables";
 
 /**
  *
@@ -31,12 +32,9 @@ function BlockSettings({id, onChange}) {
     .map(d => ({value: d, label: upperCaseFirst(d)}))
   , [blocks]);
 
-  const allowed = useMemo(() => {
-    const variables = Object.values(blocks)
-      .filter(d => block.inputs.includes(d.id))
-      .reduce((acc, d) => ({...acc, ...d._variables}), {});
-    return [{value: "always", label: "always"}].concat(Object.keys(variables).map(d => ({value: d, label: `${d}: ${variables[d]}`})));
-  }, [blocks, block]);
+  const variables = useVariables(id);
+
+  const allowed = useMemo(() => [{value: "always", label: "always"}].concat(Object.keys(variables).map(d => ({value: d, label: `${d}: ${variables[d]}`}))), [variables]);
 
   const shared = [{label: "Section-wide", value: "false"}, {label: "Report-wide", value: "true"}];
 

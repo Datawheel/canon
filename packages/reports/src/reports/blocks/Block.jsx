@@ -17,9 +17,11 @@ import BlockSettings from "./BlockSettings";
 /* utils */
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 import sanitizeBlockContent from "../../utils/sanitizeBlockContent";
+import deepClone from "../../utils/deepClone";
 
 /* hooks */
 import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
+import {useVariables} from "../hooks/blocks/useVariables";
 
 /* redux */
 import {updateEntity} from "../../actions/reports";
@@ -30,7 +32,7 @@ import {REQUEST_STATUS} from "../../utils/consts/redux";
 
 /* css */
 import "./Block.css";
-import deepClone from "../../utils/deepClone";
+
 
 /**
  * Most blocks have translatable content, and store their locale-specific copies in a content table.
@@ -53,8 +55,6 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const blocks = useSelector(state => state.cms.reports.entities.blocks);
   const block = blocks[id];
 
-  const attributes = useSelector(state => state.cms.reports.entities.reports[state.cms.status.currentReport]).attributes;  // todo1.0 decide where this should live
-
   /**
    * The content of the entire CMS is kept in a normalized redux object called reports.
    * These redux-level props cannot be edited directly, so each of the editors (draft, ace)
@@ -67,11 +67,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const [opened, setOpened] = useState(false);
   const [modified, setModified] = useState(false);
 
-  const variables = useMemo(() =>
-    block ? Object.values(blocks)
-      .filter(d => block.inputs.includes(d.id))
-      .reduce((acc, d) => ({...acc, ...d._variables}), attributes) : {}
-  , [blocks, block]);
+  const variables = useVariables(id);
 
   useEffect(() => {
     if (opened) {

@@ -449,7 +449,7 @@ module.exports = function(app) {
       for (const section of report.sections) {
         section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
         section.blocks.forEach(block => block.contentByLocale = block.contentByLocale.reduce(contentReducer, {}));
-        if (section.id === sid) results = await activate(req, attributes, sid);
+        if (section.id === sid) results = await activate(req, sid, attributes);
         report.attributes = attributes;
       }
       // If the activation was run, spread its results over all possible sections/blocks, because shared blocks may have been run.
