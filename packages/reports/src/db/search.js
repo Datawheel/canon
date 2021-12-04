@@ -14,6 +14,10 @@ module.exports = function(sequelize, db) {
         type: db.INTEGER,
         unique: true
       },
+      properties: {
+        type: db.JSONB,
+        defaultValue: {}
+      },
       namespace: db.TEXT,
       visible: {
         type: db.BOOLEAN,

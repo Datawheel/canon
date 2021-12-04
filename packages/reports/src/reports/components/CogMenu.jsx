@@ -5,7 +5,7 @@ import {Menu} from "@mantine/core";
 import {HiOutlineTrash, HiOutlineEye} from "react-icons/hi";
 
 /* redux */
-import {deleteEntity, deleteReport} from "../../actions/reports";
+import {deleteEntity} from "../../actions/reports";
 
 /* hooks */
 import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
@@ -33,15 +33,7 @@ function CogMenu({type, id, control}) {
       message: `Delete this ${PRETTY_NAME} and all its contents? This action cannot be undone.`,
       confirmText: "Yes, Delete it."
     });
-
-    if (confirmed) {
-      if (type === ENTITY_TYPES.REPORT) {
-        dispatch(deleteReport(id));
-      }
-      else {
-        dispatch(deleteEntity(type, {id}));
-      }
-    }
+    if (confirmed) dispatch(deleteEntity(type, {id}));
   };
 
   return (

@@ -53,6 +53,8 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const blocks = useSelector(state => state.cms.reports.entities.blocks);
   const block = blocks[id];
 
+  const attributes = useSelector(state => state.cms.reports.entities.reports[state.cms.status.currentReport]).attributes;  // todo1.0 decide where this should live
+
   /**
    * The content of the entire CMS is kept in a normalized redux object called reports.
    * These redux-level props cannot be edited directly, so each of the editors (draft, ace)
@@ -68,7 +70,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const variables = useMemo(() =>
     block ? Object.values(blocks)
       .filter(d => block.inputs.includes(d.id))
-      .reduce((acc, d) => ({...acc, ...d._variables}), {}) : {}
+      .reduce((acc, d) => ({...acc, ...d._variables}), attributes) : {}
   , [blocks, block]);
 
   useEffect(() => {
@@ -224,7 +226,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   return (
     <React.Fragment>
-      <div className="cms-section-block" {...hoverActions}>
+      <div key="block" className="cms-section-block" {...hoverActions}>
         {isInput && inputOverlay}
         {isConsumer && consumerOverlay}
         <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>

@@ -109,12 +109,37 @@ module.exports = function(app) {
 
   /* ACTIVATION */
 
-  const activate = async(req, sid, bid) => {
+  const generateAttributesFromSlugs = async(slugs, locale) => {
+    if (!slugs) return {};
+    const orderedSlugs = slugs.split(",");
+    return await db.search
+      .findAll({where: {slug: orderedSlugs}, include: {association: "contentByLocale"}})
+      .then(arr => arr
+        .map(d => ({
+          ...d.toJSON(),
+          contentByLocale: d.contentByLocale.reduce(contentReducer, {})
+        }))
+        .map((d, i) => ({
+          [`id${i + 1}`]: d.id,
+          [`slug${i + 1}`]: d.slug,
+          [`namespace${i + 1}`]: d.namespace,
+          [`name${i + 1}`]: d.contentByLocale[locale].name,
+          ...Object.keys(d.properties).reduce((acc, k) => ({...acc, [`${k}${i + 1}`]: d.properties[k]}), {})
+        }))
+        .sort((a, b) => orderedSlugs.indexOf(a.slug) - orderedSlugs.indexOf(b.slug))
+        .reduce((acc, d) => ({...acc, ...d}), {}))
+      .catch(() => {}); // todo1.0 errors man
+  };
+
+  const activate = async(req, sid, attributes, bid) => {
+
     const locale = req.query.locale ? req.query.locale : localeDefault;
+
     let blocks = await db.block.findAll(blockReqFull).catch(catcher);
     if (!blocks) return {status: REQUEST_STATUS.ERROR};
     blocks = blocks.map(d => d.toJSON());
     const nonNativeBlocks = blocks.filter(d => d.shared && d.section_id !== sid).map(d => d.id);
+
     // runConsumers requires a normalized block shape. This emulates that.
     // todo1.0, either normalize this or create a different way of using runConsumers
     blocks = blocks.map(d => ({...d,
@@ -122,6 +147,7 @@ module.exports = function(app) {
       inputs: d.inputs.map(d => d.id),
       consumers: d.consumers.map(d => d.id)
     })).reduce((acc, d) => ({...acc, [d.id]: d}), {});
+
     // If a block has been provided, a single block has been saved or changed - start there.
     // Otherwise, a section is being activated in the report builder, so fetch all roots, which are either:
     // 1. blocks in this section that have no inputs
@@ -132,9 +158,10 @@ module.exports = function(app) {
         .filter(d => d.section_id === sid && (d.inputs.length === 0 || d.inputs.length > 0 && d.inputs.every(i => nonNativeBlocks.includes(i))))
         .reduce((acc, d) => ({...acc, [d.id]: d}), {});
     // todo1.0 fix formatter usage here, add error logging
-    return await runConsumers(req, blocks, locale, {}, rootBlocks);
+    return await runConsumers(req, attributes, blocks, locale, {}, rootBlocks);
   };
 
+  /*
   app.get("/api/reports/block/activate", async(req, res) => {
     const {id} = req.query;
     const block = await db.block.findOne({where: {id}}).catch(catcher);
@@ -142,6 +169,7 @@ module.exports = function(app) {
     const activateResult = await activate(req, block.section_id, block.id);
     return res.json(activateResult);
   });
+  */
 
   app.get("/api/reports/section/activate", async(req, res) => {
     const id = Number(req.query.id);
@@ -406,6 +434,8 @@ module.exports = function(app) {
   });
 
   const getReportTreeAndActivate = async(req, sid) => {
+    const locale = req.query.locale ? req.query.locale : localeDefault;
+    const attributes = await generateAttributesFromSlugs(req.query.slugs, locale);
     let reports = await db.report.findAll(reportReqFull).catch(catcher);
     reports = reports.map(p => p.toJSON());
     reports = flatSort(db.report, reports);
@@ -419,7 +449,8 @@ module.exports = function(app) {
       for (const section of report.sections) {
         section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
         section.blocks.forEach(block => block.contentByLocale = block.contentByLocale.reduce(contentReducer, {}));
-        if (section.id === sid) results = await activate(req, sid);
+        if (section.id === sid) results = await activate(req, attributes, sid);
+        report.attributes = attributes;
       }
       // If the activation was run, spread its results over all possible sections/blocks, because shared blocks may have been run.
       if (results) {
@@ -435,18 +466,18 @@ module.exports = function(app) {
   /* DELETES */
 
   app.delete("/api/reports/block/delete", isEnabled, async(req, res) => {
-    const block = await db.block.findOne({where: {id: req.query.id}}).catch(catcher);
+    const block = await db.block.findOne({where: {id: req.body.id}}).catch(catcher);
     await db.block.update({blockrow: sequelize.literal("blockrow -1")}, {where: {section_id: block.section_id, blockcol: block.blockcol, blockrow: {[Op.gt]: block.blockrow}}}).catch(catcher);
     const siblings = await db.block.findAll({where: {section_id: block.section_id, blockcol: block.blockcol}}).catch(catcher);
     if (siblings.length === 1) await db.block.update({blockcol: sequelize.literal("blockcol -1")}, {where: {section_id: block.section_id, blockcol: {[Op.gt]: block.blockcol}}}).catch(catcher);
-    await db.block.destroy({where: {id: req.query.id}}).catch(catcher);
+    await db.block.destroy({where: {id: req.body.id}}).catch(catcher);
     // todo1.0 if report-wide blocks disappear as part of a deletion, other sections will need to recalculate
     const reports = await getReportTreeAndActivate(req, block.section_id).catch(catcher);
     return res.json(reports);
   });
 
   app.delete("/api/reports/block_input/delete", isEnabled, async(req, res) => {
-    const {block_id, input_id} = req.query; //eslint-disable-line
+    const {block_id, input_id} = req.body; //eslint-disable-line
     const row = await db.block_input.findOne({where: {block_id, input_id}}).catch(catcher);
     // todo1.0 add this ordering back in
     // await db.block_input.update({ordering: sequelize.literal("ordering -1")}, {where: {block_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
@@ -457,9 +488,9 @@ module.exports = function(app) {
   });
 
   app.delete("/api/reports/report/delete", isEnabled, async(req, res) => {
-    const report = await db.report.findOne({where: {id: req.query.id}}).catch(catcher);
+    const report = await db.report.findOne({where: {id: req.body.id}}).catch(catcher);
     await db.report.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: report.ordering}}}).catch(catcher);
-    await db.report.destroy({where: {id: req.query.id}}).catch(catcher);
+    await db.report.destroy({where: {id: req.body.id}}).catch(catcher);
     // Todo: This prunesearch is outdated - need to call it multiple times for each meta row.
     // pruneSearch(row.dimension, row.levels, db);
     const reports = await getReportTreeAndActivate(req);
@@ -467,14 +498,14 @@ module.exports = function(app) {
   });
 
   app.delete("/api/reports/report_meta/delete", isEnabled, async(req, res) => {
-    const meta = await db.report_meta.findOne({where: {id: req.query.id}}).catch(catcher);
+    const meta = await db.report_meta.findOne({where: {id: req.body.id}}).catch(catcher);
     // report meta can have multiple variants now sharing the same index.
     const variants = await db.report_meta.findAll({where: {report_id: meta.report_id, ordering: meta.ordering}}).catch(catcher);
     // Only "slide down" others if we are deleting the last one at this ordering.
     if (variants.length === 1) {
       await db.report_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: meta.ordering}}}).catch(catcher);
     }
-    await db.report_meta.destroy({where: {id: req.query.id}}).catch(catcher);
+    await db.report_meta.destroy({where: {id: req.body.id}}).catch(catcher);
     pruneSearch(meta.cubeName, meta.dimension, meta.levels, db);
     const reqObj = Object.assign({}, reportReqFull, {where: {id: meta.report_id}});
     let newReport = await db.report.findOne(reqObj).catch(catcher);
@@ -484,15 +515,15 @@ module.exports = function(app) {
   });
 
   app.delete("/api/reports/formatter/delete", isEnabled, async(req, res) => {
-    await db.formatter.destroy({where: {id: req.query.id}}).catch(catcher);
+    await db.formatter.destroy({where: {id: req.body.id}}).catch(catcher);
     const rows = await db.formatter.findAll().catch(catcher);
     return res.json(rows);
   });
 
   app.delete("/api/reports/section/delete", isEnabled, async(req, res) => {
-    const row = await db.section.findOne({where: {id: req.query.id}}).catch(catcher);
+    const row = await db.section.findOne({where: {id: req.body.id}}).catch(catcher);
     await db.section.update({ordering: sequelize.literal("ordering -1")}, {where: {report_id: row.report_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
-    await db.section.destroy({where: {id: req.query.id}}).catch(catcher);
+    await db.section.destroy({where: {id: req.body.id}}).catch(catcher);
     // todo1.0 if report-wide blocks disappear as part of a deletion, other sections will need to recalculate
     const reports = await getReportTreeAndActivate(req).catch(catcher);
     return res.json({reports});

@@ -29,36 +29,6 @@ export function getReports() {
 }
 
 /** */
-export function newReport(payload) {
-  return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/reports/report/new`, payload)
-      .then(({data}) => {
-        dispatch({type: "REPORT_NEW", data});
-      });
-  };
-}
-
-/** */
-export function deleteReport(id) {
-  return function(dispatch, getStore) {
-    return axios.delete(`${getStore().env.CANON_API}/api/reports/report/delete`, {params: {id}})
-      .then(({data}) => {
-        dispatch({type: "REPORT_DELETE", data});
-      });
-  };
-}
-
-/** */
-export function duplicateReport(id) {
-  return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/reports/report/duplicate`, {id})
-      .then(({data}) => {
-        dispatch({type: "REPORT_DUPLICATE", data});
-      });
-  };
-}
-
-/** */
 export function translateReport(id, variables, source, target) {
   return function(dispatch, getStore) {
     const translationCounter = getStore().cms.status.translationCounter + 1;
@@ -97,36 +67,6 @@ export function translateSection(id, variables, source, target) {
 }
 
 /** */
-export function duplicateSection(id, pid) {
-  return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/reports/section/duplicate`, {id, pid})
-      .then(({data}) => {
-        dispatch({type: "SECTION_DUPLICATE", data});
-      });
-  };
-}
-
-/** */
-export function duplicateEntity(type, payload) {
-  return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/reports/${type}/duplicate`, payload)
-      .then(({data}) => {
-        dispatch({type: `${type.toUpperCase()}_DUPLICATE`, data});
-      });
-  };
-}
-
-/** */
-export function swapEntity(type, id) {
-  return function(dispatch, getStore) {
-    return axios.post(`${getStore().env.CANON_API}/api/reports/${type}/swap`, {id})
-      .then(({data}) => {
-        dispatch({type: `${type.toUpperCase()}_SWAP`, data});
-      });
-  };
-}
-
-/** */
 export function modifyDimension(payload) {
   return function(dispatch) {
     return axios.post("/api/reports/dimension/upsert", payload)
@@ -155,8 +95,9 @@ export function deleteDimension(id) {
 
 /** */
 export function activateSection(id) {
-  return function(dispatch) {
-    return axios.get("/api/reports/section/activate", {params: {id}})
+  return function(dispatch, getStore) {
+    const slugs = getStore().cms.status.pathObj.previews.map(d => d.slug).join();
+    return axios.get("/api/reports/section/activate", {params: {id, slugs}})
       .then(resp => {
         if (resp.status === 200) {
           dispatch({type: "SECTION_ACTIVATE", data: resp.data});
@@ -173,7 +114,8 @@ export function activateSection(id) {
 export function newEntity(type, payload) {
   return async function(dispatch, getStore) {
     const store = getStore();
-    const resp = await axios.post(`${store.env.CANON_API}/api/reports/${type}/new`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
+    const config = {params: {slug: store.cms.status.pathObj.previews.map(d => d.slug).join()}};
+    const resp = await axios.post(`${store.env.CANON_API}/api/reports/${type}/new`, payload, config).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       dispatch({type: `${type.toUpperCase()}_NEW`, data: resp.data});
       return {status: REQUEST_STATUS.SUCCESS};
@@ -193,8 +135,9 @@ export function updateEntity(type, payload) {
   return async function(dispatch, getStore) {
     // Formatters require locales in the payload to know what languages to compile for
     const store = getStore();
+    const config = {params: {slug: store.cms.status.pathObj.previews.map(d => d.slug).join()}};
     const locales = getLocales(store.env);
-    const resp = await axios.post(`${store.env.CANON_API}/api/reports/${type}/update`, payload).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
+    const resp = await axios.post(`${store.env.CANON_API}/api/reports/${type}/update`, payload, config).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, locales});
       return {status: REQUEST_STATUS.SUCCESS};
@@ -210,9 +153,10 @@ export function updateEntity(type, payload) {
 export function deleteEntity(type, payload) {
   return async function(dispatch, getStore) {
     const store = getStore();
+    const params = {slug: store.cms.status.pathObj.previews.map(d => d.slug).join()};
     // Formatters require locales in the payload to know what languages to compile for
     const locales = getLocales(store.env);
-    const resp = await axios.delete(`${store.env.CANON_API}/api/reports/${type}/delete`, {params: payload}).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
+    const resp = await axios.delete(`${store.env.CANON_API}/api/reports/${type}/delete`, {data: payload, params}).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       dispatch({type: `${type.toUpperCase()}_DELETE`, data: resp.data, locales});
       return {status: REQUEST_STATUS.SUCCESS};
@@ -220,30 +164,6 @@ export function deleteEntity(type, payload) {
     else {
       // dispatch({type: `${type.toUpperCase()}_ERROR`, data: {id: payload.id}});
       return {status: REQUEST_STATUS.ERROR, error: resp.status};
-    }
-  };
-}
-
-/**
- * Vizes have the ability to call setVariables({key: value}), which "breaks out" of the viz
- * and overrides/sets a variable in the variables object. This does not require a server
- * round-trip - we need only inject the variables object and trigger a re-render.
- */
-export function setVariables(newVariables) {
-  return function(dispatch, getStore) {
-    const {variables} = getStore().cms;
-
-    // Users should ONLY call setVariables in a callback - never in the main execution, as this
-    // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
-    // loop by checking if the vars are in there already, only updating if they are not yet set.
-    const alreadySet = Object.keys(variables).every(locale =>
-      Object.keys(newVariables).every(key => variables[locale][key] === newVariables[key])
-    );
-    if (!alreadySet) {
-      Object.keys(variables).forEach(locale => {
-        variables[locale] = Object.assign({}, variables[locale], newVariables);
-      });
-      dispatch({type: "VARIABLES_SET", data: {variables}});
     }
   };
 }

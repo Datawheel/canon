@@ -92,15 +92,15 @@ const apiFetch = async(req, api, locale, vars) => {
  * where each entry contains the variables which that block exports. Requires a "rootBlocks"
  * entry point to determine starting blocks.
  */
-const runConsumers = async(req, blocks, locale, formatterFunctions, rootBlocks) => {
-  
+const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, rootBlocks) => {
+
   /**
    * Starting with rootBlocks, crawl down the list of consumers, storing the keyed results in downstreamResult.
    *
    * However, while working DOWN the tree, we may encounter a block whose inputs have not been calculated.
    * Consider A->B->C in conjunction with D->E->C. We start at A, work down to B, but then encounter C.
    * The values for D/E have not been calculated during this run and are unavailable. In that case, we must
-   * crawl back up backwards, from C to E to D, until we hit another root with no inputs (D). While on our way 
+   * crawl back up backwards, from C to E to D, until we hit another root with no inputs (D). While on our way
    * up or down, cache results so we can use that cache instead of re-running.
    */
   const cache = {};
@@ -109,6 +109,8 @@ const runConsumers = async(req, blocks, locale, formatterFunctions, rootBlocks) 
   // block type and id, which will create variables like "stat14value" for downstream blocks.
   const generateVars = async(block, variables = {}) => {
     let result = {};
+    variables = {...variables, ...attributes};
+    console.log("running with", variables);
     statusById[block.id] = {};
     if (block.type === BLOCK_TYPES.GENERATOR) {
       // todo1.0, pass the correct vars here, including canonVars, etc
@@ -143,12 +145,12 @@ const runConsumers = async(req, blocks, locale, formatterFunctions, rootBlocks) 
 
   // Given the id of a block with inputs, fill the cache with objects keyed by the input ids, whose values
   // represent the variables those inputs provide. (Use cache as much as possible, recurse if necessary)
-  const crawlUp = async bid => { 
+  const crawlUp = async bid => {
     const block = blocks[bid];
     if (block.inputs.length === 0) {
       if (!cache[bid]) cache[bid] = await generateVars(block);
       return;
-    } 
+    }
     for (const input of block.inputs) {
       if (!cache[input]) await crawlUp(input);
     }
@@ -190,7 +192,6 @@ const runConsumers = async(req, blocks, locale, formatterFunctions, rootBlocks) 
   for (const id of Object.keys(rootBlocks)) {
     await crawlDown(id);
   }
-  // todo1.0 ask ryan if i can combine upstream and downstream 
   return {variablesById: cache, statusById};
 };
 

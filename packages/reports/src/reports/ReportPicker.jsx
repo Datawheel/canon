@@ -9,7 +9,8 @@ import ReportCard from "./ReportCard";
 import EntityAddButton from "./components/EntityAddButton";
 
 /* redux */
-import {newReport} from "../actions/reports";
+import {newEntity} from "../actions/reports";
+import {ENTITY_TYPES} from "../utils/consts/cms";
 
 /**
  *
@@ -41,7 +42,7 @@ function ReportPicker() {
       <Space size="xl" />
       <EntityAddButton
         label="Report Name"
-        onSubmit={name => dispatch(newReport({label: name}))}
+        onSubmit={name => dispatch(newEntity(ENTITY_TYPES.REPORT, {label: name}))}
         target={<ActionIcon size="xl" radius="xl"><HiOutlinePlusCircle size={30} /></ActionIcon>}
       />
     </Center>

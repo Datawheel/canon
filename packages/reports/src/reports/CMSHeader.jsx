@@ -64,6 +64,7 @@ function CMSHeader({id}) {
 
   const modalProps = {
     title: "Dimension Builder",
+    key: "modal",
     opened,
     size: "50%",
     onClose: () => setOpened(false)

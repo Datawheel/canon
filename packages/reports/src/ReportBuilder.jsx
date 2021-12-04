@@ -86,8 +86,6 @@ function ReportBuilder({router}) {
     */
   }, []);
 
-  const pathObjString = `${pathObj?.report}-${pathObj.section}-${typeof pathObj?.previews === "string" ? pathObj?.previews : pathObj?.previews?.map(d => d.slug).join()}`;
-
   // todo1.0 make routing work
   useEffect(() => {
     const {pathname} = router.location;
@@ -96,18 +94,14 @@ function ReportBuilder({router}) {
       section: pathObj?.section,
       home: pathObj?.home
     };
-    // Previews may come in as a string (from the URL) or an array (from the app).
-    // Set the url correctly either way.
-    if (pathObj?.previews) {
-      params.previews = typeof pathObj?.previews === "string" ? pathObj?.previews : pathObj?.previews.map(d => d.slug).join();
-    }
+    if (pathObj?.previews) params.previews = pathObj?.previews.map(d => d.slug).join();
     const hasParams = Object.values(params).some(d => d);
     if (hasParams) {
       const url = `${pathname}?${Object.keys(params).filter(d => params[d]).map(key => `${key}=${params[key]}`).join("&")}`;
       router.replace(url);
     }
     if (params.report) dispatch(setStatus({currentReport: params.report})); // todo1.0 should this be done here?
-  }, [pathObjString]);
+  }, [pathObj]);
 
   if (!isEnabled) return null;
   if (!formatterFunctions) return <Loading />;
