@@ -30,15 +30,23 @@ module.exports = function(app) {
       return res.json(result);
     }
 
-    const results = await db.search
+    const allMeta = await db.report_meta.findAll().then(arr => arr.map(d => d.toJSON()));
+    const allProps = allMeta.reduce((acc, d) => acc.concat(Object.values(d.properties)), []);
+
+    let results = await db.search
       .findAll({include: {association: "contentByLocale"}})
       .then(res => res.map(d => d.toJSON()))
       .catch(() => []);
 
+    for (const prop of allProps) {
+      if (req.query[prop]) results = results.filter(d => d.properties[prop] === req.query[prop]);
+    }
+
     const members = results.map(result => {
-      const res = ["id", "slug", "namespace"].reduce((acc, d) => ({...acc, [d]: result[d]}), {});
+      const res = ["id", "slug", "namespace"].reduce((acc, d) => ({...acc, [d]: result[d]}), result.properties);
       const content = result.contentByLocale.find(d => d.locale === locale);
       res.name = content && content.name ? content.name : result.slug;
+
       return res;
     });
 

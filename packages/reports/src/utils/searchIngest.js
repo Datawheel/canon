@@ -6,7 +6,7 @@ const slugify = str => strip(stripHTML(str)).replace(/-{2,}/g, "-").toLowerCase(
 
 const searchIngest = async(db, config) => {
 
-  const {path, accessor, idKey, name, namespace} = config;
+  const {path, accessor, idKey, name, namespace, properties} = config;
 
   const memberFetch = await axios.get(path).catch(e => ({error: e}));
   // if (memberFetch.error) return res.json(memberFetch); //todo1.0 error bubble
@@ -15,7 +15,8 @@ const searchIngest = async(db, config) => {
   const searchMembers = members.map(d => ({
     id: d[idKey],
     slug: slugify(d[name]),
-    namespace
+    namespace,
+    properties: Object.keys(properties).reduce((acc, p) => ({...acc, [properties[p]]: d[p]}), {})
   }));
 
   await db.search.destroy({where: {namespace}});

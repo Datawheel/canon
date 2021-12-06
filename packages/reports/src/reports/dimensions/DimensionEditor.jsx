@@ -2,6 +2,7 @@
 import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {TextInput, Button, Group, Select} from "@mantine/core";
+import {HiOutlinePlusCircle, HiOutlineTrash} from "react-icons/hi";
 import axios from "axios";
 
 /* hooks */
@@ -18,10 +19,11 @@ import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 /**
  *
  */
-function DimensionEditor({id}) {
+function DimensionEditor({id, metaId}) {
 
   /* redux */
   const dispatch = useDispatch();
+  const meta = useSelector(state => state.cms.reports.entities.meta[metaId]);
 
   /* state */
   const [sample, setSample] = useState();
@@ -30,8 +32,11 @@ function DimensionEditor({id}) {
   const [payload, setPayload] = useState();
   const [accessors, setAccessors] = useState([]);
 
-  const ENTER_KEY = 13;
-  const enterPress = useKeyPress(ENTER_KEY);
+  useEffect(() => {
+    if (meta) setConfig(meta); // todo1.0 properly populate here
+  }, []);
+
+  const enterPress = useKeyPress(13);
 
   useEffect(() => setAccessors(arrayFinder(payload)), [payload]);
 
@@ -88,6 +93,49 @@ function DimensionEditor({id}) {
     });
   };
 
+  const addProperty = () => {
+    const sampleKeys = Object.keys(sample);
+    const sampleKey = sampleKeys[0];
+    if (sampleKey) {
+      const newProp = {[sampleKey]: sampleKey};
+      setConfig({
+        ...config,
+        properties: config.properties ? {...config.properties, ...newProp} : newProp
+      });
+    }
+  };
+
+  const onChangeProperty = (oldKey, newKey) => {
+    let oldProps = {};
+    if (config.properties[oldKey] !== undefined) {
+      const {[oldKey]: omit, ...rest} = config.properties; //eslint-disable-line
+      oldProps = rest;
+    }
+    else {
+      oldProps = config.properties;
+    }
+    const newConfig = {
+      ...config,
+      properties: {...oldProps, [newKey]: newKey}
+    };
+    setConfig(newConfig);
+  };
+
+  const onChangePropertyName = (propKey, e) => {
+    setConfig({
+      ...config,
+      properties: {...config.properties, [propKey]: e.target.value}
+    });
+  };
+
+  const deleteProperty = propKey => {
+    const {[propKey]: omit, ...rest} = config.properties; //eslint-disable-line
+    setConfig({
+      ...config,
+      properties: rest
+    });
+  };
+
   if (config.path && enterPress) getMembers();
 
   const keys = Object.keys(sample || {}).map(d => ({value: d, label: `${d}: ${sample[d]}`}));
@@ -108,6 +156,14 @@ function DimensionEditor({id}) {
               <TextInput value={config.namespace} label="namespace" onChange={e => onChange("namespace", e.target.value)} />
               <Select value={config.idKey} label="idKey" data={keys} onChange={e => onChange("idKey", e)}></Select>
               <Select value={config.name} label="name" data={keys} onChange={e => onChange("name", e)}></Select>
+              {config.properties && Object.keys(config.properties).map((propKey, i) =>
+                <Group key={i}>
+                  <Select value={propKey} label="property"  data={keys} onChange={e => onChangeProperty(propKey, e)}></Select>
+                  <TextInput defaultValue={propKey} value={config.properties[propKey]} label="override name" onChange={e => onChangePropertyName(propKey, e)}></TextInput>
+                  <Button color="red" variant="outline" onClick={() => deleteProperty(propKey)} ><HiOutlineTrash /></Button>
+                </Group>
+              )}
+              <Button onClick={addProperty} icon={<HiOutlinePlusCircle/>}>Add Property</Button>
               <Button disabled={!complete} loading={loading} onClick={onSubmit}>{loading ? "Ingesting" : "Ingest"}</Button>
             </React.Fragment>
           }

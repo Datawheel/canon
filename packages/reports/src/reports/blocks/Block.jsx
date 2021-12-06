@@ -1,5 +1,5 @@
 /* react */
-import React, {useState, useMemo, useEffect} from "react";
+import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Modal, ActionIcon, Button, Tooltip} from "@mantine/core";
 import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";

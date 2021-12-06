@@ -11,7 +11,7 @@ import {deleteEntity} from "../../actions/reports";
 import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
 
 /* enums */
-import {ENTITY_TYPES, ENTITY_PRETTY_NAMES} from "../../utils/consts/cms";
+import {ENTITY_PRETTY_NAMES} from "../../utils/consts/cms";
 
 /**
  *

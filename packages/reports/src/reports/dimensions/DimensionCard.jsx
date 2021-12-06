@@ -2,7 +2,12 @@
 import React from "react";
 import {useSelector} from "react-redux";
 import {Card, Center, Space, Text, Badge, Button, Group, useMantineTheme} from "@mantine/core";
-import {HiOutlineDatabase, HiOutlinePencil} from "react-icons/hi";
+import {HiOutlineDatabase, HiOutlinePencil, HiOutlineTrash} from "react-icons/hi";
+
+/* hooks */
+import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
+
+import {deleteDimension} from "../../actions/reports";
 
 /**
  *
@@ -10,6 +15,7 @@ import {HiOutlineDatabase, HiOutlinePencil} from "react-icons/hi";
 function DimensionCard({id, onEdit}) {
 
   const theme = useMantineTheme();
+  const {getConfirmation} = useConfirmationDialog();
 
   const secondaryColor = theme.colorScheme === "dark"
     ? theme.colors.dark[1]
@@ -17,6 +23,24 @@ function DimensionCard({id, onEdit}) {
 
   /* redux */
   const meta = useSelector(state => state.cms.reports.entities.meta[id]);
+
+  const maybeEdit = async() => {
+    const confirmed = await getConfirmation({
+      title: "Are you sure?",
+      message: "Modifying dimensions can be destructive and break the site. Make sure you know what you're doing!",
+      confirmText: "Continue"
+    });
+    if (confirmed) onEdit(id);
+  };
+
+  const maybeDelete = async() => {
+    const confirmed = await getConfirmation({
+      title: "Are you sure?",
+      message: "Deleting dimensions can be destructive and break the site. Make sure you know what you're doing!",
+      confirmText: "Delete"
+    });
+    if (confirmed) deleteDimension(id);
+  };
 
   const {slug, namespace} = meta;
 
@@ -35,8 +59,11 @@ function DimensionCard({id, onEdit}) {
       </Text>
       <Space w="xs" />
       <Group>
-        <Button onClick={() => onEdit(id)} leftIcon={<HiOutlinePencil />} compact>
+        <Button onClick={() => maybeEdit()} leftIcon={<HiOutlinePencil />} compact>
           Edit
+        </Button>
+        <Button onClick={() => maybeDelete()} leftIcon={<HiOutlineTrash />} compact>
+          Delete
         </Button>
       </Group>
     </Card>

@@ -85,10 +85,16 @@ export function modifyDimension(payload) {
 /** */
 export function deleteDimension(id) {
   return function(dispatch, getStore) {
-    const diffCounter = getStore().cms.status.diffCounter + 1;
-    return axios.delete("/api/reports/report_meta/delete", {params: {id}})
-      .then(({data}) => {
-        dispatch({type: "DIMENSION_MODIFY", data, diffCounter});
+    const params = {slugs: getStore().cms.status.pathObj.previews.map(d => d.slug).join()};
+    return axios.delete("/api/reports/report_meta/delete", {data: {id}, params})
+      .then(resp => {
+        if (resp.status === 200) {
+          dispatch({type: "DIMENSION_MODIFY", data: resp.data});
+          return {status: REQUEST_STATUS.SUCCESS};
+        }
+        else {
+          return {status: REQUEST_STATUS.ERROR, error: resp.status};
+        }
       });
   };
 }
