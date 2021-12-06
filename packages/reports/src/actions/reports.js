@@ -94,9 +94,9 @@ export function deleteDimension(id) {
 }
 
 /** */
-export function activateSection(id) {
+export function activateSection(id, previews) {
   return function(dispatch, getStore) {
-    const slugs = getStore().cms.status.pathObj.previews.map(d => d.slug).join();
+    const slugs = (previews || getStore().cms.status.pathObj.previews).map(d => d.slug).join();
     return axios.get("/api/reports/section/activate", {params: {id, slugs}})
       .then(resp => {
         if (resp.status === 200) {
@@ -114,7 +114,7 @@ export function activateSection(id) {
 export function newEntity(type, payload) {
   return async function(dispatch, getStore) {
     const store = getStore();
-    const config = {params: {slug: store.cms.status.pathObj.previews.map(d => d.slug).join()}};
+    const config = {params: {slugs: store.cms.status.pathObj.previews.map(d => d.slug).join()}};
     const resp = await axios.post(`${store.env.CANON_API}/api/reports/${type}/new`, payload, config).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       dispatch({type: `${type.toUpperCase()}_NEW`, data: resp.data});
@@ -135,8 +135,7 @@ export function updateEntity(type, payload) {
   return async function(dispatch, getStore) {
     // Formatters require locales in the payload to know what languages to compile for
     const store = getStore();
-    const config = {params: {slug: store.cms.status.pathObj.previews.map(d => d.slug).join()}};
-    console.log("in", config);
+    const config = {params: {slugs: store.cms.status.pathObj.previews.map(d => d.slug).join()}};
     const locales = getLocales(store.env);
     const resp = await axios.post(`${store.env.CANON_API}/api/reports/${type}/update`, payload, config).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
@@ -154,7 +153,7 @@ export function updateEntity(type, payload) {
 export function deleteEntity(type, payload) {
   return async function(dispatch, getStore) {
     const store = getStore();
-    const params = {slug: store.cms.status.pathObj.previews.map(d => d.slug).join()};
+    const params = {slugs: store.cms.status.pathObj.previews.map(d => d.slug).join()};
     // Formatters require locales in the payload to know what languages to compile for
     const locales = getLocales(store.env);
     const resp = await axios.delete(`${store.env.CANON_API}/api/reports/${type}/delete`, {data: payload, params}).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));

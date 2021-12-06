@@ -29,7 +29,7 @@ function CMSHeader({id}) {
   const currentReport = useSelector(state => state.cms.status.currentReport);
   const reports = useSelector(state => state.cms.reports.entities.reports);
   const pathObj = useSelector(state => state.cms.status.pathObj);
-  const meta = reports[currentReport].meta;
+  const meta = reports[currentReport]?.meta || [];
 
   const [opened, setOpened] = useState(false);
   const [query, setQuery] = useState("");
@@ -45,7 +45,8 @@ function CMSHeader({id}) {
   }, [debouncedQuery]);
 
   useEffect(() => {
-    if (previews) setQuery(previews[0].name);
+    // todo1.0 make bilateral
+    if (previews && previews[0]) setQuery(previews[0].name);
   }, [previews]);
 
   const goBack = () => {
@@ -57,7 +58,7 @@ function CMSHeader({id}) {
   };
 
   const onSelectPreview = preview => {
-    const newPathObj = {...pathObj, previews: [preview]}; // todo1.0 fix this spread
+    const newPathObj = {...pathObj, previews: [preview.slug]}; // todo1.0 fix this spread to work with bilaterals
     dispatch(setStatus({pathObj: newPathObj}));
     setQuery(preview.name);
   };

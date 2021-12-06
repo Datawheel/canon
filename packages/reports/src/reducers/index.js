@@ -8,24 +8,21 @@ import cubeData from "./cubeData.js";
 import status from "./status.js";
 import formatters from "./formatters.js";
 import resources from "./resources.js";
-import variables from "./variables.js";
 
 const initialState = {
   status: {
-    diffCounter: 0,
     translationCounter: 0,
     translationError: false,
-    previews: null,
     query: {},
-    pathObj: {}
+    pathObj: {},
+    previews: []
   },
   cubeData: false,
   reports: {},
   formatters: [],
   resources: {
     formatterFunctions: false
-  },
-  variables: {}
+  }
 };
 
 /** */
@@ -35,7 +32,6 @@ export default function reportsReducer(state = initialState, action) {
     cubeData: cubeData(state.cubeData, action),
     reports: reports(state.reports, action),
     formatters: formatters(state.formatters, action),
-    resources: resources(state.resources, action),
-    variables: variables(state.variables, action)
+    resources: resources(state.resources, action)
   };
 }

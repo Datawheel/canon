@@ -20,6 +20,7 @@ import {REQUEST_STATUS} from "../../utils/consts/redux";
 
 /* css */
 import "./Section.css";
+import {setStatus} from "../../actions/status";
 
 /**
  *
@@ -56,9 +57,10 @@ function Section({id, isDragging, dragHandleProps}) {
     dispatch(newEntity(ENTITY_TYPES.BLOCK, payload));
   };
 
-  const onEdit = () => {
+  const onActivate = () => {
     dispatch(activateSection(id)).then(resp => {
       if (resp.status === REQUEST_STATUS.SUCCESS) {
+        dispatch(setStatus({activeSection: id}));
         setActive(true);
       }
       else {
@@ -220,7 +222,7 @@ function Section({id, isDragging, dragHandleProps}) {
         {!active && <Center className="cms-section-click-to-edit" style={{bottom: "0", position: "absolute", width: "100%", left: "0", top: "0"}}>
           <Badge size="xl" variant="outline" color="gray">Click to Edit</Badge>
         </Center>}
-        {!active && <Overlay className="cms-section-overlay" onClick={onEdit} color={theme.black} opacity={0.5} style={{cursor: "pointer"}} />}
+        {!active && <Overlay className="cms-section-overlay" onClick={onActivate} color={theme.black} opacity={0.5} style={{cursor: "pointer"}} />}
       </div>
       <SectionHeader active={active} section={section} isDragging={isDragging} dragHandleProps={dragHandleProps}/>
     </div>

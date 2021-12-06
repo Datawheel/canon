@@ -169,6 +169,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     key="api-input"
     defaultValue={block.api}
     onChange={onChangeAPI}
+    onEnterPress={() => onSave(true)}
     variables={variables}
   />;
 

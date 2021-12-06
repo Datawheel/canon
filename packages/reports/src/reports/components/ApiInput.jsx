@@ -4,13 +4,19 @@ import React, {useState} from "react";
 /* components */
 import {TextInput} from "@mantine/core";
 
+/* hooks */
+import useKeyPress from "../hooks/listeners/useKeyPress";
+
 /* utils */
 import varSwap from "../../utils/varSwap";
 
 /** */
-function ApiInput({defaultValue, onChange, variables}) {
+function ApiInput({defaultValue, onChange, variables, onEnterPress}) {
 
   const [preview, setPreview] = useState(() => varSwap(defaultValue, {}, variables));
+
+  const enterPress = useKeyPress(13);
+  if (enterPress) onEnterPress();
 
   const onChangeLocal = e => {
     // todo1.0 put formatters in here

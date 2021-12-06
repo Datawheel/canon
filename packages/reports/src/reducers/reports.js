@@ -33,7 +33,6 @@ export default (reports = {}, action) => {
       return normalize(action.data, reportSchema);
     // Dimensions
     case "DIMENSION_MODIFY":
-      console.log(action.data);
       return reports;
 
     // Sections

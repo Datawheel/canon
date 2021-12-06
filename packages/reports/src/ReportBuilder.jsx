@@ -36,6 +36,7 @@ function ReportBuilder({router}) {
   const isEnabled = useSelector(state => state.data.isEnabled);
   const minRole = useSelector(state => state.data.minRole);
   const pathObj = useSelector(state => state.cms.status.pathObj);
+  const currentReport = useSelector(state => state.cms.status.currentReport);
 
   const loadReports = useCallback(() => {
     setLoading(true);
@@ -58,23 +59,9 @@ function ReportBuilder({router}) {
     const localeSecondary = null;
     const {report, section, previews} = router.location.query;
     const pathObj = {report, section};
-    // todo1.0 move this out and abstract it somewhere (useSearchAPI?)
-    if (previews) {
-      const previewFetch = async() => {
-        const fullPreviews = await axios.get(`/api/reports/newsearch?slug=${router.location.query.previews}`).then(d => d.data);
-        pathObj.previews = fullPreviews.map(d => ({
-          id: d.id,
-          slug: d.slug,
-          namespace: d.namespace,
-          name: d.contentByLocale[localeDefault].name
-        }));
-        dispatch(setStatus({localeDefault, localeSecondary, localeCurrent, locales, pathObj}));
-      };
-      previewFetch();
-    }
-    else {
-      dispatch(setStatus({localeDefault, localeSecondary, localeCurrent, locales, pathObj}));
-    }
+    if (previews) pathObj.previews = previews.split(",");
+    dispatch(setStatus({localeDefault, localeSecondary, localeCurrent, locales, pathObj}));
+
 
     // Prevent leaving the page accidentally, disabled during heavy 1.0 development
     /*
@@ -86,7 +73,6 @@ function ReportBuilder({router}) {
     */
   }, []);
 
-  // todo1.0 make routing work
   useEffect(() => {
     const {pathname} = router.location;
     const params = {
@@ -124,7 +110,7 @@ function ReportBuilder({router}) {
   return (
     <MantineProvider>
       <ConfirmationDialogProvider>
-        {pathObj.report
+        {pathObj.report && currentReport
           ? <ReportEditor id={Number(pathObj.report)}/>
           : <ReportPicker />
         }
