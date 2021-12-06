@@ -85,7 +85,7 @@ function scrollToHash(hash, tries = 0) {
     const top = elem.getBoundingClientRect().top;
     if (top) {
 
-      const offset = Math.round(top - parseStyle("nav-height") - parseStyle("subnav-height") - 10);
+      const offset = Math.round(top - parseStyle("nav-height") - parseStyle("subnav-height"));
 
       // if the element is not at zero, scroll to it's position
       if (offset !== 0) {
