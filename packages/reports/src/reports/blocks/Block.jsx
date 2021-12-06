@@ -67,7 +67,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const [opened, setOpened] = useState(false);
   const [modified, setModified] = useState(false);
 
-  const variables = useVariables(id);
+  const {variables} = useVariables(id);
 
   useEffect(() => {
     if (opened) {

@@ -5,14 +5,14 @@ import {activateSection} from "./reports";
 export function setStatus(status) {
   return async function(dispatch, getStore) {
     if (status.pathObj?.previews) {
-      const {localeDefault, activeSection} = getStore().cms.status;
+      const {activeSection, localeDefault} = getStore().cms.status;
       const previewString = status.pathObj.previews.join();
       const fullPreviews = await axios.get(`/api/reports/newsearch?slug=${previewString}`).then(d => d.data);
       const previews = fullPreviews.map(d => ({
         id: d.id,
         slug: d.slug,
         namespace: d.namespace,
-        name: d.contentByLocale[localeDefault].name
+        name: d.contentByLocale[status.localeDefault || localeDefault].name
       }));
       status.pathObj.previews = previews;
       dispatch({type: "STATUS_SET", data: status});

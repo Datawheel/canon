@@ -1,7 +1,7 @@
 /* react */
 import React, {useMemo} from "react";
 import {useSelector} from "react-redux";
-import {Textarea} from "@mantine/core";
+import {Textarea, Text} from "@mantine/core";
 import {format} from "pretty-format";
 
 /* hooks */
@@ -19,7 +19,7 @@ function VariableList({id}) {
   const blocks = useSelector(state => state.cms.reports.entities.blocks);
   const block = blocks[id];
 
-  const variables = useVariables(id);
+  const {variables, attributeKeys} = useVariables(id);
   const response = useMemo(() => block._status && block._status.response ? format(block._status.response) : false, [blocks]);
 
   return (
@@ -27,7 +27,7 @@ function VariableList({id}) {
       Variables
       <div key="vl" className="cms-block-variable-list" style={{height: response ? 300 : 700}}>
         <ul>
-          {Object.keys(variables).map(d => <li key={d}>{`${d}: ${variables[d]}`}</li>)}
+          {Object.keys(variables).map(d => <li key={d}><Text size="s" style={{fontFamily: "monospace", fontWeight: attributeKeys.includes(d) ? "bold" : "normal"}}>{`${d}: ${variables[d]}`}</Text></li>)}
         </ul>
       </div>
       {response && <div key="resp">

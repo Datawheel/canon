@@ -18,7 +18,6 @@ import {fetchData, isAuthenticated} from "@datawheel/canon-core";
 import {getFormatters} from "./actions/formatters";
 import {setStatus} from "./actions/status";
 import {getReports} from "./actions/reports";
-import axios from "axios";
 
 /**
  * Builder - The outermost component of the CMS, exported in index.js, and embedded in a canon site.

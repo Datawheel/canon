@@ -12,7 +12,7 @@ const useVariables = id => {
       .filter(d => block.inputs.includes(d.id))
       .reduce((acc, d) => ({...acc, ...d._variables}), attributes) : {};
   }, [blocks, block]);
-  return variables;
+  return {variables, attributeKeys: Object.keys(attributes)};
 };
 
 export {useVariables};

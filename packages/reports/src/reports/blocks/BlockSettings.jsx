@@ -32,7 +32,7 @@ function BlockSettings({id, onChange}) {
     .map(d => ({value: d, label: upperCaseFirst(d)}))
   , [blocks]);
 
-  const variables = useVariables(id);
+  const {variables} = useVariables(id);
 
   const allowed = useMemo(() => [{value: "always", label: "always"}].concat(Object.keys(variables).map(d => ({value: d, label: `${d}: ${variables[d]}`}))), [variables]);
 
