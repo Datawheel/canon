@@ -1,6 +1,6 @@
 /* react */
 import React from "react";
-import {useSelector} from "react-redux";
+import {useSelector, useDispatch} from "react-redux";
 import {Card, Center, Space, Text, Badge, Button, Group, useMantineTheme} from "@mantine/core";
 import {HiOutlineDatabase, HiOutlinePencil, HiOutlineTrash} from "react-icons/hi";
 
@@ -15,6 +15,7 @@ import {deleteDimension} from "../../actions/reports";
 function DimensionCard({id, onEdit}) {
 
   const theme = useMantineTheme();
+  const dispatch = useDispatch();
   const {getConfirmation} = useConfirmationDialog();
 
   const secondaryColor = theme.colorScheme === "dark"
@@ -39,7 +40,7 @@ function DimensionCard({id, onEdit}) {
       message: "Deleting dimensions can be destructive and break the site. Make sure you know what you're doing!",
       confirmText: "Delete"
     });
-    if (confirmed) deleteDimension(id);
+    if (confirmed) dispatch(deleteDimension(id));
   };
 
   const {slug, namespace} = meta;

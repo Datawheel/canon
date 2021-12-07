@@ -4,7 +4,7 @@ import {activateSection} from "./reports";
 /** */
 export function setStatus(status) {
   return async function(dispatch, getStore) {
-    if (status.pathObj?.previews) {
+    if (status.pathObj?.previews?.length > 0) {
       const {activeSection, localeDefault} = getStore().cms.status;
       const previewString = status.pathObj.previews.join();
       const fullPreviews = await axios.get(`/api/reports/newsearch?slug=${previewString}`).then(d => d.data);

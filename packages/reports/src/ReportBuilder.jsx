@@ -57,8 +57,7 @@ function ReportBuilder({router}) {
     const locales = env.CANON_LANGUAGES?.includes(",") ? env.CANON_LANGUAGES.split(",").filter(l => l !== localeDefault) : undefined;
     const localeSecondary = null;
     const {report, section, previews} = router.location.query;
-    const pathObj = {report, section};
-    if (previews) pathObj.previews = previews.split(",");
+    const pathObj = {report, section, previews: previews ? previews.split(",") : []};
     dispatch(setStatus({localeDefault, localeSecondary, localeCurrent, locales, pathObj}));
 
 

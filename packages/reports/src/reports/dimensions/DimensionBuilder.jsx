@@ -1,8 +1,6 @@
 /* react */
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {TextInput, Button, Group, Select} from "@mantine/core";
-import axios from "axios";
 
 import DimensionEditor from "./DimensionEditor";
 import DimensionCard from "./DimensionCard";
@@ -20,7 +18,7 @@ function DimensionBuilder({id}) {
 
   return (
     <div>
-      {editing
+      {editing || meta.length === 0
         ? <DimensionEditor id={id} metaId={editing}/>
         : meta.map(d => <DimensionCard key={d} id={d} onEdit={id => setEditing(id)} />)
       }

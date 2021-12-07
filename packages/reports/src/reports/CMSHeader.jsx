@@ -50,7 +50,7 @@ function CMSHeader({id}) {
   }, [previews]);
 
   const goBack = () => {
-    dispatch(setStatus({pathObj: {home: true}}));
+    dispatch(setStatus({pathObj: {home: true, previews: []}}));
   };
 
   const onChangeReport = value => {

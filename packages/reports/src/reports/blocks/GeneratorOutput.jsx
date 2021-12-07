@@ -1,7 +1,7 @@
 /* react */
 import React, {useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Textarea} from "@mantine/core";
+import {Textarea, Text} from "@mantine/core";
 import {format} from "pretty-format";
 
 /* components */
@@ -32,11 +32,12 @@ function GeneratorOutput({id, components}) {
 
   const LENGTH_CUTOFF_CHAR = 10000;
 
-  const {variables, log, error} = useMemo(() => {
+  const {variables, log, error, duration} = useMemo(() => {
     const variables = format(block._variables);
     const log = block._status.log ? block._status.log.map(d => format(d)).join("\n") : false;
     const error = block._status.error ? block._status.error : variables.length > LENGTH_CUTOFF_CHAR ? `Warning - Large Output (${variables.length} chars)` : false;
-    return {variables, log, error};
+    const duration = block._status.duration ? block._status.duration : false;
+    return {variables, log, error, duration};
   }, [block]);
 
   return (
@@ -48,6 +49,7 @@ function GeneratorOutput({id, components}) {
         {log && <Textarea label="Console" minRows={3} value={log} error="Warning - Remove console.log after debugging"/>}
       </div>
       <div style={{display: "flex", flexDirection: "column"}}>
+        {duration && <Text>{`duration: ${duration} ms`}</Text>}
         <GeneratorList label="Output" value={variables} error={error}/>
         <ConsumerMenu id={id} />
       </div>

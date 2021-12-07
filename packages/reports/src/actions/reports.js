@@ -68,8 +68,12 @@ export function translateSection(id, variables, source, target) {
 
 /** */
 export function modifyDimension(payload) {
-  return function(dispatch) {
-    return axios.post("/api/reports/dimension/upsert", payload)
+  return function(dispatch, getStore) {
+    const config = {params: {
+      section: getStore().cms.status.activeSection,
+      slugs: getStore().cms.status.pathObj.previews.map(d => d.slug).join()
+    }};
+    return axios.post("/api/reports/dimension/upsert", payload, config)
       .then(resp => {
         if (resp.status === 200) {
           dispatch({type: "DIMENSION_MODIFY", data: resp.data});
@@ -85,7 +89,10 @@ export function modifyDimension(payload) {
 /** */
 export function deleteDimension(id) {
   return function(dispatch, getStore) {
-    const params = {slugs: getStore().cms.status.pathObj.previews.map(d => d.slug).join()};
+    const params = {
+      section: getStore().cms.status.activeSection,
+      slugs: getStore().cms.status.pathObj.previews.map(d => d.slug).join()
+    };
     return axios.delete("/api/reports/report_meta/delete", {data: {id}, params})
       .then(resp => {
         if (resp.status === 200) {

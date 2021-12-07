@@ -31,7 +31,7 @@ function ReportCard({id}) {
   const report = useSelector(state => state.cms.reports.entities.reports[id]);
 
   const openReport = id => {
-    dispatch(setStatus({pathObj: {report: id}}));
+    dispatch(setStatus({pathObj: {report: id, previews: []}}));
   };
 
   const label = report.contentByLocale[localeDefault].content.label;

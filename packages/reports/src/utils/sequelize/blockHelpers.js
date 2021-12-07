@@ -110,7 +110,6 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
   const generateVars = async(block, variables = {}) => {
     let result = {};
     variables = {...variables, ...attributes};
-    console.log("running with", variables);
     statusById[block.id] = {};
     if (block.type === BLOCK_TYPES.GENERATOR) {
       // todo1.0, pass the correct vars here, including canonVars, etc
@@ -155,7 +154,7 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
       if (!cache[input]) await crawlUp(input);
     }
     const variables = block.inputs.reduce((acc, d) => ({...acc, ...cache[d]}), {});
-    if (!cache[bid]) cache[bid] = await generateVars(block, variables);
+    if (!cache[bid]) await generateVars(block, variables);
   };
 
   // Given an id, set cache[id] to the variables which that id exports.
@@ -184,7 +183,7 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
     // rootBlock or otherwise, the variables that feed THIS BLOCK have now been calculated. Generate this block's output
     // using those variables, and store the result in the cache.
     // todo1.0 check whether this needs to be a spread - I'm concerned there's some last-run/race condition here
-    cache[bid] = await generateVars(block, variables).catch(catcher);
+    if (!cache[bid]) cache[bid] = await generateVars(block, variables).catch(catcher);
     for (const cid of blocks[bid].consumers) {
       await crawlDown(cid);
     }

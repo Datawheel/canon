@@ -1,5 +1,5 @@
 /* react */
-import React, {useState} from "react";
+import React, {useState, useRef} from "react";
 
 /* components */
 import {TextInput} from "@mantine/core";
@@ -15,8 +15,9 @@ function ApiInput({defaultValue, onChange, variables, onEnterPress}) {
 
   const [preview, setPreview] = useState(() => varSwap(defaultValue, {}, variables));
 
+  const apiRef = useRef();
   const enterPress = useKeyPress(13);
-  if (enterPress) onEnterPress();
+  if (document.activeElement === apiRef.current && enterPress) onEnterPress();
 
   const onChangeLocal = e => {
     // todo1.0 put formatters in here
@@ -30,6 +31,7 @@ function ApiInput({defaultValue, onChange, variables, onEnterPress}) {
         key="text-input"
         placeholder="API"
         defaultValue={defaultValue}
+        ref={apiRef}
         type="url"
         onChange={onChangeLocal}
         size="xs"

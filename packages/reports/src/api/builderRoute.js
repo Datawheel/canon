@@ -66,7 +66,7 @@ const sortSection = (db, section) => {
   return section;
 };
 
-const pruneSearch = async(cubeName, dimension, levels, db) => {
+const pruneSearchLegacy = async(cubeName, dimension, levels, db) => {
   const currentMeta = await db.report_meta.findAll().catch(catcher);
   const dimensionCubePairs = currentMeta.reduce((acc, d) => acc.concat(`${d.dimension}-${d.cubeName}`), []);
 
@@ -81,6 +81,17 @@ const pruneSearch = async(cubeName, dimension, levels, db) => {
   }
   else {
     if (verbose) console.log(`Skipped search cleanup - ${dimension}/${cubeName} is still in use`);
+  }
+};
+
+const pruneSearch = async(db, namespace) => {
+  const currentMeta = await db.report_meta.findAll().then(arr => arr.map(d => d.toJSON())).catch(catcher);
+  if (!currentMeta.some(d => d.namespace === namespace)) {
+    const resp = await db.search.destroy({where: {namespace}}).catch(catcher);
+    if (verbose) console.log(`Cleaned up search data. Rows affected: ${resp}`);
+  }
+  else {
+    if (verbose) console.log(`Skipped search cleanup - ${namespace} is still in use`);
   }
 };
 
@@ -278,9 +289,11 @@ module.exports = function(app) {
 
   app.post("/api/reports/dimension/upsert", async(req, res) => {
     const {config} = req.body;
+    const {section} = req.query;
     await db.report_meta.upsert(config);
     await searchIngest(db, config);
-    return res.json("OK");
+    const reports = await getReportTreeAndActivate(req, section).catch(catcher);
+    return res.json(reports);
   });
 
   app.post("/api/reports/repopulateSearch", isEnabled, async(req, res) => {
@@ -506,12 +519,9 @@ module.exports = function(app) {
       await db.report_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: meta.ordering}}}).catch(catcher);
     }
     await db.report_meta.destroy({where: {id: req.body.id}}).catch(catcher);
-    pruneSearch(meta.cubeName, meta.dimension, meta.levels, db);
-    const reqObj = Object.assign({}, reportReqFull, {where: {id: meta.report_id}});
-    let newReport = await db.report.findOne(reqObj).catch(catcher);
-    newReport = sortReport(db, newReport.toJSON());
-    newReport.sections = newReport.sections.map(section => sortSection(db, section));
-    return res.json(newReport);
+    pruneSearch(db, meta.namespace);
+    const reports = await getReportTreeAndActivate(req);
+    return res.json(reports);
   });
 
   app.delete("/api/reports/formatter/delete", isEnabled, async(req, res) => {

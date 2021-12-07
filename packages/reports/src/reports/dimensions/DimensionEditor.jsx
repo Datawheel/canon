@@ -23,7 +23,7 @@ function DimensionEditor({id, metaId}) {
 
   /* redux */
   const dispatch = useDispatch();
-  const meta = useSelector(state => state.cms.reports.entities.meta[metaId]);
+  const meta = useSelector(state => state.cms.reports.entities.meta ? state.cms.reports.entities.meta[metaId] : null);
 
   /* state */
   const [sample, setSample] = useState();
