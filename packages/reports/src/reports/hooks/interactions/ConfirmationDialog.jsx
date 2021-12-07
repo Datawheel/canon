@@ -1,19 +1,26 @@
 import React, {useState, useContext} from "react";
-import {Modal, Button, Group} from "@mantine/core";
+import {Modal, Button, Group, useMantineTheme} from "@mantine/core";
 
-const ConfirmationDialog = ({opened, title, message, onConfirm, onCancel, cancelText = "Cancel", confirmText = "Confirm"}) =>
-  <Modal
-    zIndex={1002}
-    opened={opened}
-    title={title}
-    onClose={onCancel}
-  >
-    {message}
-    <Group position="right" style={{marginTop: 10}}>
-      <Button onClick={onCancel}>{cancelText}</Button>
-      <Button color="red" onClick={onConfirm}>{confirmText}</Button>
-    </Group>
-  </Modal>;
+const ConfirmationDialog = ({opened, title, message, onConfirm, onCancel, cancelText = "Cancel", confirmText = "Confirm"}) => {
+
+  const theme = useMantineTheme();
+
+  return (
+    <Modal
+      centered={true}
+      zIndex={1002}
+      opened={opened}
+      title={title}
+      onClose={onCancel}
+    >
+      {message}
+      <Group position="right" style={{marginTop: theme.spacing.sm}}>
+        <Button onClick={onCancel}>{cancelText}</Button>
+        <Button color="red" onClick={onConfirm}>{confirmText}</Button>
+      </Group>
+    </Modal>
+  );
+};
 
 const ConfirmationDialogContext = React.createContext({});
 
