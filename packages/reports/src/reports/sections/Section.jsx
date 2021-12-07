@@ -184,7 +184,7 @@ function Section({id, isDragging, dragHandleProps}) {
                             {...provided.dragHandleProps}
                             style={{
                               ...provided.draggableProps.style,
-                              width: "100%"
+                              boxShadow: snapshot.isDragging ? theme.shadows.lg : "none"
                             }}
                           >
                             <Block
