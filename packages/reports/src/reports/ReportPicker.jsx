@@ -29,7 +29,7 @@ function ReportPicker() {
         height: "100vh"
       }}>
       <h1>Reports</h1>
-      <Group withGutter position="center" style={{width: "100%"}}>
+      <Group position="center" style={{width: "100%"}}>
         {reports.length
           ? reports.map(report => <ReportCard key={report} id={report} />)
           : <Alert

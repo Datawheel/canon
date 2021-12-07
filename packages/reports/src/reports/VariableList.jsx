@@ -25,7 +25,7 @@ function VariableList({id}) {
   return (
     <div style={{display: "flex", flexDirection: "column"}}>
       Variables
-      <div key="vl" className="cms-block-variable-list" style={{height: response ? 300 : 700}}>
+      <div key="vl" className="cms-block-variable-list" style={{height: 300}}>
         <ul>
           {Object.keys(variables).map(d => <li key={d}><Text size="s" style={{fontFamily: "monospace", fontWeight: attributeKeys.includes(d) ? "bold" : "normal"}}>{`${d}: ${variables[d]}`}</Text></li>)}
         </ul>

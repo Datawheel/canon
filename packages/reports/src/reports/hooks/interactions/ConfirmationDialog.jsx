@@ -7,7 +7,7 @@ const ConfirmationDialog = ({opened, title, message, onConfirm, onCancel, cancel
 
   return (
     <Modal
-      centered={true}
+      centered
       zIndex={1002}
       opened={opened}
       title={title}
