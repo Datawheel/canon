@@ -1,8 +1,8 @@
 /* react */
 import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Modal, ActionIcon, Button, Tooltip} from "@mantine/core";
-import {HiOutlineCog, HiOutlinePencil} from "react-icons/hi";
+import {Modal, ActionIcon, Button, Tooltip, useMantineTheme} from "@mantine/core";
+import {HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil} from "react-icons/hi";
 import {AiOutlineGlobal} from "react-icons/ai";
 
 /* components */
@@ -200,6 +200,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton};
 
   const modalProps = {
+    centered: true,
     title: `${upperCaseFirst(block.type)} editor`,
     size: "70%",
     opened,
@@ -216,23 +217,31 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     onMouseLeave: () => setHoverBlock(false)
   };
 
-  const overlayStyle = {width: "100%", height: "100%", position: "absolute", opacity: 0.3, zIndex: 5, textAlign: "center"};
-
-  const inputOverlay = <div style={{...overlayStyle, backgroundColor: "lightgreen"}} key="input" ><span style={{fontSize: 60}}>INPUT</span></div>;
-  const consumerOverlay = <div style={{...overlayStyle, backgroundColor: "lightblue"}} key="consumer" ><span style={{fontSize: 60}}>CONSUMER</span></div>;
+  const theme = useMantineTheme();
 
   return (
     <React.Fragment>
-      <div key="block" className="cms-section-block" {...hoverActions}>
-        {isInput && inputOverlay}
-        {isConsumer && consumerOverlay}
-        <div key="bh" className="cms-section-block-header">{block.type}({block.id})</div>
+      <div key="block" className="cr-section-block" {...hoverActions} style={{padding: theme.spacing.xs}}>
+        { isInput || isConsumer ? <div className="cr-block-link" key="link"
+          style={{
+            color: isInput ? theme.colors.red[5] : theme.colors.green[5]
+          }}>
+          { isInput ? <HiOutlineLogout size={20} /> : <HiOutlineLogin size={20} /> }
+        </div> : null }
         <BlockPreview key="bp" blockState={block} active={active} variables={variables} locale={localeDefault}/>
-        <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
-        <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
-        {block.shared && <Tooltip key="tt" withArrow label="Sharing: Enabled"><AiOutlineGlobal color="yellow" size={20} /></Tooltip>}
+        <div key="bc" className="cr-block-controls"
+          style={{
+            borderRadius: theme.radius.md,
+            padding: theme.spacing.xs / 2,
+            right: theme.spacing.xs / 2,
+            top: theme.spacing.xs / 2
+          }}>
+          {block.shared && <Tooltip key="tt" withArrow label="Sharing: Enabled"><AiOutlineGlobal color="yellow" size={20} /></Tooltip>}
+          <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
+          <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
+        </div>
       </div>
-      <Modal key="d" {...modalProps}>
+      <Modal centered key="d" {...modalProps}>
         <BlockEditor key="be" id={id} components={components}/>
         <Button key="button" onClick={() => onSave(false)}>Save &amp; Close</Button>
       </Modal>

@@ -1,28 +1,51 @@
-.cms-section-block {
-  display: block;
-  min-height: 50px;
-  background-color: rgb(255, 206, 206);
-  border: 1px solid black;
-  position: relative;
-  cursor: pointer;
-}
-
-.cms-section-block-header {
+.cr-section-block {
   background-color: white;
-  border-bottom: 1px solid black;
-  height: 20px;
-}
+  display: block;
+  position: relative;
+  transition: box-shadow 0.1s;
 
-.cms-block-cog-button {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-}
+  & .cr-block-placeholder {
+    color: #ccc;
+    font-style: italic;
+  }
 
-.cms-block-edit-button {
-  position: absolute;
-  bottom: 5px;
-  right: 33px;
+  & .cr-block-skeleton {
+    background-color: rgba(0, 0, 0, 0.25);
+    border-radius: 2px;
+    display: inline-block;
+    width: 100px;
+    &.value {
+      width: 80px;
+    }
+  }
+
+  & .cr-block-controls {
+    background: rgba(255, 255, 255, 0.75);
+    display: flex;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: opacity 0.1s;
+    z-index: 1;
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  & .cr-block-link {
+    left: -20px;
+    position: absolute;
+    top: calc(50% - 10px);
+  }
+
+  &:hover {
+    box-shadow: 0 1px 3px rgb(0 0 0 / 5%), 0 1px 2px rgb(0 0 0 / 10%);
+    z-index: 1;
+    & .cr-block-controls {
+      opacity: 1;
+    }
+  }
 }
 
 .cms-block-editor-dialog{
