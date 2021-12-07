@@ -44,7 +44,7 @@ function DimensionEditor({id, metaId}) {
       if (payload && payload[0]) setConfigFromSample(payload[0]);
     }
     else {
-      setAccessors(arrayFinder(keys));
+      setAccessors(keys);
     }
   }, [payload]);
 
@@ -154,7 +154,7 @@ function DimensionEditor({id, metaId}) {
       <Button onClick={() => getMembers()}>Fetch</Button>
       {payload &&
         <Group direction="column">
-          {accessors.length > 0 && <Select value={config.accessor} label="accessor" data={accessorSelectData} onChange={e => onChangeAccessor(e)}></Select>}
+          <Select value={config.accessor} label="accessor" data={accessorSelectData} onChange={e => onChangeAccessor(e)}></Select>
           {sample &&
             <React.Fragment>
               <TextInput value={config.label} label="label" onChange={e => onChange("label", e.target.value)} />
