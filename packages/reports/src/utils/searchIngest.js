@@ -16,9 +16,10 @@ const searchIngest = async(db, config) => {
     id: d[idKey],
     slug: slugify(d[name]),
     namespace,
-    properties: Object.keys(properties).reduce((acc, p) => ({...acc, [properties[p]]: d[p]}), {})
+    properties: Object.keys(properties || {}).reduce((acc, p) => ({...acc, [properties[p]]: d[p]}), {})
   }));
 
+  // todo1.0 don't do this remover
   await db.search.destroy({where: {namespace}});
   await db.search.bulkCreate(searchMembers);
 

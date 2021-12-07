@@ -20,6 +20,6 @@ const arrayFinder = obj => {
   return keys;
 };
 
-const keyDiver = (obj, str) => typeof str === "string" ? str.split(".").reduce((o, i) => o[i], obj) : obj;
+const keyDiver = (obj, str) => !str ? obj : typeof str === "string" ? str.split(".").reduce((o, i) => o[i], obj) : obj;
 
 module.exports = {arrayFinder, keyDiver};

@@ -38,7 +38,15 @@ function DimensionEditor({id, metaId}) {
 
   const enterPress = useKeyPress(13);
 
-  useEffect(() => setAccessors(arrayFinder(payload)), [payload]);
+  useEffect(() => {
+    const keys = arrayFinder(payload);
+    if (keys.length === 0) {
+      if (payload && payload[0]) setConfigFromSample(payload[0]);
+    }
+    else {
+      setAccessors(arrayFinder(keys));
+    }
+  }, [payload]);
 
   const getMembers = () => {
     axios.get(config.path).then(resp => {
@@ -51,7 +59,7 @@ function DimensionEditor({id, metaId}) {
 
   const setConfigFromSample = (sample, accessor) => {
     const sampleKeys = Object.keys(sample);
-    const guessSlug = accessor.split(".")[0];
+    const guessSlug = accessor ? accessor.split(".")[0] : "";
     const guessId = sampleKeys.find(d => d.toLowerCase().includes("id")) || sampleKeys[0];
     const guessName = sampleKeys.find(d => !d.toLowerCase().includes("id")) || sampleKeys[0];
     setConfig({
@@ -83,10 +91,8 @@ function DimensionEditor({id, metaId}) {
 
   const onSubmit = () => {
     setLoading(true);
-    dispatch(modifyDimension({config})).then(resp => {
-      console.log(resp);
+    dispatch(modifyDimension({config})).then(() => {
       setLoading(false);
-
     }).catch(e => {
       // todo1.0 toast
       setLoading(false);
@@ -148,7 +154,7 @@ function DimensionEditor({id, metaId}) {
       <Button onClick={() => getMembers()}>Fetch</Button>
       {payload &&
         <Group direction="column">
-          <Select value={config.accessor} label="accessor" data={accessorSelectData} onChange={e => onChangeAccessor(e)}></Select>
+          {accessors.length > 0 && <Select value={config.accessor} label="accessor" data={accessorSelectData} onChange={e => onChangeAccessor(e)}></Select>}
           {sample &&
             <React.Fragment>
               <TextInput value={config.label} label="label" onChange={e => onChange("label", e.target.value)} />
