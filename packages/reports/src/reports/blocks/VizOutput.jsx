@@ -29,7 +29,7 @@ function VizOutput({id, components}) {
   const block = useSelector(state => state.cms.reports.entities.blocks[id]);
 
   const [logic, setLogic] = useState(components.codeEditor.props.defaultValue);
-  const [config, setConfig] = useState(() => {});
+  const [config, setConfig] = useState({});
 
   const log = "";
 

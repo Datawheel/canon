@@ -7,9 +7,9 @@ import {Text, useMantineTheme} from "@mantine/core";
 import ConsoleVariable from "./ConsoleVariable";
 
 /** */
-function InputMenuItem({active = [], id = false, variables}) {
+function InputMenuItem({active = [], id, variables}) {
 
-  const block = id && useSelector(state => state.cms.reports.entities.blocks[id]);
+  const block = useSelector(state => id ? state.cms.reports.entities.blocks[id] : false);
 
   const label = block ? block.type : "block";
   const keys = Object.keys(variables);
