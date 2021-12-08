@@ -75,7 +75,13 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     }
   }, [opened, block]);
 
-  const allowed = useMemo(() => !("allowed" in block.settings) || variables[block.settings.allowed], [variables]);
+  const {allowed, allowedMessage} = useMemo(() => {
+    const allowed = !block._status?.hiddenByCascade;
+    const allowedMessage = block._status?.hiddenByCascade === id
+      ? `Hidden by ${block.settings.allowed}: ${variables[block.settings.allowed]}`
+      : `Hidden by ${block._status?.hiddenByCascade}`;
+    return {allowed, allowedMessage};
+  }, [variables, block]);
 
   if (!block) return null;
 
@@ -248,7 +254,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
             top: theme.spacing.xs / 2
           }}>
           {block.shared && <Tooltip key="tt" withArrow label="Sharing: Enabled"><ActionIcon key="globe"><AiOutlineGlobal size={20} /></ActionIcon></Tooltip>}
-          {!allowed && <Tooltip key="allowed" withArrow label={`Hidden by ${block.settings.allowed}: ${variables[block.settings.allowed]}`}><ActionIcon><HiEyeOff size={20} /></ActionIcon></Tooltip>}
+          {!allowed && <Tooltip key="allowed" withArrow label={allowedMessage}><ActionIcon><HiEyeOff size={20} /></ActionIcon></Tooltip>}
           <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
           <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
         </div>

@@ -162,7 +162,15 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
   };
 
   // Given an id, set cache[id] to the variables which that id exports.
-  const crawlDown = async bid => {
+  const crawlDown = async(bid, cascader) => {
+    if (cascader) {
+      cache[bid] = {};
+      statusById[bid] = {hiddenByCascade: cascader};
+      for (const cid of blocks[bid].consumers) {
+        await crawlDown(cid, cascader);
+      }
+      return;
+    }
     let block;
     let variables = {};
     // If this block has inputs, gather their results into an object and use it to help generate THIS block's variables.
@@ -186,10 +194,19 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
     }
     // rootBlock or otherwise, the variables that feed THIS BLOCK have now been calculated. Generate this block's output
     // using those variables, and store the result in the cache.
-    // todo1.0 check whether this needs to be a spread - I'm concerned there's some last-run/race condition here
-    if (!cache[bid]) cache[bid] = await generateVars(block, variables).catch(catcher);
-    for (const cid of blocks[bid].consumers) {
-      await crawlDown(cid);
+    const allowed = !("allowed" in block.settings) || {...variables, ...attributes}[block.settings.allowed] || block.settings.allowed === "always";
+    if (allowed) {
+      if (!cache[bid]) cache[bid] = await generateVars(block, variables).catch(catcher);
+      for (const cid of blocks[bid].consumers) {
+        await crawlDown(cid);
+      }
+    }
+    else {
+      cache[bid] = {};
+      statusById[bid] = {hiddenByCascade: bid};
+      for (const cid of blocks[bid].consumers) {
+        await crawlDown(cid, bid);
+      }
     }
   };
   for (const id of Object.keys(rootBlocks)) {
