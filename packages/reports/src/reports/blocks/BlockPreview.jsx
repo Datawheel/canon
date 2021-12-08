@@ -33,8 +33,8 @@ function BlockPreview({blockState, active, variables, locale, allowed}) {
     <div className="cms-block-preview">
       {!allowed && allowedOverlay}
       { Renderer
-        ? <Renderer {...content} />
-        : <Center><Badge color="gray" variant="outline">{blockState.type}</Badge></Center> }
+        ? <Renderer key="renderer" {...content} />
+        : <Center><Badge key="type" color="gray" variant="outline">{blockState.type}</Badge></Center> }
     </div>
   );
 

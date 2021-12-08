@@ -5,6 +5,8 @@ import React from "react";
 */
 export default function Viz({config}) {
 
+  console.log(config);
+
   return (
     <div>
       imaviz
