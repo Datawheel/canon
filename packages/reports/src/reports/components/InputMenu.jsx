@@ -65,7 +65,7 @@ function InputMenu({id}) {
       control={<Button fullWidth style={{marginBottom: "15px"}} leftIcon={<HiOutlineLogin style={{transform: "scaleX(-1)"}} />}>Add New Input</Button>}
       size="xl"
     >
-      {availableBlocks.map(({id}) =>
+      {availableBlocks.map(({id, shared}) =>
         <Menu.Item
           active={block.inputs.includes(id)}
           disabled={block.consumers.includes(id)}
@@ -75,7 +75,7 @@ function InputMenu({id}) {
             : block.inputs.includes(id)
               ? <ThemeIcon size="xs" radius="xl" color="green"><HiCheckCircle /></ThemeIcon>
               : <ThemeIcon size="xs" radius="xl" color="gray"><HiPlusCircle /></ThemeIcon>}
-          rightSection={block.shared ? <ThemeIcon size="xs" radius="xl"><HiOutlineGlobeAlt /></ThemeIcon> : null}
+          rightSection={shared ? <ThemeIcon size="xs" radius="xl"><HiOutlineGlobeAlt /></ThemeIcon> : null}
           key={id}>
           <InputMenuItem id={id} variables={variables[id]} active={block.inputs.includes(id) ? Object.keys(variables[id]) : []} />
         </Menu.Item>
