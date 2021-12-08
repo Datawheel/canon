@@ -1,8 +1,8 @@
 /* react */
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Modal, ActionIcon, Button, Tooltip, useMantineTheme} from "@mantine/core";
-import {HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil} from "react-icons/hi";
+import {HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiEyeOff} from "react-icons/hi";
 import {AiOutlineGlobal} from "react-icons/ai";
 
 /* components */
@@ -74,6 +74,8 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
       setBlockState(deepClone(block));
     }
   }, [opened, block]);
+
+  const allowed = useMemo(() => !("allowed" in block.settings) || variables[block.settings.allowed], [variables]);
 
   if (!block) return null;
 
@@ -163,6 +165,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     blockState={blockState}
     locale={localeDefault}
     variables={variables}
+    allowed={true}
   />;
 
   const apiInput = <ApiInput
@@ -228,7 +231,15 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
           }}>
           { isInput ? <HiOutlineLogout size={20} /> : <HiOutlineLogin size={20} /> }
         </div> : null }
-        <BlockPreview key="bp" blockState={block} active={active} variables={variables} locale={localeDefault}/>
+        <BlockPreview
+          style={{color: "red"}}
+          key="bp"
+          blockState={block}
+          active={active}
+          variables={variables}
+          locale={localeDefault}
+          allowed={allowed}
+        />
         <div key="bc" className="cr-block-controls"
           style={{
             borderRadius: theme.radius.md,
@@ -236,7 +247,8 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
             right: theme.spacing.xs / 2,
             top: theme.spacing.xs / 2
           }}>
-          {block.shared && <Tooltip key="tt" withArrow label="Sharing: Enabled"><AiOutlineGlobal color="yellow" size={20} /></Tooltip>}
+          {block.shared && <Tooltip key="tt" withArrow label="Sharing: Enabled"><ActionIcon key="globe"><AiOutlineGlobal size={20} /></ActionIcon></Tooltip>}
+          {!allowed && <Tooltip key="allowed" withArrow label={`Hidden by ${block.settings.allowed}: ${variables[block.settings.allowed]}`}><ActionIcon><HiEyeOff size={20} /></ActionIcon></Tooltip>}
           <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
           <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
         </div>

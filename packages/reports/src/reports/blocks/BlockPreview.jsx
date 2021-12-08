@@ -5,27 +5,17 @@ import {Badge, Center} from "@mantine/core";
 
 /* utils */
 import varSwapRecursive from "../../utils/varSwapRecursive";
+import spoiler from "../../utils/spoiler";
 
 /* type-specific render components */
 import TypeRenderers from "./types/index.jsx";
-
-
-
-const spoiler = obj => Object.keys(obj)
-  .reduce((acc, d) => (
-    {
-      ...acc,
-      [d]: typeof obj[d] === "string"
-        ? obj[d].replace(/[A-z0-9]*\{\{[^\}]+\}\}/g, `<span class="cr-block-skeleton ${d}">&nbsp;</span>`)
-        : obj[d]
-    }), {});
 
 /**
  * BlockPreview shows the varswapped version of the content currently being edited. It is instantiated in
  * Block.jsx and directly passed "blockState" from there, which represents the live-editing content.
  * Though instantiated in Block, it is not rendered until BlockOutput.
  */
-function BlockPreview({blockState, active, variables, locale}) {
+function BlockPreview({blockState, active, variables, locale, allowed}) {
 
   /* redux */
   const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
@@ -36,8 +26,12 @@ function BlockPreview({blockState, active, variables, locale}) {
 
   const Renderer = TypeRenderers[blockState.type];
 
+  const overlayStyle = {width: "100%", height: "100%", position: "absolute", top: -1, left: -1, opacity: 0.3, zIndex: 5, pointerEvents: "none"};
+  const allowedOverlay = <div style={{...overlayStyle, backgroundColor: "pink"}}></div>;
+
   return (
     <div className="cms-block-preview">
+      {!allowed && allowedOverlay}
       { Renderer
         ? <Renderer {...content} />
         : <Center><Badge color="gray" variant="outline">{blockState.type}</Badge></Center> }

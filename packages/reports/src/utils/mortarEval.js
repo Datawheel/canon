@@ -4,6 +4,8 @@ const yn = require("yn");
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 
+// todo1.0 this will have be rewritten, including its comments, to match 1.0 logic
+
 module.exports = (varInnerName, varOuterValue, logic, formatterFunctions, locale = localeDefault, attributes = false) => { //eslint-disable-line
   let vars = {}; //eslint-disable-line
   // Because logic is arbitrary javascript, it may be malformed. We need to wrap the

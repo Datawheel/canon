@@ -113,10 +113,14 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
     statusById[block.id] = {};
     if (block.type === BLOCK_TYPES.GENERATOR) {
       // todo1.0, pass the correct vars here, including canonVars, etc
-      const resp = await apiFetch(req, block.api, locale, variables).catch(catcher);
-      statusById[block.id].duration = resp.requestDuration;
-      statusById[block.id].response = resp.data;
-      const evalResults = mortarEval("resp", resp.data, block.logic, {}, locale); // todo1.0 add formatters here
+      let data = {};
+      if (block.api) {
+        const resp = await apiFetch(req, block.api, locale, variables).catch(catcher);
+        statusById[block.id].duration = resp.requestDuration;
+        statusById[block.id].response = resp.data;
+        data = resp.data;
+      }
+      const evalResults = mortarEval("resp", data, block.logic, {}, locale, variables); // todo1.0 add formatters here
       if (evalResults.error) statusById[block.id].error = evalResults.error;
       if (evalResults.log) statusById[block.id].log = evalResults.log;
       if (typeof evalResults.vars === "object") result = evalResults.vars;
