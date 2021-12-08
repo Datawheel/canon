@@ -37,6 +37,9 @@
     left: -20px;
     position: absolute;
     top: calc(50% - 10px);
+    &.consumer {
+      transform: scaleX(-1);
+    }
   }
 
   &:hover {
