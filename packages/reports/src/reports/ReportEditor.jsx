@@ -64,6 +64,7 @@ function ReportEditor({id}) {
   return (
     <AppShell
       padding="0"
+      styles={{main: {backgroundColor: "#8b8b8b"}}}
       header={<CMSHeader id={report.id} />}
     >
       <DragDropContext onDragEnd={onDragEnd}>
