@@ -8,11 +8,14 @@ import {HiOutlineDocumentText, HiOutlineCog} from "react-icons/hi";
 import VariableList from "./VariableList";
 import BlockOutputPanel from "./blocks/BlockOutputPanel";
 import GeneratorOutput from "./blocks/GeneratorOutput";
+import VizOutput from "./blocks/VizOutput";
 import InputMenu from "./components/InputMenu";
+
+/* enums */
+import {BLOCK_TYPES} from "../utils/consts/cms";
 
 /* css */
 import "./BlockEditor.css";
-import {BLOCK_TYPES} from "../utils/consts/cms";
 
 /**
  *
@@ -25,6 +28,12 @@ function BlockEditor({id, components}) {
 
   if (!block) return null;
 
+  const panels = {
+    [BLOCK_TYPES.GENERATOR]: GeneratorOutput,
+    [BLOCK_TYPES.VIZ]: VizOutput
+  };
+  const Panel = panels[block.type] || BlockOutputPanel;
+
   return (
     <div className="cms-block-editor">
       <div className="cms-block-editor-content">
@@ -34,7 +43,7 @@ function BlockEditor({id, components}) {
         </div>
         <Tabs>
           <Tab icon={<HiOutlineDocumentText />} label="Output">
-            {block.type === BLOCK_TYPES.GENERATOR ? <GeneratorOutput id={id} components={components} /> : <BlockOutputPanel id={id} components={components} />}
+            <Panel id={id} components={components} />
           </Tab>
           <Tab icon={<HiOutlineCog />} label="Settings">
             {components.blockSettings}

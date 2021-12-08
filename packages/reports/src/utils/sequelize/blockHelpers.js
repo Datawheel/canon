@@ -193,7 +193,8 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
       variables = block.inputs.reduce((acc, d) => ({...acc, ...cache[d]}), {});
     }
     // rootBlock or otherwise, the variables that feed THIS BLOCK have now been calculated. Generate this block's output
-    // using those variables, and store the result in the cache.
+    // using those variables, and store the result in the cache. First, however, using those vars, determine if this block
+    // is allowed. If it isn't, cascade that hiding all the way down through its consumers.
     const allowed = !("allowed" in block.settings) || {...variables, ...attributes}[block.settings.allowed] || block.settings.allowed === "always";
     if (allowed) {
       if (!cache[bid]) cache[bid] = await generateVars(block, variables).catch(catcher);
