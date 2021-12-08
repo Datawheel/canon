@@ -1,7 +1,7 @@
 /* react */
 import React, {useState, useEffect, useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Modal, ActionIcon, Button, Tooltip, useMantineTheme} from "@mantine/core";
+import {Modal, ActionIcon, Button, Group, Tooltip, useMantineTheme} from "@mantine/core";
 import {HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiEyeOff} from "react-icons/hi";
 import {AiOutlineGlobal} from "react-icons/ai";
 
@@ -208,12 +208,16 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton};
 
+  const theme = useMantineTheme();
+
   const modalProps = {
     centered: true,
-    title: `${upperCaseFirst(block.type)} editor`,
-    size: "70%",
     opened,
-    onClose: maybeCloseWithoutSaving
+    onClose: maybeCloseWithoutSaving,
+    overflow: "inside",
+    padding: theme.spacing.xl,
+    size: "90%",
+    title: `${upperCaseFirst(block.type)} Editor`
   };
 
   const cogProps = {
@@ -226,12 +230,10 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     onMouseLeave: () => setHoverBlock(false)
   };
 
-  const theme = useMantineTheme();
-
   return (
     <React.Fragment>
       <div key="block" className="cr-section-block" {...hoverActions} style={{padding: theme.spacing.xs}}>
-        { isInput || isConsumer ? <div className="cr-block-link" key="link"
+        { isInput || isConsumer ? <div className={`cr-block-link ${isInput ? "input" : "consumer"}`} key="link"
           style={{
             color: isInput ? theme.colors.red[5] : theme.colors.green[5]
           }}>
@@ -261,7 +263,10 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
       </div>
       <Modal centered key="d" {...modalProps}>
         <BlockEditor key="be" id={id} components={components}/>
-        <Button key="button" onClick={() => onSave(false)}>Save &amp; Close</Button>
+        <Group position="right" style={{marginTop: theme.spacing.sm}}>
+          <Button key="cancel" color="red" onClick={maybeCloseWithoutSaving}>Cancel</Button>
+          <Button key="save" color="green" onClick={() => onSave(false)}>Save &amp; Close</Button>
+        </Group>
       </Modal>
     </React.Fragment>
   );
