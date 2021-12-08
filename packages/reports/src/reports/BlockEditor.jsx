@@ -1,8 +1,8 @@
 /* react */
-import React from "react";
+import React, {useState} from "react";
 import {useSelector} from "react-redux";
-import {Tabs, Tab} from "@mantine/core";
-import {HiOutlineDocumentText, HiOutlineCog} from "react-icons/hi";
+import {Center, Col, Grid, SegmentedControl, useMantineTheme} from "@mantine/core";
+import {HiOutlineEye, HiOutlineCog} from "react-icons/hi";
 
 /* components */
 import VariableList from "./VariableList";
@@ -13,9 +13,6 @@ import InputMenu from "./components/InputMenu";
 
 /* enums */
 import {BLOCK_TYPES} from "../utils/consts/cms";
-
-/* css */
-import "./BlockEditor.css";
 
 /**
  *
@@ -34,23 +31,44 @@ function BlockEditor({id, components}) {
   };
   const Panel = panels[block.type] || BlockOutputPanel;
 
+  const [tab, setTab] = useState("output");
+  const theme = useMantineTheme();
+
   return (
-    <div className="cms-block-editor">
-      <div className="cms-block-editor-content">
-        <div style={{display: "flex", flexDirection: "column"}}>
-          <InputMenu id={id}/>
-          <VariableList id={id}/>
-        </div>
-        <Tabs>
-          <Tab icon={<HiOutlineDocumentText />} label="Output">
-            <Panel id={id} components={components} />
-          </Tab>
-          <Tab icon={<HiOutlineCog />} label="Settings">
-            {components.blockSettings}
-          </Tab>
-        </Tabs>
-      </div>
-    </div>
+    <Grid style={{height: "60vh"}}>
+      <Col span={3} style={{display: "flex", flexDirection: "column"}}>
+        <InputMenu id={id}/>
+        <VariableList id={id}/>
+      </Col>
+      <Col span={9}>
+        <Center>
+          <SegmentedControl
+            value={tab}
+            onChange={setTab}
+            data={[
+              {
+                label: <Center>
+                  <HiOutlineEye />
+                  <div style={{marginLeft: theme.spacing.sm}}>Content</div>
+                </Center>,
+                value: "output"
+              },
+              {
+                label: <Center>
+                  <HiOutlineCog />
+                  <div style={{marginLeft: theme.spacing.sm}}>Settings</div>
+                </Center>,
+                value: "settings"
+              }
+            ]}
+          />
+        </Center>
+        {{
+          output: <Panel id={id} components={components} />,
+          settings: components.blockSettings
+        }[tab]}
+      </Col>
+    </Grid>
   );
 
 }

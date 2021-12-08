@@ -1,11 +1,12 @@
 /* react */
 import React, {useMemo} from "react";
 import {useSelector} from "react-redux";
-import {Textarea, Text} from "@mantine/core";
+import {Textarea} from "@mantine/core";
 import {format} from "pretty-format";
 
 /* hooks */
 import {useVariables} from "./hooks/blocks/useVariables";
+import InputMenuItem from "./components/InputMenuItem";
 
 /* css */
 import "./VariableList.css";
@@ -23,12 +24,13 @@ function VariableList({id}) {
   const response = useMemo(() => block._status && block._status.response ? format(block._status.response) : false, [blocks]);
 
   return (
-    <div style={{display: "flex", flexDirection: "column"}}>
-      Variables
-      <div key="vl" className="cms-block-variable-list" style={{height: 300}}>
-        <ul>
-          {Object.keys(variables).map(d => <li key={d}><Text size="s" style={{fontFamily: "monospace", fontWeight: attributeKeys.includes(d) ? "bold" : "normal"}}>{`${d}: ${variables[d]}`}</Text></li>)}
-        </ul>
+    <div style={{display: "flex", flex: "1", flexDirection: "column"}}>
+      <div key="vl"
+        style={{
+          flex: "1",
+          overflowY: "scroll"
+        }}>
+        <InputMenuItem variables={variables} active={attributeKeys} />
       </div>
       {response && <div key="resp">
         <Textarea size="xs" value={response} styles={{input: {fontFamily: "monospace"}}} label="API Response" minRows={17} />

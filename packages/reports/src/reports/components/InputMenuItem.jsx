@@ -1,34 +1,41 @@
 /* react */
-import React, {useState} from "react";
+import React from "react";
 import {useSelector} from "react-redux";
-import {Popover, List} from "@mantine/core";
-import {AiOutlineGlobal} from "react-icons/ai";
 
 /* components */
-import {} from "@mantine/core";
+import {Text, useMantineTheme} from "@mantine/core";
+import ConsoleVariable from "./ConsoleVariable";
 
 /** */
-function InputMenuItem({id, variables}) {
+function InputMenuItem({active = [], id = false, variables}) {
 
-  const block = useSelector(state => state.cms.reports.entities.blocks[id]);
+  const block = id && useSelector(state => state.cms.reports.entities.blocks[id]);
 
-  const label = block.type;
+  const label = block ? block.type : "block";
+  const keys = Object.keys(variables);
 
-  const [opened, setOpened] = useState(false);
+  const theme = useMantineTheme();
 
   return (
-    <Popover
-      opened={opened}
-      withArrow
-      noFocusTrap
-      position="right"
-      zIndex={1001}
-      target={<div style={{display: "block", width: "175px"}} onMouseOver={() => setOpened(true)} onMouseLeave={() => setOpened(false)}>{`${label}(${id})`}{block.shared && <AiOutlineGlobal />}</div>}
-    >
-      <List listStyleType="none">
-        {Object.keys(variables).map(d => <List.Item key={d}>{`${d}: ${variables[d]}`}</List.Item>)}
-      </List>
-    </Popover>
+    <table>
+      <tbody>
+        { keys.length
+          ? keys.map(d => <tr key={d}
+          >
+            <td>
+              <Text color={active.includes(d) ? theme.primaryColor : "dimmed"} size="xs" weight={700}>
+                {`{{${d}}}`}
+              </Text>
+            </td>
+            <td>
+              <ConsoleVariable value={variables[d]} />
+            </td>
+          </tr>)
+          : <Text color="dimmed" size="xs">
+            <i>empty {label}</i>
+          </Text>}
+      </tbody>
+    </table>
   );
 
 }
