@@ -13,6 +13,7 @@ import AceWrapper from "../editors/AceWrapper";
 import ApiInput from "../components/ApiInput";
 import BlockPreview from "./BlockPreview";
 import BlockSettings from "./BlockSettings";
+import Viz from "./Viz";
 
 /* utils */
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
@@ -230,6 +231,8 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     onMouseLeave: () => setHoverBlock(false)
   };
 
+  console.log(block);
+
   return (
     <React.Fragment>
       <div key="block" className="cr-section-block" {...hoverActions} style={{padding: theme.spacing.xs}}>
@@ -239,15 +242,18 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
           }}>
           { isInput ? <HiOutlineLogout size={20} /> : <HiOutlineLogin size={20} /> }
         </div> : null }
-        <BlockPreview
-          style={{color: "red"}}
-          key="bp"
-          blockState={block}
-          active={active}
-          variables={variables}
-          locale={localeDefault}
-          allowed={allowed}
-        />
+        {block.type === BLOCK_TYPES.VIZ
+          ? <Viz config={{logic: block.logic}}/>
+          : <BlockPreview
+            style={{color: "red"}}
+            key="bp"
+            blockState={block}
+            active={active}
+            variables={variables}
+            locale={localeDefault}
+            allowed={allowed}
+          />
+        }
         <div key="bc" className="cr-block-controls"
           style={{
             borderRadius: theme.radius.md,
