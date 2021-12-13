@@ -27,8 +27,8 @@ function VizOutputPanel({id, components}) {
         {executeButton}
       </div>
       <div style={{display: "flex", flexDirection: "column"}}>
-        <ConsumerMenu id={id} />
         {vizPreview}
+        <ConsumerMenu id={id} />
       </div>
     </div>
   );

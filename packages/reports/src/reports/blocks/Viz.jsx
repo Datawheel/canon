@@ -11,23 +11,26 @@ import varSwapRecursive from "../../utils/varSwapRecursive";
 
 const vizTypes = d3plus; // todo1.0 add in customviz spread
 
+const STUB_MESSAGE = "Activate to View";
+
+const stub = {
+  data: [],
+  dataFormat: d => d,
+  type: "Treemap",
+  noDataHTML: `<p style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${STUB_MESSAGE}</strong></p>`
+};
+
 /**
- * "viz" block renderer
+ * Viz Renderer
 */
 export default function Viz({block, active, locale, variables}) {
 
-  /**
-   *     // todo1.0 hook up formatters, variables, and query here!!
-    const transpiledLogic = varSwapRecursive({logic}, {}, {}, {}).logic;
-    setConfig({...config, logic: transpiledLogic});
-   */
-
   const vizProps = useMemo(() => {
-    console.log("propify");
+    if (!active) return {config: stub};
     // todo1.0 fix all these arguments!
-    const transpiledLogic = varSwapRecursive({logic: block.logic}, {}, {}, {}).logic;
-    return d3plusPropify(transpiledLogic, {}, {}, "en", 1, {});
-  }, [block]);
+    const transpiledLogic = varSwapRecursive({logic: block.logic}, {}, variables, {}).logic;
+    return d3plusPropify(transpiledLogic, {}, variables, "en", 1, {});
+  }, [block, active]);
 
   const namespace = "reports";
 
