@@ -5,8 +5,8 @@ import {Textarea} from "@mantine/core";
 import {format} from "pretty-format";
 
 /* hooks */
-import {useVariables} from "./hooks/blocks/useVariables";
-import InputMenuItem from "./components/InputMenuItem";
+import {useVariables} from "../hooks/blocks/useVariables";
+import InputMenuItem from "../components/InputMenuItem";
 
 /* css */
 import "./VariableList.css";

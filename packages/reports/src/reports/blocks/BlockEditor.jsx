@@ -6,13 +6,13 @@ import {HiOutlineEye, HiOutlineCog} from "react-icons/hi";
 
 /* components */
 import VariableList from "./VariableList";
-import BlockOutputPanel from "./blocks/BlockOutputPanel";
-import GeneratorOutput from "./blocks/GeneratorOutput";
-import VizOutputPanel from "./blocks/VizOutputPanel";
-import InputMenu from "./components/InputMenu";
+import BlockOutputPanel from "./BlockOutputPanel";
+import GeneratorOutput from "./GeneratorOutput";
+import VizOutputPanel from "./VizOutputPanel";
+import InputMenu from "../components/InputMenu";
 
 /* enums */
-import {BLOCK_TYPES} from "../utils/consts/cms";
+import {BLOCK_TYPES} from "../../utils/consts/cms";
 
 /**
  *

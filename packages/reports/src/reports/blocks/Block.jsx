@@ -7,7 +7,7 @@ import {AiOutlineGlobal} from "react-icons/ai";
 
 /* components */
 import CogMenu from "../components/CogMenu";
-import BlockEditor from "../BlockEditor";
+import BlockEditor from "./BlockEditor";
 import RichTextEditor from "../editors/RichTextEditor";
 import AceWrapper from "../editors/AceWrapper";
 import ApiInput from "../components/ApiInput";
