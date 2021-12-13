@@ -175,6 +175,13 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     allowed={true}
   />;
 
+  const vizPreview = <Viz
+    block={block}
+    active={true}
+    locale={localeDefault}
+    variables={variables}
+  />;
+
   const apiInput = <ApiInput
     key="api-input"
     defaultValue={block.api}
@@ -207,7 +214,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save & Execute</Button>;
 
-  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton};
+  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton, vizPreview};
 
   const theme = useMantineTheme();
 
@@ -231,8 +238,6 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     onMouseLeave: () => setHoverBlock(false)
   };
 
-  console.log(block);
-
   return (
     <React.Fragment>
       <div key="block" className="cr-section-block" {...hoverActions} style={{padding: theme.spacing.xs}}>
@@ -243,7 +248,12 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
           { isInput ? <HiOutlineLogout size={20} /> : <HiOutlineLogin size={20} /> }
         </div> : null }
         {block.type === BLOCK_TYPES.VIZ
-          ? <Viz config={{logic: block.logic}}/>
+          ? <Viz
+            block={block}
+            active={active}
+            locale={localeDefault}
+            variables={variables}
+          />
           : <BlockPreview
             style={{color: "red"}}
             key="bp"

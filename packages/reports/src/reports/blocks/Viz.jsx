@@ -1,30 +1,39 @@
+/* react */
 import React, {useMemo} from "react";
 
+/* utils */
 import d3plusPropify from "../../utils/d3plusPropify";
-
 import toKebabCase from "../../utils/formatters/toKebabCase";
 
+/* vizes */
 import * as d3plus from "d3plus-react";
+import varSwapRecursive from "../../utils/varSwapRecursive";
 
 const vizTypes = d3plus; // todo1.0 add in customviz spread
 
 /**
  * "viz" block renderer
 */
-export default function Viz({config}) {
+export default function Viz({block, active, locale, variables}) {
+
+  /**
+   *     // todo1.0 hook up formatters, variables, and query here!!
+    const transpiledLogic = varSwapRecursive({logic}, {}, {}, {}).logic;
+    setConfig({...config, logic: transpiledLogic});
+   */
 
   const vizProps = useMemo(() => {
     console.log("propify");
-    // todo1.0 fix all these arguments
-    return d3plusPropify(config.logic, {}, {}, "en", 1, {});
-  }, [config]);
+    // todo1.0 fix all these arguments!
+    const transpiledLogic = varSwapRecursive({logic: block.logic}, {}, {}, {}).logic;
+    return d3plusPropify(transpiledLogic, {}, {}, "en", 1, {});
+  }, [block]);
 
   const namespace = "reports";
-  const locale = "en";
 
   // strip out the "type" from config
   const {type} = vizProps.config;
-  delete vizProps.config.type;
+  // delete vizProps.config.type;
   if (!type) return null;
   const Visualization = vizTypes[type];
   if (!Visualization) {

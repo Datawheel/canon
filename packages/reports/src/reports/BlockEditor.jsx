@@ -8,7 +8,7 @@ import {HiOutlineEye, HiOutlineCog} from "react-icons/hi";
 import VariableList from "./VariableList";
 import BlockOutputPanel from "./blocks/BlockOutputPanel";
 import GeneratorOutput from "./blocks/GeneratorOutput";
-import VizOutput from "./blocks/VizOutput";
+import VizOutputPanel from "./blocks/VizOutputPanel";
 import InputMenu from "./components/InputMenu";
 
 /* enums */
@@ -27,7 +27,7 @@ function BlockEditor({id, components}) {
 
   const panels = {
     [BLOCK_TYPES.GENERATOR]: GeneratorOutput,
-    [BLOCK_TYPES.VIZ]: VizOutput
+    [BLOCK_TYPES.VIZ]: VizOutputPanel
   };
   const Panel = panels[block.type] || BlockOutputPanel;
 
