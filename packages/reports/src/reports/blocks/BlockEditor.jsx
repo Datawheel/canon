@@ -9,6 +9,7 @@ import VariableList from "./VariableList";
 import BlockOutputPanel from "./BlockOutputPanel";
 import GeneratorOutput from "./GeneratorOutput";
 import VizOutputPanel from "./VizOutputPanel";
+import SelectorOutputPanel from "./SelectorOutputPanel";
 import InputMenu from "../components/InputMenu";
 
 /* enums */
@@ -27,7 +28,8 @@ function BlockEditor({id, components}) {
 
   const panels = {
     [BLOCK_TYPES.GENERATOR]: GeneratorOutput,
-    [BLOCK_TYPES.VIZ]: VizOutputPanel
+    [BLOCK_TYPES.VIZ]: VizOutputPanel,
+    [BLOCK_TYPES.SELECTOR]: SelectorOutputPanel
   };
   const Panel = panels[block.type] || BlockOutputPanel;
 
