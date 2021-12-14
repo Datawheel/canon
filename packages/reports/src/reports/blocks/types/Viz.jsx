@@ -2,12 +2,12 @@
 import React, {useMemo} from "react";
 
 /* utils */
-import d3plusPropify from "../../utils/d3plusPropify";
-import toKebabCase from "../../utils/formatters/toKebabCase";
+import d3plusPropify from "../../../utils/d3plusPropify";
+import toKebabCase from "../../../utils/formatters/toKebabCase";
 
 /* vizes */
 import * as d3plus from "d3plus-react";
-import varSwapRecursive from "../../utils/varSwapRecursive";
+import varSwapRecursive from "../../../utils/varSwapRecursive";
 
 const vizTypes = d3plus; // todo1.0 add in customviz spread
 

@@ -3,8 +3,8 @@ import StatPreview from "./Stat";
 import SubtitlePreview from "./Subtitle";
 import TitlePreview from "./Title";
 import SelectorPreview from "./Selector";
-import VizPreview from "../Viz";
-import GeneratorPreview from "../GeneratorList";
+import VizPreview from "./Viz";
+import GeneratorPreview from "./Generator";
 
 export default {
   paragraph: ParagraphPreview,

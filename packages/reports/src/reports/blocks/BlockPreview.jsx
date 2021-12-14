@@ -18,7 +18,9 @@ import TypeRenderers from "./types/index.jsx";
  * Block.jsx and directly passed "blockState" from there, which represents the live-editing content.
  * Though instantiated in Block, it is not rendered until BlockOutput.
  */
-function BlockPreview({blockState, active, variables, locale, allowed}) {
+function BlockPreview(props) {
+
+  const {blockState, active, variables, locale, allowed} = props;
 
   /* redux */
   const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
@@ -29,14 +31,8 @@ function BlockPreview({blockState, active, variables, locale, allowed}) {
   // selector => object with options array and default etc
   // viz => d3 config
   let content = {};
-  if (blockState.type === BLOCK_TYPES.GENERATOR) {
-    content = {gen: "gen"};
-  }
-  else if (blockState.type === BLOCK_TYPES.SELECTOR) {
-    content = {blockState, active, variables, locale, allowed};
-  }
-  else if (blockState.type === BLOCK_TYPES.VIZ) {
-    content = {blockState, active, variables, locale, allowed};
+  if ([BLOCK_TYPES.GENERATOR, BLOCK_TYPES.SELECTOR, BLOCK_TYPES.VIZ].includes(blockState.type)) {
+    content = props;
   }
   else {
     content = active

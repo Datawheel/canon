@@ -76,10 +76,10 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   }, [opened, block]);
 
   const {allowed, allowedMessage} = useMemo(() => {
-    const allowed = !block._status?.hiddenByCascade;
-    const allowedMessage = block._status?.hiddenByCascade === id
-      ? `Hidden by ${block.settings.allowed}: ${variables[block.settings.allowed]}`
-      : `Hidden by ${block._status?.hiddenByCascade}`;
+    const allowed = !block?._status?.hiddenByCascade;
+    const allowedMessage = block?._status?.hiddenByCascade === id
+      ? `Hidden by ${block?.settings?.allowed}: ${variables[block?.settings?.allowed]}`
+      : `Hidden by ${block?._status?.hiddenByCascade}`;
     return {allowed, allowedMessage};
   }, [variables, block]);
 

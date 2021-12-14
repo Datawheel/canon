@@ -5,7 +5,6 @@ import {Textarea, Text} from "@mantine/core";
 import {format} from "pretty-format";
 
 /* components */
-import GeneratorList from "./GeneratorList";
 import ConsumerMenu from "../components/ConsumerMenu";
 
 /* hooks */
