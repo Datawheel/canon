@@ -13,7 +13,6 @@ import AceWrapper from "../editors/AceWrapper";
 import ApiInput from "../components/ApiInput";
 import BlockPreview from "./BlockPreview";
 import BlockSettings from "./BlockSettings";
-import Viz from "./Viz";
 
 /* utils */
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
@@ -165,21 +164,21 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   /* EDITORS TO PASS DOWN */
 
+  /**
+   * Gen/Viz editors should not rerender on every single change, as their javascript is often broken mid-keystroke.
+   * Therefore, render these blocks using the static props version, which only updates on Save. Normal stat-likes
+   * can update on keystroke, so the user can watch the prose change as they type.
+   */
+  const usePropBlock = [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ].includes(block.type);
+
   const blockPreview = <BlockPreview
     id={id}
     key="block-preview"
     active={true}
-    blockState={blockState}
+    blockState={usePropBlock ? block : blockState}
     locale={localeDefault}
     variables={variables}
     allowed={true}
-  />;
-
-  const vizPreview = <Viz
-    block={block}
-    active={true}
-    locale={localeDefault}
-    variables={variables}
   />;
 
   const apiInput = <ApiInput
@@ -214,7 +213,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save & Execute</Button>;
 
-  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton, vizPreview};
+  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton};
 
   const theme = useMantineTheme();
 
@@ -247,23 +246,15 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
           }}>
           { isInput ? <HiOutlineLogout size={20} /> : <HiOutlineLogin size={20} /> }
         </div> : null }
-        {block.type === BLOCK_TYPES.VIZ
-          ? <Viz
-            block={block}
-            active={active}
-            locale={localeDefault}
-            variables={variables}
-          />
-          : <BlockPreview
-            style={{color: "red"}}
-            key="bp"
-            blockState={block}
-            active={active}
-            variables={variables}
-            locale={localeDefault}
-            allowed={allowed}
-          />
-        }
+        <BlockPreview
+          style={{color: "red"}}
+          key="bp"
+          blockState={block}
+          active={active}
+          variables={variables}
+          locale={localeDefault}
+          allowed={allowed}
+        />
         <div key="bc" className="cr-block-controls"
           style={{
             borderRadius: theme.radius.md,

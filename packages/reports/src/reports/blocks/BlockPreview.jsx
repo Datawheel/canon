@@ -7,6 +7,9 @@ import {Badge, Center} from "@mantine/core";
 import varSwapRecursive from "../../utils/varSwapRecursive";
 import spoiler from "../../utils/spoiler";
 
+/* enums */
+import {BLOCK_TYPES} from "../../utils/consts/cms";
+
 /* type-specific render components */
 import TypeRenderers from "./types/index.jsx";
 
@@ -20,9 +23,26 @@ function BlockPreview({blockState, active, variables, locale, allowed}) {
   /* redux */
   const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
 
-  const content = active
-    ? varSwapRecursive(blockState.contentByLocale[locale].content, formatterFunctions[locale], variables)
-    : spoiler(blockState.contentByLocale[locale].content);
+  // todo1.0 this will change from accessing the content to running the js (created by UI or custom) and varswapping the resulting object.
+  // generators => vars
+  // stats => content object
+  // selector => object with options array and default etc
+  // viz => d3 config
+  let content = {};
+  if (blockState.type === BLOCK_TYPES.GENERATOR) {
+    content = {gen: "gen"};
+  }
+  else if (blockState.type === BLOCK_TYPES.SELECTOR) {
+    content = {sel: "sel"};
+  }
+  else if (blockState.type === BLOCK_TYPES.VIZ) {
+    content = {blockState, active, variables, locale, allowed};
+  }
+  else {
+    content = active
+      ? varSwapRecursive(blockState.contentByLocale[locale].content, formatterFunctions[locale], variables)
+      : spoiler(blockState.contentByLocale[locale].content);
+  }
 
   const Renderer = TypeRenderers[blockState.type];
 

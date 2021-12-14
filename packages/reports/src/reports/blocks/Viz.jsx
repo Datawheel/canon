@@ -23,14 +23,14 @@ const stub = {
 /**
  * Viz Renderer
 */
-export default function Viz({block, active, locale, variables}) {
+export default function Viz({blockState, active, locale, variables}) {
 
   const vizProps = useMemo(() => {
     if (!active) return {config: stub};
     // todo1.0 fix all these arguments!
-    const transpiledLogic = varSwapRecursive({logic: block.logic}, {}, variables, {}).logic;
+    const transpiledLogic = varSwapRecursive({logic: blockState.logic}, {}, variables, {}).logic;
     return d3plusPropify(transpiledLogic, {}, variables, "en", 1, {});
-  }, [block, active]);
+  }, [blockState, active]);
 
   const namespace = "reports";
 
