@@ -4,6 +4,7 @@ import SubtitlePreview from "./Subtitle";
 import TitlePreview from "./Title";
 import SelectorPreview from "./Selector";
 import VizPreview from "../Viz";
+import GeneratorPreview from "../GeneratorList";
 
 export default {
   paragraph: ParagraphPreview,
@@ -11,5 +12,6 @@ export default {
   subtitle: SubtitlePreview,
   title: TitlePreview,
   selector: SelectorPreview,
-  visualization: VizPreview
+  visualization: VizPreview,
+  generator: GeneratorPreview
 };

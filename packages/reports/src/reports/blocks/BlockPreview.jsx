@@ -33,7 +33,7 @@ function BlockPreview({blockState, active, variables, locale, allowed}) {
     content = {gen: "gen"};
   }
   else if (blockState.type === BLOCK_TYPES.SELECTOR) {
-    content = {sel: "sel"};
+    content = {blockState, active, variables, locale, allowed};
   }
   else if (blockState.type === BLOCK_TYPES.VIZ) {
     content = {blockState, active, variables, locale, allowed};
