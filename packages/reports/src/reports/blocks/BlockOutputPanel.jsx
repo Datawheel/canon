@@ -6,17 +6,14 @@ import {Button} from "@mantine/core";
 /* components */
 import ConsumerMenu from "../components/ConsumerMenu";
 
-/* redux */
-import {updateEntity} from "../../actions/reports";
-
 /* consts */
-import {ENTITY_TYPES} from "../../utils/consts/cms";
+import {BLOCK_TYPES} from "../../utils/consts/cms";
 
 /* css */
 import "./BlockOutputPanel.css";
 
 const MODES = {
-  TEXT: "text",
+  UI: "ui",
   CODE: "code"
 };
 
@@ -33,31 +30,27 @@ function BlockOutputPanel({id, components}) {
 
   const block = blocks[id];
 
-  const [mode, setMode] = useState(block.contentByLocale[localeDefault].content.logicEnabled ? MODES.CODE : MODES.TEXT);
+  const [mode, setMode] = useState(block.contentByLocale[localeDefault].content.logicEnabled ? MODES.CODE : MODES.UI);
 
-  const changeMode = mode => {
-    const payload = {
-      id,
-      content: [{
-        id,
-        locale: localeDefault,
-        content: {logicEnabled: mode === MODES.CODE}
-      }]
-    };
-    // todo1.0 delay this change, don't save right away
-    dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload));
-    setMode(mode);
-  };
+  const {apiInput, codeEditor, textEditor, executeButton, blockPreview} = components;
 
   return (
     <div className="cms-block-output">
       <div key="buttons" style={{display: "flex", flexDirection: "column"}}>
-        <Button onClick={() => changeMode(MODES.TEXT)}>Text</Button>
-        <Button onClick={() => changeMode(MODES.CODE)}>Code</Button>
+        <Button onClick={() => setMode(MODES.UI)}>UI</Button>
+        <Button onClick={() => setMode(MODES.CODE)}>Code</Button>
       </div>
-      {mode === MODES.TEXT && components.textEditor}
-      {mode === MODES.CODE && components.codeEditor}
-      {components.blockPreview}
+      <div className="cms-generator-output">
+        {/* todo 1.0 fix all this horrible routing. these will be switched between ui/text when the UI EZmodes are complete */}
+        {block.type === BLOCK_TYPES.GENERATOR && apiInput}
+        {![BLOCK_TYPES.GENERATOR, BLOCK_TYPES.SELECTOR, BLOCK_TYPES.VIZ].includes(block.type) && textEditor}
+        {[BLOCK_TYPES.GENERATOR, BLOCK_TYPES.SELECTOR, BLOCK_TYPES.VIZ].includes(block.type) && codeEditor}
+        {[BLOCK_TYPES.GENERATOR, BLOCK_TYPES.SELECTOR, BLOCK_TYPES.VIZ].includes(block.type) && executeButton}
+      </div>
+      <div style={{display: "flex", flexDirection: "column"}}>
+        {blockPreview}
+        <ConsumerMenu id={id} />
+      </div>
       <ConsumerMenu id={id} />
     </div>
   );

@@ -165,7 +165,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   /* EDITORS TO PASS DOWN */
 
   /**
-   * Gen/Viz/Selector editors should not rerender on every single change, as their javascript is often broken mid-keystroke.
+   * Gen/Viz/Selector editors should not re-render on every single change, as their javascript is often broken mid-keystroke.
    * Therefore, render these blocks using the static props version, which only updates on Save. Normal stat-likes
    * can update on keystroke, so the user can watch the prose change as they type.
    */

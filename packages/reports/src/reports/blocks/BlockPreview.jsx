@@ -25,11 +25,6 @@ function BlockPreview(props) {
   /* redux */
   const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
 
-  // todo1.0 this will change from accessing the content to running the js (created by UI or custom) and varswapping the resulting object.
-  // generators => vars
-  // stats => content object
-  // selector => object with options array and default etc
-  // viz => d3 config
   let content = {};
   if ([BLOCK_TYPES.GENERATOR, BLOCK_TYPES.SELECTOR, BLOCK_TYPES.VIZ].includes(blockState.type)) {
     content = props;

@@ -7,13 +7,7 @@ import {HiOutlineEye, HiOutlineCog} from "react-icons/hi";
 /* components */
 import VariableList from "./VariableList";
 import BlockOutputPanel from "./BlockOutputPanel";
-import GeneratorOutput from "./GeneratorOutput";
-import VizOutputPanel from "./VizOutputPanel";
-import SelectorOutputPanel from "./SelectorOutputPanel";
 import InputMenu from "../components/InputMenu";
-
-/* enums */
-import {BLOCK_TYPES} from "../../utils/consts/cms";
 
 /**
  *
@@ -25,13 +19,6 @@ function BlockEditor({id, components}) {
   const block = blocks[id];
 
   if (!block) return null;
-
-  const panels = {
-    [BLOCK_TYPES.GENERATOR]: GeneratorOutput,
-    [BLOCK_TYPES.VIZ]: VizOutputPanel,
-    [BLOCK_TYPES.SELECTOR]: SelectorOutputPanel
-  };
-  const Panel = panels[block.type] || BlockOutputPanel;
 
   const [tab, setTab] = useState("output");
   const theme = useMantineTheme();
@@ -66,7 +53,7 @@ function BlockEditor({id, components}) {
           />
         </Center>
         {{
-          output: <Panel id={id} components={components} />,
+          output: <BlockOutputPanel id={id} components={components} />,
           settings: components.blockSettings
         }[tab]}
       </Col>
