@@ -7,6 +7,11 @@ const catcher = e => {
   return {data: {}};
 };
 
+const getParamsFromStore = store => ({
+  slugs: store.cms.status.pathObj.previews.map(d => d.slug).join(),
+  query: Object.entries(store.cms.status.query).map(([k, v]) => `${k}=${v}`).join("&")
+});
+
 axios.interceptors.request.use(d => {
   d.meta = d.meta || {};
   d.meta.requestStartedAt = new Date().getTime();
@@ -71,7 +76,7 @@ export function modifyDimension(payload) {
   return function(dispatch, getStore) {
     const config = {params: {
       section: getStore().cms.status.activeSection,
-      slugs: getStore().cms.status.pathObj.previews.map(d => d.slug).join()
+      ...getParamsFromStore(getStore())
     }};
     return axios.post("/api/reports/dimension/upsert", payload, config)
       .then(resp => {
@@ -91,7 +96,7 @@ export function deleteDimension(id) {
   return function(dispatch, getStore) {
     const params = {
       section: getStore().cms.status.activeSection,
-      slugs: getStore().cms.status.pathObj.previews.map(d => d.slug).join()
+      ...getParamsFromStore(getStore())
     };
     return axios.delete("/api/reports/report_meta/delete", {data: {id}, params})
       .then(resp => {
@@ -109,6 +114,8 @@ export function deleteDimension(id) {
 /** */
 export function activateSection(id, previews, query) {
   return function(dispatch, getStore) {
+    // todo1.0 wondering on whether this should be a post - but that affects all the following posts, which use
+    // the post for the payload, but the params for the "arguments"
     const config = {
       params: {
         id,
@@ -133,7 +140,7 @@ export function activateSection(id, previews, query) {
 export function newEntity(type, payload) {
   return async function(dispatch, getStore) {
     const store = getStore();
-    const config = {params: {slugs: store.cms.status.pathObj.previews.map(d => d.slug).join()}};
+    const config = {params: getParamsFromStore(store)};
     const resp = await axios.post(`${store.env.CANON_API}/api/reports/${type}/new`, payload, config).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       dispatch({type: `${type.toUpperCase()}_NEW`, data: resp.data});
@@ -154,7 +161,7 @@ export function updateEntity(type, payload) {
   return async function(dispatch, getStore) {
     // Formatters require locales in the payload to know what languages to compile for
     const store = getStore();
-    const config = {params: {slugs: store.cms.status.pathObj.previews.map(d => d.slug).join()}};
+    const config = {params: getParamsFromStore(store)};
     const locales = getLocales(store.env);
     const resp = await axios.post(`${store.env.CANON_API}/api/reports/${type}/update`, payload, config).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
@@ -172,7 +179,7 @@ export function updateEntity(type, payload) {
 export function deleteEntity(type, payload) {
   return async function(dispatch, getStore) {
     const store = getStore();
-    const params = {slugs: store.cms.status.pathObj.previews.map(d => d.slug).join()};
+    const params = getParamsFromStore(store);
     // Formatters require locales in the payload to know what languages to compile for
     const locales = getLocales(store.env);
     const resp = await axios.delete(`${store.env.CANON_API}/api/reports/${type}/delete`, {data: payload, params}).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
