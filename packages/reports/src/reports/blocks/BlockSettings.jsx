@@ -31,10 +31,6 @@ function BlockSettings({id, onChange}) {
   /* state */
   const [width, setWidth] = useState(block.settings.width || "stretch");
 
-  const types = useMemo(() => Object.values(BLOCK_TYPES)
-    .map(d => ({value: d, label: upperCaseFirst(d)}))
-  , [blocks]);
-
   const {variables} = useVariables(id);
 
   const allowed = useMemo(() => [{value: "always", label: "always"}].concat(Object.keys(variables).map(d => ({value: d, label: `${d}: ${variables[d]}`}))), [variables]);
@@ -66,7 +62,6 @@ function BlockSettings({id, onChange}) {
   return (
     <Group>
       <Group direction="column">
-        <Select label="Block Type" defaultValue={block.type} onChange={e => handleChange("type", e)} data={types} />
         <Select label="Allowed" defaultValue={block.settings.allowed || "always"} onChange={e => handleChange("allowed", e)} data={allowed} />
         <span>Sharing</span>
         <SegmentedControl defaultValue={String(block.shared)} onChange={e => handleChange("shared", e === "true")} data={shared}/>
