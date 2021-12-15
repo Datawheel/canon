@@ -1,10 +1,10 @@
 const axios = require("axios");
-const varSwapRecursive = require("../varSwapRecursive");
-const mortarEval = require("../mortarEval");
+const mortarEval = require("../variables/mortarEval");
 const jwt = require("jsonwebtoken");
 const yn = require("yn");
 const {BLOCK_FIELDS_EXCLUDE, BLOCK_TYPES} = require("../consts/cms");
-const varSwap = require("../varSwap");
+const varSwap = require("../variables/varSwap");
+const varSwapRecursive = require("../variables/varSwapRecursive");
 const runSelector = require("../selectors/runSelector");
 
 const LOCALE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "en";

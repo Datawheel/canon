@@ -3,7 +3,7 @@ const yn = require("yn");
 const {strip} = require("d3plus-text");
 const stripHTML = require("../utils/formatters/stripHTML");
 const slugify = str => strip(stripHTML(str)).replace(/-{2,}/g, "-").toLowerCase();
-const {keyDiver} = require("../utils/arrayFinder");
+const {keyDiver} = require("../utils/js/arrayUtils");
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 

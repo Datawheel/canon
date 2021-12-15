@@ -7,7 +7,7 @@ import toKebabCase from "../../../utils/formatters/toKebabCase";
 
 /* vizes */
 import * as d3plus from "d3plus-react";
-import varSwapRecursive from "../../../utils/varSwapRecursive";
+import varSwapRecursive from "../../../utils/variables/varSwapRecursive";
 
 const vizTypes = d3plus; // todo1.0 add in customviz spread
 

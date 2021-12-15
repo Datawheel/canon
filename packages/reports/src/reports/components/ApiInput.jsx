@@ -8,7 +8,7 @@ import {TextInput} from "@mantine/core";
 import useKeyPress from "../hooks/listeners/useKeyPress";
 
 /* utils */
-import varSwap from "../../utils/varSwap";
+import varSwap from "../../utils/variables/varSwap";
 
 /** */
 function ApiInput({defaultValue, onChange, variables, onEnterPress}) {

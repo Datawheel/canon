@@ -1,5 +1,5 @@
-const mortarEval = require("../mortarEval");
-const varSwapRecursive = require("../varSwapRecursive");
+const mortarEval = require("../variables/mortarEval");
+const varSwapRecursive = require("../variables/varSwapRecursive");
 const scaffoldDynamic = require("./scaffoldDynamic");
 
 const runSelector = (logic, variables, locale) => {

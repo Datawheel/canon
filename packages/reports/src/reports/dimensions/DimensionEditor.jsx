@@ -13,7 +13,7 @@ import {modifyDimension} from "../../actions/reports";
 
 /* utils */
 import slugifyInput from "../../utils/web/slugifyInput";
-import {arrayFinder, keyDiver} from "../../utils/arrayFinder";
+import {arrayFinder, keyDiver} from "../../utils/js/arrayUtils";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 
 /**

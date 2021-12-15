@@ -13,7 +13,7 @@ import Section from "./sections/Section";
 import {newEntity, updateEntity} from "../actions/reports";
 
 /* utils */
-import insertAtOrdering from "../utils/insertAtOrdering";
+import {insertAtOrdering} from "../utils/js/arrayUtils";
 
 /* enums */
 import {ENTITY_TYPES} from "../utils/consts/cms";

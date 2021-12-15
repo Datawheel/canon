@@ -1,5 +1,5 @@
 const yn = require("yn");
-const {isAuthenticated} = require("../utils/api");
+const {isAuthenticated} = require("../utils/canon/api");
 // const isAuthenticated = (req, res, next) => next();  // Bypass login, for Testing Only!!
 const translateText = require("../utils/translation/translateText");
 
@@ -15,12 +15,12 @@ module.exports = function(app) {
     });
 
     app.post("/api/translatetest", isAuthenticated, async(req, res) => {
-      const {text, source, target} = req.body; 
+      const {text, source, target} = req.body;
       return res.json({
         error: false,
         translated: `Would translate from ${source} to ${target} ----> ${text}`
       });
     });
   }
-  
+
 };

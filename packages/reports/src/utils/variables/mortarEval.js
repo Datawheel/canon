@@ -1,4 +1,4 @@
-const libs = require("./libs"); //eslint-disable-line
+const libs = require("../libs"); //eslint-disable-line
 const yn = require("yn");
 
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";

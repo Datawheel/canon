@@ -1,8 +1,8 @@
 import axios from "axios";
-import getLocales from "../utils/getLocales";
+import getLocales from "../utils/canon/getLocales";
 
 /** */
-export function getFormatters() { 
+export function getFormatters() {
   return function(dispatch, getStore) {
     const locales = getLocales(getStore().env);
     return axios.get(`${getStore().env.CANON_API}/api/cms/formatter`)

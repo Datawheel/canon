@@ -4,8 +4,8 @@ import {useSelector} from "react-redux";
 import {Badge, Center} from "@mantine/core";
 
 /* utils */
-import varSwapRecursive from "../../utils/varSwapRecursive";
-import spoiler from "../../utils/spoiler";
+import varSwapRecursive from "../../utils/variables/varSwapRecursive";
+import spoiler from "../../utils/blocks/spoiler";
 
 /* enums */
 import {BLOCK_TYPES} from "../../utils/consts/cms";

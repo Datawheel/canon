@@ -1,5 +1,5 @@
 import axios from "axios";
-import getLocales from "../utils/getLocales";
+import getLocales from "../utils/canon/getLocales";
 import {REQUEST_STATUS} from "../utils/consts/redux";
 
 const catcher = e => {

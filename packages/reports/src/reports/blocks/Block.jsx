@@ -16,8 +16,8 @@ import BlockSettings from "./BlockSettings";
 
 /* utils */
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
-import sanitizeBlockContent from "../../utils/sanitizeBlockContent";
-import deepClone from "../../utils/deepClone";
+import sanitizeBlockContent from "../../utils/blocks/sanitizeBlockContent";
+import deepClone from "../../utils/js/deepClone";
 
 /* hooks */
 import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";

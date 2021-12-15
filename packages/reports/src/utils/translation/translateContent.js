@@ -1,5 +1,5 @@
 const axios = require("axios");
-const varSwapRecursive = require("../varSwapRecursive");
+const varSwapRecursive = require("../variables/varSwapRecursive");
 const yn = require("yn");
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 

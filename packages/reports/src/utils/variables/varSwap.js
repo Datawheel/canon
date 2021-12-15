@@ -1,4 +1,4 @@
-const libs = require("./libs");
+const libs = require("../libs");
 
 /* Given an object, a hashtable of formatting functions, and a lookup object full of variables
  * Replace every instance of {{var}} with its true value from the lookup object, and
@@ -14,7 +14,6 @@ module.exports = (sourceString, formatterFunctions, variables, passive) => {
     if (g1) {
       const formatTitle = g1.replace(/^\w/g, chr => chr.toLowerCase());
       if (formatTitle in formatterFunctions) formatter = formatterFunctions[formatTitle];
-      // if (formatTitle in formatterFunctions) formatter = `<var class="cms-var-highlight">${formatterFunctions[formatTitle]}</var>`;
     }
 
     const value = variables[keyMatch];
