@@ -24,6 +24,10 @@
   },
   "dependencies": {
     "@datawheel/olap-client": "^2.0.0-beta.1",
+    "@draft-js-plugins/buttons": "^4.1.1",
+    "@draft-js-plugins/editor": "^4.1.0",
+    "@draft-js-plugins/mention": "^5.1.0",
+    "@draft-js-plugins/static-toolbar": "^4.1.2",
     "@google-cloud/storage": "5.16.0",
     "@google-cloud/translate": "^6.3.1",
     "@mantine/core": "~3.3.5",
@@ -50,11 +54,7 @@
     "d3plus-text": "^1.0.1",
     "d3plus-viz": "^1.0.3",
     "draft-js": "^0.11.7",
-    "draft-js-buttons": "^2.0.2",
     "draft-js-export-html": "^1.4.1",
-    "draft-js-mention-plugin": "^3.1.5",
-    "draft-js-plugins-editor": "^3.0.0",
-    "draft-js-static-toolbar-plugin": "^3.0.1",
     "draft-js-toolbar-link-plugin": "^1.0.1",
     "eslint-plugin-react-hooks": "^4.2.0",
     "file-saver": "^2.0.5",
@@ -78,6 +78,7 @@
     "react-sizeme": "^2.6.7",
     "react-table": "6.10.3",
     "sharp": "^0.28.1",
+    "uninstall": "^0.0.0",
     "xlsx": "^0.17.3"
   },
   "devDependencies": {

@@ -54,6 +54,8 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
   const blocks = useSelector(state => state.cms.reports.entities.blocks);
   const block = blocks[id];
+  // todo1.0 fix formatters, maybe move this
+  const formatters = useSelector(state => state.cms.formatters);
 
   /**
    * The content of the entire CMS is kept in a normalized redux object called reports.
@@ -194,6 +196,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     key="text-editor"
     defaultContent={block.contentByLocale[localeDefault].content || {}}
     fields={BLOCK_MAP[block.type]}
+    formatters={formatters}
     variables={variables}
     onChange={onChangeText}
     onTextModify={onTextModify}

@@ -425,6 +425,10 @@ importers:
       '@datawheel/canon-core': workspace:^
       '@datawheel/canon-logiclayer': workspace:^
       '@datawheel/olap-client': ^2.0.0-beta.1
+      '@draft-js-plugins/buttons': ^4.1.1
+      '@draft-js-plugins/editor': ^4.1.0
+      '@draft-js-plugins/mention': ^5.1.0
+      '@draft-js-plugins/static-toolbar': ^4.1.2
       '@google-cloud/storage': 5.16.0
       '@google-cloud/translate': ^6.3.1
       '@mantine/core': ~3.3.5
@@ -451,11 +455,7 @@ importers:
       d3plus-text: ^1.0.1
       d3plus-viz: ^1.0.3
       draft-js: ^0.11.7
-      draft-js-buttons: ^2.0.2
       draft-js-export-html: ^1.4.1
-      draft-js-mention-plugin: ^3.1.5
-      draft-js-plugins-editor: ^3.0.0
-      draft-js-static-toolbar-plugin: ^3.0.1
       draft-js-toolbar-link-plugin: ^1.0.1
       eslint-plugin-react-hooks: ^4.2.0
       file-saver: ^2.0.5
@@ -479,9 +479,14 @@ importers:
       react-sizeme: ^2.6.7
       react-table: 6.10.3
       sharp: ^0.28.1
+      uninstall: ^0.0.0
       xlsx: ^0.17.3
     dependencies:
       '@datawheel/olap-client': 2.0.0-beta.2
+      '@draft-js-plugins/buttons': 4.1.1_draft-js@0.11.7
+      '@draft-js-plugins/editor': 4.1.0_draft-js@0.11.7
+      '@draft-js-plugins/mention': 5.1.0_draft-js@0.11.7
+      '@draft-js-plugins/static-toolbar': 4.1.2_draft-js@0.11.7
       '@google-cloud/storage': 5.16.0
       '@google-cloud/translate': 6.3.1
       '@mantine/core': 3.3.5_@mantine+hooks@3.3.5
@@ -508,12 +513,8 @@ importers:
       d3plus-text: 1.0.2
       d3plus-viz: 1.0.3
       draft-js: 0.11.7
-      draft-js-buttons: 2.0.2_draft-js@0.11.7
       draft-js-export-html: 1.4.1_draft-js@0.11.7
-      draft-js-mention-plugin: 3.1.5_draft-js@0.11.7
-      draft-js-plugins-editor: 3.0.0_draft-js@0.11.7
-      draft-js-static-toolbar-plugin: 3.0.1_draft-js@0.11.7
-      draft-js-toolbar-link-plugin: 1.0.1_draft-js-plugins-editor@3.0.0
+      draft-js-toolbar-link-plugin: 1.0.1
       eslint-plugin-react-hooks: 4.2.0
       file-saver: 2.0.5
       flickr-sdk: 3.10.0
@@ -536,6 +537,7 @@ importers:
       react-sizeme: 2.6.12
       react-table: 6.10.3
       sharp: 0.28.1
+      uninstall: 0.0.0
       xlsx: 0.17.3
     devDependencies:
       '@datawheel/canon-core': link:../core
@@ -1988,6 +1990,66 @@ packages:
       - debug
     dev: false
 
+  /@draft-js-plugins/buttons/4.1.1_draft-js@0.11.7:
+    resolution: {integrity: sha512-Z6dHYMq9tgJbLV3Jm4ATT5yH5TtnynuDBOSODUESvi3S/bfzn9Gca73nQ7u1Rt1SEilkKtsbsp0XIGx4pPR50Q==}
+    peerDependencies:
+      draft-js: ^0.10.1 || ^0.11.0
+      react: ^15.5.0 || ^16.0.0 || ^17.0.0
+      react-dom: ^15.5.0 || ^16.0.0 || ^17.0.0
+    dependencies:
+      clsx: 1.1.1
+      draft-js: 0.11.7
+    dev: false
+
+  /@draft-js-plugins/editor/4.1.0_draft-js@0.11.7:
+    resolution: {integrity: sha512-i95uGF1GOFwP99qRCjtocGAYanULtkX9/XPeXKwjKx65vnOt/0dvBBdSvzSgrJ9pncHHLUqDfFQKXy/09fTmvg==}
+    peerDependencies:
+      draft-js: ^0.11.0
+      react: ^16.3.0 || ^17.0.0
+    dependencies:
+      draft-js: 0.11.7
+      immutable: 3.7.6
+      prop-types: 15.7.2
+    dev: false
+
+  /@draft-js-plugins/mention/5.1.0_draft-js@0.11.7:
+    resolution: {integrity: sha512-FqoNOtBN4YxpGCSIkgmAPyLfKm8D3zanHMOXuA4aujGpkpvdBwyHFv34yTuob7I2tJ+MsMovSyR29pe0xYm/rQ==}
+    peerDependencies:
+      draft-js: ^0.10.1 || ^0.11.0
+      react: ^16.8.0 || ^17.0.0
+    dependencies:
+      '@popperjs/core': 2.11.0
+      '@types/lodash': 4.14.178
+      clsx: 1.1.1
+      draft-js: 0.11.7
+      immutable: 3.7.6
+      lodash: 4.17.21
+      lodash-es: 4.17.21
+      prop-types: 15.7.2
+      react-popper: 2.2.5_@popperjs+core@2.11.0
+    dev: false
+
+  /@draft-js-plugins/static-toolbar/4.1.2_draft-js@0.11.7:
+    resolution: {integrity: sha512-fMicbvfw9Gwb5ni698yETOOHFXy+fEG00x6wd6lnDG9jUm8mQqg5JXYqob1t2R9CdSJPySCAHnaiv+PfHz/tPQ==}
+    peerDependencies:
+      draft-js: ^0.10.1 || ^0.11.0
+      react: ^15.5.0 || ^16.0.0 || ^17.0.0
+      react-dom: ^15.5.0 || ^16.0.0 || ^17.0.0
+    dependencies:
+      '@draft-js-plugins/buttons': 4.1.1_draft-js@0.11.7
+      '@draft-js-plugins/utils': 4.2.0_draft-js@0.11.7
+      draft-js: 0.11.7
+      prop-types: 15.7.2
+    dev: false
+
+  /@draft-js-plugins/utils/4.2.0_draft-js@0.11.7:
+    resolution: {integrity: sha512-tQhf7a0S9ZDtOb0Mje5a+xTOT6LVDRv2LueEqqVdX4aI+oh0jjkAuP0oTiZBv6h7K9XSPgsQ08q9+kwHc3EyUg==}
+    peerDependencies:
+      draft-js: ^0.10.1 || ^0.11.0
+    dependencies:
+      draft-js: 0.11.7
+    dev: false
+
   /@emotion/cache/11.5.0:
     resolution: {integrity: sha512-mAZ5QRpLriBtaj/k2qyrXwck6yeoz1V5lMt/jfj6igWU35yYlNKs2LziXVgvH81gnJZ+9QQNGelSsnuoAy6uIw==}
     dependencies:
@@ -2665,6 +2727,10 @@ packages:
     resolution: {integrity: sha512-IXf3XA7+XyN7CP9gGh/XB0UxVMlvARGEgGXLubFICsUMGz6Q+DU+i4gGlpOxTjKvXjkJDJC8YdqdKkDj9qZHEQ==}
     dev: false
 
+  /@popperjs/core/2.11.0:
+    resolution: {integrity: sha512-zrsUxjLOKAzdewIDRWy9nsV1GQsKBCWaGwsZQlCgr6/q+vjyZhFgqedLfFBuI9anTPEUT4APq9Mu0SZBTzIcGQ==}
+    dev: false
+
   /@protobufjs/aspromise/1.1.2:
     resolution: {integrity: sha1-m4sMxmPWaafY9vXQiToU00jzD78=}
     dev: false
@@ -2890,6 +2956,10 @@ packages:
 
   /@types/json5/0.0.29:
     resolution: {integrity: sha1-7ihweulOEdK4J7y+UnC86n8+ce4=}
+    dev: false
+
+  /@types/lodash/4.14.178:
+    resolution: {integrity: sha512-0d5Wd09ItQWH1qFbEyQ7oTQ3GZrMfth5JkbN3EvTKLXcHLRDSXeLnlvlOn0wvxVIwK5o2M8JzP/OWz7T3NRsbw==}
     dev: false
 
   /@types/long/4.0.1:
@@ -6075,6 +6145,20 @@ packages:
       prop-types: 15.7.2
     dev: false
 
+  /draft-js-toolbar-link-plugin/1.0.1:
+    resolution: {integrity: sha512-7CdmJY/xD4/szzp75tu8x9+IkCB3JkI6ZkH91FmPrjMzAHXYJyZWivpoLoGK4XYq9jlgbNNj0dZBJinCC8tDjQ==}
+    peerDependencies:
+      draft-js-plugins-editor: ^2.0.0-rc8
+    dependencies:
+      debug: 3.2.7
+      decorate-component-with-props: 1.1.0
+      draft-js-plugin-editor-toolbar-picker: 0.1.7
+      styled-components: 2.4.1
+      union-class-names: 1.0.0
+    transitivePeerDependencies:
+      - react
+    dev: false
+
   /draft-js-toolbar-link-plugin/1.0.1_draft-js-plugins-editor@3.0.0:
     resolution: {integrity: sha512-7CdmJY/xD4/szzp75tu8x9+IkCB3JkI6ZkH91FmPrjMzAHXYJyZWivpoLoGK4XYq9jlgbNNj0dZBJinCC8tDjQ==}
     peerDependencies:
@@ -9032,6 +9116,10 @@ packages:
       p-locate: 4.1.0
     dev: false
 
+  /lodash-es/4.17.21:
+    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
+    dev: false
+
   /lodash._reinterpolate/3.0.0:
     resolution: {integrity: sha1-DM8tiRZq8Ds2Y8eWU4t1rG4RTZ0=}
     dev: false
@@ -11979,6 +12067,17 @@ packages:
       warning: 4.0.3
     dev: false
 
+  /react-popper/2.2.5_@popperjs+core@2.11.0:
+    resolution: {integrity: sha512-kxGkS80eQGtLl18+uig1UIf9MKixFSyPxglsgLBxlYnyDf65BiY9B3nZSc6C9XUNDgStROB0fMQlTEz1KxGddw==}
+    peerDependencies:
+      '@popperjs/core': ^2.0.0
+      react: ^16.8.0 || ^17
+    dependencies:
+      '@popperjs/core': 2.11.0
+      react-fast-compare: 3.2.0
+      warning: 4.0.3
+    dev: false
+
   /react-quill/2.0.0-beta.4:
     resolution: {integrity: sha512-KyAHvAlPjP4xLElKZJefMth91Z6FbbXRvq9OSu6xN3KBaoasLP9p+3dcxg4Ywr4tBlpMGXcPszYSAgd5CpJ45Q==}
     peerDependencies:
@@ -13904,6 +14003,10 @@ packages:
 
   /unicode-substring/0.1.0:
     resolution: {integrity: sha1-YSDOPDkDhdvND2DDK5BlxBgdSzY=}
+    dev: false
+
+  /uninstall/0.0.0:
+    resolution: {integrity: sha1-ED5uN+nFLshXVCzSWQI9ccej+ys=}
     dev: false
 
   /union-class-names/1.0.0:

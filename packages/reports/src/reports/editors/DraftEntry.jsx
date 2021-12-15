@@ -13,10 +13,7 @@ const DraftEntry = props => {
   // extra div needed here because reasons
   return (
     <div {...parentProps}>
-      {props.entity === "selector"
-        ? mention.name.replace(/[\[\]]/g, "")
-        : `${mention.name.replace(/[{}]/g, "")}: ${mention.value}`
-      }
+      {`${mention.name.replace(/[{}]/g, "")}: ${mention.value}`}
     </div>
   );
 };

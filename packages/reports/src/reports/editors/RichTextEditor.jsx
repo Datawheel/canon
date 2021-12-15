@@ -12,7 +12,7 @@ import "./RichTextEditor.css";
 /**
  *
  */
-function RichTextEditor({locale, defaultContent, fields, onChange, variables, onTextModify}) {
+function RichTextEditor({locale, defaultContent, fields, onChange, variables, formatters, onTextModify}) {
 
   /* redux */
   const showToolbar = useSelector(state => state.cms.status.showToolbar);
@@ -42,7 +42,7 @@ function RichTextEditor({locale, defaultContent, fields, onChange, variables, on
   }, [debounced]);
 
   /* onChange fires on load - only set the block as "modified" when a true keystroke is entered */
-  const keyBindingFn = () => onTextModify(true);
+  const onDirty = () => onTextModify(true);
 
   return (
     <div className="cms-new-rich-text-editor">
@@ -54,14 +54,12 @@ function RichTextEditor({locale, defaultContent, fields, onChange, variables, on
           <DraftWrapper
             id={field}
             key="draft-wrapper"
-            keyBindingFn={keyBindingFn}
-            selectors={[]}
-            formatters={[]}
+            onDirty={onDirty}
+            formatters={formatters}
             variables={variables}
             defaultValue={stateContent[field] || ""}
             onChange={text => handleEditor(field, text)}
             showToolbar={showToolbar}
-            // ref={c => this.editors[f] = c}
           />
         </div>
       )}

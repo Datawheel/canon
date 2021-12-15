@@ -4,7 +4,7 @@ import {useSelector, useDispatch} from "react-redux";
 import {Select, Button, SegmentedControl, TextInput, Group, Checkbox} from "@mantine/core";
 
 /* enums */
-import {BLOCK_TYPES, ENTITY_TYPES} from "../../utils/consts/cms";
+import {ENTITY_TYPES} from "../../utils/consts/cms";
 
 /* hooks */
 import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
@@ -13,7 +13,6 @@ import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
 import {deleteEntity} from "../../actions/reports";
 
 /* utils */
-import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 import {useVariables} from "../hooks/blocks/useVariables";
 
 /**

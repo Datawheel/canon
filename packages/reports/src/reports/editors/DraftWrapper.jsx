@@ -1,10 +1,11 @@
-import React, {Component} from "react";
+import React, {useCallback, useMemo, useRef, useState} from "react";
 import {EditorState, ContentState, convertFromHTML, RichUtils} from "draft-js";
-import Editor from "draft-js-plugins-editor";
+import Editor from "@draft-js-plugins/editor";
 import {stateToHTML} from "draft-js-export-html";
-import createMentionPlugin, {defaultSuggestionsFilter} from "draft-js-mention-plugin";
-import createToolbarPlugin from "draft-js-static-toolbar-plugin";
+import createMentionPlugin, {defaultSuggestionsFilter} from "@draft-js-plugins/mention";
+import createToolbarPlugin from "@draft-js-plugins/static-toolbar";
 import createToolbarLinkPlugin from "draft-js-toolbar-link-plugin";
+import customLinkifyPlugin from "./customLinkifyPlugin";
 
 import {
   ItalicButton,
@@ -15,244 +16,158 @@ import {
   OrderedListButton,
   BlockquoteButton,
   CodeBlockButton
-} from "draft-js-buttons";
+} from "@draft-js-plugins/buttons";
 
-// import Textarea from "../fields/components/Textarea";
+
 import DraftEntry from "./DraftEntry";
 import "./DraftWrapper.css";
-import "draft-js-mention-plugin/lib/plugin.css";
-import "draft-js-static-toolbar-plugin/lib/plugin.css";
+import "@draft-js-plugins/mention/lib/plugin.css";
+import "@draft-js-plugins/static-toolbar/lib/plugin.css";
 
-class DraftWrapper extends Component {
+/** */
+function DraftWrapper({defaultValue, variables, formatters, onChange, showToolbar, onDirty}) {
 
-  constructor(props) {
-    super(props);
+  const ref = useRef();
 
-    this.staticToolbarPlugin = createToolbarPlugin();
-    this.linkPlugin = createToolbarLinkPlugin();
-    this.customLinkifyPlugin = {
-      decorators: [
-        {
-          strategy: (contentBlock, callback, contentState) => {
-            contentBlock.findEntityRanges(
-              character => {
-                const entityKey = character.getEntity();
-                return (
-                  entityKey !== null &&
-                  contentState.getEntity(entityKey).getType() === "LINK"
-                );
-              },
-              callback
-            );
-          },
-          component: props => {
-            const {url} = props.contentState.getEntity(props.entityKey).getData();
-            return (
-              <a href={url} key="url" target="_blank" rel="noreferrer" style={{color: "#3b5998", textDecoration: "underline"}}>
-                {props.children}
-              </a>
-            );
-          }
-        }
-      ]
-    };
-
-    // variable block
-    this.mentionPlugin = createMentionPlugin({
-      mentionTrigger: "{{",
-      mentionComponent: mentionProps =>
-        <span className="cms-variable-draft-trigger cms-draft-trigger">
-          {mentionProps.children}
-        </span>
-    });
-    // formatter block
-    this.mentionPluginFormatter = createMentionPlugin({
-      mentionTrigger: "@",
-      mentionComponent: mentionProps =>
-        <span className="cms-formatter-draft-trigger cms-draft-trigger">
-          {mentionProps.children}
-        </span>
-    });
-    // selector block
-    this.mentionPluginSelector = createMentionPlugin({
-      mentionTrigger: "[[",
-      mentionComponent: mentionProps =>
-        <span className="cms-selector-draft-trigger cms-draft-trigger">
-          {mentionProps.children}
-        </span>
-    });
-
+  const [editorState, setEditorState] = useState(() => {
     let editorState = EditorState.createEmpty();
-
-    if (this.props.defaultValue && this.props.defaultValue !== "") {
-
-      const blocks = convertFromHTML(this.props.defaultValue);
-      if (this.props.raw) {
-        editorState = EditorState.createWithContent(ContentState.createFromText(this.props.defaultValue));
-      }
-      else {
-        editorState = EditorState.createWithContent(ContentState.createFromBlockArray(blocks.contentBlocks, blocks.entityMap));
-      }
+    if (defaultValue && defaultValue !== "") {
+      const blocks = convertFromHTML(defaultValue);
+      editorState = EditorState.createWithContent(ContentState.createFromBlockArray(blocks.contentBlocks, blocks.entityMap));
     }
+    return editorState;
+  });
 
-    const {variables} = this.props;
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+  const onSearchChange = ({value}) => setValue(value);
+  const onOpenChange = useCallback(open => setOpen(open), []);
 
+  const [openFormatter, setOpenFormatter] = useState(false);
+  const [valueFormatter, setValueFormatter] = useState("");
+  const onSearchChangeFormatter = ({value}) => setValueFormatter(value);
+  const onOpenChangeFormatter = useCallback(open => setOpenFormatter(open), []);
+
+  const suggestions = useMemo(() => {
     const suggestions = Object.keys(variables).map(k => ({
       name: `{{${k}}}`,
       value: variables[k]
     }));
+    return defaultSuggestionsFilter(value, suggestions);
+  }, [variables, value]);
 
-    const suggestionsFormatter = this.props.formatters.map(f => ({name: f.name}));
-    const suggestionsSelector = this.props.selectors.map(s => ({name: `[[${s.name}]]`, value: s.default}));
+  const suggestionsFormatter = useMemo(() => {
+    const suggestionsFormatter = formatters.map(f => ({name: f.name}));
+    return defaultSuggestionsFilter(valueFormatter, suggestionsFormatter);
+  }, [formatters, valueFormatter]);
 
-    this.state = {
-      editorState,
-      suggestions,
-      suggestionsFormatter,
-      suggestionsSelector
-    };
-
-    this.onChange = editorState => {
-      this.setState({editorState});
-      const text = this.props.raw
-        ? editorState.getCurrentContent().getPlainText("\u0001")
-        : stateToHTML(editorState.getCurrentContent());
-      if (this.props.onChange) this.props.onChange(text);
-    };
-
-    // variables
-    this.onSearchChange = ({value}) => {
-      this.setState({
-        suggestions: defaultSuggestionsFilter(value, this.state.suggestions)
-      });
-    };
-    // formatters
-    this.onSearchChangeFormatter = ({value}) => {
-      this.setState({
-        suggestionsFormatter: defaultSuggestionsFilter(value, this.state.suggestionsFormatter)
-      });
-    };
-    // selectors
-    this.onSearchChangeSelector = ({value}) => {
-      this.setState({
-        suggestionsSelector: defaultSuggestionsFilter(value, this.state.suggestionsSelector)
-      });
-    };
-
-    this.focus = () => {
-      this.editor.focus();
-    };
-
-    this.keyBindingFn = event => {
-      if (this.props.keyBindingFn) this.props.keyBindingFn(event);
-    };
-
-    this.handleKeyCommand = (command, editorState) => {
-      const newState = RichUtils.handleKeyCommand(editorState, command);
-      if (newState && !this.props.raw) {
-        this.onChange(newState);
-        return "handled";
+  const {MentionSuggestions, MentionSuggestionsFormatter, Toolbar, LinkButton, plugins} = useMemo(() => {
+    const mentionPlugin = createMentionPlugin({
+      mentionTrigger: "{{",
+      mentionComponent(mentionProps) {
+        return <span className="cms-variable-draft-trigger cms-draft-trigger">
+          {mentionProps.children}
+        </span>;
       }
-      return "not-handled";
-    };
+    });
+    const {MentionSuggestions} = mentionPlugin;
+    const mentionPluginFormatter = createMentionPlugin({
+      mentionTrigger: "@",
+      mentionComponent(mentionProps) {
+        return <span className="cms-formatter-draft-trigger cms-draft-trigger">
+          {mentionProps.children}
+        </span>;
+      }
+    });
+    const {MentionSuggestions: MentionSuggestionsFormatter} = mentionPluginFormatter;
+    const staticToolbarPlugin = createToolbarPlugin();
+    const {Toolbar} = staticToolbarPlugin;
+    const linkPlugin = createToolbarLinkPlugin();
+    const {LinkButton} = linkPlugin;
+    const plugins = [mentionPlugin, mentionPluginFormatter, staticToolbarPlugin, customLinkifyPlugin];
+    return {MentionSuggestions, MentionSuggestionsFormatter, Toolbar, LinkButton, plugins};
+  }, []);
 
+  const onChangeLocal = useCallback(editorState => {
+    setEditorState(editorState);
+    const text = stateToHTML(editorState.getCurrentContent());
+    if (onChange) onChange(text);
+  }, []);
+
+  const handleKeyCommand = (command, editorState) => {
+    const newState = RichUtils.handleKeyCommand(editorState, command);
+    if (newState) {
+      onChangeLocal(newState);
+      return "handled";
+    }
+    return "not-handled";
+  };
+
+  const keyBindingFn = () => {
+    if (onDirty) onDirty();
+  };
+
+  /*
     this.reload = () => {
-      if (this.props.defaultValue && this.props.defaultValue !== "") {
+      if (defaultValue && defaultValue !== "") {
         let editorState = EditorState.createEmpty();
         const blocks = convertFromHTML(this.props.defaultValue);
         editorState = EditorState.createWithContent(ContentState.createFromBlockArray(blocks.contentBlocks, blocks.entityMap));
         this.setState({editorState});
       }
     };
-  }
+  */
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.variables !== this.props.variables) {
-      const suggestions = Object.keys(this.props.variables).map(k => ({
-        name: `{{${k}}}`,
-        value: this.props.variables[k]
-      }));
-      this.setState({suggestions});
-    }
-  }
+  return (
+    <div className="cms-draft-wrapper" onClick={() => ref.current?.focus()}>
+      {/* main editor */}
+      {showToolbar && <Toolbar>
+        {
+          externalProps => <div>
+            <BoldButton {...externalProps} />
+            <ItalicButton {...externalProps} />
+            <UnderlineButton {...externalProps} />
+            <LinkButton {...externalProps}/>
+            <CodeButton {...externalProps} />
+            <UnorderedListButton {...externalProps} />
+            <OrderedListButton {...externalProps} />
+            <BlockquoteButton {...externalProps} />
+            <CodeBlockButton {...externalProps} />
+          </div>
+        }
+      </Toolbar>
+      }
+      <Editor
+        editorState={editorState}
+        handleKeyCommand={handleKeyCommand}
+        keyBindingFn={keyBindingFn}
+        onChange={onChangeLocal}
+        plugins={plugins}
+        ref={ref}
+        key="draft-editor"
+      />
 
-  render() {
-    const MentionSuggestions = this.mentionPlugin.MentionSuggestions;
-    const MentionSuggestionsFormatter = this.mentionPluginFormatter.MentionSuggestions;
-    const MentionSuggestionsSelector = this.mentionPluginSelector.MentionSuggestions;
-    const plugins = [
-      this.mentionPlugin,
-      this.mentionPluginFormatter,
-      this.mentionPluginSelector,
-      this.staticToolbarPlugin,
-      this.customLinkifyPlugin
-    ];
-    const {Toolbar} = this.staticToolbarPlugin;
-    const {LinkButton} = this.linkPlugin;
-    const {showToolbar} = this.props;
-
-    return (
-      <div className="cms-draft-wrapper" onClick={this.focus}>
-        {/* main editor */}
-        {showToolbar && <Toolbar>
-          {
-            externalProps => <div>
-              <BoldButton {...externalProps} />
-              <ItalicButton {...externalProps} />
-              <UnderlineButton {...externalProps} />
-              <LinkButton {...externalProps}/>
-              <CodeButton {...externalProps} />
-              <UnorderedListButton {...externalProps} />
-              <OrderedListButton {...externalProps} />
-              <BlockquoteButton {...externalProps} />
-              <CodeBlockButton {...externalProps} />
-            </div>
-          }
-        </Toolbar> }
-        <Editor
-          editorState={this.state.editorState}
-          handleKeyCommand={this.handleKeyCommand}
-          keyBindingFn={this.keyBindingFn}
-          onChange={this.onChange}
-          plugins={plugins}
-          ref={c => this.editor = c}
-          key="draft-editor"
+      <span className="cms-draft-entry cms-variable-draft-entry">
+        <MentionSuggestions
+          entryComponent={DraftEntry}
+          open={open}
+          onOpenChange={onOpenChange}
+          onSearchChange={onSearchChange}
+          suggestions={suggestions}
+          key="mentions"
         />
-
-
-        {/* variables dropdown (generators, materializers) */}
-        <span className="cms-draft-entry cms-variable-draft-entry">
-          <MentionSuggestions
-            entryComponent={DraftEntry}
-            onAddMention={this.onAddMention}
-            onSearchChange={this.onSearchChange}
-            suggestions={this.state.suggestions}
-            key="mentions"
-          />
-        </span>
-        {/* formatters dropdown */}
-        <span className="cms-draft-entry cms-formatter-draft-entry">
-          <MentionSuggestionsFormatter
-            onAddMention={this.onAddMention}
-            onSearchChange={this.onSearchChangeFormatter}
-            suggestions={this.state.suggestionsFormatter}
-            key="mentionsFormatter"
-          />
-        </span>
-        {/* selectors dropdown */}
-        <span className="cms-draft-entry cms-suggestion-draft-entry">
-          <MentionSuggestionsSelector
-            entryComponent={DraftEntry}
-            entity="selector"
-            onAddMention={this.onAddMention}
-            onSearchChange={this.onSearchChangeSelector}
-            suggestions={this.state.suggestionsSelector}
-            key="mentionsSelector"
-          />
-        </span>
-      </div>
-    );
-  }
+      </span>
+      <span className="cms-draft-entry cms-formatter-draft-entry">
+        <MentionSuggestionsFormatter
+          open={openFormatter}
+          onOpenChange={onOpenChangeFormatter}
+          onSearchChange={onSearchChangeFormatter}
+          suggestions={suggestionsFormatter}
+          key="mentionsFormatter"
+        />
+      </span>
+    </div>
+  );
 }
 
 export default DraftWrapper;
