@@ -1,12 +1,9 @@
 /* react */
-import React, {useMemo, useState, useEffect} from "react";
-import {useDispatch} from "react-redux";
+import React, {useMemo, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
 import {Select} from "@mantine/core";
 
 /* utils */
-import mortarEval from "../../../utils/mortarEval";
-import varSwapRecursive from "../../../utils/varSwapRecursive";
-import scaffoldDynamic from "../../../utils/selectors/scaffoldDynamic";
 import runSelector from "../../../utils/selectors/runSelector";
 
 /* hooks */
@@ -19,11 +16,10 @@ export default function SelectorPreview({blockState, active, variables, locale, 
 
   const dispatch = useDispatch();
 
-  // what I need here is the materialized array
+  const query = useSelector(state => state.cms.status.query);
   const {config, log} = useMemo(() => runSelector(blockState.contentByLocale[locale].content.logic, variables, locale), [blockState]);
 
-  const [value, setValue] = useState(config._default);
-  // useEffect(() => setValue(config._default), [config]);
+  const [value, setValue] = useState(query[`selector${blockState.id}id`] || config._default);
 
   const onChange = e => {
     dispatch(setStatus({query: {[`selector${blockState.id}id`]: e}}));
