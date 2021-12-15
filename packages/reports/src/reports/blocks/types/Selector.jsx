@@ -26,7 +26,7 @@ export default function SelectorPreview({blockState, active, variables, locale, 
   // useEffect(() => setValue(config._default), [config]);
 
   const onChange = e => {
-    dispatch(setStatus({query: {[`selector${blockState.id}`]: e}}));
+    dispatch(setStatus({query: {[`selector${blockState.id}id`]: e}}));
     setValue(e);
   };
 

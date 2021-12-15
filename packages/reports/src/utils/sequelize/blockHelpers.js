@@ -130,13 +130,23 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
     else if (block.type === BLOCK_TYPES.SELECTOR) {
       // todo1.0 use log, make this work for multi-select
       const {config, log} = runSelector(block.contentByLocale[locale].content.logic, variables, locale);
-      const accessor = `selector${block.id}`;
+      const accessor = `selector${block.id}id`;
       const queryObject = new URLSearchParams(req.query.query);
       const potentialQueryValue = queryObject.get(accessor);
-      const queryValue = potentialQueryValue && config.options.find(d => d.id === potentialQueryValue)
+      const potentialOption = config.options.find(d => d.id === potentialQueryValue);
+      const defaultOption = config.options.find(d => d.id === config._default);
+      const resultId = potentialQueryValue && potentialOption
         ? potentialQueryValue
         : config._default;
-      result = {[accessor]: queryValue};
+      const resultLabel = potentialOption
+        ? potentialOption.label
+        : defaultOption
+          ? defaultOption.label
+          : "";
+      result = {
+        [accessor]: resultId,
+        [`selector${block.id}label`]: resultLabel
+      };
     }
     else {
       // If the block has logic enabled, then the variables should be calculated by running the javascript in the logic key.
