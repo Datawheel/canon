@@ -11,14 +11,14 @@ const runSelector = (logic, variables, locale) => {
   const type = vars.type || SELECTOR_TYPES.SINGLE;
   const name = vars.name || "Unlabeled Selector";
   const options = scaffoldDynamic(vars.options || []);
-  const _default = vars._default
-    ? vars._default
+  const defaultValue = vars.defaultValue
+    ? vars.defaultValue
     : options[0] && options[0].id
       ? options[0].id
       : options[0]
         ? options[0]
         : "";
-  const config = {name, type, options, _default};
+  const config = {name, type, options, defaultValue};
   return {config, log};
 };
 

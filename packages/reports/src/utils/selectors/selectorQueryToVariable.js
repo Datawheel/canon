@@ -11,7 +11,7 @@ const selectorQueryToVariable = (id, query, config) => {
   const queryObject = new URLSearchParams(query);
   if (config.type === SELECTOR_TYPES.MULTI) {
     // query values are "string,lists" but the default is a real array.
-    const queryIds = queryObject.get(accessor) ? queryObject.get(accessor).split(",") : config._default;
+    const queryIds = queryObject.get(accessor) ? queryObject.get(accessor).split(",") : config.defaultValue;
     const options = config.options.filter(d => queryIds.includes(d.id));
     return {
       [`selector${id}id`]: queryIds,
@@ -19,7 +19,7 @@ const selectorQueryToVariable = (id, query, config) => {
     };
   }
   else { // single
-    const queryId = queryObject.get(accessor) ? queryObject.get(accessor) : config._default;
+    const queryId = queryObject.get(accessor) ? queryObject.get(accessor) : config.defaultValue;
     const option = config.options.find(d => d.id === queryId);
     return {
       [`selector${id}id`]: queryId,
