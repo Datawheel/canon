@@ -29,6 +29,14 @@ const REPORT_TYPES = {
 };
 
 /**
+ * Selectors have two types, single and and multi
+ */
+const SELECTOR_TYPES = {
+  SINGLE: "single",
+  MULTI: "multi"
+};
+
+/**
  * NOTE ON FIELDS, MAPS, AND SETTINGS
  * Many elements of the CMS are stored as JSON blobs in the database, to allow
  * easy addition of new or custom keys without a database migration. However, the
@@ -185,5 +193,6 @@ module.exports = {
   REPORT_SETTINGS,
   REPORT_TYPES,
   SECTION_FIELDS,
-  SECTION_SETTINGS
+  SECTION_SETTINGS,
+  SELECTOR_TYPES
 };

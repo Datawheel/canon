@@ -1,3 +1,4 @@
+const {SELECTOR_TYPES} = require("../consts/cms");
 const mortarEval = require("../variables/mortarEval");
 const varSwapRecursive = require("../variables/varSwapRecursive");
 const scaffoldDynamic = require("./scaffoldDynamic");
@@ -7,7 +8,7 @@ const runSelector = (logic, variables, locale) => {
   const transpiledLogic = varSwapRecursive({logic}, {}, variables, {}).logic;
   const evalResult = mortarEval("variables", variables, transpiledLogic, {}, locale);
   const {vars, log} = evalResult;
-  const type = vars.type || "single";
+  const type = vars.type || SELECTOR_TYPES.SINGLE;
   const name = vars.name || "Unlabeled Selector";
   const options = scaffoldDynamic(vars.options || []);
   const _default = vars._default

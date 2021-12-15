@@ -6,6 +6,7 @@ const {BLOCK_FIELDS_EXCLUDE, BLOCK_TYPES} = require("../consts/cms");
 const varSwap = require("../variables/varSwap");
 const varSwapRecursive = require("../variables/varSwapRecursive");
 const runSelector = require("../selectors/runSelector");
+const selectorQueryToVariable = require("../selectors/selectorQueryToVariable");
 
 const LOCALE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const LOCALES = process.env.CANON_LANGUAGES || LOCALE_DEFAULT;
@@ -130,23 +131,7 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
     else if (block.type === BLOCK_TYPES.SELECTOR) {
       // todo1.0 use log, make this work for multi-select
       const {config, log} = runSelector(block.contentByLocale[locale].content.logic, variables, locale);
-      const accessor = `selector${block.id}id`;
-      const queryObject = new URLSearchParams(req.query.query);
-      const potentialQueryValue = queryObject.get(accessor);
-      const potentialOption = config.options.find(d => d.id === potentialQueryValue);
-      const defaultOption = config.options.find(d => d.id === config._default);
-      const resultId = potentialQueryValue && potentialOption
-        ? potentialQueryValue
-        : config._default;
-      const resultLabel = potentialOption
-        ? potentialOption.label
-        : defaultOption
-          ? defaultOption.label
-          : "";
-      result = {
-        [accessor]: resultId,
-        [`selector${block.id}label`]: resultLabel
-      };
+      result = selectorQueryToVariable(block.id, req.query.query, config);
     }
     else {
       // If the block has logic enabled, then the variables should be calculated by running the javascript in the logic key.
