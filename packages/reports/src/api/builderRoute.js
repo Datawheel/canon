@@ -174,9 +174,7 @@ module.exports = function(app) {
 
   /*
   app.get("/api/reports/block/activate", async(req, res) => {
-    const {id} = req.query;
-    const block = await db.block.findOne({where: {id}}).catch(catcher);
-    if (!block) return res.json({status: REQUEST_STATUS.ERROR});
+    const id = Number(req.query.id);
     const activateResult = await activate(req, block.section_id, block.id);
     return res.json(activateResult);
   });

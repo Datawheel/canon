@@ -40,7 +40,7 @@ function BlockOutputPanel({id, components}) {
         <Button onClick={() => setMode(MODES.UI)}>UI</Button>
         <Button onClick={() => setMode(MODES.CODE)}>Code</Button>
       </div>
-      <div className="cms-generator-output">
+      <div>
         {/* todo 1.0 fix all this horrible routing. these will be switched between ui/text when the UI EZmodes are complete */}
         {block.type === BLOCK_TYPES.GENERATOR && apiInput}
         {![BLOCK_TYPES.GENERATOR, BLOCK_TYPES.SELECTOR, BLOCK_TYPES.VIZ].includes(block.type) && textEditor}
@@ -51,7 +51,6 @@ function BlockOutputPanel({id, components}) {
         {blockPreview}
         <ConsumerMenu id={id} />
       </div>
-      <ConsumerMenu id={id} />
     </div>
   );
 

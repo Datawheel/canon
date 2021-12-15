@@ -1,36 +1,34 @@
 /* react */
 import React, {useMemo, useState, useEffect} from "react";
+import {useDispatch} from "react-redux";
 import {Select} from "@mantine/core";
 
 /* utils */
 import mortarEval from "../../../utils/mortarEval";
 import varSwapRecursive from "../../../utils/varSwapRecursive";
 import scaffoldDynamic from "../../../utils/selectors/scaffoldDynamic";
+import runSelector from "../../../utils/selectors/runSelector";
+
+/* hooks */
+import {setStatus} from "../../../actions/status";
 
 /**
  * "selector" block renderer
 */
 export default function SelectorPreview({blockState, active, variables, locale, allowed}) {
 
+  const dispatch = useDispatch();
+
   // what I need here is the materialized array
-  const {config, log} = useMemo(() => {
-    const {logic} = blockState.contentByLocale[locale].content;
-    // todo1.0 formatters etc in here
-    const transpiledLogic = varSwapRecursive({logic}, {}, variables, {}).logic;
-    const selectorResult = mortarEval("variables", variables, transpiledLogic, {}, locale);
-    const {vars, log} = selectorResult;
-    const type = vars.type || "single";
-    const name = vars.name || "Unlabeled Selector";
-    const options = scaffoldDynamic(vars.options || []);
-    const _default = vars._default || options[0]?.id || options[0] || "";
-    const config = {name, type, options, _default};
-    return {config, log};
-  }, [blockState]);
+  const {config, log} = useMemo(() => runSelector(blockState.contentByLocale[locale].content.logic, variables, locale), [blockState]);
 
   const [value, setValue] = useState(config._default);
-  useEffect(() => setValue(config._default), [config]);
+  // useEffect(() => setValue(config._default), [config]);
 
-  const onChange = e => setValue(e);
+  const onChange = e => {
+    dispatch(setStatus({query: {[`selector${blockState.id}`]: e}}));
+    setValue(e);
+  };
 
   const {name} = config;
   const data = config.options.map(d => ({value: d.id, label: d.label}));

@@ -35,6 +35,7 @@ function ReportBuilder({router}) {
   const isEnabled = useSelector(state => state.data.isEnabled);
   const minRole = useSelector(state => state.data.minRole);
   const pathObj = useSelector(state => state.cms.status.pathObj);
+  const query = useSelector(state => state.cms.status.query);
   const currentReport = useSelector(state => state.cms.status.currentReport);
 
   const loadReports = useCallback(() => {
@@ -56,9 +57,9 @@ function ReportBuilder({router}) {
     const localeCurrent = localeDefault;
     const locales = env.CANON_LANGUAGES?.includes(",") ? env.CANON_LANGUAGES.split(",").filter(l => l !== localeDefault) : undefined;
     const localeSecondary = null;
-    const {report, section, previews} = router.location.query;
+    const {report, section, previews, ...query} = router.location.query;
     const pathObj = {report, section, previews: previews ? previews.split(",") : []};
-    dispatch(setStatus({localeDefault, localeSecondary, localeCurrent, locales, pathObj}));
+    dispatch(setStatus({localeDefault, localeSecondary, localeCurrent, locales, pathObj, query}));
 
 
     // Prevent leaving the page accidentally, disabled during heavy 1.0 development
@@ -73,19 +74,20 @@ function ReportBuilder({router}) {
 
   useEffect(() => {
     const {pathname} = router.location;
-    const params = {
+    let params = {
       report: pathObj?.report,
       section: pathObj?.section,
       home: pathObj?.home
     };
     if (pathObj?.previews) params.previews = pathObj?.previews.map(d => d.slug).join();
+    if (query) params = {...params, ...query};
     const hasParams = Object.values(params).some(d => d);
     if (hasParams) {
       const url = `${pathname}?${Object.keys(params).filter(d => params[d]).map(key => `${key}=${params[key]}`).join("&")}`;
       router.replace(url);
     }
     if (params.report) dispatch(setStatus({currentReport: params.report})); // todo1.0 should this be done here?
-  }, [pathObj]);
+  }, [pathObj, query]);
 
   if (!isEnabled) return null;
   if (!formatterFunctions) return <Loading />;

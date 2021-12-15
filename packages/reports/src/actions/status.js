@@ -15,10 +15,21 @@ export function setStatus(status) {
         name: d.contentByLocale[status.localeDefault || localeDefault].name
       }));
       status.pathObj.previews = previews;
+      const query = {...getStore().cms.status.query, ...status.query};
+      status.query = query;
       dispatch({type: "STATUS_SET", data: status});
       // todo1.0 ask ryan about this status bounce
       if (activeSection) {
-        dispatch(activateSection(activeSection, previews));
+        dispatch(activateSection(activeSection, previews, query));
+      }
+    }
+    else if (status.query) {
+      const {activeSection, query} = getStore().cms.status;
+      const newQuery = {...query, ...status.query};
+      dispatch({type: "STATUS_SET", data: {query: newQuery}});
+      // todo1.0 ask ryan about this status bounce
+      if (activeSection) {
+        dispatch(activateSection(activeSection, null, newQuery));
       }
     }
     else {

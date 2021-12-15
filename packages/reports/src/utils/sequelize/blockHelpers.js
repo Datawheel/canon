@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const yn = require("yn");
 const {BLOCK_FIELDS_EXCLUDE, BLOCK_TYPES} = require("../consts/cms");
 const varSwap = require("../varSwap");
+const runSelector = require("../selectors/runSelector");
 
 const LOCALE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const LOCALES = process.env.CANON_LANGUAGES || LOCALE_DEFAULT;
@@ -124,6 +125,18 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
       if (evalResults.error) statusById[block.id].error = evalResults.error;
       if (evalResults.log) statusById[block.id].log = evalResults.log;
       if (typeof evalResults.vars === "object") result = evalResults.vars;
+    }
+    // If this block is a selector, then it should export *its currently selected option*
+    else if (block.type === BLOCK_TYPES.SELECTOR) {
+      // todo1.0 use log, make this work for multi-select
+      const {config, log} = runSelector(block.contentByLocale[locale].content.logic, variables, locale);
+      const accessor = `selector${block.id}`;
+      const queryObject = new URLSearchParams(req.query.query);
+      const potentialQueryValue = queryObject.get(accessor);
+      const queryValue = potentialQueryValue && config.options.find(d => d.id === potentialQueryValue)
+        ? potentialQueryValue
+        : config._default;
+      result = {[accessor]: queryValue};
     }
     else {
       // If the block has logic enabled, then the variables should be calculated by running the javascript in the logic key.

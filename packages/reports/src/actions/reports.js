@@ -107,10 +107,16 @@ export function deleteDimension(id) {
 }
 
 /** */
-export function activateSection(id, previews) {
+export function activateSection(id, previews, query) {
   return function(dispatch, getStore) {
-    const slugs = (previews || getStore().cms.status.pathObj.previews).map(d => d.slug).join();
-    return axios.get("/api/reports/section/activate", {params: {id, slugs}})
+    const config = {
+      params: {
+        id,
+        slugs: (previews || getStore().cms.status.pathObj.previews).map(d => d.slug).join(),
+        query: Object.entries(query || getStore().cms.status.query).map(([k, v]) => `${k}=${v}`).join("&")
+      }
+    };
+    return axios.get("/api/reports/section/activate", config)
       .then(resp => {
         if (resp.status === 200) {
           dispatch({type: "SECTION_ACTIVATE", data: resp.data});
