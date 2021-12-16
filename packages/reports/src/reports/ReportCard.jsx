@@ -30,6 +30,8 @@ function ReportCard({id}) {
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
   const report = useSelector(state => state.cms.reports.entities.reports[id]);
 
+  console.log(localeDefault);
+
   const openReport = id => {
     dispatch(setStatus({pathObj: {report: id, previews: []}}));
   };

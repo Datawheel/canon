@@ -17,6 +17,7 @@ module.exports = {
   parse
 };
 
+/** */
 function objectify(obj) {
   if (obj.vars && obj.logic) return obj;
   for (const key in obj) {
@@ -35,6 +36,7 @@ function objectify(obj) {
   return obj;
 }
 
+/** */
 function func2obj(func) {
 
   let s = buble.transform(`${func}`).code;
@@ -54,6 +56,7 @@ function func2obj(func) {
 
 }
 
+/** */
 function parse(config, formatters = {}, locale = "en", actions = {}) {
 
   const globals = {
@@ -64,11 +67,13 @@ function parse(config, formatters = {}, locale = "en", actions = {}) {
     locale
   };
 
+  /** */
   function parseFunction(obj) {
     return Function("globals", ...obj.vars, `with (globals) { ${obj.logic} }`)
       .bind(globals, globals);
   }
 
+  /** */
   function makeFunctions(obj) {
     if (obj.vars && obj.logic) {
       return parseFunction(obj);

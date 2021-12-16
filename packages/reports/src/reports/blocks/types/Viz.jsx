@@ -4,15 +4,23 @@ import React, {useMemo} from "react";
 /* utils */
 import d3plusPropify from "../../../utils/d3plusPropify";
 import toKebabCase from "../../../utils/formatters/toKebabCase";
+import varSwapRecursive from "../../../utils/variables/varSwapRecursive";
 
 /* vizes */
 import * as d3plus from "d3plus-react";
-import varSwapRecursive from "../../../utils/variables/varSwapRecursive";
+import Graphic from "../../reportVizes/Graphic";
+import HTML from "../../reportVizes/HTML";
+import Table from "../../reportVizes/Table";
+// import Options from "../../reportVizes/Options";
 
-const vizTypes = d3plus; // todo1.0 add in customviz spread
+// User must define custom sections in app/reports/sections, and export them from an index.js in that folder.
+import * as CustomVizzes from "CustomVizzes";
+
+const vizTypes = {Table, Graphic, HTML, ...d3plus, ...CustomVizzes};
 
 const STUB_MESSAGE = "Activate to View";
 
+// Before the section has been activated, sho w a stub viz with this configuration
 const stub = {
   data: [],
   dataFormat: d => d,

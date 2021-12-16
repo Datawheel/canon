@@ -26,7 +26,7 @@ export function setStatus(status) {
     else if (status.query) {
       const {activeSection, query} = getStore().cms.status;
       const newQuery = {...query, ...status.query};
-      dispatch({type: "STATUS_SET", data: {query: newQuery}});
+      dispatch({type: "STATUS_SET", data: {...status, query: newQuery}});
       // todo1.0 ask ryan about this status bounce
       if (activeSection) {
         dispatch(activateSection(activeSection, null, newQuery));

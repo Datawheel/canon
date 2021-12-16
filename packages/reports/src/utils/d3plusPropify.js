@@ -1,7 +1,7 @@
 import {dataConcat} from "d3plus-viz";
 import {parse} from "./FUNC";
 
-const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
+const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
 const frontEndMessage = "Error Rendering Visualization";
 const errorStub = {
@@ -11,7 +11,7 @@ const errorStub = {
   noDataHTML: `<p style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${frontEndMessage}</strong></p>`
 };
 
-export default (logic, formatters = {}, variables = {}, locale = envLoc, id = null, actions = {}) => {
+export default (logic, formatters = {}, variables = {}, locale = localeDefault, id = null, actions = {}) => {
 
   let config;
 
