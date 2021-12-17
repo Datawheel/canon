@@ -7,6 +7,7 @@ const libs = require("../libs");
 
 module.exports = (sourceString, formatterFunctions, variables, passive) => {
   // Find all instances of the following type:  FormatterName{{VarToReplace}}
+  if (!sourceString) return sourceString;
   sourceString = sourceString.replace(/([A-z0-9]*)\{\{([^\}]+)\}\}/g, (match, g1, keyMatch) => {
 
     // Get the function from the hash table using the lookup key FormatterName (or no-op if not found)

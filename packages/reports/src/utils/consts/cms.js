@@ -84,6 +84,7 @@ const BLOCK_CONTENT_TYPES = {
   STAT: "stat",
   SUBTITLE: "subtitle",
   TITLE: "title"
+  // todo1.0, how to put custom blocks in here?
 };
 
 const BLOCK_LOGIC_TYPES = {

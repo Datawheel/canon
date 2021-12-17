@@ -113,43 +113,32 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
     let result = {};
     variables = {...variables, ...attributes};
     statusById[block.id] = {};
+    const setStatus = obj => statusById[block.id] = {...statusById[block.id], ...obj};
     if (block.type === BLOCK_TYPES.GENERATOR) {
       // todo1.0, pass the correct vars here, including canonVars, etc
       let data = {};
-      if (block.api) {
-        const resp = await apiFetch(req, block.api, locale, variables).catch(catcher);
-        statusById[block.id].duration = resp.requestDuration;
-        statusById[block.id].response = resp.data;
+      if (block.content.api) {
+        const resp = await apiFetch(req, block.content.api, locale, variables).catch(catcher);
+        setStatus({duration: resp.requestDuration, response: resp.data});
         data = resp.data;
       }
-      const evalResults = mortarEval("resp", data, block.logic, {}, locale, variables); // todo1.0 add formatters here
-      if (evalResults.error) statusById[block.id].error = evalResults.error;
-      if (evalResults.log) statusById[block.id].log = evalResults.log;
-      if (typeof evalResults.vars === "object") result = evalResults.vars;
+      const evalResults = mortarEval("resp", data, block.content.logic, {}, locale, variables); // todo1.0 add formatters here
+      const {vars, error, log} = evalResults;
+      setStatus({error, log});
+      if (typeof vars === "object") result = vars;
     }
     // If this block is a selector, then it should export *its currently selected option*
     else if (block.type === BLOCK_TYPES.SELECTOR) {
-      // todo1.0 use log, make this work for multi-select
-      const {config, log} = runSelector(block.contentByLocale[locale].content.logic, variables, locale);
+      const {config, log, error} = runSelector(block.contentByLocale[locale].content.logic, variables, locale);
+      setStatus({error, log});
       result = selectorQueryToVariable(block.id, req.query.query, config);
     }
     else {
-      // If the block has logic enabled, then the variables should be calculated by running the javascript in the logic key.
-      if (block.contentByLocale[locale].content.logicEnabled) {
-        const {logic} = block.contentByLocale[locale].content;
-        const evalResults =  mortarEval("variables", variables, logic, {}, locale); // todo1.0 add formatters here
-        if (evalResults.error) statusById[block.id].error = evalResults.error;
-        if (evalResults.log) statusById[block.id].log = evalResults.log;
-        if (typeof evalResults.vars === "object") result = Object.keys(evalResults.vars).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: evalResults.vars[d]}), {});
-      }
-      // If logic is not enabled, just varSwap the content keys and pass them downward.
-      else {
-        const contentObj = Object.keys(block.contentByLocale[locale].content)
-        // Exclude fields like logic and logicEnabled, which though stored in the same content object, aren't used downstream.
-          .filter(d => !BLOCK_FIELDS_EXCLUDE.includes(d))
-          .reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: block.contentByLocale[locale].content[d]}), {});
-        result = varSwapRecursive(contentObj, formatterFunctions, variables);
-      }
+      const swappedLogic = varSwap(block.contentByLocale[locale].content.logic, formatterFunctions, variables);
+      const evalResults = mortarEval("variables", variables, swappedLogic, {}, locale); // todo1.0 add formatters here
+      const {vars, error, log} = evalResults;
+      setStatus({error, log});
+      if (typeof vars === "object") result = Object.keys(vars).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: vars[d]}), {});
     }
     return result;
   };

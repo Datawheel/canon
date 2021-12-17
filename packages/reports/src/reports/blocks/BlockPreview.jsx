@@ -6,12 +6,14 @@ import {Badge, Center} from "@mantine/core";
 /* utils */
 import varSwapRecursive from "../../utils/variables/varSwapRecursive";
 import spoiler from "../../utils/blocks/spoiler";
+import mortarEval from "../../utils/variables/mortarEval";
 
 /* enums */
 import {BLOCK_TYPES} from "../../utils/consts/cms";
 
 /* type-specific render components */
 import TypeRenderers from "./types/index.jsx";
+
 
 /**
  * BlockPreview shows the varswapped version of the content currently being edited, it is used
@@ -30,9 +32,11 @@ function BlockPreview(props) {
     content = props;
   }
   else {
+    // todo1.0 fix formatter funtions
+    const {vars, log} = mortarEval("variables", variables, blockState.contentByLocale[locale].content.logic, formatterFunctions[locale], locale);
     content = active
-      ? varSwapRecursive(blockState.contentByLocale[locale].content, formatterFunctions[locale], variables)
-      : spoiler(blockState.contentByLocale[locale].content);
+      ? varSwapRecursive(vars, formatterFunctions[locale], variables)
+      : spoiler(vars);
   }
 
   const Renderer = TypeRenderers[blockState.type];

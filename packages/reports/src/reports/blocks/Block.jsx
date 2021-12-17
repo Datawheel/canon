@@ -91,7 +91,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     const {settings} = blockState;
     const sanitizeContentObject = content => Object.keys(content).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(content[d])}), {});
     const contentByLocale = Object.values(blockState.contentByLocale).reduce((acc, d) => ({[d.locale]: {...d, content: sanitizeContentObject(d.content)}}), {});
-    const properties = ["id", "api", "logic", "logicSimple", "logicSimpleEnabled", "shared", "type"].reduce((acc, d) => ({...acc, [d]: blockState[d]}), {});
+    const properties = ["id", "api", "content", "shared", "type"].reduce((acc, d) => ({...acc, [d]: blockState[d]}), {});
     const payload = {
       ...properties,
       contentByLocale,
@@ -142,12 +142,12 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const onChangeCode = (logic, locale) => {
     if (!modified) setModified(true);
     hasNoLocaleContent(block.type)
-      ? setBlockState({...blockState, logic})
+      ? setBlockState({...blockState, content: {...blockState.content, logic}})
       : upsertLocaleContent({logic}, locale);
   };
 
   const onChangeAPI = api => {
-    setBlockState({...blockState, api});
+    setBlockState({...blockState, content: {...blockState.content, api}});
   };
 
   const onChangeSettings = settings => {
@@ -185,7 +185,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const apiInput = <ApiInput
     key="api-input"
-    defaultValue={block.api}
+    defaultValue={block.content.api}
     onChange={onChangeAPI}
     onEnterPress={() => onSave(true)}
     variables={variables}
@@ -206,7 +206,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     className="cms-block-output-ace"
     key="code-editor"
     onChange={logic => onChangeCode(logic, localeDefault)}
-    defaultValue={hasNoLocaleContent(block.type) ? block.logic : block.contentByLocale[localeDefault].content.logic}
+    defaultValue={hasNoLocaleContent(block.type) ? block.content.logic : block.contentByLocale[localeDefault].content.logic}
   />;
 
   const blockSettings = <BlockSettings

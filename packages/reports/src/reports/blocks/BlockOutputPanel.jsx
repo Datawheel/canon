@@ -43,9 +43,9 @@ function BlockOutputPanel({id, components}) {
       <div>
         {/* todo 1.0 fix all this horrible routing. these will be switched between ui/text when the UI EZmodes are complete */}
         {block.type === BLOCK_TYPES.GENERATOR && apiInput}
-        {![BLOCK_TYPES.GENERATOR, BLOCK_TYPES.SELECTOR, BLOCK_TYPES.VIZ].includes(block.type) && textEditor}
-        {[BLOCK_TYPES.GENERATOR, BLOCK_TYPES.SELECTOR, BLOCK_TYPES.VIZ].includes(block.type) && codeEditor}
-        {[BLOCK_TYPES.GENERATOR, BLOCK_TYPES.SELECTOR, BLOCK_TYPES.VIZ].includes(block.type) && executeButton}
+        {/* ![BLOCK_TYPES.GENERATOR, BLOCK_TYPES.SELECTOR, BLOCK_TYPES.VIZ].includes(block.type) && textEditor */}
+        {codeEditor}
+        {executeButton}
       </div>
       <div style={{display: "flex", flexDirection: "column"}}>
         {blockPreview}

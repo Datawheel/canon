@@ -46,7 +46,7 @@ export default function Viz({blockState, active, locale, variables, debug, confi
   const vizProps = useMemo(() => {
     if (!active) return {config: stub};
     // todo1.0 fix all these arguments!
-    const transpiledLogic = varSwapRecursive({logic: blockState.logic}, {}, variables, {}).logic;
+    const transpiledLogic = varSwapRecursive({logic: blockState.content.logic}, {}, variables, {}).logic;
     return d3plusPropify(transpiledLogic, {}, variables, locale, blockState.id, {});
   }, [blockState, active]);
 
@@ -58,6 +58,12 @@ export default function Viz({blockState, active, locale, variables, debug, confi
   // gave us a "stub" config with a user-friendly error message built in, so the front-end can see it.
   vizProps.config = {...vizProps.config, ...configOverride};
 
+  // todo1.0 this should not happen every time, but only in the cms.
+  const re = new RegExp(/height\:[\s]*([0-9]+)/g);
+  let height = re.exec(vizProps.config);
+  height = height ? height[1] : "400";
+  vizProps.config.height = height;
+
   // strip out the "type" from config
   const {type} = vizProps.config;
   // delete vizProps.config.type;
@@ -68,14 +74,13 @@ export default function Viz({blockState, active, locale, variables, debug, confi
   }
 
   const title = vizProps.config.title;
-  delete vizProps.config.title;
 
   const vizConfig = {locale, ...vizProps.config};
 
   // todo1.0 this probably doesn't work as print is added to context later, come back for this
   if (context.print) vizConfig.detectVisible = false;
   // whether to show the title and/or visualization options
-  const showHeader = title && !context.print && type !== "Graphic" && type !== "HTML";
+  const showHeader = !context.print && type !== "Graphic" && type !== "HTML";
 
   return <div
   // todo1.0 this ref needs to be updated
@@ -83,9 +88,6 @@ export default function Viz({blockState, active, locale, variables, debug, confi
   >
     {showHeader &&
       <div>
-        {title &&
-          <span>{title}</span>
-        }
         {!vizProps.error
           ? <Options
             key="option-key"

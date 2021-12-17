@@ -7,7 +7,7 @@ const runSelector = (logic, variables, locale) => {
   // todo1.0 formatters etc in here
   const transpiledLogic = varSwapRecursive({logic}, {}, variables, {}).logic;
   const evalResult = mortarEval("variables", variables, transpiledLogic, {}, locale);
-  const {vars, log} = evalResult;
+  const {vars, log, error} = evalResult;
   const type = vars.type || SELECTOR_TYPES.SINGLE;
   const name = vars.name || "Unlabeled Selector";
   const options = scaffoldDynamic(vars.options || []);
@@ -19,7 +19,7 @@ const runSelector = (logic, variables, locale) => {
         ? options[0]
         : "";
   const config = {name, type, options, defaultValue};
-  return {config, log};
+  return {config, log, error};
 };
 
 module.exports = runSelector;

@@ -35,21 +35,9 @@ module.exports = function(sequelize, db) {
       },
 
       /* generators & vizes */
-      api: {
-        type: db.TEXT,
-        defaultValue: ""
-      },
-      logic: {
-        type: db.TEXT,
-        defaultValue: "return {}"
-      },
-      logicSimple: {
+      content: {
         type: db.JSON,
-        defaultValue: null
-      },
-      logicSimpleEnabled: {
-        type: db.BOOLEAN,
-        defaultValue: true
+        defaultValue: {}
       },
 
       /* relations */
