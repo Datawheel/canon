@@ -14,9 +14,9 @@ import {BLOCK_TYPES} from "../../utils/consts/cms";
 import TypeRenderers from "./types/index.jsx";
 
 /**
- * BlockPreview shows the varswapped version of the content currently being edited. It is instantiated in
- * Block.jsx and directly passed "blockState" from there, which represents the live-editing content.
- * Though instantiated in Block, it is not rendered until BlockOutput.
+ * BlockPreview shows the varswapped version of the content currently being edited, it is used
+ * both in BlockOutputPanel as a live preview, and on the main page as the blocks that make up the report.
+ * A "debug" key is passed to all previews to indicate they are allowed to show stacktraces to the content creator
  */
 function BlockPreview(props) {
 
@@ -44,7 +44,7 @@ function BlockPreview(props) {
     <div className="cms-block-preview">
       {!allowed && allowedOverlay}
       { Renderer
-        ? <Renderer key="renderer" {...content} />
+        ? <Renderer key="renderer" debug={true} {...content} />
         : <Center><Badge key="type" color="gray" variant="outline">{blockState.type}</Badge></Center> }
     </div>
   );

@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {PureComponent, createContext} from "react";
 import {match} from "react-router";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
@@ -11,13 +11,17 @@ import {Portal, Toaster} from "@blueprintjs/core";
 import {titleCase} from "d3plus-text";
 import "./CanonProvider.css";
 
+// New Functional/Hooks Context - works in parallel with legacy context. Taken from
+// https://martinratinaud.medium.com/use-usecontext-with-legacy-react-context-api-a09fcfc8a541
+export const AppContext = createContext({});
+
 /**
 blueprint tooltip IE fix; check that the window exists and that we're in IE first
 related issue: https://github.com/DataScienceSquad/open-compass/issues/247
 */
 if (typeof window !== "undefined" && typeof document !== "undefined" && (/*@cc_on!@*/false || !!document.documentMode)) require("dom4"); // eslint-disable-line spaced-comment
 
-class CanonProvider extends Component {
+class CanonProvider extends PureComponent {
 
   constructor(props) {
 
@@ -189,25 +193,27 @@ class CanonProvider extends Component {
 
     const {children, gdpr, helmet, loading, locale, privacy, services, t} = this.props;
 
-    return <div id="Canon" onClick={this.onClick.bind(this)}>
-      <Helmet
-        htmlAttributes={{lang: locale, amp: undefined}}
-        defaultTitle={helmet.title}
-        titleTemplate={`%s | ${helmet.title}`}
-        meta={helmet.meta}
-        link={helmet.link}
-      />
-      { loading ? <Loading /> : <div>{ children }</div> }
-      <Portal>
-        <Toaster ref={this.toastRef} />
-      </Portal>
-      { gdpr ? <div id="cookies-eu-banner" style={{display: "none"}}>
-        <span id="cookies-eu-desc">{t("GDPR.desc", {services})}</span>
-        { privacy ? <a href={privacy} id="cookies-eu-more">{t("GDPR.more")}</a> : null }
-        <button id="cookies-eu-reject" className="bp3-button">{t("GDPR.reject")}</button>
-        <button id="cookies-eu-accept" className="bp3-button">{t("GDPR.accept")}</button>
-      </div> : null }
-    </div>;
+    return <AppContext.Provider value={this.getChildContext()}>
+      <div id="Canon" onClick={this.onClick.bind(this)}>
+        <Helmet
+          htmlAttributes={{lang: locale, amp: undefined}}
+          defaultTitle={helmet.title}
+          titleTemplate={`%s | ${helmet.title}`}
+          meta={helmet.meta}
+          link={helmet.link}
+        />
+        { loading ? <Loading /> : <div>{ children }</div> }
+        <Portal>
+          <Toaster ref={this.toastRef} />
+        </Portal>
+        { gdpr ? <div id="cookies-eu-banner" style={{display: "none"}}>
+          <span id="cookies-eu-desc">{t("GDPR.desc", {services})}</span>
+          { privacy ? <a href={privacy} id="cookies-eu-more">{t("GDPR.more")}</a> : null }
+          <button id="cookies-eu-reject" className="bp3-button">{t("GDPR.reject")}</button>
+          <button id="cookies-eu-accept" className="bp3-button">{t("GDPR.accept")}</button>
+        </div> : null }
+      </div>
+    </AppContext.Provider>;
   }
 }
 

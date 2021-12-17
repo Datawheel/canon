@@ -18,10 +18,13 @@ import axios from "axios";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
 
-import isIE from "../../utils/isIE.js";
+import isIE from "../../utils/web/isIE";
 
+/*
 import Button from "../fields/Button";
 import ButtonGroup from "../fields/ButtonGroup";
+*/
+import {Button, Group} from "@mantine/core";
 
 import ShareDirectLink from "./ShareDirectLink";
 import ShareFacebookLink from "./ShareFacebookLink";
@@ -267,7 +270,7 @@ class Options extends Component {
     let elem = component;
 
     // get the visualization
-    if (imageContext === "viz" && component.viz.viz) {
+    if (imageContext === "viz" && component?.viz?.viz) {
       elem = component.viz.viz;
 
       // d3plus visualizations render within a container; use it for the image
@@ -432,10 +435,10 @@ class Options extends Component {
         {/* direct link */}
         <label>
           <span className="u-font-xs options-label-text label">{t("CMS.Options.Social")}</span>
-          <ButtonGroup fill={true}>
+          <Group fill={true}>
             <ShareFacebookLink link={shareLink} />
             <ShareTwitterLink link={shareLink} />
-          </ButtonGroup>
+          </Group>
         </label>
       </div>;
 
@@ -445,7 +448,7 @@ class Options extends Component {
       aria-label="visualization options"
       ref={this.toggleButton}
     >
-      <ButtonGroup className="options-button-group">
+      <Group className="options-button-group">
         <Button className="options-button" icon="th" key="view-table-button" iconOnly={iconOnly} fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-view-table`} onClick={this.toggleDialog.bind(this, "view-table")}>
           {t("CMS.Options.View Data")}
         </Button>
@@ -457,7 +460,7 @@ class Options extends Component {
         <Button className="options-button" icon="share" key="share-button" iconOnly={iconOnly} fontSize="xxxs" iconPosition="left" id={`options-button-${slug}-share`} onClick={this.toggleDialog.bind(this, "share")}>
           {t("CMS.Options.Share")}
         </Button>
-      </ButtonGroup>
+      </Group>
 
       <Dialog className="options-dialog"
         autoFocus={false}
@@ -476,7 +479,7 @@ class Options extends Component {
 
               <div className="save-image-button-group-wrapper">
                 <h3 className="save-image-button-group-label label u-font-xs">{t("CMS.Options.Image area")}</h3>
-                <ButtonGroup className="save-image-button-group">
+                <Group className="save-image-button-group">
                   <Button
                     className="save-image-format-button"
                     fontSize="xs"
@@ -500,13 +503,13 @@ class Options extends Component {
                   >
                     {t("CMS.Options.entire section")}
                   </Button>
-                </ButtonGroup>
+                </Group>
               </div>
 
               {svgAvailable && imageContext !== "section" &&
                 <div className="save-image-button-group-wrapper">
                   <h3 className="save-image-button-group-label label u-font-xs">{t("CMS.Options.Image Format")}</h3>
-                  <ButtonGroup className="save-image-button-group">
+                  <Group className="save-image-button-group">
                     <Button
                       className="save-image-format-button"
                       fontSize="xs"
@@ -527,7 +530,7 @@ class Options extends Component {
                     >
                       <span className="u-visually-hidden">{t("CMS.Options.Save visualization as")}</span>SVG
                     </Button>
-                  </ButtonGroup>
+                  </Group>
                 </div>
               }
 

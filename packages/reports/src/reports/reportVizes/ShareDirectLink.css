@@ -1,0 +1,67 @@
+@import "../../css/mixins.css";
+
+.cp-input-label.clipboard-label {
+  /* position children */
+  display: flex;
+  position: relative;
+  /* theming */
+  overflow: hidden;
+  /* transitions */
+  transition: border-color 0.2s ease-out;
+
+  /* text input with link text */
+  & .cp-input.clipboard-input {
+    @add-mixin overflow-ellipsis;
+    /* offset icon (left) */
+    padding-left: 1.75em;
+    margin-right: calc(0px - var(--button-border-width));
+    /* sizing */
+    flex: 1 1 auto;
+    width: 100%;
+    /* theming */
+    color: var(--dark-3);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  /* position label next to link */
+  & .clipboard-icon {
+    /* sizing */
+    min-width: 1em;
+    /* IE fixes */
+    width: 1em;
+    height: 1em;
+    /* positioning */
+    @mixin absolute-vertical-center;
+    margin-top: -1px;
+    left: 0.375em;
+    z-index: 1;
+    pointer-events: none;
+    /* theming */
+    opacity: 0.5;
+
+    & svg {
+      width: 100%;
+      height: auto;
+    }
+
+    & path {
+      fill: var(--dark-3);
+    }
+  }
+
+  & .clipboard-button {
+    flex: 1 0 auto;
+    min-width: 5em;
+    text-align: center;
+    z-index: 1;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  /* interactions */
+  &:hover .clipboard-icon,
+  &:focus .clipboard-icon {
+    opacity: 1;
+  }
+}
