@@ -100,7 +100,6 @@ const BLOCK_FIELDS = {
   BIO: "bio",
   IMAGE: "image",
   LOGIC: "logic",
-  LOGIC_ENABLED: "logicEnabled",
   LOGIC_SIMPLE: "logicSimple",
   LOGIC_SIMPLE_ENABLED: "logicSimpleEnabled",
   PARAGRAPH: "paragraph",
@@ -121,7 +120,6 @@ const BLOCK_FIELDS = {
  */
 const BLOCK_FIELDS_EXCLUDE = [
   BLOCK_FIELDS.LOGIC,
-  BLOCK_FIELDS.LOGIC_ENABLED,
   BLOCK_FIELDS.LOGIC_SIMPLE,
   BLOCK_FIELDS.LOGIC_ENABLED
 ];

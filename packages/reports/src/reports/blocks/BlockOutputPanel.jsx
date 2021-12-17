@@ -1,7 +1,6 @@
 /* react */
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Button} from "@mantine/core";
 
 /* components */
 import ConsumerMenu from "../components/ConsumerMenu";
@@ -11,11 +10,6 @@ import {BLOCK_TYPES} from "../../utils/consts/cms";
 
 /* css */
 import "./BlockOutputPanel.css";
-
-const MODES = {
-  UI: "ui",
-  CODE: "code"
-};
 
 /**
  *
@@ -30,16 +24,11 @@ function BlockOutputPanel({id, components}) {
 
   const block = blocks[id];
 
-  const [mode, setMode] = useState(block.contentByLocale[localeDefault].content.logicEnabled ? MODES.CODE : MODES.UI);
-
-  const {apiInput, codeEditor, textEditor, executeButton, blockPreview} = components;
+  const {apiInput, codeEditor, textEditor, executeButton, blockPreview, modeControl} = components;
 
   return (
     <div className="cms-block-output">
-      <div key="buttons" style={{display: "flex", flexDirection: "column"}}>
-        <Button onClick={() => setMode(MODES.UI)}>UI</Button>
-        <Button onClick={() => setMode(MODES.CODE)}>Code</Button>
-      </div>
+      {modeControl}
       <div>
         {/* todo 1.0 fix all this horrible routing. these will be switched between ui/text when the UI EZmodes are complete */}
         {block.type === BLOCK_TYPES.GENERATOR && apiInput}

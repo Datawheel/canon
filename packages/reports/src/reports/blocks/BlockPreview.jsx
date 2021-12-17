@@ -33,7 +33,7 @@ function BlockPreview(props) {
   }
   else {
     // todo1.0 fix formatter funtions
-    const {vars, log} = mortarEval("variables", variables, blockState.contentByLocale[locale].content.logic, formatterFunctions[locale], locale);
+    const {vars, error, log} = mortarEval("variables", variables, blockState.contentByLocale[locale].content.logic, formatterFunctions[locale], locale);
     content = active
       ? varSwapRecursive(vars, formatterFunctions[locale], variables)
       : spoiler(vars);

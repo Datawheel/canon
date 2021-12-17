@@ -23,15 +23,13 @@ import * as CustomVizzes from "CustomVizzes";
 
 const vizTypes = {Table, Graphic, HTML, ...d3plus, ...CustomVizzes};
 
-const STUB_MESSAGE = "Activate to View";
-
-// Before the section has been activated, sho w a stub viz with this configuration
-const stub = {
+// A stub viz, shown when the config is inactive or broken
+const stub = message => ({
   data: [],
   dataFormat: d => d,
   type: "Treemap",
-  noDataHTML: `<p style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${STUB_MESSAGE}</strong></p>`
-};
+  noDataHTML: `<p style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${message}</strong></p>`
+});
 
 /**
  * Viz Renderer
@@ -44,7 +42,8 @@ export default function Viz({blockState, active, locale, variables, debug, confi
   // This will all need to be brought in, to play nice with legacy context.
 
   const vizProps = useMemo(() => {
-    if (!active) return {config: stub};
+    if (!active) return {config: stub("Activate to View")};
+    if (!blockState.content.logic) return {config: stub("Add a Configuration")};
     // todo1.0 fix all these arguments!
     const transpiledLogic = varSwapRecursive({logic: blockState.content.logic}, {}, variables, {}).logic;
     return d3plusPropify(transpiledLogic, {}, variables, locale, blockState.id, {});
@@ -82,13 +81,16 @@ export default function Viz({blockState, active, locale, variables, debug, confi
   // whether to show the title and/or visualization options
   const showHeader = !context.print && type !== "Graphic" && type !== "HTML";
 
+  // todo1.0 this is temporary, to get the buttons out of the way
+  const showOptions = false;
+
   return <div
   // todo1.0 this ref needs to be updated
   // ref={ comp => this.viz = comp }
   >
     {showHeader &&
       <div>
-        {!vizProps.error
+        {showOptions && !vizProps.error
           ? <Options
             key="option-key"
             // todo1.0 fix this screenshot service here

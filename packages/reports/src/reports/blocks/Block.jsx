@@ -1,7 +1,7 @@
 /* react */
 import React, {useState, useEffect, useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Modal, ActionIcon, Button, Group, Tooltip, useMantineTheme} from "@mantine/core";
+import {Modal, ActionIcon, Button, Group, Tooltip, useMantineTheme, SegmentedControl} from "@mantine/core";
 import {HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiEyeOff} from "react-icons/hi";
 import {AiOutlineGlobal} from "react-icons/ai";
 
@@ -27,12 +27,16 @@ import {useVariables} from "../hooks/blocks/useVariables";
 import {updateEntity} from "../../actions/reports";
 
 /* enums */
-import {ENTITY_TYPES, BLOCK_MAP, BLOCK_TYPES} from "../../utils/consts/cms";
+import {ENTITY_TYPES, BLOCK_MAP, BLOCK_TYPES, BLOCK_FIELDS} from "../../utils/consts/cms";
 import {REQUEST_STATUS} from "../../utils/consts/redux";
 
 /* css */
 import "./Block.css";
 
+const MODES = {
+  UI: "ui",
+  CODE: "code"
+};
 
 /**
  * Most blocks have translatable content, and store their locale-specific copies in a content table.
@@ -146,6 +150,14 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
       : upsertLocaleContent({logic}, locale);
   };
 
+  const onChangeMode = (mode, locale) => {
+    if (!modified) setModified(true);
+    const newMode = {[BLOCK_FIELDS.LOGIC_SIMPLE_ENABLED]: mode === MODES.UI};
+    hasNoLocaleContent(block.type)
+      ? setBlockState({...blockState, content: {...blockState.content, ...newMode}})
+      : upsertLocaleContent(newMode, locale);
+  };
+
   const onChangeAPI = api => {
     setBlockState({...blockState, content: {...blockState.content, api}});
   };
@@ -191,6 +203,16 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     variables={variables}
   />;
 
+  const modeControl = <SegmentedControl
+    key="mode-control"
+    data={[{label: "UI", value: MODES.UI}, {label: "Code", value: MODES.CODE}]}
+    value={blockState.type  // The editor may not yet be open, don't try to drill down until the state is cloned.
+      ? (hasNoLocaleContent(blockState.type) ? blockState.content : blockState.contentByLocale[localeDefault].content)[BLOCK_FIELDS.LOGIC_SIMPLE_ENABLED] ? MODES.UI : MODES.CODE
+      : MODES.CODE
+    }
+    onChange={e => onChangeMode(e, localeDefault)}
+  />;
+
   const textEditor = <RichTextEditor
     locale={localeDefault}
     key="text-editor"
@@ -206,7 +228,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     className="cms-block-output-ace"
     key="code-editor"
     onChange={logic => onChangeCode(logic, localeDefault)}
-    defaultValue={hasNoLocaleContent(block.type) ? block.content.logic : block.contentByLocale[localeDefault].content.logic}
+    defaultValue={hasNoLocaleContent(block.type) ? block.content[BLOCK_FIELDS.LOGIC] : block.contentByLocale[localeDefault].content[BLOCK_FIELDS.LOGIC]}
   />;
 
   const blockSettings = <BlockSettings
@@ -216,7 +238,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save & Execute</Button>;
 
-  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton};
+  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton, modeControl};
 
   const theme = useMantineTheme();
 
