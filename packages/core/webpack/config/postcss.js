@@ -30,7 +30,18 @@ for (const key in variables) {
 const assetBase = process.env.CANON_BASE_URL || "";
 
 module.exports = [
-  require("postcss-import")({path: appPath}),
+  require("postcss-import")({
+    path: appPath,
+    resolve(id, basedir) {
+      // Resolve relative paths
+      if (id.startsWith(".")) return path.resolve(basedir, id);
+      // Resolve aliases
+      else if (id.startsWith("$app/")) return path.resolve(appPath, id.slice(5));
+      else if (id.startsWith("$root/")) return path.resolve(appDir, id.slice(6));
+      // Resolve node_modules: `@import 'normalize.css/normalize.css'`
+      return path.resolve('./node_modules', id)
+    }
+  }),
   require("lost")(),
   require("pixrem")(),
   require("postcss-mixins")(),
