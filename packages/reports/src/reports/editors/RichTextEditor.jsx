@@ -6,6 +6,8 @@ import {useDebouncedValue} from "@mantine/hooks";
 /* components */
 import DraftWrapper from "./DraftWrapper";
 
+import sanitizeBlockContent from "../../utils/blocks/sanitizeBlockContent";
+
 /* css */
 import "./RichTextEditor.css";
 
@@ -38,7 +40,9 @@ function RichTextEditor({locale, defaultContent, fields, onChange, variables, fo
   const [debounced] = useDebouncedValue(stateContent, 500);
 
   useEffect(() => {
-    onChange(stateContent, locale);
+    const simple = Object.keys(stateContent).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(stateContent[d])}), {});
+    const logic = `return ${JSON.stringify(simple, null, "\t")}`;
+    onChange({simple, logic}, locale);
   }, [debounced]);
 
   /* onChange fires on load - only set the block as "modified" when a true keystroke is entered */

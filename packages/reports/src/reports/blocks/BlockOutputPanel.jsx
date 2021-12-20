@@ -10,7 +10,6 @@ import {BLOCK_TYPES} from "../../utils/consts/cms";
 
 /* css */
 import "./BlockOutputPanel.css";
-import JSONForm from "../editors/JSONForm";
 
 /**
  *
@@ -25,9 +24,11 @@ function BlockOutputPanel({id, components}) {
 
   const block = blocks[id];
 
-  const {apiInput, codeEditor, textEditor, executeButton, blockPreview, modeControl} = components;
+  const {apiInput, codeEditor, simpleUI, executeButton, blockPreview, modeControl, textEditor} = components;
 
   const mode = modeControl.props.value;
+
+  const isStatlike = ![BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ, BLOCK_TYPES.SELECTOR].includes(block.type);
 
   return (
     <div className="cms-block-output">
@@ -39,7 +40,9 @@ function BlockOutputPanel({id, components}) {
             {codeEditor}
             {executeButton}
           </React.Fragment>
-          : <JSONForm />
+          : isStatlike
+            ? textEditor
+            : simpleUI
         }
       </div>
       <div style={{display: "flex", flexDirection: "column"}}>

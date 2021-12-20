@@ -439,6 +439,7 @@ importers:
       '@mantine/prism': ~3.3.5
       '@mantine/rte': ~3.3.5
       ace-builds: ^1.4.12
+      ajv: ^8.8.2
       axios: ^0.24.0
       base58: ^2.0.1
       buble: ^0.19.3
@@ -479,7 +480,6 @@ importers:
       react-sizeme: ^2.6.7
       react-table: 6.10.3
       sharp: ^0.28.1
-      uninstall: ^0.0.0
       xlsx: ^0.17.3
     dependencies:
       '@datawheel/olap-client': 2.0.0-beta.2
@@ -497,6 +497,7 @@ importers:
       '@mantine/prism': 3.3.5_752db607f8c315ea82db7ed27041b1c4
       '@mantine/rte': 3.3.5_752db607f8c315ea82db7ed27041b1c4
       ace-builds: 1.4.12
+      ajv: 8.8.2
       axios: 0.24.0
       base58: 2.0.1
       buble: 0.19.8
@@ -537,7 +538,6 @@ importers:
       react-sizeme: 2.6.12
       react-table: 6.10.3
       sharp: 0.28.1
-      uninstall: 0.0.0
       xlsx: 0.17.3
     devDependencies:
       '@datawheel/canon-core': link:../core
@@ -3479,6 +3479,15 @@ packages:
 
   /ajv/7.0.4:
     resolution: {integrity: sha512-xzzzaqgEQfmuhbhAoqjJ8T/1okb6gAzXn/eQRNpAN1AEUoHJTNF9xCDRTtf/s3SKldtZfa+RJeTs+BQq+eZ/sw==}
+    dependencies:
+      fast-deep-equal: 3.1.3
+      json-schema-traverse: 1.0.0
+      require-from-string: 2.0.2
+      uri-js: 4.4.1
+    dev: false
+
+  /ajv/8.8.2:
+    resolution: {integrity: sha512-x9VuX+R/jcFj1DHo/fCp99esgGDWiHENrKxaCENuCxpoMCmAt/COCGVDwA7kleEpEzJjDnvh3yGoOuLu0Dtllw==}
     dependencies:
       fast-deep-equal: 3.1.3
       json-schema-traverse: 1.0.0
@@ -14003,10 +14012,6 @@ packages:
 
   /unicode-substring/0.1.0:
     resolution: {integrity: sha1-YSDOPDkDhdvND2DDK5BlxBgdSzY=}
-    dev: false
-
-  /uninstall/0.0.0:
-    resolution: {integrity: sha1-ED5uN+nFLshXVCzSWQI9ccej+ys=}
     dev: false
 
   /union-class-names/1.0.0:

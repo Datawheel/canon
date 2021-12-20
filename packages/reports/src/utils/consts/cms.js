@@ -100,8 +100,8 @@ const BLOCK_FIELDS = {
   BIO: "bio",
   IMAGE: "image",
   LOGIC: "logic",
-  LOGIC_SIMPLE: "logicSimple",
-  LOGIC_SIMPLE_ENABLED: "logicSimpleEnabled",
+  SIMPLE: "simple",
+  SIMPLE_ENABLED: "simpleEnabled",
   PARAGRAPH: "paragraph",
   SELECTOR_DEFAULT: "selectorDefault",
   SELECTOR_DYNAMIC: "selectorDynamic",
@@ -120,8 +120,8 @@ const BLOCK_FIELDS = {
  */
 const BLOCK_FIELDS_EXCLUDE = [
   BLOCK_FIELDS.LOGIC,
-  BLOCK_FIELDS.LOGIC_SIMPLE,
-  BLOCK_FIELDS.LOGIC_ENABLED
+  BLOCK_FIELDS.SIMPLE,
+  BLOCK_FIELDS.SIMPLE_ENABLED
 ];
 
 const BLOCK_MAP = {

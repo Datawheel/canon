@@ -14,10 +14,10 @@ import ApiInput from "../components/ApiInput";
 import BlockPreview from "./BlockPreview";
 import BlockSettings from "./BlockSettings";
 import BlockOutputPanel from "./BlockOutputPanel";
+import SimpleUI from "../editors/SimpleUI";
 
 /* utils */
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
-import sanitizeBlockContent from "../../utils/blocks/sanitizeBlockContent";
 import deepClone from "../../utils/js/deepClone";
 
 /* hooks */
@@ -94,8 +94,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const onSave = keepWindowOpen => {
     const {settings} = blockState;
-    const sanitizeContentObject = content => Object.keys(content).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(content[d])}), {});
-    const contentByLocale = Object.values(blockState.contentByLocale).reduce((acc, d) => ({[d.locale]: {...d, content: sanitizeContentObject(d.content)}}), {});
+    const contentByLocale = Object.values(blockState.contentByLocale).reduce((acc, d) => ({[d.locale]: {...d, content: d.content}}), {});
     const properties = ["id", "api", "content", "shared", "type"].reduce((acc, d) => ({...acc, [d]: blockState[d]}), {});
     const payload = {
       ...properties,
@@ -153,7 +152,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const onChangeMode = (mode, locale) => {
     if (!modified) setModified(true);
-    const newMode = {[BLOCK_FIELDS.LOGIC_SIMPLE_ENABLED]: mode === MODES.UI};
+    const newMode = {[BLOCK_FIELDS.SIMPLE_ENABLED]: mode === MODES.UI};
     hasNoLocaleContent(block.type)
       ? setBlockState({...blockState, content: {...blockState.content, ...newMode}})
       : upsertLocaleContent(newMode, locale);
@@ -208,16 +207,22 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     key="mode-control"
     data={[{label: "UI", value: MODES.UI}, {label: "Code", value: MODES.CODE}]}
     value={blockState.type  // The editor may not yet be open, don't try to drill down until the state is cloned.
-      ? (hasNoLocaleContent(blockState.type) ? blockState.content : blockState.contentByLocale[localeDefault].content)[BLOCK_FIELDS.LOGIC_SIMPLE_ENABLED] ? MODES.UI : MODES.CODE
+      ? (hasNoLocaleContent(blockState.type) ? blockState.content : blockState.contentByLocale[localeDefault].content)[BLOCK_FIELDS.SIMPLE_ENABLED] ? MODES.UI : MODES.CODE
       : MODES.CODE
     }
     onChange={e => onChangeMode(e, localeDefault)}
   />;
 
+  const simpleUI = <SimpleUI
+    type={block.type}
+    locale={localeDefault}
+    onChange={onChangeCode}
+  />;
+
   const textEditor = <RichTextEditor
     locale={localeDefault}
     key="text-editor"
-    defaultContent={block.contentByLocale[localeDefault].content || {}}
+    defaultContent={block.contentByLocale[localeDefault].content.simple || {}}
     fields={BLOCK_MAP[block.type]}
     formatters={formatters}
     variables={variables}
@@ -234,7 +239,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save & Execute</Button>;
 
-  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton, modeControl};
+  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton, modeControl, simpleUI};
 
   const blockSettings = <BlockSettings
     id={id}
