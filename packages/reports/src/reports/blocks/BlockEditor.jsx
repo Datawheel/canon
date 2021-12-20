@@ -6,13 +6,12 @@ import {HiOutlineEye, HiOutlineCog} from "react-icons/hi";
 
 /* components */
 import VariableList from "./VariableList";
-import BlockOutputPanel from "./BlockOutputPanel";
 import InputMenu from "../components/InputMenu";
 
 /**
  *
  */
-function BlockEditor({id, components}) {
+function BlockEditor({id, panels}) {
 
   /* redux */
   const blocks = useSelector(state => state.cms.reports.entities.blocks);
@@ -53,8 +52,8 @@ function BlockEditor({id, components}) {
           />
         </Center>
         {{
-          output: <BlockOutputPanel id={id} components={components} />,
-          settings: components.blockSettings
+          output: panels.blockOutputPanel,
+          settings: panels.blockSettings
         }[tab]}
       </Col>
     </Grid>

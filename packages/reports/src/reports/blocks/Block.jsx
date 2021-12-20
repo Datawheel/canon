@@ -13,6 +13,7 @@ import AceWrapper from "../editors/AceWrapper";
 import ApiInput from "../components/ApiInput";
 import BlockPreview from "./BlockPreview";
 import BlockSettings from "./BlockSettings";
+import BlockOutputPanel from "./BlockOutputPanel";
 
 /* utils */
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
@@ -231,14 +232,21 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     defaultValue={hasNoLocaleContent(block.type) ? block.content[BLOCK_FIELDS.LOGIC] : block.contentByLocale[localeDefault].content[BLOCK_FIELDS.LOGIC]}
   />;
 
+  const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save & Execute</Button>;
+
+  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton, modeControl};
+
   const blockSettings = <BlockSettings
     id={id}
     onChange={onChangeSettings}
   />;
 
-  const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save & Execute</Button>;
+  const blockOutputPanel = <BlockOutputPanel
+    id={id}
+    components={components}
+  />;
 
-  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton, modeControl};
+  const panels = {blockSettings, blockOutputPanel};
 
   const theme = useMantineTheme();
 
@@ -294,7 +302,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
         </div>
       </div>
       <Modal centered key="d" {...modalProps}>
-        <BlockEditor key="be" id={id} components={components}/>
+        <BlockEditor key="be" id={id} panels={panels}/>
         <Group position="right" style={{marginTop: theme.spacing.sm}}>
           <Button key="cancel" color="red" onClick={maybeCloseWithoutSaving}>Cancel</Button>
           <Button key="save" color="green" onClick={() => onSave(false)}>Save &amp; Close</Button>

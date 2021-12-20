@@ -10,6 +10,7 @@ import {BLOCK_TYPES} from "../../utils/consts/cms";
 
 /* css */
 import "./BlockOutputPanel.css";
+import JSONForm from "../editors/JSONForm";
 
 /**
  *
@@ -26,15 +27,20 @@ function BlockOutputPanel({id, components}) {
 
   const {apiInput, codeEditor, textEditor, executeButton, blockPreview, modeControl} = components;
 
+  const mode = modeControl.props.value;
+
   return (
     <div className="cms-block-output">
       {modeControl}
       <div>
-        {/* todo 1.0 fix all this horrible routing. these will be switched between ui/text when the UI EZmodes are complete */}
         {block.type === BLOCK_TYPES.GENERATOR && apiInput}
-        {/* ![BLOCK_TYPES.GENERATOR, BLOCK_TYPES.SELECTOR, BLOCK_TYPES.VIZ].includes(block.type) && textEditor */}
-        {codeEditor}
-        {executeButton}
+        {mode === "code"
+          ? <React.Fragment>
+            {codeEditor}
+            {executeButton}
+          </React.Fragment>
+          : <JSONForm />
+        }
       </div>
       <div style={{display: "flex", flexDirection: "column"}}>
         {blockPreview}
