@@ -11,26 +11,11 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
       path = require("path"),
       webpack = require("webpack");
 
+const commonConfig = require("./config/common");
+
 const assetsPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets");
 const publicPath = "/assets/";
-const appPath = path.join(appDir, "app");
 const timestamp = new Date().getTime();
-
-const resolve = {
-  alias: {
-    $root: appDir,
-    $app: appPath
-  },
-  modules: [
-    appPath,
-    appDir,
-    path.resolve(__dirname, "../src"),
-    path.resolve(appDir, "node_modules"),
-    path.resolve(__dirname, "../node_modules"),
-    "node_modules"
-  ],
-  extensions: [".js", ".jsx", ".css"]
-};
 
 /** @type {import("webpack").Configuration[]} */
 module.exports = [
@@ -66,7 +51,7 @@ module.exports = [
         server: false
       })
     },
-    resolve,
+    resolve: commonConfig.resolve,
     optimization: {
       minimizer: [
         new TerserJSPlugin({}),
