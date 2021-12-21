@@ -187,13 +187,14 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
    * Therefore, render these blocks using the static props version, which only updates on Save. Normal stat-likes
    * can update on keystroke, so the user can watch the prose change as they type.
    */
-  const usePropBlock = [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ, BLOCK_TYPES.SELECTOR].includes(block.type);
+  // const usePropBlock = [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ, BLOCK_TYPES.SELECTOR].includes(block.type);
 
   const blockPreview = <BlockPreview
     id={id}
     key="block-preview"
     active={true}
-    blockState={usePropBlock ? block : blockState}
+    block={block}
+    blockState={blockState}
     locale={localeDefault}
     variables={variables}
     allowed={true}
@@ -298,6 +299,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
         <BlockPreview
           style={{color: "red"}}
           key="bp"
+          block={block}
           blockState={block}
           active={active}
           variables={variables}

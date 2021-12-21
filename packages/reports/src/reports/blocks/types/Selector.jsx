@@ -13,32 +13,31 @@ import {SELECTOR_TYPES} from "../../../utils/consts/cms";
 /**
  * "selector" block renderer
 */
-export default function SelectorPreview({blockState, active, variables, locale, allowed}) {
+export default function SelectorPreview({id, config}) {
 
   const dispatch = useDispatch();
 
   const query = useSelector(state => state.cms.status.query);
-  const {config, log} = useMemo(() => runSelector(blockState.contentByLocale[locale].content.logic, variables, locale), [blockState]);
 
-  const [value, setValue] = useState(query[`selector${blockState.id}id`] || config.defaultValue);
-  const [multiValue, setMultiValue] = useState(query[`selector${blockState.id}id`] ? query[`selector${blockState.id}id`].split(",") : config.defaultValue);
+  const [value, setValue] = useState(query[`selector${id}id`] || config.defaultValue);
+  const [multiValue, setMultiValue] = useState(query[`selector${id}id`] ? query[`selector${id}id`].split(",") : config.defaultValue);
 
   const onChangeSingle = e => {
-    dispatch(setStatus({query: {[`selector${blockState.id}id`]: e}}));
+    dispatch(setStatus({query: {[`selector${id}id`]: e}}));
     setValue(e);
   };
 
   const onChangeMulti = e => {
-    dispatch(setStatus({query: {[`selector${blockState.id}id`]: e.join()}}));
+    dispatch(setStatus({query: {[`selector${id}id`]: e.join()}}));
     setMultiValue(e);
   };
 
   useEffect(() => {
     if (config.type === SELECTOR_TYPES.MULTI) {
-      setMultiValue(query[`selector${blockState.id}id`] ? query[`selector${blockState.id}id`].split(",") : config.defaultValue);
+      setMultiValue(query[`selector${id}id`] ? query[`selector${id}id`].split(",") : config.defaultValue);
     }
     else {
-      setValue(query[`selector${blockState.id}id`] || config.defaultValue);
+      setValue(query[`selector${id}id`] || config.defaultValue);
     }
   }, [config]);
 

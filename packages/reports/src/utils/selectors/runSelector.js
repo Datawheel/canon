@@ -3,10 +3,10 @@ const mortarEval = require("../variables/mortarEval");
 const varSwapRecursive = require("../variables/varSwapRecursive");
 const scaffoldDynamic = require("./scaffoldDynamic");
 
-const runSelector = (logic, variables, locale) => {
+const runSelector = (logic, resp, variables, locale) => {
   // todo1.0 formatters etc in here
   const transpiledLogic = varSwapRecursive({logic}, {}, variables, {}).logic;
-  const evalResult = mortarEval("variables", variables, transpiledLogic, {}, locale);
+  const evalResult = mortarEval("resp", resp, transpiledLogic, {}, locale, variables);
   const {vars, log, error} = evalResult;
   const type = vars.type || SELECTOR_TYPES.SINGLE;
   const name = vars.name || "Unlabeled Selector";

@@ -1,12 +1,15 @@
 /* react */
-import React from "react";
+import React, {useMemo} from "react";
 import {useSelector} from "react-redux";
-import {Badge, Center} from "@mantine/core";
+import {Badge, Center, Textarea, Text} from "@mantine/core";
+import {format} from "pretty-format";
 
 /* utils */
 import varSwapRecursive from "../../utils/variables/varSwapRecursive";
 import spoiler from "../../utils/blocks/spoiler";
 import mortarEval from "../../utils/variables/mortarEval";
+import runSelector from "../../utils/selectors/runSelector";
+
 
 /* enums */
 import {BLOCK_TYPES} from "../../utils/consts/cms";
@@ -22,22 +25,47 @@ import TypeRenderers from "./types/index.jsx";
  */
 function BlockPreview(props) {
 
-  const {blockState, active, variables, locale, allowed} = props;
+  const {block, blockState, active, variables, locale, allowed} = props;
 
   /* redux */
   const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
 
-  let content = {};
-  if ([BLOCK_TYPES.GENERATOR, BLOCK_TYPES.SELECTOR, BLOCK_TYPES.VIZ].includes(blockState.type)) {
-    content = props;
-  }
-  else {
-    // todo1.0 fix formatter funtions
-    const {vars, error, log} = mortarEval("variables", variables, blockState.contentByLocale[locale].content.logic, formatterFunctions[locale], locale);
-    content = active
-      ? varSwapRecursive(vars, formatterFunctions[locale], variables)
-      : spoiler(vars);
-  }
+  const LENGTH_CUTOFF_CHAR = 10000;
+
+  // todo1.0 this is a pretty crazy statement, ask ryan about this
+
+  const {content, error, log, duration} = useMemo(() => {
+    const payload = {};
+    if (block.type === BLOCK_TYPES.GENERATOR) {
+      if (!active) return {content: {}, log: "", error: false, duration: false};
+      payload.content = format(block._variables);
+      payload.log = block._status && block._status.log ? block._status.log.map(d => format(d)).join("\n") : false;
+      payload.error = block._status && block._status.error ? block._status.error : block._variables.length > LENGTH_CUTOFF_CHAR ? `Warning - Large Output (${block._variables.length} chars)` : false;
+      payload.duration = block._status && block._status.duration ? block._status.duration : false;
+    }
+    else if (block.type === BLOCK_TYPES.SELECTOR) {
+      const resp = block._status && block._status.response ? block._status.response : {};
+      const {config, log, error} = runSelector(blockState.contentByLocale[locale].content.logic, resp, variables, locale);
+      payload.content = {id: block.id, config};
+      payload.log = log.join("\n");
+      payload.error = error;
+      payload.duration = block._status && block._status.duration ? block._status.duration : false;
+    }
+    else if (block.type === BLOCK_TYPES.VIZ) {
+      payload.content = props;
+    }
+    else {
+      const resp = block._status && block._status.response ? block._status.response : {};
+      const {vars, error, log} = mortarEval("resp", resp, blockState.contentByLocale[locale].content.logic, formatterFunctions[locale], locale, variables);
+      payload.content = active
+        ? varSwapRecursive(vars, formatterFunctions[locale], variables)
+        : spoiler(vars);
+      payload.log = log ? log.join("\n") : "";
+      payload.error = error;
+      payload.duration = block._status && block._status.duration ? block._status.duration : false;
+    }
+    return payload;
+  }, [block, blockState, active]);
 
   const Renderer = TypeRenderers[blockState.type];
 
@@ -47,9 +75,12 @@ function BlockPreview(props) {
   return (
     <div className="cms-block-preview">
       {!allowed && allowedOverlay}
+      {duration && <Text>{`duration: ${duration} ms`}</Text>}
       { Renderer
         ? <Renderer key="renderer" debug={true} {...content} />
         : <Center><Badge key="type" color="gray" variant="outline">{blockState.type}</Badge></Center> }
+      {log && <Textarea label="Console" minRows={3} value={log} error="Warning - Remove console.log after debugging"/>}
+      {error && <Textarea label="Error" minRows={3} value={error} />}
     </div>
   );
 

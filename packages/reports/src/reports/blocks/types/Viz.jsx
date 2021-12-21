@@ -34,7 +34,7 @@ const stub = message => ({
 /**
  * Viz Renderer
 */
-export default function Viz({blockState, active, locale, variables, debug, configOverride = {}}) {
+export default function Viz({block, blockState, active, locale, variables, debug, configOverride = {}}) {
 
   const context = useAppContext();
 
@@ -43,11 +43,11 @@ export default function Viz({blockState, active, locale, variables, debug, confi
 
   const vizProps = useMemo(() => {
     if (!active) return {config: stub("Activate to View")};
-    if (!blockState.content.logic) return {config: stub("Add a Configuration")};
+    if (!block.content.logic) return {config: stub("Add a Configuration")};
     // todo1.0 fix all these arguments!
-    const transpiledLogic = varSwapRecursive({logic: blockState.content.logic}, {}, variables, {}).logic;
-    return d3plusPropify(transpiledLogic, {}, variables, locale, blockState.id, {});
-  }, [blockState, active]);
+    const transpiledLogic = varSwapRecursive({logic: block.content.logic}, {}, variables, {}).logic;
+    return d3plusPropify(transpiledLogic, {}, variables, locale, block.id, {});
+  }, [block, active]);
 
   // If the result of propify has an "error" property, then the provided javascript was malformed and propify
   // caught an error. Instead of attempting to render the viz, simply show the error to the user.

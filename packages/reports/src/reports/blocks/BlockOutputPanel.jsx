@@ -34,9 +34,9 @@ function BlockOutputPanel({id, components}) {
     <div className="cms-block-output">
       {modeControl}
       <div>
-        {block.type === BLOCK_TYPES.GENERATOR && apiInput}
         {mode === "code"
           ? <React.Fragment>
+            {apiInput}
             {codeEditor}
             {executeButton}
           </React.Fragment>

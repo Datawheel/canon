@@ -114,31 +114,30 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
     variables = {...variables, ...attributes};
     statusById[block.id] = {};
     const setStatus = obj => statusById[block.id] = {...statusById[block.id], ...obj};
-    if (block.type === BLOCK_TYPES.GENERATOR) {
+    let resp = {};
+    if (block.content.api) {
       // todo1.0, pass the correct vars here, including canonVars, etc
-      let data = {};
-      if (block.content.api) {
-        const resp = await apiFetch(req, block.content.api, locale, variables).catch(catcher);
-        setStatus({duration: resp.requestDuration, response: resp.data});
-        data = resp.data;
-      }
-      const evalResults = mortarEval("resp", data, block.content.logic, {}, locale, variables); // todo1.0 add formatters here
-      const {vars, error, log} = evalResults;
-      setStatus({error, log});
-      if (typeof vars === "object") result = vars;
+      const response = await apiFetch(req, block.content.api, locale, variables).catch(catcher);
+      setStatus({duration: response.requestDuration, response: response.data});
+      resp = response.data;
     }
     // If this block is a selector, then it should export *its currently selected option*
-    else if (block.type === BLOCK_TYPES.SELECTOR) {
-      const {config, log, error} = runSelector(block.contentByLocale[locale].content.logic, variables, locale);
+    if (block.type === BLOCK_TYPES.SELECTOR) {
+      const {config, log, error} = runSelector(block.contentByLocale[locale].content.logic, resp, variables, locale);
       setStatus({error, log});
       result = selectorQueryToVariable(block.id, req.query.query, config);
     }
     else {
-      const swappedLogic = varSwap(block.contentByLocale[locale].content.logic, formatterFunctions, variables);
-      const evalResults = mortarEval("variables", variables, swappedLogic, {}, locale); // todo1.0 add formatters here
+      const logic = block.type === BLOCK_TYPES.GENERATOR ? block.content.logic : block.contentByLocale[locale].content.logic;
+      const swappedLogic = varSwap(logic, formatterFunctions, variables);
+      const evalResults = mortarEval("resp", resp, swappedLogic, formatterFunctions, locale, variables); // todo1.0 add formatters here
       const {vars, error, log} = evalResults;
       setStatus({error, log});
-      if (typeof vars === "object") result = Object.keys(vars).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: vars[d]}), {});
+      if (typeof vars === "object") {
+        result = block.type === BLOCK_TYPES.GENERATOR
+          ? vars
+          : Object.keys(vars).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: vars[d]}), {});
+      }
     }
     return result;
   };
@@ -213,4 +212,4 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
   return {variablesById: cache, statusById};
 };
 
-module.exports = {runConsumers};
+module.exports = runConsumers;

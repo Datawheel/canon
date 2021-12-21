@@ -7,7 +7,7 @@ const {reportReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTa
 const {translateReport, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
 const {REPORT_FIELDS} = require("../utils/consts/cms");
 const {REQUEST_STATUS} = require("../utils/consts/redux");
-const {runConsumers} = require("../utils/blocks/blockHelpers");
+const runConsumers = require("../utils/blocks/runConsumers");
 
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_CMS_LOGGING);
