@@ -106,7 +106,7 @@ module.exports = [
     module: {
       rules: commonLoaders({mode: "production", server: true, extract: true})
     },
-    resolve,
+    resolve: commonConfig.resolve,
     optimization: {
       minimizer: [
         new TerserJSPlugin({terserOptions: {keep_fnames: true}}),
