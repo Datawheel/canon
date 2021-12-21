@@ -17,10 +17,10 @@ function BlockEditor({id, panels}) {
   const blocks = useSelector(state => state.cms.reports.entities.blocks);
   const block = blocks[id];
 
-  if (!block) return null;
-
   const [tab, setTab] = useState("output");
   const theme = useMantineTheme();
+
+  if (!block) return null;
 
   return (
     <Grid style={{height: "60vh"}}>

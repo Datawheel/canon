@@ -92,15 +92,19 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   if (!block) return null;
 
-  const onSave = keepWindowOpen => {
+  const buildPayload = () => {
     const {settings} = blockState;
     const contentByLocale = Object.values(blockState.contentByLocale).reduce((acc, d) => ({[d.locale]: {...d, content: d.content}}), {});
     const properties = ["id", "api", "content", "shared", "type"].reduce((acc, d) => ({...acc, [d]: blockState[d]}), {});
-    const payload = {
+    return {
       ...properties,
       contentByLocale,
       settings
     };
+  };
+
+  const onSave = keepWindowOpen => {
+    const payload = buildPayload();
     setLoading(true);
     dispatch(updateEntity(ENTITY_TYPES.BLOCK, payload)).then(resp => {
       if (resp.status === REQUEST_STATUS.SUCCESS) {
@@ -230,11 +234,18 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     onTextModify={onTextModify}
   />;
 
+  // The codeEditor is the only editor that changes *based on another editor, i.e, the simpleUI.
+  // Therefore it must be controlled, and its state must live here in Block.jsx
   const codeEditor = <AceWrapper
     className="cms-block-output-ace"
     key="code-editor"
     onChange={logic => onChangeCode(logic, localeDefault)}
-    defaultValue={hasNoLocaleContent(block.type) ? block.content[BLOCK_FIELDS.LOGIC] : block.contentByLocale[localeDefault].content[BLOCK_FIELDS.LOGIC]}
+    value={blockState.type
+      ? hasNoLocaleContent(blockState.type)
+        ? blockState.content[BLOCK_FIELDS.LOGIC]
+        : blockState.contentByLocale[localeDefault].content[BLOCK_FIELDS.LOGIC]
+      : ""
+    }
   />;
 
   const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save & Execute</Button>;

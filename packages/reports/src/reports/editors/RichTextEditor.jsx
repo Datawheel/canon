@@ -7,6 +7,7 @@ import {useDebouncedValue} from "@mantine/hooks";
 import DraftWrapper from "./DraftWrapper";
 
 import sanitizeBlockContent from "../../utils/blocks/sanitizeBlockContent";
+import deepClone from "../../utils/js/deepClone";
 
 /* css */
 import "./RichTextEditor.css";
@@ -20,7 +21,7 @@ function RichTextEditor({locale, defaultContent, fields, onChange, variables, fo
   const showToolbar = useSelector(state => state.cms.status.showToolbar);
 
   /* state */
-  const [stateContent, setStateContent] = useState(() => defaultContent);
+  const [stateContent, setStateContent] = useState(() => deepClone(defaultContent));
 
   /**
    * There is a race condition when this component is mounted with several fields. Each of the fields
@@ -33,14 +34,14 @@ function RichTextEditor({locale, defaultContent, fields, onChange, variables, fo
 
   /* Update *local* state on each keystroke, but use the debouncer below to space out update callbacks */
   const handleEditor = (field, text) => {
-    setStateContent({...stateContent, [field]: text});
+    setStateContent(stateContent => ({...stateContent, [field]: text}));
   };
 
   /* Rate-limit the slightly expensive state update out in Block.jsx */
   const [debounced] = useDebouncedValue(stateContent, 500);
 
   useEffect(() => {
-    const simple = Object.keys(stateContent).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(stateContent[d])}), {});
+    const simple = Object.keys(debounced).reduce((acc, d) => ({...acc, [d]: sanitizeBlockContent(debounced[d])}), {});
     const logic = `return ${JSON.stringify(simple, null, "\t")}`;
     onChange({simple, logic}, locale);
   }, [debounced]);
