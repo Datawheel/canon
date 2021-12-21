@@ -16,7 +16,7 @@ module.exports = function(app) {
 
     const query = req.query.query || req.query.q;
     const locale = req.query.locale || localeDefault;
-    const {slug} = req.query;
+    const {slug, namespace} = req.query;
 
     if (slug) {
       const orderedSlugs = slug.split(",");
@@ -33,8 +33,10 @@ module.exports = function(app) {
     const allMeta = await db.report_meta.findAll().then(arr => arr.map(d => d.toJSON()));
     const allProps = allMeta.reduce((acc, d) => acc.concat(Object.values(d.properties)), []);
 
+    const searchWhere = {include: {association: "contentByLocale"}};
+    if (namespace) searchWhere.where = {namespace};
     let results = await db.search
-      .findAll({include: {association: "contentByLocale"}})
+      .findAll(searchWhere)
       .then(res => res.map(d => d.toJSON()))
       .catch(() => []);
 

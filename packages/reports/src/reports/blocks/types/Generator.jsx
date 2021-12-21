@@ -4,7 +4,7 @@ import {Textarea} from "@mantine/core";
 /**
  *
  */
-function Generator(outputVariables) {
+function Generator({outputVariables}) {
 
   return (
     <div>

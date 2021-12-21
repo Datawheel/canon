@@ -29,7 +29,9 @@ function CMSHeader({id}) {
   const currentReport = useSelector(state => state.cms.status.currentReport);
   const reports = useSelector(state => state.cms.reports.entities.reports);
   const pathObj = useSelector(state => state.cms.status.pathObj);
+  const metas = useSelector(state => state.cms.reports.entities.meta);
   const meta = reports[currentReport]?.meta || [];
+
 
   const [opened, setOpened] = useState(false);
   const [query, setQuery] = useState("");
@@ -39,7 +41,14 @@ function CMSHeader({id}) {
   const inputRef = useRef();
 
   useEffect(() => {
-    axios.get(`/api/reports/newsearch?query=${debouncedQuery}`).then(resp => {
+    const params = {
+      query: debouncedQuery,
+      // todo1.0 fix this accessor for bilaterals
+      namespace: metas && meta && meta[0] ? metas[meta[0]].namespace : ""
+    };
+    const paramString = Object.keys(params).map(key => `${key}=${params[key]}`).join("&");
+
+    axios.get(`/api/reports/newsearch?${paramString}`).then(resp => {
       setResults(resp.data);
     });
   }, [debouncedQuery]);

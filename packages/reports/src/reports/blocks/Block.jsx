@@ -198,6 +198,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     locale={localeDefault}
     variables={variables}
     allowed={true}
+    debug={true}
   />;
 
   const apiInput = <ApiInput

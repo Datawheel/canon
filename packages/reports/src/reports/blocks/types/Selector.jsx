@@ -1,10 +1,7 @@
 /* react */
-import React, {useMemo, useState, useEffect} from "react";
+import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Select, MultiSelect} from "@mantine/core";
-
-/* utils */
-import runSelector from "../../../utils/selectors/runSelector";
 
 /* hooks */
 import {setStatus} from "../../../actions/status";

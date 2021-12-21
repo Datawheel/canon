@@ -4,6 +4,7 @@
  */
 const arrayFinder = obj => {
   const keys = [];
+  if (Array.isArray(obj)) return [];
   const parse = (obj, prefix = "") => {
     if (typeof obj !== "object") return;
     Object.keys(obj).forEach(key => {
