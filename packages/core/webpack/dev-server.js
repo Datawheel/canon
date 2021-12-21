@@ -7,9 +7,10 @@ const FriendlyErrorsWebpackPlugin = require("@nuxtjs/friendly-errors-webpack-plu
       path = require("path"),
       webpack = require("webpack");
 
+const commonConfig = require("./config/common");
+
 const assetsPath = path.join(appDir, process.env.CANON_STATIC_FOLDER || "static", "assets");
 const publicPath = "/assets/";
-const appPath = path.join(appDir, "app");
 
 process.traceDeprecation = true;
 
@@ -43,21 +44,7 @@ module.exports = {
       server: true
     })
   },
-  resolve: {
-    alias: {
-      $root: appDir,
-      $app: appPath
-    },
-    modules: [
-      appPath,
-      appDir,
-      path.resolve(__dirname, "../src"),
-      path.resolve(appDir, "node_modules"),
-      path.resolve(__dirname, "../node_modules"),
-      "node_modules"
-    ],
-    extensions: [".js", ".jsx", ".css"]
-  },
+  resolve: commonConfig.resolve,
   plugins: [
     new webpack.NormalModuleReplacementPlugin(
       /\/app\/.*\.(css|scss|sass)$/,
