@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import "./AceTheme.css";
-import "./AceWrapper.css";
 
 export default class AceWrapper extends Component {
   constructor(props) {
@@ -41,10 +40,10 @@ export default class AceWrapper extends Component {
       };
 
       return (
-        <div /* className={`cms-ace-container${isFullscreen ? " is-fullscreen" : ""}`}*/>
+        <div className="cr-ace-container" style={{flex: 1}}>
           {/*
           // todo1.0 add this fullscreen button back in
-
+        <div className={`cms-ace-container${isFullscreen ? " is-fullscreen" : ""}`}>
           <Button
             className="cms-ace-button"
             namespace="cms"
