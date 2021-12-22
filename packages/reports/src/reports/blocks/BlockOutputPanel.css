@@ -1,5 +1,14 @@
-.cms-block-output {
-  margin-top:40px;
-  display:flex;
+.cr-block-output {
+  align-items: stretch;
+  margin: 0;
   position: relative;
+  & .cr-block-output-editor {
+    display: flex;
+    flex-direction: column;
+  }
+  & .cr-block-output-mode-control {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
 }

@@ -1,9 +1,7 @@
 /* react */
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-
-/* components */
-import ConsumerMenu from "../components/ConsumerMenu";
+import {Col, Grid, useMantineTheme} from "@mantine/core";
 
 /* consts */
 import {BLOCK_TYPES} from "../../utils/consts/cms";
@@ -14,7 +12,7 @@ import "./BlockOutputPanel.css";
 /**
  *
  */
-function BlockOutputPanel({id, components}) {
+function BlockOutputPanel({id, components, mode}) {
 
   const dispatch = useDispatch();
 
@@ -24,16 +22,15 @@ function BlockOutputPanel({id, components}) {
 
   const block = blocks[id];
 
-  const {apiInput, codeEditor, simpleUI, executeButton, blockPreview, modeControl, textEditor} = components;
-
-  const mode = modeControl.props.value;
+  const {apiInput, codeEditor, simpleUI, executeButton, blockPreview, textEditor} = components;
 
   const isStatlike = ![BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ, BLOCK_TYPES.SELECTOR].includes(block.type);
 
+  const theme = useMantineTheme();
+
   return (
-    <div className="cms-block-output">
-      {modeControl}
-      <div>
+    <Grid className="cr-block-output" style={{flex: 1, marginTop: theme.spacing.md, width: "100%"}}>
+      <Col span={7} className={`cr-block-output-editor ${mode}`}>
         {mode === "code"
           ? <React.Fragment>
             {apiInput}
@@ -44,12 +41,11 @@ function BlockOutputPanel({id, components}) {
             ? textEditor
             : simpleUI
         }
-      </div>
-      <div style={{display: "flex", flexDirection: "column"}}>
+      </Col>
+      <Col span={5} style={{display: "flex", flexDirection: "column"}}>
         {blockPreview}
-        <ConsumerMenu id={id} />
-      </div>
-    </div>
+      </Col>
+    </Grid>
   );
 
 }
