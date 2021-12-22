@@ -27,6 +27,7 @@ const strSwap = (str, formatterFunctions, variables, isLogic = false, id = null)
 */
 
 const varSwapRecursive = (sourceObj, formatterFunctions, variables, query = {}) => {
+  // todo1.0 this needs to use programmatic allowed
   const allowed = obj => !obj.allowed || obj.allowed === "always" || variables[obj.allowed];
   const obj = {...sourceObj};
   for (const skey in obj) {

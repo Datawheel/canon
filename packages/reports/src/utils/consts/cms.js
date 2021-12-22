@@ -57,10 +57,13 @@ const REPORT_MAP = {
   [REPORT_TYPES.STORY]: Object.values(REPORT_FIELDS)
 };
 
-const REPORT_SETTINGS = {
+const ALLOWED = {
   ALLOWED: "allowed",
-  LOGIC_ALLOWED: "logicAllowed",
-  LOGIC_ALLOWED_ENABLED: "logicAllowedEnabled"
+  ALLOWED_LOGIC: "allowedLogic"
+};
+
+const REPORT_SETTINGS = {
+  ...ALLOWED
 };
 
 const SECTION_FIELDS = {
@@ -71,9 +74,7 @@ const SECTION_FIELDS = {
 const SECTION_SETTINGS = {
   POSITION: "position",
   ICON: "icon",
-  ALLOWED: "allowed",
-  LOGIC_ALLOWED: "logicAllowed",
-  LOGIC_ALLOWED_ENABLED: "logicAllowedEnabled"
+  ...ALLOWED
 };
 
 const BLOCK_CONTENT_TYPES = {
@@ -174,9 +175,7 @@ Object.keys(BLOCK_MAP).forEach(k => {
 const BLOCK_SETTINGS = {
   NAME: "name",
   DESCRIPTION: "description",
-  ALLOWED: "allowed",
-  LOGIC_ALLOWED: "logicAllowed",
-  LOGIC_ALLOWED_ENABLED: "logicAllowedEnabled"
+  ...ALLOWED
 };
 
 module.exports = {

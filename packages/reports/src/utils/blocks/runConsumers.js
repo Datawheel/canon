@@ -197,7 +197,11 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
     // rootBlock or otherwise, the variables that feed THIS BLOCK have now been calculated. Generate this block's output
     // using those variables, and store the result in the cache. First, however, using those vars, determine if this block
     // is allowed. If it isn't, cascade that hiding all the way down through its consumers.
-    const allowed = !("allowed" in block.settings) || {...variables, ...attributes}[block.settings.allowed] || block.settings.allowed === "always";
+    let allowed = true;
+    if ("allowed" in block.settings && block.settings.allowed !== "always") {
+      const {vars, error} = mortarEval("variables", {...variables, ...attributes}, block.settings.allowedLogic, formatterFunctions, locale);
+      if (!error) allowed = vars;
+    }
     if (allowed) {
       if (!cache[bid]) cache[bid] = await generateVars(block, variables).catch(catcher);
       for (const cid of blocks[bid].consumers) {

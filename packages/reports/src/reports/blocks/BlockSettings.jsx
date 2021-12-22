@@ -4,7 +4,7 @@ import {useSelector, useDispatch} from "react-redux";
 import {Select, Button, SegmentedControl, TextInput, Group, Checkbox} from "@mantine/core";
 
 /* enums */
-import {ENTITY_TYPES} from "../../utils/consts/cms";
+import {BLOCK_SETTINGS, ENTITY_TYPES} from "../../utils/consts/cms";
 
 /* hooks */
 import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
@@ -14,6 +14,7 @@ import {deleteEntity} from "../../actions/reports";
 
 /* utils */
 import {useVariables} from "../hooks/blocks/useVariables";
+import AceWrapper from "../editors/AceWrapper";
 
 /**
  *
@@ -29,6 +30,7 @@ function BlockSettings({id, onChange}) {
 
   /* state */
   const [width, setWidth] = useState(block.settings.width || "stretch");
+  const [allowedLogic, setAllowedLogic] = useState(block.settings.allowedLogic);
 
   const {variables} = useVariables(id);
 
@@ -58,10 +60,33 @@ function BlockSettings({id, onChange}) {
     handleChange("width", result);
   };
 
+  const handleChangeAllowedLogic = logic => {
+    setAllowedLogic(logic);
+    handleChange(BLOCK_SETTINGS.ALLOWED_LOGIC, logic);
+  };
+
+  const handleChangeAllowedDropdown = allowed => {
+    const allowedLogic = `return ${allowed === "always" ? "true" : `variables.${allowed}`};`;
+    // These need to occur in the same onChange action to avoid a race condition
+    onChange({
+      [BLOCK_SETTINGS.ALLOWED]: allowed,
+      [BLOCK_SETTINGS.ALLOWED_LOGIC]: allowedLogic
+    });
+    setAllowedLogic(allowedLogic);
+  };
+
   return (
     <Group>
       <Group direction="column">
-        <Select label="Allowed" defaultValue={block.settings.allowed || "always"} onChange={e => handleChange("allowed", e)} data={allowed} />
+        <Select label="Allowed" defaultValue={block.settings[BLOCK_SETTINGS.ALLOWED] || "always"} onChange={handleChangeAllowedDropdown} data={allowed} />
+        <AceWrapper
+          className="reports-allowed-editor"
+          style={{width: 200, height: 200}}
+          showGutter={false}
+          key="code-editor"
+          onChange={handleChangeAllowedLogic}
+          value={allowedLogic}
+        />
         <span>Sharing</span>
         <SegmentedControl defaultValue={String(block.shared)} onChange={e => handleChange("shared", e === "true")} data={shared}/>
         <span>[Coming soon - Viz Options]</span>
