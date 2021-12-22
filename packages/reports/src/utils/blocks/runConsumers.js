@@ -2,9 +2,8 @@ const axios = require("axios");
 const mortarEval = require("../variables/mortarEval");
 const jwt = require("jsonwebtoken");
 const yn = require("yn");
-const {BLOCK_FIELDS_EXCLUDE, BLOCK_TYPES} = require("../consts/cms");
+const {BLOCK_TYPES} = require("../consts/cms");
 const varSwap = require("../variables/varSwap");
-const varSwapRecursive = require("../variables/varSwapRecursive");
 const runSelector = require("../selectors/runSelector");
 const selectorQueryToVariable = require("../selectors/selectorQueryToVariable");
 
@@ -115,18 +114,18 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
     variables = {...variables, ...attributes};
     statusById[block.id] = {};
     const setStatus = obj => statusById[block.id] = {...statusById[block.id], ...obj};
-    let resp = {};
+    let apiResponse = {}, resp = {};
     if (block.content.api) {
       if (apiCache[block.content.api]) {
-        resp = apiCache[block.content.api];
+        apiResponse = apiCache[block.content.api];
       }
       else {
         // todo1.0, pass the correct vars here, including canonVars, etc
-        const response = await apiFetch(req, block.content.api, locale, variables).catch(catcher);
-        setStatus({duration: response.requestDuration, response: response.data});
-        resp = response.data;
-        apiCache[block.content.api] = resp;
+        apiResponse = await apiFetch(req, block.content.api, locale, variables).catch(catcher);
+        if (!apiCache[block.content.api]) apiCache[block.content.api] = apiResponse;
       }
+      setStatus({duration: apiResponse.requestDuration, response: apiResponse.data});
+      resp = apiResponse.data;
     }
     // If this block is a selector, then it should export *its currently selected option*
     if (block.type === BLOCK_TYPES.SELECTOR) {
