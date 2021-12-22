@@ -9,7 +9,7 @@ import {withSize} from "react-sizeme";
 import {scaleLinear} from "d3-scale";
 
 import {Icon} from "@blueprintjs/core";
-import ReactTable from "react-table";
+import ReactTable from "react-table-6";
 
 import "./Table.css";
 

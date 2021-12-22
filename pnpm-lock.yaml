@@ -478,7 +478,8 @@ importers:
       react-clipboard.js: ^2.0.7
       react-icons: ^4.3.1
       react-sizeme: ^2.6.7
-      react-table: 6.10.3
+      react-table: ^7.7.0
+      react-table-6: 6.11.0
       sharp: ^0.28.1
       xlsx: ^0.17.3
     dependencies:
@@ -536,7 +537,8 @@ importers:
       react-clipboard.js: 2.0.16
       react-icons: 4.3.1
       react-sizeme: 2.6.12
-      react-table: 6.10.3
+      react-table: 7.7.0
+      react-table-6: 6.11.0
       sharp: 0.28.1
       xlsx: 0.17.3
     devDependencies:
@@ -12189,6 +12191,16 @@ packages:
       throttle-debounce: 2.3.0
     dev: false
 
+  /react-table-6/6.11.0:
+    resolution: {integrity: sha512-zO24J+1Qg2AHxtSNMfHeGW1dxFcmLJQrAeLJyCAENdNdwJt+YolDDtJEBdZlukon7rZeAdB3d5gUH6eb9Dn5Ug==}
+    peerDependencies:
+      prop-types: ^15.5.0
+      react: ^16.x.x
+      react-dom: ^16.x.x
+    dependencies:
+      classnames: 2.3.1
+    dev: false
+
   /react-table/6.10.3:
     resolution: {integrity: sha512-sVlq2/rxVaQJywGD95+qGiMr/SMHFIFnXdx619BLOWE/Os5FOGtV6pQJNAjZixbQZiOu7dmBO1kME28uxh6wmA==}
     peerDependencies:
@@ -12197,6 +12209,12 @@ packages:
       react-dom: ^15.x.x || ^16.x.x
     dependencies:
       classnames: 2.3.1
+    dev: false
+
+  /react-table/7.7.0:
+    resolution: {integrity: sha512-jBlj70iBwOTvvImsU9t01LjFjy4sXEtclBovl3mTiqjz23Reu0DKnRza4zlLtOPACx6j2/7MrQIthIK1Wi+LIA==}
+    peerDependencies:
+      react: ^16.8.3 || ^17.0.0-0
     dev: false
 
   /react-textarea-autosize/8.3.3:

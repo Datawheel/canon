@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
-import ReactTable from "react-table";
+import ReactTable from "react-table-6";
 import PropTypes from "prop-types";
 import "./Table.css";
 import "./Options.css";
