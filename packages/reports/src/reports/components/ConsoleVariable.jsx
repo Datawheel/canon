@@ -20,10 +20,11 @@ function ConsoleVariable({value}) {
 
   const JSON_CUTOFF = 1000;
   const ARRAY_CUTOFF = 5;
+  const STRING_CUTOFF = 12; // todo1.0 this is temporary due to dave's inputmenu width
 
   const t = evalType(value);
   let v = value;
-  if (t === "string") v = `"${v}"`;
+  if (t === "string") v = `"${v.substring(0, STRING_CUTOFF)}${v.length > STRING_CUTOFF ? "..." : ""}"`;
   else if (t === "object") {
     const str = JSON.stringify(v, null, 2);
     v = str.length > JSON_CUTOFF ? <pre>JSON object too large to display.</pre> : <pre>{ str }</pre>;

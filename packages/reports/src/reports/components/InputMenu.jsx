@@ -11,7 +11,7 @@ import InputMenuItem from "./InputMenuItem";
 import {newEntity, deleteEntity} from "../../actions/reports";
 
 /* consts */
-import {ENTITY_TYPES} from "../../utils/consts/cms";
+import {BLOCK_TYPES, ENTITY_TYPES} from "../../utils/consts/cms";
 
 /** */
 function InputMenu({id}) {
@@ -65,7 +65,7 @@ function InputMenu({id}) {
       control={<Button fullWidth style={{marginBottom: "15px"}} leftIcon={<HiOutlineLogin style={{transform: "scaleX(-1)"}} />}>Add New Input</Button>}
       size="xl"
     >
-      {availableBlocks.map(({id, shared}) =>
+      {availableBlocks.map(({id, type, shared}) =>
         <Menu.Item
           active={block.inputs.includes(id)}
           disabled={block.consumers.includes(id)}
