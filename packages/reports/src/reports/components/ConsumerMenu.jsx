@@ -15,7 +15,7 @@ function ConsumerMenu({id}) {
   const consumerBlocks = useMemo(() => Object.values(consumers || []).filter(d => block.consumers.includes(d.id)), [consumers]);
 
   return (
-    <Menu zIndex={1001} position="top" control={<Button disabled={!consumerBlocks.length} style={{marginBottom: "15px"}} variant="outline" leftIcon={<HiOutlineRss />}>View Consumers</Button>}>
+    <Menu zIndex={1001} position="top" control={<Button disabled={!consumerBlocks.length} variant="outline" leftIcon={<HiOutlineRss />}>View Consumers</Button>}>
       {consumerBlocks.map(({id, type}) =>
         <Menu.Item key={id}>
           {`${type}(${id})`}
