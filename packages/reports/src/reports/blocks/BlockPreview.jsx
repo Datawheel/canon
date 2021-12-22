@@ -69,25 +69,21 @@ function BlockPreview(props) {
       payload.duration = block._status && block._status.duration ? block._status.duration : false;
     }
     else if (block.type === BLOCK_TYPES.SELECTOR) {
-      const resp = block._status && block._status.response ? block._status.response : {};
-      const {config, log, error} = runSelector(blockState.contentByLocale[locale].content.logic, resp, variables, locale);
+      const {config, log, error} = runSelector(blockState.contentByLocale[locale].content.logic, variables, locale);
       payload.content = {id: block.id, config};
       payload.log = log.join("\n");
       payload.error = error;
-      payload.duration = block._status && block._status.duration ? block._status.duration : false;
     }
     else if (block.type === BLOCK_TYPES.VIZ) {
       payload.content = props;
     }
     else {
-      const resp = block._status && block._status.response ? block._status.response : {};
-      const {vars, error, log} = mortarEval("resp", resp, blockState.contentByLocale[locale].content.logic, formatterFunctions[locale], locale, variables);
+      const {vars, error, log} = mortarEval("variables", variables, blockState.contentByLocale[locale].content.logic, formatterFunctions[locale], locale);
       payload.content = active
         ? varSwapRecursive(vars, formatterFunctions[locale], variables)
         : spoiler(vars);
       payload.log = log ? log.join("\n") : "";
       payload.error = error;
-      payload.duration = block._status && block._status.duration ? block._status.duration : false;
     }
     return payload;
   }, [block, blockState, active]);

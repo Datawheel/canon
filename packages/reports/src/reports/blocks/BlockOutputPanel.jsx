@@ -33,7 +33,7 @@ function BlockOutputPanel({id, components, mode}) {
       <Col span={7} className={`cr-block-output-editor ${mode}`}>
         {mode === "code"
           ? <React.Fragment>
-            {apiInput}
+            {block.type === BLOCK_TYPES.GENERATOR && apiInput}
             {codeEditor}
             {executeButton}
           </React.Fragment>
