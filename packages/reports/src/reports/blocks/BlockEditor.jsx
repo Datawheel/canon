@@ -28,7 +28,12 @@ function BlockEditor({id, panels}) {
         <InputMenu id={id}/>
         <VariableList id={id}/>
       </Col>
-      <Col span={9}>
+      <Col span={9}
+        style={{
+          display: "flex",
+          flexDirection: "column"
+        }}
+      >
         <Center>
           <SegmentedControl
             value={tab}
