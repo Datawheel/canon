@@ -1,8 +1,9 @@
 /* react */
 import React, {useState, useEffect, useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Modal, ActionIcon, Button, Group, Tooltip, useMantineTheme, SegmentedControl} from "@mantine/core";
-import {HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiEyeOff} from "react-icons/hi";
+import {titleCase} from "d3plus-text";
+import {Modal, ActionIcon, Button, Group, Tooltip, useMantineTheme} from "@mantine/core";
+import {HiOutlineCode, HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiOutlineTable, HiEyeOff} from "react-icons/hi";
 import {AiOutlineGlobal} from "react-icons/ai";
 
 /* components */
@@ -15,6 +16,7 @@ import BlockPreview from "./BlockPreview";
 import BlockSettings from "./BlockSettings";
 import BlockOutputPanel from "./BlockOutputPanel";
 import SimpleUI from "../editors/SimpleUI";
+import ConsumerMenu from "../components/ConsumerMenu";
 
 /* utils */
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
@@ -201,23 +203,9 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     debug={true}
   />;
 
-  const apiInput = <ApiInput
-    key="api-input"
-    defaultValue={block.content.api}
-    onChange={onChangeAPI}
-    onEnterPress={() => onSave(true)}
-    variables={variables}
-  />;
-
-  const modeControl = <SegmentedControl
-    key="mode-control"
-    data={[{label: "UI", value: MODES.UI}, {label: "Code", value: MODES.CODE}]}
-    value={blockState.type  // The editor may not yet be open, don't try to drill down until the state is cloned.
-      ? (hasNoLocaleContent(blockState.type) ? blockState.content : blockState.contentByLocale[localeDefault].content)[BLOCK_FIELDS.SIMPLE_ENABLED] ? MODES.UI : MODES.CODE
-      : MODES.CODE
-    }
-    onChange={e => onChangeMode(e, localeDefault)}
-  />;
+  const currentMode = blockState.type  // The editor may not yet be open, don't try to drill down until the state is cloned.
+    ? (hasNoLocaleContent(blockState.type) ? blockState.content : blockState.contentByLocale[localeDefault].content)[BLOCK_FIELDS.SIMPLE_ENABLED] ? MODES.UI : MODES.CODE
+    : MODES.CODE;
 
   const simpleUI = <SimpleUI
     type={block.type}
@@ -236,10 +224,18 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     onTextModify={onTextModify}
   />;
 
+  const apiInput = <ApiInput
+    key="api-input"
+    defaultValue={block.content.api}
+    onChange={onChangeAPI}
+    onEnterPress={() => onSave(true)}
+    variables={variables}
+  />;
+
   // The codeEditor is the only editor that changes *based on another editor, i.e, the simpleUI.
   // Therefore it must be controlled, and its state must live here in Block.jsx
   const codeEditor = <AceWrapper
-    className="cms-block-output-ace"
+    style={{flex: 1}}
     key="code-editor"
     onChange={logic => onChangeCode(logic, localeDefault)}
     value={blockState.type
@@ -250,9 +246,9 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     }
   />;
 
-  const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save & Execute</Button>;
+  const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save &amp; Execute</Button>;
 
-  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton, modeControl, simpleUI};
+  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton, simpleUI};
 
   const blockSettings = <BlockSettings
     id={id}
@@ -262,6 +258,7 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
   const blockOutputPanel = <BlockOutputPanel
     id={id}
     components={components}
+    mode={currentMode}
   />;
 
   const panels = {blockSettings, blockOutputPanel};
@@ -322,7 +319,23 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
       </div>
       <Modal centered key="d" {...modalProps}>
         <BlockEditor key="be" id={id} panels={panels}/>
-        <Group position="right" style={{marginTop: theme.spacing.sm}}>
+        <Group position="right">
+          <Tooltip
+            label={`${currentMode === MODES.UI ? "Show" : "Hide"} Code`}
+            withArrow
+            color={currentMode === MODES.CODE ? "dark" : "lime"}
+          >
+            <Button
+              key="mode-control"
+              className="cr-block-output-mode-control"
+              variant={currentMode === MODES.UI ? "outline" : "filled"}
+              color={currentMode === MODES.UI ? "dark" : "lime"}
+              onClick={() => onChangeMode(currentMode === MODES.UI ? MODES.CODE : MODES.UI, localeDefault)}
+            >
+              <HiOutlineCode size={16} />
+            </Button>
+          </Tooltip>
+          <ConsumerMenu id={id} />
           <Button key="cancel" color="red" onClick={maybeCloseWithoutSaving}>Cancel</Button>
           <Button key="save" color="green" onClick={() => onSave(false)}>Save &amp; Close</Button>
         </Group>
