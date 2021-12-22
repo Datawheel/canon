@@ -106,6 +106,7 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
    * up or down, cache results so we can use that cache instead of re-running.
    */
   const cache = {};
+  const apiCache = {};
   const statusById = {};
   // Calculate the vars/status for this block, given the variables from its inputs. Each var will be prepended with the
   // block type and id, which will create variables like "stat14value" for downstream blocks.
@@ -116,10 +117,16 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
     const setStatus = obj => statusById[block.id] = {...statusById[block.id], ...obj};
     let resp = {};
     if (block.content.api) {
-      // todo1.0, pass the correct vars here, including canonVars, etc
-      const response = await apiFetch(req, block.content.api, locale, variables).catch(catcher);
-      setStatus({duration: response.requestDuration, response: response.data});
-      resp = response.data;
+      if (apiCache[block.content.api]) {
+        resp = apiCache[block.content.api];
+      }
+      else {
+        // todo1.0, pass the correct vars here, including canonVars, etc
+        const response = await apiFetch(req, block.content.api, locale, variables).catch(catcher);
+        setStatus({duration: response.requestDuration, response: response.data});
+        resp = response.data;
+        apiCache[block.content.api] = resp;
+      }
     }
     // If this block is a selector, then it should export *its currently selected option*
     if (block.type === BLOCK_TYPES.SELECTOR) {

@@ -119,7 +119,7 @@ export function activateSection(id, previews, query) {
     const config = {
       params: {
         id,
-        slugs: (previews || getStore().cms.status.pathObj.previews).map(d => d.slug).join(),
+        slugs: (previews || getStore().cms.status.pathObj.previews || []).map(d => d.slug).join(),
         query: Object.entries(query || getStore().cms.status.query).map(([k, v]) => `${k}=${v}`).join("&")
       }
     };
