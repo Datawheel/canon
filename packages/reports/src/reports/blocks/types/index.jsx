@@ -12,6 +12,6 @@ export default {
   subtitle: SubtitlePreview,
   title: TitlePreview,
   selector: SelectorPreview,
-  visualization: VizPreview
-  // generator: GeneratorPreview
+  visualization: VizPreview,
+  generator: GeneratorPreview
 };

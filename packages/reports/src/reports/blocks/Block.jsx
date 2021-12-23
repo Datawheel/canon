@@ -1,9 +1,8 @@
 /* react */
 import React, {useState, useEffect, useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {titleCase} from "d3plus-text";
 import {Modal, ActionIcon, Button, Group, Tooltip, useMantineTheme} from "@mantine/core";
-import {HiOutlineCode, HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiOutlineTable, HiEyeOff} from "react-icons/hi";
+import {HiOutlineCode, HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiEyeOff} from "react-icons/hi";
 import {AiOutlineGlobal} from "react-icons/ai";
 
 /* components */
@@ -240,8 +239,8 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
     onChange={logic => onChangeCode(logic, localeDefault)}
     value={blockState.type
       ? hasNoLocaleContent(blockState.type)
-        ? blockState.content[BLOCK_FIELDS.LOGIC]
-        : blockState.contentByLocale[localeDefault].content[BLOCK_FIELDS.LOGIC]
+        ? blockState.content.logic
+        : blockState.contentByLocale[localeDefault].content.logic
       : ""
     }
   />;

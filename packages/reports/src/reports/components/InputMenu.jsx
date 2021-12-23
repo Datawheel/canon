@@ -65,7 +65,7 @@ function InputMenu({id}) {
       control={<Button fullWidth style={{marginBottom: "15px"}} leftIcon={<HiOutlineLogin style={{transform: "scaleX(-1)"}} />}>Add New Input</Button>}
       size="xl"
     >
-      {availableBlocks.map(({id, type, shared}) =>
+      {availableBlocks.map(({id, shared}) =>
         <Menu.Item
           active={block.inputs.includes(id)}
           disabled={block.consumers.includes(id)}

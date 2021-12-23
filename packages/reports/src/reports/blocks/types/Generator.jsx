@@ -1,10 +1,12 @@
 import React from "react";
-import {Textarea} from "@mantine/core";
+import {Textarea, Center, Badge} from "@mantine/core";
 
 /**
  *
  */
-function Generator({outputVariables}) {
+function Generator({outputVariables, debug}) {
+
+  if (!debug) return <Center><Badge key="type" color="gray" variant="outline">GENERATOR</Badge></Center>;
 
   return (
     <div>
