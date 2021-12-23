@@ -1,9 +1,9 @@
 /* react */
 import React, {useMemo} from "react";
+import {Badge, Center} from "@mantine/core";
 
 /* utils */
 import d3plusPropify from "../../../utils/d3plusPropify";
-import toKebabCase from "../../../utils/formatters/toKebabCase";
 import varSwapRecursive from "../../../utils/variables/varSwapRecursive";
 
 /* vizes */
@@ -31,6 +31,8 @@ const stub = message => ({
   noDataHTML: `<p style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${message}</strong></p>`
 });
 
+const ErrorMessage = ({message}) => <Center style={{height: "100%"}}><Badge key="type" color="gray" variant="outline">{message}</Badge></Center>;
+
 /**
  * Viz Renderer
 */
@@ -42,37 +44,25 @@ export default function Viz({block, blockState, active, locale, variables, debug
   // This will all need to be brought in, to play nice with legacy context.
 
   const vizProps = useMemo(() => {
-    if (!active) return {config: stub("Activate to View")};
-    if (!block.content.logic) return {config: stub("Add a Configuration")};
+    if (!active) return {error: "Activate to View"};
+    if (!block.content.logic) return {error: "Add a Configuration"};
     // todo1.0 fix all these arguments!
     const transpiledLogic = varSwapRecursive({logic: block.content.logic}, {}, variables, {}).logic;
     return d3plusPropify(transpiledLogic, {}, variables, locale, block.id, {});
   }, [block, active]);
 
+  // strip out the "type" from config
+  const {type} = vizProps.config || {};
+  if (!type) vizProps.config = {error: "Visualization missing \"type\""};
+  const Visualization = vizTypes[type];
+  if (type && !Visualization) vizProps.config = {error: `"${type}" is not a valid Visualization Type`};
+
   // If the result of propify has an "error" property, then the provided javascript was malformed and propify
   // caught an error. Instead of attempting to render the viz, simply show the error to the user.
   // If "debug" is set to true, this viz is being rendered in the CMS, and we can show the stacktrace directly.
-  if (vizProps.error && debug) return <div>{`Error in Viz index: ${vizProps.error}`}</div>;
-  // Note that if vizProps.error exists but debug is NOT true, we should still keep rendering, because propify
-  // gave us a "stub" config with a user-friendly error message built in, so the front-end can see it.
+  if (vizProps.error) return <ErrorMessage message={debug ? vizProps.error : "Visualization Error"} />;
+
   vizProps.config = {...vizProps.config, ...configOverride};
-
-  // todo1.0 this should not happen every time, but only in the cms.
-  const re = new RegExp(/height\:[\s]*([0-9]+)/g);
-  let height = re.exec(vizProps.config);
-  height = height ? height[1] : "400";
-  vizProps.config.height = height;
-
-  // strip out the "type" from config
-  const {type} = vizProps.config;
-  // delete vizProps.config.type;
-  if (!type) return null;
-  const Visualization = vizTypes[type];
-  if (!Visualization) {
-    return <div>{`${type} is not a valid Visualization Type`}</div>;
-  }
-
-  const title = vizProps.config.title;
 
   const vizConfig = {locale, ...vizProps.config};
 
@@ -85,51 +75,51 @@ export default function Viz({block, blockState, active, locale, variables, debug
   const showOptions = false;
 
   return <div
+    style={{
+      display: "flex",
+      flex: 1,
+      minHeight: "200px"
+    }}
   // todo1.0 this ref needs to be updated
   // ref={ comp => this.viz = comp }
   >
-    {showHeader &&
-      <div>
-        {showOptions && !vizProps.error
-          ? <Options
-            key="option-key"
-            // todo1.0 fix this screenshot service here
-            // component={{section, viz: this}}
-            dataAttachments={vizConfig.dataAttachments}
-            data={vizConfig.data}
-            dataFormat={vizProps.dataFormat}
-            // todo1.0 sections no longer have direct slugs and titles, so these will need to come
-            // from somewhere else
-            // slug={slug}
-            // title={title || sectionTitle || slug}
-            title={title}
-          /> : ""
-        }
-      </div>
+    {showHeader && showOptions
+      ? <Options
+        key="option-key"
+        // todo1.0 fix this screenshot service here
+        // component={{section, viz: this}}
+        dataAttachments={vizConfig.dataAttachments}
+        data={vizConfig.data}
+        dataFormat={vizProps.dataFormat}
+        // todo1.0 sections no longer have direct slugs and titles, so these will need to come
+        // from somewhere else
+        // slug={slug}
+        // title={title || sectionTitle || slug}
+        title={vizProps.config.title}
+      /> : null
     }
-    <div>
-      <Visualization
-        key="viz-key"
-        dataFormat={resp => {
-          const hasMultiples = vizProps.data && Array.isArray(vizProps.data) && vizProps.data.length > 1 && vizProps.data.some(d => typeof d === "string");
-          const sources = hasMultiples ? resp : [resp];
-          // sources.forEach(r => this.analyzeData.bind(this)(r));
-          let data;
-          try {
-            data = vizProps.dataFormat(resp);
-          }
-          catch (e) {
-            console.log("Error in dataFormat: ", e);
-            data = [];
-          }
-          return data;
-        }}
-        linksFormat={vizProps.linksFormat}
-        nodesFormat={vizProps.nodesFormat}
-        topojsonFormat={vizProps.topojsonFormat}
-        config={{...vizConfig, variables}}
-      />
-    </div>
+    <Visualization
+      style={{flex: 1}}
+      key="viz-key"
+      dataFormat={resp => {
+        const hasMultiples = vizProps.data && Array.isArray(vizProps.data) && vizProps.data.length > 1 && vizProps.data.some(d => typeof d === "string");
+        const sources = hasMultiples ? resp : [resp];
+        // sources.forEach(r => this.analyzeData.bind(this)(r));
+        let data;
+        try {
+          data = vizProps.dataFormat(resp);
+        }
+        catch (e) {
+          console.log("Error in dataFormat: ", e);
+          data = [];
+        }
+        return data;
+      }}
+      linksFormat={vizProps.linksFormat}
+      nodesFormat={vizProps.nodesFormat}
+      topojsonFormat={vizProps.topojsonFormat}
+      config={{...defaultConfig, ...vizConfig}}
+    />
   </div>;
 }
 

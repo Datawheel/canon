@@ -6,21 +6,25 @@
   width: 100%;
   z-index: 1;
 
-  & .cms-section-column {
-    & .cms-entity-add-button {
-      align-self: center;
-      height: 0;
-      opacity: 0;
-      transition: opacity 0.1s;
-    }
-    &:hover {
+  & .cms-section-content {
+    display: flex;
+
+    & .cms-section-column {
+      display: flex;
+      flex-direction: column;
       & .cms-entity-add-button {
-        opacity: 1;
+        align-self: center;
+        height: 0;
+        opacity: 0;
+        transition: opacity 0.1s;
+      }
+      &:hover {
+        & .cms-entity-add-button {
+          opacity: 1;
+        }
       }
     }
-  }
 
-  & .cms-section-content {
     & .cms-section-column + .cms-entity-add-button {
       align-self: center;
       opacity: 0;

@@ -287,7 +287,13 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   return (
     <React.Fragment>
-      <div key="block" className="cr-section-block" {...hoverActions} style={{padding: theme.spacing.xs}}>
+      <div key="block" className="cr-section-block" {...hoverActions}
+        style={{
+          display: "flex",
+          height: "100%",
+          padding: theme.spacing.xs
+        }}
+      >
         { isInput || isConsumer ? <div className={`cr-block-link ${isInput ? "input" : "consumer"}`} key="link"
           style={{
             color: isInput ? theme.colors.red[5] : theme.colors.green[5]

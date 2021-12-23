@@ -94,7 +94,7 @@ function BlockPreview(props) {
   const allowedOverlay = <div style={{...overlayStyle, backgroundColor: "pink"}}></div>;
 
   return (
-    <div className="cms-block-preview">
+    <div className="cms-block-preview" style={{width: "100%"}}>
       {!allowed && allowedOverlay}
       {debug && duration && <Text>{`duration: ${duration} ms`}</Text>}
       { Renderer
