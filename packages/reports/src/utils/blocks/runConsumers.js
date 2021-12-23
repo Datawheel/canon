@@ -129,7 +129,7 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
     }
     // If this block is a selector, then it should export *its currently selected option*
     if (block.type === BLOCK_TYPES.SELECTOR) {
-      const {config, log, error} = runSelector(block.contentByLocale[locale].content.logic, resp, variables, locale);
+      const {config, log, error} = runSelector(block.contentByLocale[locale].content.logic, variables, locale);
       setStatus({error, log});
       result = selectorQueryToVariable(block.id, req.query.query, config);
     }

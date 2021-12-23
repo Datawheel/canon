@@ -20,7 +20,7 @@ function InputMenuItem({active = [], id, variables}) {
     <table>
       <tbody>
         { keys.length
-          ? keys.map(d => <tr key={d}
+          ? keys.filter(o => variables[o]).map(d => <tr key={d}
           >
             <td>
               <Text color={active.includes(d) ? theme.primaryColor : "dimmed"} size="xs" weight={700}>

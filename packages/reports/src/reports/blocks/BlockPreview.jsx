@@ -69,9 +69,9 @@ function BlockPreview(props) {
       payload.duration = block._status && block._status.duration ? block._status.duration : false;
     }
     else if (block.type === BLOCK_TYPES.SELECTOR) {
-      const {config, log, error} = runSelector(blockState.contentByLocale[locale].content.logic, variables, locale);
+      const {config, log, error} = runSelector(block.contentByLocale[locale].content.logic, variables, locale);
       payload.content = {id: block.id, config};
-      payload.log = log.join("\n");
+      payload.log = log ? log.join("\n") : "";
       payload.error = error;
     }
     else if (block.type === BLOCK_TYPES.VIZ) {
@@ -98,7 +98,7 @@ function BlockPreview(props) {
       {!allowed && allowedOverlay}
       {debug && duration && <Text>{`duration: ${duration} ms`}</Text>}
       { Renderer
-        ? <Renderer key="renderer" debug={true} {...content} />
+        ? <Renderer key="renderer" debug={debug} {...content} />
         : <Center><Badge key="type" color="gray" variant="outline">{blockState.type}</Badge></Center> }
       {debug && log && <Textarea label="Console" minRows={3} value={log} error="Warning - Remove console.log after debugging"/>}
       {debug && error && <Textarea label="Error" minRows={3} value={error} />}
