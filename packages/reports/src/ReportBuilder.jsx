@@ -7,8 +7,8 @@ import {MantineProvider} from "@mantine/core";
 /* components */
 import Loading from "$app/components/Loading";
 // import AuthForm from "./components/interface/AuthForm";
-import ReportPicker from "./reports/ReportPicker";
-import ReportEditor from "./reports/ReportEditor";
+import ReportPicker from "./reports/reports/ReportPicker";
+import ReportEditor from "./reports/reports/ReportEditor";
 
 /* hooks */
 import {ConfirmationDialogProvider} from "./reports/hooks/interactions/ConfirmationDialog";

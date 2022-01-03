@@ -6,11 +6,11 @@ import {HiOutlineDocumentReport, HiOutlinePlusCircle} from "react-icons/hi";
 
 /* components */
 import ReportCard from "./ReportCard";
-import EntityAddButton from "./components/EntityAddButton";
+import EntityAddButton from "../components/EntityAddButton";
 
 /* redux */
-import {newEntity} from "../actions/reports";
-import {ENTITY_TYPES} from "../utils/consts/cms";
+import {newEntity} from "../../actions/reports";
+import {ENTITY_TYPES} from "../../utils/consts/cms";
 
 /**
  *

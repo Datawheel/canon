@@ -7,16 +7,16 @@ import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 
 /* components */
 import CMSHeader from "./CMSHeader";
-import Section from "./sections/Section";
+import Section from "../sections/Section";
 
 /* redux */
-import {newEntity, updateEntity} from "../actions/reports";
+import {newEntity, updateEntity} from "../../actions/reports";
 
 /* utils */
-import {insertAtOrdering} from "../utils/js/arrayUtils";
+import {insertAtOrdering} from "../../utils/js/arrayUtils";
 
 /* enums */
-import {ENTITY_TYPES} from "../utils/consts/cms";
+import {ENTITY_TYPES} from "../../utils/consts/cms";
 
 /* css */
 import "./ReportEditor.css";

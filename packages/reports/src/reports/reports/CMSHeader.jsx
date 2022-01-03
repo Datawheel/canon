@@ -7,13 +7,13 @@ import {useDebouncedValue} from "@mantine/hooks";
 import {HiChevronLeft, HiOutlineCog} from "react-icons/hi";
 
 /* components */
-import DimensionBuilder from "./dimensions/DimensionBuilder";
+import DimensionBuilder from "../dimensions/DimensionBuilder";
 
 /* redux */
-import {setStatus} from "../actions/status";
+import {setStatus} from "../../actions/status";
 
 /* consts */
-import {ENTITY_TYPES} from "../utils/consts/cms";
+import {ENTITY_TYPES} from "../../utils/consts/cms";
 
 /**
  *

@@ -5,13 +5,13 @@ import {Card, Center, Space, Text, Badge, Button, Group, useMantineTheme} from "
 import {HiOutlineDocumentReport, HiOutlinePencil, HiOutlineCog} from "react-icons/hi";
 
 /* components */
-import CogMenu from "./components/CogMenu";
+import CogMenu from "../components/CogMenu";
 
 /* redux */
-import {setStatus} from "../actions/status";
+import {setStatus} from "../../actions/status";
 
 /* enums */
-import {ENTITY_TYPES} from "../utils/consts/cms";
+import {ENTITY_TYPES} from "../../utils/consts/cms";
 
 /**
  *
