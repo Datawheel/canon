@@ -21,20 +21,11 @@
   /* interactions */
   &:hover {
     border-color: var(--accent-dark);
-
-    @mixin dark-mode {
-      border-color: var(--accent);
-    }
   }
   &:focus {
     border-color: var(--accent-dark);
     box-shadow: 0 0 0 1px var(--accent-dark);
     outline: none;
-
-    @mixin dark-mode {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent);
-    }
   }
 }
 
@@ -44,14 +35,11 @@
 
   &.cms-variable-draft-trigger {
     color: var(--type-string-dark);
-    @mixin dark-mode { color: var(--type-string); }
   }
   &.cms-formatter-draft-trigger {
     color: var(--type-number-dark);
-    @mixin dark-mode { color: var(--type-number); }
   }
   &.cms-selector-draft-trigger {
     color: var(--type-boolean-dark);
-    @mixin dark-mode { color: var(--type-boolean); }
   }
 }
