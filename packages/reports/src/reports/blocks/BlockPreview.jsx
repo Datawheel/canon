@@ -99,7 +99,7 @@ function BlockPreview(props) {
       {debug && duration && <Text>{`duration: ${duration} ms`}</Text>}
       { Renderer
         ? <Renderer key="renderer" debug={debug} {...content} />
-        : <Center><Badge key="type" color="gray" variant="outline">{blockState.type}</Badge></Center> }
+        : <Center style={{minHeight: 100}}><Badge key="type" color="gray" variant="outline">{blockState.type}</Badge></Center> }
       {debug && log && <Textarea label="Console" minRows={3} value={log} error="Warning - Remove console.log after debugging"/>}
       {debug && error && <Textarea label="Error" minRows={3} value={error} />}
     </div>
