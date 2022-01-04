@@ -16,6 +16,26 @@ import {deleteEntity} from "../../actions/reports";
 import {useVariables} from "../hooks/blocks/useVariables";
 import AceWrapper from "../editors/AceWrapper";
 
+export const settings = {
+  display: {
+    label: "Display",
+    defaultValue: "block",
+    options: [
+      {label: "block", value: "block"},
+      {label: "inline", value: "inline"}
+    ]
+  },
+  align: {
+    label: "Align",
+    defaultValue: "left",
+    options: [
+      {label: "left", value: "left"},
+      {label: "center", value: "center"},
+      {label: "right", value: "right"}
+    ]
+  }
+};
+
 /**
  *
  */
@@ -36,8 +56,6 @@ function BlockSettings({id, onChange}) {
 
   const allowed = useMemo(() => [{value: "always", label: "always"}].concat(Object.keys(variables).map(d => ({value: d, label: `${d}: ${variables[d]}`}))), [variables]);
   const shared = [{label: "Section-wide", value: "false"}, {label: "Report-wide", value: "true"}];
-  const display = [{label: "inline", value: "inline"}, {label: "block", value: "block"}];
-  const align = [{label: "left", value: "left"}, {label: "center", value: "center"}, {label: "right", value: "right"}];
 
   const maybeDelete = async() => {
     const confirmed = await getConfirmation({
@@ -98,10 +116,14 @@ function BlockSettings({id, onChange}) {
           <TextInput label="width" error={width !== "stretch" && isNaN(width) ? "Width must be an integer" : ""} disabled={width === "stretch"} defaultValue={width} value={width} onChange={e => handleChangeWidth(false, e.target.value)} />
           <Checkbox label="stretch" checked={width === "stretch"} onChange={e => handleChangeWidth(true, e.target.checked)} />
         </Group>
-        <span>Display</span>
-        <SegmentedControl defaultValue={String(block.settings.display || "inline")} onChange={e => handleChange("display", e)} data={display}/>
-        <span>Align</span>
-        <SegmentedControl defaultValue={String(block.settings.align || "left")} onChange={e => handleChange("align", e)} data={align}/>
+        {
+          Object.entries(settings).map(([key, {label, defaultValue, options}]) =>
+            <React.Fragment key={key}>
+              <span>{label}</span>
+              <SegmentedControl defaultValue={String(block.settings[key] || defaultValue)} onChange={e => handleChange(key, e)} data={options} />
+            </React.Fragment>
+          )
+        }
       </Group>
     </Group>
   );
