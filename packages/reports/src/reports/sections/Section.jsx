@@ -9,6 +9,7 @@ import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import SectionHeader from "./SectionHeader";
 import EntityAddButton from "../components/EntityAddButton";
 import Block from "../blocks/Block";
+import {settings as blockSettings} from "../blocks/BlockSettings";
 
 /* redux */
 import {newEntity, activateSection, updateEntity} from "../../actions/reports";
@@ -148,11 +149,17 @@ function Section({id, isDragging, dragHandleProps}) {
         <DragDropContext
           onDragEnd={result => onDragEnd(result, columns, setColumns)}
         >
-          {Object.entries(columns).map(([columnId, column], index) =>
-            <div
+          {Object.entries(columns).map(([columnId, column], index) => {
+
+            const staticWidths = column.items
+              .map(({id}) => parseFloat(blocks[id].settings.width))
+              .filter(d => !isNaN(d));
+
+            return <div
               className="cms-section-column"
               style={{
                 flex: "1 1 100%",
+                maxWidth: staticWidths.length ? Math.max(...staticWidths) : "none",
                 padding: theme.spacing.sm
               }}
               key={columnId}
@@ -163,16 +170,20 @@ function Section({id, isDragging, dragHandleProps}) {
                     {...provided.droppableProps}
                     ref={provided.innerRef}
                     style={{
+                      alignContent: "flex-start",
                       background: snapshot.isDraggingOver
                         ? theme.colors[theme.primaryColor][0]
                         : "inherit",
                       display: "flex",
-                      flexDirection: "column",
+                      flexDirection: column.items.find(item => blocks[item.id].settings.display === "inline") ? "row" : "column",
+                      flexWrap: column.items.find(item => blocks[item.id].settings.display === "inline") ? "wrap" : "nowrap",
                       height: "100%"
                     }}
                   >
-                    {column.items.map((item, index) =>
-                      <Draggable
+                    {column.items.map((item, index) => {
+                      const {settings, type} = blocks[item.id];
+
+                      return <Draggable
                         key={item.id}
                         draggableId={item.id}
                         index={index}
@@ -184,8 +195,13 @@ function Section({id, isDragging, dragHandleProps}) {
                             {...provided.dragHandleProps}
                             style={{
                               ...provided.draggableProps.style,
+                              alignSelf: type === BLOCK_TYPES.VIZ ? "stretch" : "flex-start",
                               boxShadow: snapshot.isDragging ? theme.shadows.lg : "none",
-                              flex: blocks[item.id] && blocks[item.id].type === BLOCK_TYPES.VIZ ? "1 1 100%" : "none"
+                              flex: type === BLOCK_TYPES.VIZ ? "1 1 100%"
+                                : settings.display === "inline" ? "1 1 auto" : "0 0 auto",
+                              margin: "0",
+                              textAlign: settings.align || blockSettings.align.defaultValue,
+                              width: settings.width && settings.width !== "stretch" ? parseFloat(settings.width) : settings.display === "inline" ? "auto" : "100%"
                             }}
                           >
                             <Block
@@ -197,8 +213,8 @@ function Section({id, isDragging, dragHandleProps}) {
                               setHoverBlock={setHoverBlock}/>
                           </div>
                         }
-                      </Draggable>
-                    )}
+                      </Draggable>;
+                    })}
                     {active && <EntityAddButton
                       type={ENTITY_ADD_BUTTON_TYPES.SELECT}
                       label="Block Type"
@@ -210,8 +226,8 @@ function Section({id, isDragging, dragHandleProps}) {
                   </div>
                 }
               </Droppable>
-            </div>
-          )}
+            </div>;
+          })}
         </DragDropContext>
         {active && <EntityAddButton
           type={ENTITY_ADD_BUTTON_TYPES.SELECT}
