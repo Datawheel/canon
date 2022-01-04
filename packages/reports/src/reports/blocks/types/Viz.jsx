@@ -77,8 +77,8 @@ export default function Viz({block, blockState, active, locale, variables, debug
   return <div
     style={{
       display: "flex",
-      flex: 1,
-      minHeight: "200px"
+      flex: "1 1 100%",
+      minHeight: "300px"
     }}
   // todo1.0 this ref needs to be updated
   // ref={ comp => this.viz = comp }
