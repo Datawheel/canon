@@ -3,6 +3,7 @@ const appDir = process.cwd(),
       path = require("path"),
       shell = require("shelljs");
 
+const commonConfig = require("./common");
 const appPath = path.join(appDir, "app");
 
 const userVariables = require("../require-fallback")("style.yml") || {};
@@ -28,9 +29,24 @@ for (const key in variables) {
 }
 
 const assetBase = process.env.CANON_BASE_URL || "";
+const aliases = Object.entries(commonConfig.resolve.alias || {})
+  .map(alias => [`${alias[0]}/`, alias[1]]);
+const importResolver = require("postcss-import/lib/resolve-id");
 
 module.exports = [
-  require("postcss-import")({path: appPath}),
+  require("postcss-import")({
+    path: appPath,
+    resolve(id, basedir, options) {
+      // Resolve aliases
+      for (const [alias, aliasTarget] of aliases) {
+        if (id.startsWith(alias)) {
+          return importResolver(id.slice(alias.length), aliasTarget, options);
+        }
+      }
+      // Resolve using generic resolver
+      return importResolver(id, basedir, options);
+    }
+  }),
   require("lost")(),
   require("pixrem")(),
   require("postcss-mixins")(),
