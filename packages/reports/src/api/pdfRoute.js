@@ -1,18 +1,18 @@
 const puppeteer = require("puppeteer");
 const {assign} = require("d3plus-common");
 const {
-  CANON_CMS_HTACCESS_USER,
-  CANON_CMS_HTACCESS_PW
+  CANON_REPORTS_HTACCESS_USER,
+  CANON_REPORTS_HTACCESS_PW
 } = process.env;
 const path = require("path");
 const canonConfigPath = path.resolve("canon.js");
 const canon = require(canonConfigPath);
 const yn = require("yn");
-const verbose = yn(process.env.CANON_CMS_LOGGING);
+const verbose = yn(process.env.CANON_REPORTS_LOGGING);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const LANGUAGES = process.env.CANON_LANGUAGES ? process.env.CANON_LANGUAGES.split(",") : [envLoc];
 if (!LANGUAGES.includes(envLoc)) LANGUAGES.push(envLoc);
-const disable = yn(process.env.CANON_CMS_PDF_DISABLE);
+const disable = yn(process.env.CANON_REPORTS_PDF_DISABLE);
 
 const catcher = e => {
   console.error("Error in pdfRoute: ", e);
@@ -77,8 +77,8 @@ const generate = async(path, userOptions = {}, viewportOptions = {}) => {
 
   const page = await browser.newPage();
 
-  if (CANON_CMS_HTACCESS_USER && CANON_CMS_HTACCESS_PW) {
-    await page.authenticate({username: CANON_CMS_HTACCESS_USER, password: CANON_CMS_HTACCESS_PW});
+  if (CANON_REPORTS_HTACCESS_USER && CANON_REPORTS_HTACCESS_PW) {
+    await page.authenticate({username: CANON_REPORTS_HTACCESS_USER, password: CANON_REPORTS_HTACCESS_PW});
   }
   await page.goto(path, {waitUntil: "networkidle2"});
   const pdf = await page.pdf(assign({width, height}, defaultOptions, userOptions));

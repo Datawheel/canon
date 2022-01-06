@@ -3,12 +3,12 @@ const sequelize = require("sequelize");
 const yn = require("yn");
 const jwt = require("jsonwebtoken");
 
-const verbose = yn(process.env.CANON_CMS_LOGGING);
+const verbose = yn(process.env.CANON_REPORTS_LOGGING);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
-let cubeRoot = process.env.CANON_CMS_CUBES || "localhost";
+let cubeRoot = process.env.CANON_REPORTS_CUBES || "localhost";
 if (cubeRoot.substr(-1) === "/") cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
 
-const {OLAP_PROXY_SECRET, CANON_CMS_MINIMUM_ROLE} = process.env;
+const {OLAP_PROXY_SECRET, CANON_REPORTS_MINIMUM_ROLE} = process.env;
 
 const catcher = e => {
   if (verbose) {
@@ -34,7 +34,7 @@ const getParentMemberWithImage = async(db, member, meta) => {
     const config = {};
     if (OLAP_PROXY_SECRET) {
       const jwtPayload = {sub: "server", status: "valid"};
-      if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+      if (CANON_REPORTS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_REPORTS_MINIMUM_ROLE;
       const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
       config.headers = {"x-tesseract-jwt-token": apiToken};
     }

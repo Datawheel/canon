@@ -97,7 +97,7 @@ export CANON_LANGUAGES=en,es
 Canon CMS requires a `canon-cms` specific env var for the current location of your mondrian or tesseract installation.
 
 ```sh
-export CANON_CMS_CUBES=https://tesseract-url.com/tesseract
+export CANON_REPORTS_CUBES=https://tesseract-url.com/tesseract
 ```
 
 In summary, your env vars should now look like this:
@@ -106,7 +106,7 @@ In summary, your env vars should now look like this:
 export CANON_API=http://localhost:3300
 export CANON_LANGUAGE_DEFAULT=en
 export CANON_LANGUAGES=en,es
-export CANON_CMS_CUBES=https://tesseract-url.com/tesseract
+export CANON_REPORTS_CUBES=https://tesseract-url.com/tesseract
 export CANON_DB_USER=db_user_name
 export CANON_DB_PW=db_user_password
 export CANON_DB_NAME=db_name
@@ -115,11 +115,11 @@ export CANON_DB_HOST=db_host
 
 Remember the actual value of all of the `CANON_DB_XXXX` variables (or single `CANON_DB_CONNECTION_STRING` variable if you want to combine them) is up to you as it depends on how you configured your Postgres database.
 
-By default, the CMS will only be enabled on development environments. If you wish to enable the CMS on production, see the `CANON_CMS_ENABLE` in [Environment Variables](#environment-variables) below.
+By default, the CMS will only be enabled on development environments. If you wish to enable the CMS on production, see the `CANON_REPORTS_ENABLE` in [Environment Variables](#environment-variables) below.
 
 #### 5) (Optional) Add Proxy for Local Tesseract Instance
 
-Your `CANON_CMS_CUBES` variable will (obviously) differ based on your project. If you are developing against a _local instance of tesseract_, you will likely need to add a simple proxy to bypass CORS errors from requesting data between different ports. To do this, you will need to add a file called `local-proxy.js` in the `/api/` directory in the root level of your project (create one if you don't have one). The file should then look like [this](https://gist.github.com/greenrhyno/018042999a0deab501529224764c0fa4).
+Your `CANON_REPORTS_CUBES` variable will (obviously) differ based on your project. If you are developing against a _local instance of tesseract_, you will likely need to add a simple proxy to bypass CORS errors from requesting data between different ports. To do this, you will need to add a file called `local-proxy.js` in the `/api/` directory in the root level of your project (create one if you don't have one). The file should then look like [this](https://gist.github.com/greenrhyno/018042999a0deab501529224764c0fa4).
 
 #### 4) Add the Builder Component to a route
 
@@ -299,16 +299,16 @@ A Canon site often takes the form of DataCountry.io, and is made of **Profiles**
 
 | variable                         | description                                                                                                                                                               | default                |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
-| `CANON_CMS_CUBES`                | Path to the mondrian or tesseract                                                                                                                                         | `undefined (required)` |
-| `CANON_CMS_ENABLE`               | Setting this env var to `true` allows access to the cms in production builds.                                                                                             | `false`                |
-| `CANON_CMS_MINIMUM_ROLE`         | The minimum integer value for a Canon user `role` to access the CMS                                                                                                       | `1`                    |
-| `CANON_CMS_LOGGING`              | Enable verbose logging in console.                                                                                                                                        | `false`                |
-| `CANON_CMS_REQUESTS_PER_SECOND`  | Sets the `requestsPerSecond` value in the [promise-throttle](https://www.npmjs.com/package/promise-throttle) library, used for rate-limiting Generator requests           | 20                     |
-| `CANON_CMS_GENERATOR_TIMEOUT`    | The number of ms after which a generator request times out, defaults to 5s. Increase this if you are making heavy requests that exceed 5s                                 | 5000                   |
-| `CANON_CMS_DEEPSEARCH_API`       | Server location of Deepsearch API                                                                                                                                         | `undefined`            |
-| `CANON_CMS_HTACCESS_USER`        | Authentication user for PDF generation on .htaccess protected pages                                                                                                       | `undefined`            |
-| `CANON_CMS_HTACCESS_PW`          | Authentication password for PDF generation on .htaccess protected pages                                                                                                   | `undefined`            |
-| `CANON_CMS_PDF_DISABLE`          | Disable the PDF generation endpoint                                                                                                                                       | `undefined`            |
+| `CANON_REPORTS_CUBES`                | Path to the mondrian or tesseract                                                                                                                                         | `undefined (required)` |
+| `CANON_REPORTS_ENABLE`               | Setting this env var to `true` allows access to the cms in production builds.                                                                                             | `false`                |
+| `CANON_REPORTS_MINIMUM_ROLE`         | The minimum integer value for a Canon user `role` to access the CMS                                                                                                       | `1`                    |
+| `CANON_REPORTS_LOGGING`              | Enable verbose logging in console.                                                                                                                                        | `false`                |
+| `CANON_REPORTS_REQUESTS_PER_SECOND`  | Sets the `requestsPerSecond` value in the [promise-throttle](https://www.npmjs.com/package/promise-throttle) library, used for rate-limiting Generator requests           | 20                     |
+| `CANON_REPORTS_GENERATOR_TIMEOUT`    | The number of ms after which a generator request times out, defaults to 5s. Increase this if you are making heavy requests that exceed 5s                                 | 5000                   |
+| `CANON_REPORTS_DEEPSEARCH_API`       | Server location of Deepsearch API                                                                                                                                         | `undefined`            |
+| `CANON_REPORTS_HTACCESS_USER`        | Authentication user for PDF generation on .htaccess protected pages                                                                                                       | `undefined`            |
+| `CANON_REPORTS_HTACCESS_PW`          | Authentication password for PDF generation on .htaccess protected pages                                                                                                   | `undefined`            |
+| `CANON_REPORTS_PDF_DISABLE`          | Disable the PDF generation endpoint                                                                                                                                       | `undefined`            |
 | `FLICKR_API_KEY`                 | Used to configure Flickr Authentication                                                                                                                                   | `undefined`            |
 | `GOOGLE_APPLICATION_CREDENTIALS` | Path to JSON token file for Cloud Storage                                                                                                                                 | `undefined`            |
 | `CANON_CONST_STORAGE_BUCKET`     | Name of Google Cloud Storage Bucket                                                                                                                                       | `undefined`            |
@@ -595,7 +595,7 @@ The legacy search above is only used for searching singular dimensions, not for 
 It is recommended that this search be performed using DeepSearch, running on a separate server. You can configure the CMS to point to an installation of DeepSearch using the following environment variable:
 
 ```sh
-export CANON_CMS_DEEPSEARCH_API=some-api.com:88/deepsearch
+export CANON_REPORTS_DEEPSEARCH_API=some-api.com:88/deepsearch
 ```
 
 However, if you choose not to run a DeepSearch server, the ProfileSearch API and component will fall back on a simple `%LIKE%` query on the members in the search table.
@@ -740,7 +740,7 @@ pdf: {
 
 #### Disabling PDF Routes
 
-If needed for security/environment reasons, the pdf generation endpoints can be disabled by setting `CANON_CMS_PDF_DISABLE` to `true`.
+If needed for security/environment reasons, the pdf generation endpoints can be disabled by setting `CANON_REPORTS_PDF_DISABLE` to `true`.
 
 ---
 
@@ -1081,7 +1081,7 @@ npx canon-cms-translate -b http://localhost:3300 -p 1 -t es
 
 ### Notes
 
-Similar to the CMS itself, translation should not be enabled on the production server. As such, the translation endpoint route itself will **not be registered** unless `NODE_ENV=development` or `CANON_CMS_ENABLE=true` (or both). Additionally, the translation route is placed behind the canon `isAuthenticated` middleware, so users must be logged in for translation to work.
+Similar to the CMS itself, translation should not be enabled on the production server. As such, the translation endpoint route itself will **not be registered** unless `NODE_ENV=development` or `CANON_REPORTS_ENABLE=true` (or both). Additionally, the translation route is placed behind the canon `isAuthenticated` middleware, so users must be logged in for translation to work.
 
 ---
 
@@ -1102,20 +1102,20 @@ CANON_DB_PW
 CANON_DB_HOST
 CANON_LANGUAGE_DEFAULT
 CANON_LANGUAGES
-CANON_CMS_CUBES
+CANON_REPORTS_CUBES
 ```
 
 Your installation may require some more:
 
 ```
 OLAP_PROXY_SECRET
-CANON_CMS_MINIMUM_ROLE
+CANON_REPORTS_MINIMUM_ROLE
 ```
 
 You may want to set the following to `true` for additional debug data:
 
 ```
-CANON_CMS_LOGGING
+CANON_REPORTS_LOGGING
 ```
 
 ### Usage
@@ -1158,7 +1158,7 @@ Additionally, the ingest script will not ingest any members who have a null valu
 
 Canon CMS makes use of the [User Management](https://github.com/Datawheel/canon#user-management) from Canon Core. If `CANON_LOGINS` is set to true, the CMS will require a user of `role` of `1` or higher to access the CMS.
 
-To configure the minimum role for CMS access, use the `CANON_CMS_MINIMUM_ROLE` environment variable.
+To configure the minimum role for CMS access, use the `CANON_REPORTS_MINIMUM_ROLE` environment variable.
 
 The CMS also exports the `user` object and a `userRole` boolean for the currently logged in user in the Locked Attributes Generator for every profile. You can make use of these variables to hide, show, or limit information based on the role of the currently logged in user.
 
@@ -1304,10 +1304,10 @@ For upgrading to new versions, there are currently several migration scripts:
 
 **Note:** Unlike all other migrations, the `0.11` -> `0.12` migration script performs a total search re-ingest from the source cubes. This means that the following env vars MUST be set in the environment where are you running the migration, AND they must match your production credentials to ensure a proper ingest.
 
-- `CANON_CMS_CUBES` - Required for connecting to the Cube
+- `CANON_REPORTS_CUBES` - Required for connecting to the Cube
 - `CANON_LANGUAGES` - Required for cube ingest so language data can be populated. Make sure this matches your prod setup!
 - `CANON_LANGUAGE_DEFAULT` - Required for slug generation - slugs for search members are generated based on the default language.
-- `CANON_CMS_LOGGING` - Not required, but recommended to turn on to observe the migration for any errors.
+- `CANON_REPORTS_LOGGING` - Not required, but recommended to turn on to observe the migration for any errors.
 
 ### Instructions
 
@@ -1318,20 +1318,20 @@ It is necessary that users spin up an entire new database for any CMS migration.
 The user need configure two sets of environment variables, `OLD` and `NEW`.
 
 ```
-CANON_CMS_MIGRATION_OLD_DB_NAME
-CANON_CMS_MIGRATION_OLD_DB_USER
-CANON_CMS_MIGRATION_OLD_DB_PW
-CANON_CMS_MIGRATION_OLD_DB_HOST
+CANON_REPORTS_MIGRATION_OLD_DB_NAME
+CANON_REPORTS_MIGRATION_OLD_DB_USER
+CANON_REPORTS_MIGRATION_OLD_DB_PW
+CANON_REPORTS_MIGRATION_OLD_DB_HOST
 
-CANON_CMS_MIGRATION_NEW_DB_NAME
-CANON_CMS_MIGRATION_NEW_DB_USER
-CANON_CMS_MIGRATION_NEW_DB_PW
-CANON_CMS_MIGRATION_NEW_DB_HOST
+CANON_REPORTS_MIGRATION_NEW_DB_NAME
+CANON_REPORTS_MIGRATION_NEW_DB_USER
+CANON_REPORTS_MIGRATION_NEW_DB_PW
+CANON_REPORTS_MIGRATION_NEW_DB_HOST
 ```
 
 These variables represent the old db you are migration **from** and the new db you are migrating **to**. The new db will be **wiped every time** you run the script - the idea here is that you are building a new db from scratch.
 
 🔥 WHATEVER DB YOU CONFIGURE AS **NEW** WILL BE COMPLETELY DESTROYED AND BUILT FROM SCRATCH 🔥
-🔥 DO NOT SET `CANON_CMS_MIGRATION_NEW_DB_*` TO A CURRENTLY IMPORTANT DB🔥
+🔥 DO NOT SET `CANON_REPORTS_MIGRATION_NEW_DB_*` TO A CURRENTLY IMPORTANT DB🔥
 
 After the migration is done, you can switch your dev environment to the new DB for testing, and eventually switch it to prod.

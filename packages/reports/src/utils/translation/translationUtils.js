@@ -3,7 +3,7 @@ const formatters4eval = require("../formatters4eval");
 const translateContent = require("./translateContent");
 const translateText = require("./translateText");
 const {reportReqFull} = require("../sequelize/ormHelpers");
-const verbose = yn(process.env.CANON_CMS_LOGGING);
+const verbose = yn(process.env.CANON_REPORTS_LOGGING);
 
 const catcher = e => {
   if (verbose) {
