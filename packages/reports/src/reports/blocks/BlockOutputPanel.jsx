@@ -1,6 +1,6 @@
 /* react */
-import React, {useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
+import React from "react";
+import {useSelector} from "react-redux";
 import {Col, Grid, useMantineTheme} from "@mantine/core";
 
 /* consts */
@@ -14,17 +14,13 @@ import "./BlockOutputPanel.css";
  */
 function BlockOutputPanel({id, components, mode}) {
 
-  const dispatch = useDispatch();
-
   /* redux */
-  const localeDefault = useSelector(state => state.cms.status.localeDefault);
+  // const localeDefault = useSelector(state => state.cms.status.localeDefault);
   const blocks = useSelector(state => state.cms.reports.entities.blocks);
 
   const block = blocks[id];
 
-  const {apiInput, codeEditor, simpleUI, executeButton, blockPreview, textEditor} = components;
-
-  const isStatlike = ![BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ, BLOCK_TYPES.SELECTOR].includes(block.type);
+  const {apiInput, codeEditor, executeButton, blockPreview, uiEditor} = components;
 
   const theme = useMantineTheme();
 
@@ -37,9 +33,7 @@ function BlockOutputPanel({id, components, mode}) {
             {codeEditor}
             {executeButton}
           </React.Fragment>
-          : isStatlike
-            ? textEditor
-            : simpleUI
+          : uiEditor
         }
       </Col>
       <Col span={5} style={{display: "flex", flexDirection: "column"}}>

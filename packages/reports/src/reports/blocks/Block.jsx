@@ -170,22 +170,24 @@ function Block({id, modified, callbacks, inline}) {
     ? (hasNoLocaleContent(blockState.type) ? blockState.content : blockState.contentByLocale[localeDefault].content)[BLOCK_FIELDS.SIMPLE_ENABLED] ? MODES.UI : MODES.CODE
     : MODES.CODE;
 
-  const simpleUI = <SimpleUI
-    type={block.type}
-    locale={localeDefault}
-    onChange={onChangeCode}
-  />;
+  const isStatlike = ![BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ, BLOCK_TYPES.SELECTOR].includes(block.type);
 
-  const textEditor = <RichTextEditor
-    locale={localeDefault}
-    key="text-editor"
-    defaultContent={block.contentByLocale[localeDefault].content.simple || {}}
-    fields={BLOCK_MAP[block.type]}
-    formatters={formatters}
-    variables={variables}
-    onChange={onChangeText}
-    onTextModify={onTextModify}
-  />;
+  const uiEditor = isStatlike
+    ? <RichTextEditor
+      locale={localeDefault}
+      key="text-editor"
+      defaultContent={block.contentByLocale[localeDefault].content.simple || {}}
+      fields={BLOCK_MAP[block.type]}
+      formatters={formatters}
+      variables={variables}
+      onChange={onChangeText}
+      onTextModify={onTextModify}
+    />
+    : <SimpleUI
+      type={block.type}
+      locale={localeDefault}
+      onChange={onChangeCode}
+    />;
 
   const apiInput = <ApiInput
     key="api-input"
@@ -211,7 +213,7 @@ function Block({id, modified, callbacks, inline}) {
 
   const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save &amp; Execute</Button>;
 
-  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton, simpleUI};
+  const components = {blockPreview, apiInput, codeEditor, blockSettings, executeButton, uiEditor};
 
   const blockSettings = <BlockSettings
     id={id}
