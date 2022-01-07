@@ -3,7 +3,7 @@ const {isAuthenticated} = require("../utils/canon/api");
 // const isAuthenticated = (req, res, next) => next();  // Bypass login, for Testing Only!!
 const translateText = require("../utils/translation/translateText");
 
-const enableTranslation = process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
+const enableTranslation = process.env.NODE_ENV === "development" || yn(process.env.CANON_REPORTS_ENABLE);
 
 module.exports = function(app) {
 

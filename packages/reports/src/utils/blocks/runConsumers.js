@@ -12,10 +12,10 @@ const LOCALES = process.env.CANON_LANGUAGES || LOCALE_DEFAULT;
 const LOGINS = process.env.CANON_LOGINS || false;
 const PORT = process.env.CANON_PORT || 3300;
 const NODE_ENV = process.env.NODE_ENV || "development";
-const REQUESTS_PER_SECOND = process.env.CANON_CMS_REQUESTS_PER_SECOND ? parseInt(process.env.CANON_CMS_REQUESTS_PER_SECOND, 10) : 20;
-const GENERATOR_TIMEOUT = process.env.CANON_CMS_GENERATOR_TIMEOUT ? parseInt(process.env.CANON_CMS_GENERATOR_TIMEOUT, 10) : 5000;
-const CANON_CMS_CUBES = process.env.CANON_CMS_CUBES ? process.env.CANON_CMS_CUBES.replace(/\/$/, "") : "localhost";
-const verbose = yn(process.env.CANON_CMS_LOGGING);
+const REQUESTS_PER_SECOND = process.env.CANON_REPORTS_REQUESTS_PER_SECOND ? parseInt(process.env.CANON_REPORTS_REQUESTS_PER_SECOND, 10) : 20;
+const GENERATOR_TIMEOUT = process.env.CANON_REPORTS_GENERATOR_TIMEOUT ? parseInt(process.env.CANON_REPORTS_GENERATOR_TIMEOUT, 10) : 5000;
+const CANON_REPORTS_CUBES = process.env.CANON_REPORTS_CUBES ? process.env.CANON_REPORTS_CUBES.replace(/\/$/, "") : "localhost";
+const verbose = yn(process.env.CANON_REPORTS_LOGGING);
 
 // Some canon vars are made available to the front end for URL construction and other advanced interactions
 const canonVars = {
@@ -50,11 +50,11 @@ axios.interceptors.response.use(d => {
  * If OLAP_PROXY_SECRET is provided, some cubes are locked down, and require special axios configs
  */
 const getProxyConfig = (opt = {}) => {
-  const {CANON_CMS_MINIMUM_ROLE, OLAP_PROXY_SECRET} = process.env;
+  const {CANON_REPORTS_MINIMUM_ROLE, OLAP_PROXY_SECRET} = process.env;
   const config = {};
   if (OLAP_PROXY_SECRET) {
     const jwtPayload = {sub: "server", status: "valid"};
-    if (CANON_CMS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+    if (CANON_REPORTS_MINIMUM_ROLE) jwtPayload.auth_level = +CANON_REPORTS_MINIMUM_ROLE;
     const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {expiresIn: "5y"});
     config.headers = {"x-tesseract-jwt-token": apiToken};
   }

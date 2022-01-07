@@ -1,9 +1,9 @@
 const {Translate} = require("@google-cloud/translate").v2;
 const translate = new Translate();
 const yn = require("yn");
-const verbose = yn(process.env.CANON_CMS_LOGGING);
+const verbose = yn(process.env.CANON_REPORTS_LOGGING);
 
-/** 
+/**
  * The most basic wrapper for the google translate library. Used by /api/translate,
  * and also directly invoked by translateUtils.
  */

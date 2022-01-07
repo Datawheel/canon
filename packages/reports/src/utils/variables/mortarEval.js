@@ -2,7 +2,7 @@ const libs = require("../libs"); //eslint-disable-line
 const yn = require("yn");
 
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
-const verbose = yn(process.env.CANON_CMS_LOGGING);
+const verbose = yn(process.env.CANON_REPORTS_LOGGING);
 
 // todo1.0 this will have be rewritten, including its comments, to match 1.0 logic
 
