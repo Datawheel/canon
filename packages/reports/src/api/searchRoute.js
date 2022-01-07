@@ -7,10 +7,10 @@ const groupMeta = require("../utils/groupMeta");
 const multer = require("multer");
 const upload = multer({storage: multer.memoryStorage()});
 
-const {CANON_CMS_CUBES, CANON_CMS_MINIMUM_ROLE, OLAP_PROXY_SECRET} =
+const {CANON_REPORTS_CUBES, CANON_REPORTS_MINIMUM_ROLE, OLAP_PROXY_SECRET} =
   process.env;
 
-const verbose = yn(process.env.CANON_CMS_LOGGING);
+const verbose = yn(process.env.CANON_REPORTS_LOGGING);
 let Base58, flickr, sharp, storage;
 if (process.env.FLICKR_API_KEY) {
   const Flickr = require("flickr-sdk");
@@ -26,7 +26,7 @@ const validLicenses = ["4", "5", "7", "8", "9", "10"];
 const validLicensesString = validLicenses.join();
 const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
 
-let cubeRoot = CANON_CMS_CUBES || "localhost";
+let cubeRoot = CANON_REPORTS_CUBES || "localhost";
 if (cubeRoot.substr(-1) === "/") {
   cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
 }
@@ -41,7 +41,7 @@ const catcher = e => {
 const splashWidth = Number(process.env.CANON_CONST_IMAGE_SPLASH_WIDTH) || 1400;
 const thumbWidth = Number(process.env.CANON_CONST_IMAGE_THUMB_WIDTH) || 400;
 
-let deepsearchAPI = process.env.CANON_CMS_DEEPSEARCH_API;
+let deepsearchAPI = process.env.CANON_REPORTS_DEEPSEARCH_API;
 if (deepsearchAPI) deepsearchAPI = deepsearchAPI.replace(/\/$/, "");
 const f = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
 const cartesian = (a, b, ...c) => b ? cartesian(f(a, b), ...c) : a;
@@ -343,10 +343,10 @@ module.exports = function(app) {
   });
 
   app.get("/api/cubeData", async(req, res) => {
-    // Older version of CANON_CMS_CUBES had a full path to the cube (path.com/cubes)
-    // CANON_CMS_CUBES was changed to be root only, so fix it here so we can handle
+    // Older version of CANON_REPORTS_CUBES had a full path to the cube (path.com/cubes)
+    // CANON_REPORTS_CUBES was changed to be root only, so fix it here so we can handle
     // both the new style and the old style
-    const url = CANON_CMS_CUBES.replace(
+    const url = CANON_REPORTS_CUBES.replace(
       /[\/]{0,}(cubes){0,}[\/]{0,}$/,
       "/cubes"
     );
@@ -360,8 +360,8 @@ module.exports = function(app) {
     const config = {};
     if (OLAP_PROXY_SECRET) {
       const jwtPayload = {sub: "server", status: "valid"};
-      if (CANON_CMS_MINIMUM_ROLE) {
-        jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+      if (CANON_REPORTS_MINIMUM_ROLE) {
+        jwtPayload.auth_level = +CANON_REPORTS_MINIMUM_ROLE;
       }
       const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {
         expiresIn: "5y"
@@ -1052,8 +1052,8 @@ module.exports = function(app) {
         const config = {};
         if (OLAP_PROXY_SECRET) {
           const jwtPayload = {sub: "server", status: "valid"};
-          if (CANON_CMS_MINIMUM_ROLE) {
-            jwtPayload.auth_level = +CANON_CMS_MINIMUM_ROLE;
+          if (CANON_REPORTS_MINIMUM_ROLE) {
+            jwtPayload.auth_level = +CANON_REPORTS_MINIMUM_ROLE;
           }
           const apiToken = jwt.sign(jwtPayload, OLAP_PROXY_SECRET, {
             expiresIn: "5y"

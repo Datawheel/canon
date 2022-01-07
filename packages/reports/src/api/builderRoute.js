@@ -10,10 +10,10 @@ const {REQUEST_STATUS} = require("../utils/consts/redux");
 const runConsumers = require("../utils/blocks/runConsumers");
 
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
-const verbose = yn(process.env.CANON_CMS_LOGGING);
+const verbose = yn(process.env.CANON_REPORTS_LOGGING);
 
-const cmsCheck = () => process.env.NODE_ENV === "development" || yn(process.env.CANON_CMS_ENABLE);
-const cmsMinRole = () => process.env.CANON_CMS_MINIMUM_ROLE ? Number(process.env.CANON_CMS_MINIMUM_ROLE) : 1;
+const cmsCheck = () => process.env.NODE_ENV === "development" || yn(process.env.CANON_REPORTS_ENABLE);
+const cmsMinRole = () => process.env.CANON_REPORTS_MINIMUM_ROLE ? Number(process.env.CANON_REPORTS_MINIMUM_ROLE) : 1;
 
 const isEnabled = (req, res, next) => {
   if (cmsCheck()) return next();
