@@ -14,6 +14,7 @@ import BlockSettings from "./BlockSettings";
 import BlockOutputPanel from "./BlockOutputPanel";
 import SimpleUI from "../editors/SimpleUI";
 import ConsumerMenu from "../components/ConsumerMenu";
+import VariableList from "./VariableList";
 
 /* utils */
 import deepClone from "../../utils/js/deepClone";
@@ -46,7 +47,7 @@ const hasNoLocaleContent = type => [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ].incl
  */
 function Block({id, modified, callbacks}) {
 
-  const {setOpened, setModified, maybeCloseWithoutSaving} = callbacks;
+  const {setOpened, setModified, maybeCloseWithoutSaving, setInlineId} = callbacks;
 
   const dispatch = useDispatch();
 
@@ -223,7 +224,9 @@ function Block({id, modified, callbacks}) {
     mode={currentMode}
   />;
 
-  const panels = {blockSettings, blockOutputPanel};
+  const variableList = <VariableList id={id} setInlineId={setInlineId}/>;
+
+  const panels = {blockSettings, blockOutputPanel, variableList};
 
   return (
     <React.Fragment>

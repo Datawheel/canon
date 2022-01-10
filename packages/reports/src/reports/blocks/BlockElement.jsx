@@ -1,5 +1,5 @@
 /* react */
-import React, {useState, useMemo} from "react";
+import React, {useState, useMemo, useEffect} from "react";
 import {useSelector} from "react-redux";
 import {Modal, ActionIcon, Tooltip, useMantineTheme} from "@mantine/core";
 import {HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiEyeOff} from "react-icons/hi";
@@ -39,6 +39,11 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const [opened, setOpened] = useState(false);
   const [modified, setModified] = useState(false);
+  const [inlineId, setInlineId] = useState(null);
+
+  useEffect(() => {
+
+  }, [inlineId]);
 
   const {variables} = useVariables(id);
 
@@ -94,6 +99,7 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
   const callbacks = {
     setOpened,
     setModified,
+    setInlineId,
     maybeCloseWithoutSaving
   };
 
@@ -136,7 +142,8 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
         </div>
       </div>
       <Modal centered key="d" {...modalProps}>
-        <Block id={id} modified={modified} callbacks={callbacks}/>
+        {inlineId && <Block id={inlineId} key={inlineId} modified={modified} callbacks={callbacks}/>}
+        <Block id={id} key={id} modified={modified} callbacks={callbacks}/>
       </Modal>
     </React.Fragment>
   );

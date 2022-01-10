@@ -5,7 +5,6 @@ import {Center, Col, Grid, SegmentedControl, useMantineTheme} from "@mantine/cor
 import {HiOutlineEye, HiOutlineCog} from "react-icons/hi";
 
 /* components */
-import VariableList from "./VariableList";
 import InputMenu from "../components/InputMenu";
 
 /**
@@ -26,7 +25,7 @@ function BlockEditor({id, panels}) {
     <Grid style={{height: "60vh"}}>
       <Col span={3} style={{display: "flex", flexDirection: "column"}}>
         <InputMenu id={id}/>
-        <VariableList id={id}/>
+        {panels.variableList}
       </Col>
       <Col span={9}
         style={{
