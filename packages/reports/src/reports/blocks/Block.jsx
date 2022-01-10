@@ -45,7 +45,7 @@ const hasNoLocaleContent = type => [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ].incl
  * selector, or anything listed in BLOCK_TYPES.
  * id - the id for this block
  */
-function Block({id, modified, callbacks}) {
+function Block({id, modified, callbacks, inline}) {
 
   const {setOpened, setModified, maybeCloseWithoutSaving, setInlineId} = callbacks;
 
@@ -92,7 +92,7 @@ function Block({id, modified, callbacks}) {
       if (resp.status === REQUEST_STATUS.SUCCESS) {
         setModified(false);
         if (!keepWindowOpen) {
-          setOpened(false);
+          inline ? setInlineId(null) : setOpened(false);
         }
       }
       else {

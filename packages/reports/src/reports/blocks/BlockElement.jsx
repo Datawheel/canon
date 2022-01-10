@@ -41,10 +41,6 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
   const [modified, setModified] = useState(false);
   const [inlineId, setInlineId] = useState(null);
 
-  useEffect(() => {
-
-  }, [inlineId]);
-
   const {variables} = useVariables(id);
 
   const {allowed, allowedMessage} = useMemo(() => {
@@ -68,11 +64,13 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
       if (confirmed) {
         setOpened(false);
         setModified(false);
+        setInlineId(null);
       }
     }
     else {
       setOpened(false);
       setModified(false);
+      setInlineId(null);
     }
   };
 
@@ -142,8 +140,8 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
         </div>
       </div>
       <Modal centered key="d" {...modalProps}>
-        {inlineId && <Block id={inlineId} key={inlineId} modified={modified} callbacks={callbacks}/>}
-        <Block id={id} key={id} modified={modified} callbacks={callbacks}/>
+        {inlineId && <Block id={inlineId} inline={true} key={inlineId} modified={modified} callbacks={callbacks}/>}
+        {!inlineId && <Block id={id} key={id} inline={false} modified={modified} callbacks={callbacks}/>}
       </Modal>
     </React.Fragment>
   );
