@@ -8,7 +8,7 @@ import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 /* components */
 import SectionHeader from "./SectionHeader";
 import EntityAddButton from "../components/EntityAddButton";
-import Block from "../blocks/Block";
+import BlockElement from "../blocks/BlockElement";
 import {settings as blockSettings} from "../blocks/BlockSettings";
 
 /* redux */
@@ -204,7 +204,7 @@ function Section({id, isDragging, dragHandleProps}) {
                               width: settings.width && settings.width !== "stretch" ? parseFloat(settings.width) : settings.display === "inline" ? "auto" : "100%"
                             }}
                           >
-                            <Block
+                            <BlockElement
                               id={Number(item.id)}
                               key={`block-${item.id}`}
                               active={active}

@@ -1,12 +1,10 @@
 /* react */
-import React, {useState, useEffect, useMemo} from "react";
+import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Modal, ActionIcon, Button, Group, Tooltip, useMantineTheme} from "@mantine/core";
-import {HiOutlineCode, HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiEyeOff} from "react-icons/hi";
-import {AiOutlineGlobal} from "react-icons/ai";
+import {Button, Group, Tooltip} from "@mantine/core";
+import {HiOutlineCode} from "react-icons/hi";
 
 /* components */
-import CogMenu from "../components/CogMenu";
 import BlockEditor from "./BlockEditor";
 import RichTextEditor from "../editors/RichTextEditor";
 import AceWrapper from "../editors/AceWrapper";
@@ -18,11 +16,9 @@ import SimpleUI from "../editors/SimpleUI";
 import ConsumerMenu from "../components/ConsumerMenu";
 
 /* utils */
-import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 import deepClone from "../../utils/js/deepClone";
 
 /* hooks */
-import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
 import {useVariables} from "../hooks/blocks/useVariables";
 
 /* redux */
@@ -31,9 +27,6 @@ import {updateEntity} from "../../actions/reports";
 /* enums */
 import {ENTITY_TYPES, BLOCK_MAP, BLOCK_TYPES, BLOCK_FIELDS} from "../../utils/consts/cms";
 import {REQUEST_STATUS} from "../../utils/consts/redux";
-
-/* css */
-import "./Block.css";
 
 const MODES = {
   UI: "ui",
@@ -51,10 +44,9 @@ const hasNoLocaleContent = type => [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ].incl
  * selector, or anything listed in BLOCK_TYPES.
  * id - the id for this block
  */
-function Block({id, setHoverBlock, isInput, isConsumer, active}) {
+function Block({id, setOpened, modified, setModified, maybeCloseWithoutSaving}) {
 
   const dispatch = useDispatch();
-  const {getConfirmation} = useConfirmationDialog();
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
@@ -70,28 +62,14 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
    * When the user presses save, we have access to the current blockState here, so it can
    * be persisted to psql, pulled back into redux, and redistributed as props again.
    */
-  const [blockState, setBlockState] = useState({});
+  const [blockState, setBlockState] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [opened, setOpened] = useState(false);
-  const [modified, setModified] = useState(false);
 
   const {variables} = useVariables(id);
 
-  useEffect(() => {
-    if (opened) {
-      setBlockState(deepClone(block));
-    }
-  }, [opened, block]);
+  useEffect(() => setBlockState(deepClone(block)), []);
 
-  const {allowed, allowedMessage} = useMemo(() => {
-    const allowed = !block?._status?.hiddenByCascade;
-    const allowedMessage = block?._status?.hiddenByCascade === id
-      ? `Hidden by ${block?.settings?.allowed}: ${variables[block?.settings?.allowed]}`
-      : `Hidden by ${block?._status?.hiddenByCascade}`;
-    return {allowed, allowedMessage};
-  }, [variables, block]);
-
-  if (!block) return null;
+  if (!block || !blockState) return null;
 
   const buildPayload = () => {
     const {settings} = blockState;
@@ -119,23 +97,6 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
       }
       setLoading(false);
     });
-  };
-
-  const maybeCloseWithoutSaving = async() => {
-    if (modified) {
-      const confirmed = await getConfirmation({
-        title: "Close editor without saving?",
-        confirmText: "Yes, abandon changes."
-      });
-      if (confirmed) {
-        setOpened(false);
-        setModified(false);
-      }
-    }
-    else {
-      setOpened(false);
-      setModified(false);
-    }
   };
 
   /* CHANGE HANDLERS */
@@ -262,89 +223,29 @@ function Block({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const panels = {blockSettings, blockOutputPanel};
 
-  const theme = useMantineTheme();
-
-  const modalProps = {
-    centered: true,
-    opened,
-    onClose: maybeCloseWithoutSaving,
-    overflow: "inside",
-    padding: theme.spacing.xl,
-    size: "90%",
-    title: `${upperCaseFirst(block.type)} Editor`
-  };
-
-  const cogProps = {
-    id: block.id,
-    type: ENTITY_TYPES.BLOCK
-  };
-
-  const hoverActions = {
-    onMouseEnter: () => setHoverBlock(id),
-    onMouseLeave: () => setHoverBlock(false)
-  };
-
   return (
     <React.Fragment>
-      <div key="block" className="cr-section-block" {...hoverActions}
-        style={{
-          display: "flex",
-          height: "100%",
-          padding: theme.spacing.xs
-        }}
-      >
-        { isInput || isConsumer ? <div className={`cr-block-link ${isInput ? "input" : "consumer"}`} key="link"
-          style={{
-            color: isInput ? theme.colors.red[5] : theme.colors.green[5]
-          }}>
-          { isInput ? <HiOutlineLogout size={20} /> : <HiOutlineLogin size={20} /> }
-        </div> : null }
-        <BlockPreview
-          style={{color: "red"}}
-          key="bp"
-          block={block}
-          blockState={block}
-          active={active}
-          variables={variables}
-          locale={localeDefault}
-          allowed={allowed}
-        />
-        <div key="bc" className="cr-block-controls"
-          style={{
-            borderRadius: theme.radius.md,
-            padding: theme.spacing.xs / 2,
-            right: theme.spacing.xs / 2,
-            top: theme.spacing.xs / 2
-          }}>
-          {block.shared && <Tooltip key="tt" withArrow label="Sharing: Enabled"><ActionIcon key="globe"><AiOutlineGlobal size={20} /></ActionIcon></Tooltip>}
-          {!allowed && <Tooltip key="allowed" withArrow label={allowedMessage}><ActionIcon><HiEyeOff size={20} /></ActionIcon></Tooltip>}
-          <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
-          <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
-        </div>
-      </div>
-      <Modal centered key="d" {...modalProps}>
-        <BlockEditor key="be" id={id} panels={panels}/>
-        <Group position="right">
-          <Tooltip
-            label={`${currentMode === MODES.UI ? "Show" : "Hide"} Code`}
-            withArrow
-            color={currentMode === MODES.CODE ? "dark" : "lime"}
+      <BlockEditor key="be" id={id} panels={panels}/>
+      <Group position="right">
+        <Tooltip
+          label={`${currentMode === MODES.UI ? "Show" : "Hide"} Code`}
+          withArrow
+          color={currentMode === MODES.CODE ? "dark" : "lime"}
+        >
+          <Button
+            key="mode-control"
+            className="cr-block-output-mode-control"
+            variant={currentMode === MODES.UI ? "outline" : "filled"}
+            color={currentMode === MODES.UI ? "dark" : "lime"}
+            onClick={() => onChangeMode(currentMode === MODES.UI ? MODES.CODE : MODES.UI, localeDefault)}
           >
-            <Button
-              key="mode-control"
-              className="cr-block-output-mode-control"
-              variant={currentMode === MODES.UI ? "outline" : "filled"}
-              color={currentMode === MODES.UI ? "dark" : "lime"}
-              onClick={() => onChangeMode(currentMode === MODES.UI ? MODES.CODE : MODES.UI, localeDefault)}
-            >
-              <HiOutlineCode size={16} />
-            </Button>
-          </Tooltip>
-          <ConsumerMenu id={id} />
-          <Button key="cancel" color="red" onClick={maybeCloseWithoutSaving}>Cancel</Button>
-          <Button key="save" color="green" onClick={() => onSave(false)}>Save &amp; Close</Button>
-        </Group>
-      </Modal>
+            <HiOutlineCode size={16} />
+          </Button>
+        </Tooltip>
+        <ConsumerMenu id={id} />
+        <Button key="cancel" color="red" onClick={maybeCloseWithoutSaving}>Cancel</Button>
+        <Button key="save" color="green" onClick={() => onSave(false)}>Save &amp; Close</Button>
+      </Group>
     </React.Fragment>
   );
 
