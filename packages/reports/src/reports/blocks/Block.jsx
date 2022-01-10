@@ -44,7 +44,9 @@ const hasNoLocaleContent = type => [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ].incl
  * selector, or anything listed in BLOCK_TYPES.
  * id - the id for this block
  */
-function Block({id, setOpened, modified, setModified, maybeCloseWithoutSaving}) {
+function Block({id, modified, callbacks}) {
+
+  const {setOpened, setModified, maybeCloseWithoutSaving} = callbacks;
 
   const dispatch = useDispatch();
 

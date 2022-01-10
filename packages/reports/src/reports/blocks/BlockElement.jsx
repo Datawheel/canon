@@ -91,6 +91,12 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
     onMouseLeave: () => setHoverBlock(false)
   };
 
+  const callbacks = {
+    setOpened,
+    setModified,
+    maybeCloseWithoutSaving
+  };
+
   return (
     <React.Fragment>
       <div key="block" className="cr-section-block" {...hoverActions}
@@ -130,7 +136,7 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
         </div>
       </div>
       <Modal centered key="d" {...modalProps}>
-        <Block id={id} setOpened={setOpened} modified={modified} setModified={setModified} maybeCloseWithoutSaving={maybeCloseWithoutSaving}/>
+        <Block id={id} modified={modified} callbacks={callbacks}/>
       </Modal>
     </React.Fragment>
   );
