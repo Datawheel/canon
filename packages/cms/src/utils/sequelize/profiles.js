@@ -1,3 +1,4 @@
+const stylePropObject = require("eslint-plugin-react/lib/rules/style-prop-object");
 const Sequelize = require("sequelize");
 
 module.exports = {
@@ -12,6 +13,7 @@ module.exports = {
 async function hydrateModelsProfile(sequelize) {
   const Op = Sequelize.Op;
 
+  const Story = sequelize.story;
   const Profile = sequelize.profile;
   const ProfileMeta = sequelize.profile_meta;
   const Search = sequelize.search;
@@ -71,5 +73,14 @@ async function hydrateModelsProfile(sequelize) {
     }));
   };
 
-  return {Profile, ProfileMeta, Search, SearchContent};
+  Story.findAllPublicStories = function () {
+    const now = Date.now();
+    return Story
+      .findAll({
+        include: "content"
+      })
+      .then(stories => stories.filter(story => story.visible && story.date < now));
+  };
+
+  return {Story, Profile, ProfileMeta, Search, SearchContent};
 }
