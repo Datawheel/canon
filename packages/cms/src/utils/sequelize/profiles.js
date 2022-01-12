@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 
 module.exports = {
-  hydrateModels
+  hydrateModelsProfile
 };
 
 /**
@@ -9,14 +9,28 @@ module.exports = {
  *
  * @param {import(".").WarmupCliOptions} options
  */
-async function hydrateModels(sequelize) {
+async function hydrateModelsProfile(sequelize) {
   const Op = Sequelize.Op;
 
+  const Profile = sequelize.profile;
   const ProfileMeta = sequelize.profile_meta;
   const Search = sequelize.search;
   const SearchContent = sequelize.search_content;
 
-  ProfileMeta.findAllIn = function () {
+  Profile.getAllVisible = function () {
+    return Profile
+      .findAll({
+        where: {
+          visible: true
+        },
+        include: "meta"
+      })
+      .then(profiles => {
+        return profiles;
+      });
+  }
+
+  ProfileMeta.findAllIn = function (profileId) {
     return ProfileMeta
       .findAll({
         where: {
@@ -28,26 +42,20 @@ async function hydrateModels(sequelize) {
           ),
           measure: {[Op.ne]: ""},
           slug: {[Op.ne]: ""},
-          visible: true
+          visible: true,
+          profile_id: profileId
         },
-        include: "profile"
+        include: "profile",
+        order: [["ordering", "ASC"]]
       })
       .then(profilesMetas => {
-        return profilesMetas.filter(profileMeta => {
-          return !profileMeta.profile || profileMeta.profile.visible;
-        })
+        return profilesMetas
       });
   };
 
-  Search.hasMany(SearchContent, {
-    foreignKey: "id",
-    sourceKey: "contentId",
-    as: "relatedContent"
-  });
-
   Search.findAllFromProfile = function (profile) {
     return Search.findAll({
-      include: [{association: "relatedContent"}],
+      include: "content",
       where: {
         cubeName: profile.cubeName,
         dimension: profile.dimension
@@ -58,10 +66,10 @@ async function hydrateModels(sequelize) {
         ["slug", "ASC"]
       ]
     }).then(pages => pages.filter(search => {
-      const {relatedContent} = search;
-      return !relatedContent || !relatedContent.some(cnt => cnt.attr && cnt.attr.show === false);
+      const {content} = search;
+      return !content || !content.some(cnt => cnt.attr && cnt.attr.show === false);
     }));
   };
 
-  return {ProfileMeta, Search, SearchContent};
+  return {Profile, ProfileMeta, Search, SearchContent};
 }
