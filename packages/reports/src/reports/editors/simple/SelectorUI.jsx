@@ -19,7 +19,7 @@ const DEFAULT_SELECTOR_TYPE = SELECTOR_TYPE.SINGLE.value;
  */
 function SelectorUI(props) {
 
-  const {onChange, locale} = props;
+  const {locale, onChange, simpleState} = props;
 
   const [selectorIdentifier, setSelectorIdentifier] = useState("");
   const [selectorType, setSelectorType] = useState(DEFAULT_SELECTOR_TYPE);
@@ -27,9 +27,9 @@ function SelectorUI(props) {
   const stateFields = [selectorIdentifier, selectorType, options];
 
   useEffect(() => {
-    setSelectorIdentifier(props.simpleState?.name || "");
-    setSelectorType(props.simpleState.type);
-    setOptions(props.simpleState.options);
+    setSelectorIdentifier(simpleState?.name || "");
+    setSelectorType(simpleState.type);
+    setOptions(simpleState.options);
   }, []);
 
   /** Add another option to selector */
