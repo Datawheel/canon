@@ -54,6 +54,8 @@ function Block({id, modified, callbacks, inline}) {
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
   const blocks = useSelector(state => state.cms.reports.entities.blocks);
+
+  /** Block data object from database */
   const block = blocks[id];
   // todo1.0 fix formatters, maybe move this
   const formatters = useSelector(state => state.cms.formatters);
@@ -119,6 +121,13 @@ function Block({id, modified, callbacks, inline}) {
       : upsertLocaleContent({logic}, locale);
   };
 
+  const onChangeSimple = (simple, logic, locale) => {
+    if (!modified) setModified(true);
+    hasNoLocaleContent(block.type)
+      ? setBlockState({...blockState, content: {...blockState.content, simple, logic}})
+      : upsertLocaleContent({simple, logic}, locale);
+  };
+
   const onChangeMode = (mode, locale) => {
     if (!modified) setModified(true);
     const newMode = {[BLOCK_FIELDS.SIMPLE_ENABLED]: mode === MODES.UI};
@@ -154,6 +163,7 @@ function Block({id, modified, callbacks, inline}) {
    */
   // const usePropBlock = [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ, BLOCK_TYPES.SELECTOR].includes(block.type);
 
+
   const blockPreview = <BlockPreview
     id={id}
     key="block-preview"
@@ -166,26 +176,18 @@ function Block({id, modified, callbacks, inline}) {
     debug={true}
   />;
 
-  const currentMode = blockState.type  // The editor may not yet be open, don't try to drill down until the state is cloned.
-    ? (hasNoLocaleContent(blockState.type) ? blockState.content : blockState.contentByLocale[localeDefault].content)[BLOCK_FIELDS.SIMPLE_ENABLED] ? MODES.UI : MODES.CODE
-    : MODES.CODE;
+  const currentMode =
+    blockState.type  // The editor may not yet be open, don't try to drill down until the state is cloned.
+      ? (hasNoLocaleContent(blockState.type)
+        ? blockState.content
+        : blockState.contentByLocale[localeDefault].content)[BLOCK_FIELDS.SIMPLE_ENABLED]
+        ? MODES.UI
+        : MODES.CODE
+      : MODES.CODE;
 
-  const simpleUI = <SimpleUI
-    type={block.type}
-    locale={localeDefault}
-    onChange={onChangeCode}
-  />;
-
-  const textEditor = <RichTextEditor
-    locale={localeDefault}
-    key="text-editor"
-    defaultContent={block.contentByLocale[localeDefault].content.simple || {}}
-    fields={BLOCK_MAP[block.type]}
-    formatters={formatters}
-    variables={variables}
-    onChange={onChangeText}
-    onTextModify={onTextModify}
-  />;
+  const simpleState = hasNoLocaleContent(blockState.type)
+    ? blockState.content?.simple
+    : blockState.contentByLocale?.[localeDefault]?.content?.simple;
 
   const apiInput = <ApiInput
     key="api-input"
@@ -195,6 +197,7 @@ function Block({id, modified, callbacks, inline}) {
     variables={variables}
   />;
 
+  /** Editor for modifying a block's JS logic directly */
   // The codeEditor is the only editor that changes *based on another editor, i.e, the simpleUI.
   // Therefore it must be controlled, and its state must live here in Block.jsx
   const codeEditor = <AceWrapper
@@ -211,7 +214,32 @@ function Block({id, modified, callbacks, inline}) {
 
   const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save &amp; Execute</Button>;
 
-  const components = {blockPreview, apiInput, textEditor, codeEditor, blockSettings, executeButton, simpleUI};
+  const isStatlike = ![BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ, BLOCK_TYPES.SELECTOR].includes(block.type);
+
+  /** This is the (non-code) GUI editor for blocks that is meant for most simple cases.
+   * If the block is a stat-like type, then use a rich text editor to render its forms.
+   * Otherwise, a block type will need to have its own tailored Simple UI logic.
+   */
+  const uiEditor = isStatlike
+    ? <RichTextEditor
+      locale={localeDefault}
+      key="text-editor"
+      defaultContent={block.contentByLocale[localeDefault].content.simple || {}}
+      fields={BLOCK_MAP[block.type]}
+      formatters={formatters}
+      variables={variables}
+      onChange={onChangeText}
+      onTextModify={onTextModify}
+    />
+    : <SimpleUI
+      type={block.type}
+      locale={localeDefault}
+      simpleState={simpleState}
+      onChange={onChangeSimple}
+      executeButton={executeButton}
+    />;
+
+  const components = {blockPreview, apiInput, codeEditor, blockSettings, executeButton, uiEditor};
 
   const blockSettings = <BlockSettings
     id={id}
