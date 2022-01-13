@@ -32,8 +32,7 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
-  const blocks = useSelector(state => state.cms.reports.entities.blocks);
-  const block = blocks[id];
+  const block = useSelector(state => state.cms.reports.entities.blocks)?.[id];
 
   const {getConfirmation} = useConfirmationDialog();
 

@@ -81,7 +81,6 @@ const BLOCK_CONTENT_TYPES = {
   AUTHOR: "author",
   FOOTNOTE: "footnote",
   PARAGRAPH: "paragraph",
-  SELECTOR: "selector",
   STAT: "stat",
   SUBTITLE: "subtitle",
   TITLE: "title"
@@ -89,6 +88,7 @@ const BLOCK_CONTENT_TYPES = {
 };
 
 const BLOCK_LOGIC_TYPES = {
+  SELECTOR: "selector",
   GENERATOR: "generator",
   VIZ: "visualization"
 };
@@ -183,6 +183,7 @@ module.exports = {
   BLOCK_FIELDS_EXCLUDE,
   BLOCK_MAP,
   BLOCK_SETTINGS,
+  BLOCK_LOGIC_TYPES,
   BLOCK_TYPES,
   ENTITY_TYPES,
   ENTITY_PRETTY_NAMES,
