@@ -9,10 +9,12 @@ import useKeyPress from "../hooks/listeners/useKeyPress";
 
 /* utils */
 import varSwap from "../../utils/variables/varSwap";
+import {useVariables} from "../hooks/blocks/useVariables";
 
 /** */
-function ApiInput({defaultValue, onChange, variables, onEnterPress}) {
+function ApiInput({defaultValue, id, onChange, onEnterPress}) {
 
+  const {variables} = useVariables(id);
   const [preview, setPreview] = useState(() => varSwap(defaultValue, {}, variables));
 
   const apiRef = useRef();

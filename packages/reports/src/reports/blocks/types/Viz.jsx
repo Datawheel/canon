@@ -45,7 +45,7 @@ export default function Viz({block, blockState, active, locale, variables, debug
 
   const vizProps = useMemo(() => {
     if (!active) return {error: "Activate to View"};
-    if (!block.content.logic) return {error: "Add a Configuration"};
+    if (!block?.content?.logic) return {error: "Add a Configuration"};
     // todo1.0 fix all these arguments!
     const transpiledLogic = varSwapRecursive({logic: block.content.logic}, {}, variables, {}).logic;
     return d3plusPropify(transpiledLogic, {}, variables, locale, block.id, {});

@@ -118,10 +118,8 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
         <BlockPreview
           style={{color: "red"}}
           key="bp"
-          block={block}
-          blockState={block}
+          id={id}
           active={active}
-          variables={variables}
           locale={localeDefault}
           allowed={allowed}
         />

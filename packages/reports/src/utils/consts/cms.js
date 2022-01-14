@@ -81,6 +81,7 @@ const BLOCK_CONTENT_TYPES = {
   AUTHOR: "author",
   FOOTNOTE: "footnote",
   PARAGRAPH: "paragraph",
+  SELECTOR: "selector", // TODO - move to logic types
   STAT: "stat",
   SUBTITLE: "subtitle",
   TITLE: "title"
@@ -88,7 +89,6 @@ const BLOCK_CONTENT_TYPES = {
 };
 
 const BLOCK_LOGIC_TYPES = {
-  SELECTOR: "selector",
   GENERATOR: "generator",
   VIZ: "visualization"
 };

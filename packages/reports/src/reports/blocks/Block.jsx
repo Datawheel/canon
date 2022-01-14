@@ -12,14 +12,15 @@ import ConsumerMenu from "../components/ConsumerMenu";
 import deepClone from "../../utils/js/deepClone";
 
 /* hooks */
-import {useVariables} from "../hooks/blocks/useVariables";
+import {useBlock} from "../hooks/blocks/selectors";
 
 /* redux */
 import {updateEntity} from "../../actions/reports";
 
 /* enums */
-import {ENTITY_TYPES, BLOCK_FIELDS, BLOCK_LOGIC_TYPES} from "../../utils/consts/cms";
+import {ENTITY_TYPES, BLOCK_FIELDS} from "../../utils/consts/cms";
 import {REQUEST_STATUS} from "../../utils/consts/redux";
+import {blockHasLocaleContent} from "../../utils/blocks/getBlockContent";
 
 const MODES = {
   UI: "ui",
@@ -42,7 +43,7 @@ function Block({id, modified, callbacks, inline}) {
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
 
   /** Block data object from database */
-  const block = useSelector(state => state.cms.reports.entities.blocks)?.[id];
+  const block = useBlock(id);
 
   // deep clone block state on mount
   useEffect(() => setBlockState(deepClone(block)), []);
@@ -60,9 +61,6 @@ function Block({id, modified, callbacks, inline}) {
 
   const [loading, setLoading] = useState(false);
 
-  // get input variables that this block is subscribed to
-  const {variables} = useVariables(id);
-
   // block execution if there is no block state
   if (!block || !blockState) return null;
 
@@ -72,7 +70,7 @@ function Block({id, modified, callbacks, inline}) {
    * Most blocks have translatable content, and store their locale-specific copies in a content table.
    * Generators and vizes are the exception - they store their one & only version directly in the psql block.
    */
-  const blockHasNoLocaleContent = Object.values(BLOCK_LOGIC_TYPES).includes(block.type);
+  const blockHasNoLocaleContent = !blockHasLocaleContent(block.type);
 
   /** This blockState's content object */
   const blockContent = blockHasNoLocaleContent ? blockState?.content : blockState.contentByLocale[localeDefault]?.content;
@@ -147,17 +145,16 @@ function Block({id, modified, callbacks, inline}) {
   return (
     <React.Fragment>
       <BlockEditor
-        block={block}
         blockContent={blockContent}
         blockType={block.type}
         currentMode={currentMode}
-        key="be"
         id={id}
+        key="be"
+        locale={localeDefault}
         onSave={onSave}
         setBlockContent={setBlockContent}
         setBlockSettings={setBlockSettings}
         setInlineId={setInlineId}
-        variables={variables}
       />
       <Group position="right">
         <Tooltip

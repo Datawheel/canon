@@ -7,8 +7,10 @@ import {format} from "pretty-format";
 /* utils */
 import varSwapRecursive from "../../utils/variables/varSwapRecursive";
 import spoiler from "../../utils/blocks/spoiler";
+import {getBlockContent} from "../../utils/blocks/getBlockContent";
 import mortarEval from "../../utils/variables/mortarEval";
 import runSelector from "../../utils/selectors/runSelector";
+import {useBlock} from "../hooks/blocks/selectors";
 
 
 /* enums */
@@ -16,6 +18,7 @@ import {BLOCK_TYPES} from "../../utils/consts/cms";
 
 /* type-specific render components */
 import TypeRenderers from "./types/index.jsx";
+import {useVariables} from "../hooks/blocks/useVariables";
 
 
 /**
@@ -25,7 +28,20 @@ import TypeRenderers from "./types/index.jsx";
  */
 function BlockPreview(props) {
 
-  const {block, blockStateContent, blockType, active, variables, locale, allowed, debug} = props;
+  const {active, allowed, blockStateContent, debug, id, locale} = props;
+
+  /** Input variables for block with given ID */
+  const {variables} = useVariables(id);
+
+  const block = useBlock(id);
+
+  /**
+   * The block content data to use for rendering.
+   * If no "blockStateContent" prop is given, defaults to the redux store value of block.
+   * Use the "blockStateContent" prop to provide override values if you want to show a
+   * live preview of unsaved changes.
+   */
+  const blockContent = blockStateContent || getBlockContent(block, locale);
 
   /* redux */
   const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
@@ -78,7 +94,7 @@ function BlockPreview(props) {
       payload.content = props;
     }
     else { // stat-like
-      const {vars, error, log} = mortarEval("variables", variables, blockStateContent?.logic, formatterFunctions[locale], locale);
+      const {vars, error, log} = mortarEval("variables", variables, blockContent?.logic, formatterFunctions[locale], locale);
       payload.content = active
         ? varSwapRecursive(vars, formatterFunctions[locale], variables)
         : spoiler(vars);
@@ -86,9 +102,9 @@ function BlockPreview(props) {
       payload.error = error;
     }
     return payload;
-  }, [block, blockStateContent, active]);
+  }, [block, blockContent, active]);
 
-  const Renderer = TypeRenderers[blockType];
+  const Renderer = TypeRenderers[block.type];
 
   const overlayStyle = {width: "100%", height: "100%", position: "absolute", top: -1, left: -1, opacity: 0.3, zIndex: 5, pointerEvents: "none"};
   const allowedOverlay = <div style={{...overlayStyle, backgroundColor: "pink"}}></div>;
@@ -99,7 +115,7 @@ function BlockPreview(props) {
       {debug && duration && <Text>{`duration: ${duration} ms`}</Text>}
       { Renderer
         ? <Renderer key="renderer" debug={debug} {...content} />
-        : <Center style={{minHeight: 100}}><Badge key="type" color="gray" variant="outline">{blockType}</Badge></Center> }
+        : <Center style={{minHeight: 100}}><Badge key="type" color="gray" variant="outline">{block.type}</Badge></Center> }
       {debug && log && <Textarea label="Console" minRows={3} value={log} error="Warning - Remove console.log after debugging"/>}
       {debug && error && <Textarea label="Error" minRows={3} value={error} />}
     </div>

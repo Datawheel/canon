@@ -10,15 +10,17 @@ import DraftWrapper from "./DraftWrapper";
 
 import sanitizeBlockContent from "../../utils/blocks/sanitizeBlockContent";
 import deepClone from "../../utils/js/deepClone";
-
 import {BLOCK_MAP} from "../../utils/consts/cms";
+
+import {useVariables} from "../hooks/blocks/useVariables";
 
 /**
  *
  */
-function RichTextEditor({blockType, locale, defaultContent, onChange, variables, onTextModify}) {
+function RichTextEditor({blockType, locale, defaultContent, id, onChange, onTextModify}) {
 
   const fields = BLOCK_MAP[blockType];
+  const {variables} = useVariables(id);
 
   /* redux */
   const showToolbar = useSelector(state => state.cms.status.showToolbar);

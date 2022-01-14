@@ -19,17 +19,18 @@ const DEFAULT_SELECTOR_TYPE = SELECTOR_TYPE.SINGLE.value;
  */
 function SelectorUI(props) {
 
-  const {onChange, locale} = props;
+  const {executeButton, onChange, simpleState} = props;
 
   const [selectorIdentifier, setSelectorIdentifier] = useState("");
   const [selectorType, setSelectorType] = useState(DEFAULT_SELECTOR_TYPE);
   const [options, setOptions] = useState([]);
   const stateFields = [selectorIdentifier, selectorType, options];
 
+  // on mount, set form state using existing simpleState
   useEffect(() => {
-    setSelectorIdentifier(props.simpleState?.name || "");
-    setSelectorType(props.simpleState.type);
-    setOptions(props.simpleState.options);
+    setSelectorIdentifier(simpleState?.name || "");
+    setSelectorType(simpleState.type);
+    setOptions(simpleState.options);
   }, []);
 
   /** Add another option to selector */
@@ -86,9 +87,9 @@ function SelectorUI(props) {
         type: selectorType,
         options
       };
-      onChange(simpleState, logic, locale);
+      onChange(simpleState, logic);
     },
-    [...stateFields, locale]
+    [...stateFields]
   );
 
   return <>
@@ -131,7 +132,7 @@ function SelectorUI(props) {
       </table>
       <ActionIcon onClick={addOption}><PlusIcon/></ActionIcon>
     </InputWrapper>
-    {props.executeButton}
+    {executeButton}
   </>;
 }
 

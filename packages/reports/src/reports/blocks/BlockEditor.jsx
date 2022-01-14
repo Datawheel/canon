@@ -11,9 +11,7 @@ import BlockPreview from "./BlockPreview";
 import BlockSettings from "./BlockSettings";
 import InputMenu from "../components/InputMenu";
 import SimpleUI from "../editors/SimpleUI";
-import RichTextEditor from "../editors/RichTextEditor";
 import VariableList from "./VariableList";
-import {BLOCK_LOGIC_TYPES} from "../../utils/consts/cms";
 
 /**
  *
@@ -21,18 +19,17 @@ import {BLOCK_LOGIC_TYPES} from "../../utils/consts/cms";
  * @returns
  */
 function BlockEditor({
-  block, blockContent, blockType, currentMode, id, locale, onSave,
-  setBlockContent, setBlockSettings, setInlineId, variables
+  blockContent, blockType, currentMode, id, locale,
+  onSave, setBlockContent, setBlockSettings, setInlineId
 }) {
 
-  const simpleState = blockContent?.simple || {};
+  /* HOOKS */
+  const [tab, setTab] = useState("output");
+  const theme = useMantineTheme();
 
   /* CHANGE HANDLERS */
 
-  const onChangeText = (content, locale) => setBlockContent(content, locale);
-  const onTextModify = () => setBlockContent(); // set modified to be true  but don't update state
   const onChangeCode = (logic, locale) => setBlockContent({logic}, locale);
-  const onChangeSimple = (simple, logic, locale) => setBlockContent({simple, logic}, locale);
   const onChangeAPI = api => setBlockContent({api});
 
   /**
@@ -47,11 +44,8 @@ function BlockEditor({
     id={id}
     key="block-preview"
     active={true}
-    block={block}
     blockStateContent={blockContent}
-    blockType={blockType}
     locale={locale}
-    variables={variables}
     allowed={true}
     debug={true}
   />;
@@ -59,9 +53,9 @@ function BlockEditor({
   const apiInput = <ApiInput
     key="api-input"
     defaultValue={blockContent?.api}
+    id={id}
     onChange={onChangeAPI}
     onEnterPress={() => onSave(true)}
-    variables={variables}
   />;
 
   /** Editor for modifying a block's JS logic directly */
@@ -76,29 +70,15 @@ function BlockEditor({
 
   const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save &amp; Execute</Button>;
 
-  const isStatlike = !Object.values(BLOCK_LOGIC_TYPES).includes(blockType);
+  const simpleState = blockContent?.simple || {};
 
-  /** This is the (non-code) GUI editor for blocks that is meant for most simple cases.
-   * If the block is a stat-like type, then use a rich text editor to render its forms.
-   * Otherwise, a block type will need to have its own tailored Simple UI logic.
-   */
-  const uiEditor = isStatlike
-    ? <RichTextEditor
-      locale={locale}
-      key="text-editor"
-      defaultContent={simpleState}
-      blockType={blockType}
-      variables={variables}
-      onChange={onChangeText}
-      onTextModify={onTextModify}
-    />
-    : <SimpleUI
-      type={blockType}
-      locale={locale}
-      simpleState={simpleState}
-      onChange={onChangeSimple}
-      executeButton={executeButton}
-    />;
+  const uiEditor = <SimpleUI
+    blockType={blockType}
+    locale={locale}
+    simpleState={simpleState}
+    setBlockContent={setBlockContent}
+    executeButton={executeButton}
+  />;
 
   const components = {blockPreview, apiInput, codeEditor, blockSettings, executeButton, uiEditor};
 
@@ -116,15 +96,6 @@ function BlockEditor({
   const variableList = <VariableList id={id} setInlineId={setInlineId}/>;
 
   const panels = {blockSettings, blockOutputPanel, variableList};
-
-  /* redux */
-  // const blocks = useSelector(state => state.cms.reports.entities.blocks);
-  // const block = blocks[id];
-  // if (!block) return null;
-
-  const [tab, setTab] = useState("output");
-  const theme = useMantineTheme();
-
 
   return (
     <Grid style={{height: "60vh"}}>
