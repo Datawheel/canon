@@ -1,7 +1,6 @@
 /* react */
 import React, {useState} from "react";
-import {useSelector} from "react-redux";
-import {Center, Col, Grid, SegmentedControl, useMantineTheme} from "@mantine/core";
+import {Button, Center, Col, Grid, SegmentedControl, useMantineTheme} from "@mantine/core";
 import {HiOutlineEye, HiOutlineCog} from "react-icons/hi";
 
 /* components */
@@ -14,11 +13,19 @@ import InputMenu from "../components/InputMenu";
 import SimpleUI from "../editors/SimpleUI";
 import RichTextEditor from "../editors/RichTextEditor";
 import VariableList from "./VariableList";
+import {BLOCK_LOGIC_TYPES} from "../../utils/consts/cms";
 
 /**
  *
+ * @param {*} param0
+ * @returns
  */
-function BlockEditor({id, locale, setBlockContent, setBlockSettings}) {
+function BlockEditor({
+  block, blockContent, blockType, currentMode, id, locale, onSave,
+  setBlockContent, setBlockSettings, setInlineId, variables
+}) {
+
+  const simpleState = blockContent?.simple || {};
 
   /* CHANGE HANDLERS */
 
@@ -29,19 +36,11 @@ function BlockEditor({id, locale, setBlockContent, setBlockSettings}) {
   const onChangeAPI = api => setBlockContent({api});
 
   /**
-   * A number of components embedded in this block need access to content here, either the ever-changing
-   * blockState, or the various callbacks that change it. It is recommended here https://reactjs.org/docs/composition-vs-inheritance.html
-   * to achieve this by passing these components down as props for deep embedding.
-   */
-
-  /* EDITORS TO PASS DOWN */
-
-  /**
    * Gen/Viz/Selector editors should not re-render on every single change, as their javascript is often broken mid-keystroke.
    * Therefore, render these blocks using the static props version, which only updates on Save. Normal stat-likes
    * can update on keystroke, so the user can watch the prose change as they type.
    */
-  // const usePropBlock = [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ, BLOCK_TYPES.SELECTOR].includes(block.type);
+  // const usePropBlock = [BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ, BLOCK_TYPES.SELECTOR].includes(blockType);
 
 
   const blockPreview = <BlockPreview
@@ -49,20 +48,17 @@ function BlockEditor({id, locale, setBlockContent, setBlockSettings}) {
     key="block-preview"
     active={true}
     block={block}
-    blockState={blockState}
+    blockStateContent={blockContent}
+    blockType={blockType}
     locale={locale}
     variables={variables}
     allowed={true}
     debug={true}
   />;
 
-  const simpleState = hasNoLocaleContent(blockState.type)
-    ? blockState.content?.simple
-    : blockState.contentByLocale?.[locale]?.content?.simple;
-
   const apiInput = <ApiInput
     key="api-input"
-    defaultValue={block.content.api}
+    defaultValue={blockContent?.api}
     onChange={onChangeAPI}
     onEnterPress={() => onSave(true)}
     variables={variables}
@@ -75,17 +71,12 @@ function BlockEditor({id, locale, setBlockContent, setBlockSettings}) {
     style={{flex: 1}}
     key="code-editor"
     onChange={logic => onChangeCode(logic, locale)}
-    value={blockState.type
-      ? hasNoLocaleContent(blockState.type)
-        ? blockState.content.logic
-        : blockState.contentByLocale[locale].content.logic
-      : ""
-    }
+    value={blockContent?.logic || ""}
   />;
 
   const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save &amp; Execute</Button>;
 
-  const isStatlike = ![BLOCK_TYPES.GENERATOR, BLOCK_TYPES.VIZ, BLOCK_TYPES.SELECTOR].includes(block.type);
+  const isStatlike = !Object.values(BLOCK_LOGIC_TYPES).includes(blockType);
 
   /** This is the (non-code) GUI editor for blocks that is meant for most simple cases.
    * If the block is a stat-like type, then use a rich text editor to render its forms.
@@ -95,15 +86,14 @@ function BlockEditor({id, locale, setBlockContent, setBlockSettings}) {
     ? <RichTextEditor
       locale={locale}
       key="text-editor"
-      defaultContent={block.contentByLocale[locale].content.simple || {}}
-      fields={BLOCK_MAP[block.type]}
-      formatters={formatters}
+      defaultContent={simpleState}
+      blockType={blockType}
       variables={variables}
       onChange={onChangeText}
       onTextModify={onTextModify}
     />
     : <SimpleUI
-      type={block.type}
+      type={blockType}
       locale={locale}
       simpleState={simpleState}
       onChange={onChangeSimple}
@@ -128,13 +118,13 @@ function BlockEditor({id, locale, setBlockContent, setBlockSettings}) {
   const panels = {blockSettings, blockOutputPanel, variableList};
 
   /* redux */
-  const blocks = useSelector(state => state.cms.reports.entities.blocks);
-  const block = blocks[id];
+  // const blocks = useSelector(state => state.cms.reports.entities.blocks);
+  // const block = blocks[id];
+  // if (!block) return null;
 
   const [tab, setTab] = useState("output");
   const theme = useMantineTheme();
 
-  if (!block) return null;
 
   return (
     <Grid style={{height: "60vh"}}>

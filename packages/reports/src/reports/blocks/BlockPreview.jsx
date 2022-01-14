@@ -25,7 +25,7 @@ import TypeRenderers from "./types/index.jsx";
  */
 function BlockPreview(props) {
 
-  const {block, blockState, active, variables, locale, allowed, debug} = props;
+  const {block, blockStateContent, blockType, active, variables, locale, allowed, debug} = props;
 
   /* redux */
   const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
@@ -77,8 +77,8 @@ function BlockPreview(props) {
     else if (block.type === BLOCK_TYPES.VIZ) {
       payload.content = props;
     }
-    else {
-      const {vars, error, log} = mortarEval("variables", variables, blockState.contentByLocale[locale].content.logic, formatterFunctions[locale], locale);
+    else { // stat-like
+      const {vars, error, log} = mortarEval("variables", variables, blockStateContent?.logic, formatterFunctions[locale], locale);
       payload.content = active
         ? varSwapRecursive(vars, formatterFunctions[locale], variables)
         : spoiler(vars);
@@ -86,9 +86,9 @@ function BlockPreview(props) {
       payload.error = error;
     }
     return payload;
-  }, [block, blockState, active]);
+  }, [block, blockStateContent, active]);
 
-  const Renderer = TypeRenderers[blockState.type];
+  const Renderer = TypeRenderers[blockType];
 
   const overlayStyle = {width: "100%", height: "100%", position: "absolute", top: -1, left: -1, opacity: 0.3, zIndex: 5, pointerEvents: "none"};
   const allowedOverlay = <div style={{...overlayStyle, backgroundColor: "pink"}}></div>;
@@ -99,7 +99,7 @@ function BlockPreview(props) {
       {debug && duration && <Text>{`duration: ${duration} ms`}</Text>}
       { Renderer
         ? <Renderer key="renderer" debug={debug} {...content} />
-        : <Center style={{minHeight: 100}}><Badge key="type" color="gray" variant="outline">{blockState.type}</Badge></Center> }
+        : <Center style={{minHeight: 100}}><Badge key="type" color="gray" variant="outline">{blockType}</Badge></Center> }
       {debug && log && <Textarea label="Console" minRows={3} value={log} error="Warning - Remove console.log after debugging"/>}
       {debug && error && <Textarea label="Error" minRows={3} value={error} />}
     </div>

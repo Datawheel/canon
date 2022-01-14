@@ -58,6 +58,11 @@ function Block({id, modified, callbacks, inline}) {
    */
   const [blockState, setBlockState] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
+  // get input variables that this block is subscribed to
+  const {variables} = useVariables(id);
+
   // block execution if there is no block state
   if (!block || !blockState) return null;
 
@@ -69,11 +74,6 @@ function Block({id, modified, callbacks, inline}) {
    */
   const blockHasNoLocaleContent = Object.values(BLOCK_LOGIC_TYPES).includes(block.type);
 
-  const [loading, setLoading] = useState(false);
-
-  // get input variables that this block is subscribed to
-  const {variables} = useVariables(id);
-
   /** This blockState's content object */
   const blockContent = blockHasNoLocaleContent ? blockState?.content : blockState.contentByLocale[localeDefault]?.content;
 
@@ -82,11 +82,11 @@ function Block({id, modified, callbacks, inline}) {
    * Meant to be used by the various editors that a Block might have
    * @param {Object} content - partial object that will be used to patch the current content object
    * @param {string} locale - locale key that the edits pertain to (Optional)
-   * @param {boolean} setModified - flag that decides whether this change will signal that state has been modified (Default: true)
+   * @param {boolean} flagModified - flag that decides whether this change will signal that state has been modified (Default: true)
    * @returns
    */
-  const setBlockContent = (content = null, locale = localeDefault, setModified = true) => {
-    if (setModified && !modified) setModified(true);
+  const setBlockContent = (content = null, locale = localeDefault, flagModified = true) => {
+    if (flagModified && !modified) setModified(true);
     // don't update state if no content given
     if (!content || Object.keys(content).length < 1) return;
     // if block's content is not locale-dependent, set blockState.content
@@ -147,13 +147,16 @@ function Block({id, modified, callbacks, inline}) {
   return (
     <React.Fragment>
       <BlockEditor
+        block={block}
         blockContent={blockContent}
+        blockType={block.type}
         currentMode={currentMode}
         key="be"
         id={id}
         onSave={onSave}
         setBlockContent={setBlockContent}
         setBlockSettings={setBlockSettings}
+        setInlineId={setInlineId}
         variables={variables}
       />
       <Group position="right">
