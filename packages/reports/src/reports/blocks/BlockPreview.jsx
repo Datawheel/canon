@@ -2,23 +2,24 @@
 import React, {useMemo} from "react";
 import {useSelector} from "react-redux";
 import {Badge, Center, Textarea, Text} from "@mantine/core";
-import {format} from "pretty-format";
 
 /* utils */
 import varSwapRecursive from "../../utils/variables/varSwapRecursive";
 import spoiler from "../../utils/blocks/spoiler";
 import {getBlockContent} from "../../utils/blocks/getBlockContent";
 import mortarEval from "../../utils/variables/mortarEval";
-import runSelector from "../../utils/selectors/runSelector";
 import {useBlock} from "../hooks/blocks/selectors";
+import {useVariables} from "../hooks/blocks/useVariables";
 
 
 /* enums */
 import {BLOCK_TYPES} from "../../utils/consts/cms";
 
-/* type-specific render components */
+/** type-specific render components */
 import TypeRenderers from "./types/index.jsx";
-import {useVariables} from "../hooks/blocks/useVariables";
+
+/** type-specific methods for deriving data needed for rendering from current Block state */
+import PreviewAdapters from "./types/PreviewAdapters";
 
 
 /**
@@ -45,8 +46,6 @@ function BlockPreview(props) {
 
   /* redux */
   const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
-
-  const LENGTH_CUTOFF_CHAR = 10000;
 
   /**
    * todo1.0 this is a pretty gnarly statement, which needs to be thought about. Block types have some things in common:
@@ -76,19 +75,9 @@ function BlockPreview(props) {
    */
 
   const {content, error, log, duration} = useMemo(() => {
-    const payload = {};
-    if (block.type === BLOCK_TYPES.GENERATOR) {
-      if (!active) return {content: {}, log: "", error: false, duration: false};
-      payload.content = {outputVariables: format(block._variables)};
-      payload.log = block._status && block._status.log ? block._status.log.map(d => format(d)).join("\n") : false;
-      payload.error = block._status && block._status.error ? block._status.error : block._variables.length > LENGTH_CUTOFF_CHAR ? `Warning - Large Output (${block._variables.length} chars)` : false;
-      payload.duration = block._status && block._status.duration ? block._status.duration : false;
-    }
-    else if (block.type === BLOCK_TYPES.SELECTOR) {
-      const {config, log, error} = runSelector(block.contentByLocale[locale].content.logic, variables, locale);
-      payload.content = {id: block.id, config};
-      payload.log = log ? log.join("\n") : "";
-      payload.error = error;
+    let payload = {};
+    if (PreviewAdapters[block.type] && typeof PreviewAdapters[block.type] === "function") {
+      payload = PreviewAdapters[block.type]({active, block, blockContent, locale, variables});
     }
     else if (block.type === BLOCK_TYPES.VIZ) {
       payload.content = props;

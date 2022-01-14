@@ -15,7 +15,7 @@ const DEFAULT_SELECTOR_TYPE = SELECTOR_TYPE.SINGLE.value;
 /**
  * Component for rendering user-friendly simple UI for creating selector-type blocks
  * and converting a user's selections into code.
- * @param {import("../SimpleUI").SimpleUIProps} props
+ * @param {import("../SimpleUI").BlockEditorUIProps} props
  */
 function SelectorUI(props) {
 
