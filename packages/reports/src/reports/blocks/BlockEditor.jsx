@@ -1,6 +1,6 @@
 /* react */
 import React, {useState} from "react";
-import {Button, Center, Col, Grid, SegmentedControl, useMantineTheme} from "@mantine/core";
+import {Center, Col, Grid, SegmentedControl, useMantineTheme} from "@mantine/core";
 import {HiOutlineEye, HiOutlineCog} from "react-icons/hi";
 
 /* components */
@@ -19,7 +19,7 @@ import VariableList from "./VariableList";
  * @returns
  */
 function BlockEditor({
-  blockContent, blockType, currentMode, id, locale,
+  blockContent, blockType, currentMode, executeButton, id, locale,
   onSave, setBlockContent, setBlockSettings, setInlineId
 }) {
 
@@ -67,8 +67,6 @@ function BlockEditor({
     onChange={logic => onChangeCode(logic, locale)}
     value={blockContent?.logic || ""}
   />;
-
-  const executeButton = <Button style={{minHeight: 40}} onClick={() => onSave(true)}>Save &amp; Execute</Button>;
 
   const simpleState = blockContent?.simple || {};
 

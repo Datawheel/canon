@@ -87,7 +87,8 @@ function SelectorUI(props) {
         type: selectorType,
         options
       };
-      onChange(simpleState, logic);
+      // todo1.0 - add actual validation function
+      onChange(simpleState, logic, true);
     },
     [...stateFields]
   );

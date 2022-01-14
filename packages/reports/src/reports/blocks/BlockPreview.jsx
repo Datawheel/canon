@@ -76,16 +76,21 @@ function BlockPreview(props) {
 
   const {content, error, log, duration} = useMemo(() => {
     let payload = {};
+    // if a Block-specific preview adapter function exists, use that to build payload
     if (PreviewAdapters[block.type] && typeof PreviewAdapters[block.type] === "function") {
       payload = PreviewAdapters[block.type]({active, block, blockContent, locale, variables});
     }
     else if (block.type === BLOCK_TYPES.VIZ) {
       payload.content = props;
     }
-    else { // stat-like
+    // if no such adapter exists, fallback to default where blockState logic is evaluated
+    else {
       const {vars, error, log} = mortarEval("variables", variables, blockContent?.logic, formatterFunctions[locale], locale);
+      // if Block is active...
       payload.content = active
+        // swap out variables with block's available input variables
         ? varSwapRecursive(vars, formatterFunctions[locale], variables)
+        // else, put spoiler marks on dynamic variables
         : spoiler(vars);
       payload.log = log ? log.join("\n") : "";
       payload.error = error;

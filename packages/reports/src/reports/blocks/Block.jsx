@@ -60,6 +60,7 @@ function Block({id, modified, callbacks, inline}) {
   const [blockState, setBlockState] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [isValid, setIsValid] = useState(true);
 
   // block execution if there is no block state
   if (!block || !blockState) return null;
@@ -81,10 +82,14 @@ function Block({id, modified, callbacks, inline}) {
    * @param {Object} content - partial object that will be used to patch the current content object
    * @param {string} locale - locale key that the edits pertain to (Optional)
    * @param {boolean} flagModified - flag that decides whether this change will signal that state has been modified (Default: true)
+   * @param {boolean} isValidated - says whether given changes have been validated
    * @returns
    */
-  const setBlockContent = (content = null, locale = localeDefault, flagModified = true) => {
+  const setBlockContent = (content = null, locale = localeDefault, flagModified = true, isValidated = undefined) => {
+    // flag as modified if changes are made and user does not override
     if (flagModified && !modified) setModified(true);
+    // only change validated status if boolean is given
+    if (isValidated !== undefined && isValid !== isValidated) setIsValid(isValidated);
     // don't update state if no content given
     if (!content || Object.keys(content).length < 1) return;
     // if block's content is not locale-dependent, set blockState.content
@@ -142,12 +147,15 @@ function Block({id, modified, callbacks, inline}) {
       : setBlockState({...blockState, settings: {...blockState.settings, ...settings}});
   };
 
+  const executeButton = <Button style={{minHeight: 40}} disabled={!isValid} onClick={() => onSave(true)}>Save &amp; Execute</Button>;
+
   return (
     <React.Fragment>
       <BlockEditor
         blockContent={blockContent}
         blockType={block.type}
         currentMode={currentMode}
+        executeButton={executeButton}
         id={id}
         key="be"
         locale={localeDefault}
@@ -174,7 +182,7 @@ function Block({id, modified, callbacks, inline}) {
         </Tooltip>
         <ConsumerMenu id={id} />
         <Button key="cancel" color="red" onClick={maybeCloseWithoutSaving}>Cancel</Button>
-        <Button key="save" color="green" onClick={() => onSave(false)}>Save &amp; Close</Button>
+        <Button key="save" color="green" disabled={!isValid} onClick={() => onSave(false)}>Save &amp; Close</Button>
       </Group>
     </React.Fragment>
   );

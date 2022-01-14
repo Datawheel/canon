@@ -10,8 +10,8 @@ import RichTextEditor from "../editors/RichTextEditor";
  * @property {string} blockType - type of block being edited (BLOCK_TYPES)
  * @property {React.Component} executeButton - button for saving changes to database
  * @property {string} locale - locale key for locale currently being edited
- * @property {(logic: string, simpleState: string, locale: string) => void} setBlockContent - callback for
- * submitting changes to a Block's working state while editing
+ * @property {(content: Object, locale: string, flagModified: boolean, isValidated: boolean) => void} setBlockContent
+ * - callback for submitting changes to a Block's working state while editing
  * @property {Object} simpleState - saved state of simple UI form
  */
 
@@ -19,7 +19,7 @@ import RichTextEditor from "../editors/RichTextEditor";
  * Props expected by all SimpleUI-type component implementations.
  * @typedef {Object} BlockEditorUIProps
  * @property {React.Component} executeButton - button for saving changes to database
- * @property {(logic: string, simpleState: string) => void} onChange - callback submitting changes
+ * @property {(logic: string, simpleState: string, isValidated: boolean) => void} onChange - callback submitting changes
  * @property {Object} simpleState - saved state of simple UI form
  */
 
@@ -43,7 +43,7 @@ const SimpleUI = props => {
   if (CustomUIComponent) {
     return <CustomUIComponent
       executeButton={executeButton}
-      onChange={(simple, logic) => setBlockContent({simple, logic}, locale)}
+      onChange={(simple, logic, isValidated = true) => setBlockContent({simple, logic}, locale, true, isValidated)}
       simpleState={simpleState}
     />;
   }
