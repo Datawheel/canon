@@ -7,21 +7,14 @@
   }
 
   /* keep select menus from breaking outside of container */
-  & select,
-  & .bp3-select {
+  & select {
     width: 100%;
     max-width: 100%;
   }
 
   /* override blueprint margin & apply to non label elements  */
-  & label,
-  & .bp3-label {
+  & label {
     margin-bottom: 1rem;
-  }
-
-  /* mimic blueprint style for now */
-  & .bp3-label > .cms-button-group {
-    margin-top: 5px;
   }
 
   & ul.cms-field-container {
@@ -71,7 +64,7 @@
   & .cms-field-group {
     columns: 2;
     column-width: 18rem;
-    column-gap: 2rem;
+    column-gap: var(--gutter-sm);
 
     /* multiple proportional columns with a min-width */
     @supports (grid-template-columns: minMax(1px, 1fr)) {
@@ -80,7 +73,7 @@
         auto-fit,
         minmax(18rem, 1fr)
       );
-      grid-gap: var(--gutter-sm) var(--multicolumn-column-gap);
+      grid-gap: var(--gutter-sm) var(--gutter-md);
       margin-bottom: 0;
     }
 
@@ -88,6 +81,11 @@
     & > * {
       break-inside: avoid;
       padding-top: 1px;
+    }
+
+    /* adjust margin on adjacent text button group */
+    & + .cms-text-button-group {
+      margin-top: var(--gutter-xs);
     }
   }
 
@@ -103,9 +101,15 @@
   /* override browser defaults */
   border: none;
   padding: 0.25rem 0 0 0;
+  margin-left: 0;
 
-  & > .cms-checkbox-label {
+  & .cms-checkbox-label {
     display: inline-block;
+
+    & input {
+      top: -1px;
+      margin-right: 0.125em;
+    }
 
     &:not(:last-child) {
       margin-right: 1.5em;

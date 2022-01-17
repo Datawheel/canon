@@ -3,7 +3,25 @@ module.exports = {
     key: "colorScale",
     display: "Color Scale",
     format: "Accessor",
-    required: true
+    required: false,
+    typeof: "number",
+    tooltip: true,
+    formatter: "colorScaleConfig.axisConfig.tickFormat",
+    title: ["colorScaleConfig.axisConfig.title", "colorScaleConfig.legendConfig.title"]
+  },
+  column: {
+    key: "column",
+    display: "Columns",
+    format: "Accessor",
+    required: true,
+    formatter: "columnConfig.tickFormat",
+    title: "columnConfig.title"
+  },
+  columnConfigTitle: {
+    key: "columnConfig.title",
+    display: "Column Title",
+    format: "Input",
+    required: false
   },
   columns: {
     key: "columns",
@@ -15,6 +33,7 @@ module.exports = {
     key: "groupBy",
     display: "Grouping",
     format: "Accessor",
+    multiple: true,
     required: true,
     typeof: "id"
   },
@@ -24,11 +43,31 @@ module.exports = {
     format: "Accessor",
     required: true
   },
+  html: {
+    key: "html",
+    display: "HTML",
+    format: "Variable",
+    required: true
+  },
   imageURL: {
     key: "imageURL",
     display: "Image URL",
     format: "Input",
     required: true
+  },
+  row: {
+    key: "row",
+    display: "Rows",
+    format: "Accessor",
+    required: true,
+    formatter: "rowConfig.tickFormat",
+    title: "rowConfig.title"
+  },
+  rowConfigTitle: {
+    key: "rowConfig.title",
+    display: "Row Title",
+    format: "Input",
+    required: false
   },
   size: {
     key: "size",
@@ -66,27 +105,31 @@ module.exports = {
   },
   x: {
     key: "x",
-    display: "X-Axis",
+    display: "X-axis",
     format: "Accessor",
     required: true,
-    tooltip: true
+    tooltip: true,
+    formatter: "xConfig.tickFormat",
+    title: "xConfig.title"
   },
   xConfigTitle: {
     key: "xConfig.title",
-    display: "X-Axis Label",
+    display: "X-axis label",
     format: "Input",
     required: false
   },
   y: {
     key: "y",
-    display: "Y-Axis",
+    display: "Y-axis",
     format: "Accessor",
     required: true,
-    tooltip: true
+    tooltip: true,
+    formatter: "yConfig.tickFormat",
+    title: "yConfig.title"
   },
   yConfigTitle: {
     key: "yConfig.title",
-    display: "Y-Axis Label",
+    display: "Y-axis label",
     format: "Input",
     required: false
   }

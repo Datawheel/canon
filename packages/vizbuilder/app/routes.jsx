@@ -1,21 +1,24 @@
 import React from "react";
-import {Route, IndexRoute, browserHistory} from "react-router";
-
+import {IndexRoute, Route} from "react-router";
 import App from "./App";
+import Chilecracia from "./pages/Chilecracia";
+import DataMexico from "./pages/DataMexico";
+import DataUSAMap from "./pages/DataUSAMap";
+import DataUSAViz from "./pages/DataUSAViz";
 import Home from "./pages/Home";
-import Mapa from "./pages/Map";
-import Visualize from "./pages/Visualize";
-import SelectPage from "./pages/Select";
-import MultiSelectPage from "./pages/MultiSelect";
+import OEC from "./pages/OEC";
 
 export default function RouteCreate() {
   return (
-    <Route path="/" component={App} history={browserHistory}>
+    <Route path="/" component={App}>
       <IndexRoute component={Home} />
-      <Route path="map" component={Mapa} />
-      <Route path="visualize" component={Visualize} />
-      <Route path="select" component={SelectPage} />
-      <Route path="multiselect" component={MultiSelectPage} />
+      <Route path="chilecracia" component={Chilecracia} />
+      <Route path="datamexico" component={DataMexico} />
+      <Route path="datausa/">
+        <Route path="visualize" component={DataUSAViz} />
+        <Route path="map" component={DataUSAMap} />
+      </Route>
+      <Route path="oec" component={OEC} />
     </Route>
   );
 }

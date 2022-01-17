@@ -1,0 +1,5 @@
+@import "../../../css/mixins.css";
+
+.cms-vizrow-button {
+  margin-left: 7px;
+}

@@ -10,7 +10,14 @@ const libs = require("./libs");
  */
 const funcifyFormatterByLocale = (formatters, locale) => 
   formatters.reduce((acc, d) => {
-    const f = Function("n", "libs", "locale", "formatters", d.logic);
+    let f;
+    try {
+      f = Function("n", "libs", "locale", "formatters", d.logic);
+    }
+    catch (e) {
+      console.log(`Warning! Client-side formatter ${d.name} is malformed: ${e}`);
+      f = Function("n", "libs", "locale", "formatters", "return \"N/A\";");
+    }
     const fName = d.name.replace(/^\w/g, chr => chr.toLowerCase());
     acc[fName] = n => f(n, libs, locale, acc);
     return acc;

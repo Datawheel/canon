@@ -2,13 +2,25 @@
 
 /* TODO: genericize */
 .cms-dialog-locale-group {
-  margin-bottom: 2.25rem;
-
+  & .cms-locale-name {
+    margin-top: 0;
+  }
   & .cms-dialog-locale-container {
     width: 100%;
     min-width: 12rem;
     max-width: 100%;
   }
+
+  & ~ .cms-select-label:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.cms-toolbar-switch {
+  position: absolute !important;
+  top: 30px;
+  right: 30px;
+  z-index: 100;
 }
 
 /* dialog */

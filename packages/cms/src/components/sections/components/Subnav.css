@@ -1,0 +1,287 @@
+@import "../../../css/mixins.css";
+
+.cp-subnav {
+  position: relative;
+  z-index: 1;
+  padding: var(--gutter-sm) var(--gutter-md);
+  transition:
+    background-color 0.1s ease-out,
+    box-shadow 0.2s ease-out;
+}
+
+/* reset list & links */
+.cp-subnav-list { @mixin list-reset; }
+.cp-subnav-link { display: block; }
+
+/* hide the dummy div by default */
+.cp-subnav-dummy { display: none; }
+
+/* link icon sizing & positioning */
+.cp-subnav-link-icon {
+  width: 0.875em;
+  position: relative;
+  margin-right: 0.375em;
+  top: -1px;
+  transition: transform 0.1s ease-out;
+}
+
+.cp-subnav-item {
+
+  /* "border" */
+  &:after {
+    /* sizing */
+    content: "";
+    display: block;
+    width: 100%;
+    height: 2px;
+    /* positioning */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    /* transitions */
+    background-color: transparent;
+    transition: background-color 0.3s ease-out;
+  }
+
+  /* current section */
+  &.is-active {
+
+    & .cp-subnav-link {
+      color: var(--accent);
+      opacity: 1;
+    }
+
+    &:after {
+      background-color: var(--accent);
+    }
+
+  }
+
+}
+
+/* base theming from hero vars */
+.cp-subnav-link {
+  position: relative; /* contain the "border" */
+  color: var(--hero-text-color);
+  opacity: 0.75;
+  transition:
+    color 0.2s ease-out,
+    opacity 0.2s ease-out;
+
+  /* interactions */
+  &:hover, &:focus {
+    color: var(--hero-heading-color);
+    opacity: 1;
+    text-decoration: none;
+
+    & .cp-subnav-link-icon {
+      transform: scale(1.125);
+    }
+  }
+
+}
+
+.cp-subnav-group-list {
+  @mixin list-reset;
+  max-height: calc(100vh - calc(var(--nav-height) * 3));
+  overflow-y: auto;
+  text-align: left;
+
+  /* sizing */
+  min-width: 100%;
+  width: max-content;
+  padding-top: var(--gutter-xs);
+  padding-bottom: var(--gutter-sm);
+
+  /* position below nav bar on non-small screens */
+  @mixin min-sm {
+    /* positioning */
+    left: 0;
+    position: absolute;
+    top: 100%;
+  }
+
+  /* hidden state */
+  &.is-closed {
+    /* make it invisible */
+    opacity: 0;
+    transform: translateY(-20px);
+    z-index: -1;
+    /* prevent clicks */
+    clip: rect(1px, 1px, 1px, 1px);
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  /* base theming from hero vars */
+  & .cp-subnav-group-link {
+    color: var(--hero-text-color);
+    display: block;
+    opacity: 0.75;
+    padding: calc(var(--gutter-xs) / 2) var(--gutter-md) calc(var(--gutter-xs) / 2) var(--gutter-sm);
+    transition:
+      color 0.2s ease-out,
+      opacity 0.2s ease-out;
+
+    & .cp-subnav-group-link-icon {
+      margin-right: var(--gutter-xs);
+      transform: scale(0.875);
+    }
+
+    /* interactions */
+    &:hover, &:focus {
+      color: var(--hero-heading-color);
+      opacity: 1;
+      text-decoration: none;
+
+      & .cp-subnav-group-link-icon {
+        transform: scale(1);
+      }
+    }
+
+    /* current section */
+    &.is-active {
+      color: var(--accent);
+      opacity: 1;
+
+      &:after {
+        background-color: var(--accent);
+      }
+    }
+
+  }
+}
+/* open/hover state */
+.cp-subnav-group-list.is-open,
+.cp-subnav-item:hover > .cp-subnav-group-list {
+  background-color: var(--dark-3);
+
+  @mixin min-sm {
+    background-color: var(--dark-2);
+    box-shadow:
+      0 0.25em 0.5em rgba(var(--black-RGB), 0.125),
+      0 0.5em 1em rgba(var(--black-RGB), 0.125);
+    transition:
+      opacity 0.2s ease-out,
+      transform 0.2s ease-out;
+  }
+}
+/* adjust open state theming & positioning */
+@mixin max-sm {
+  .cp-subnav-group-list.is-closed {
+    position: absolute;
+  }
+}
+/* override closed styles on hover */
+@mixin min-sm {
+  .cp-subnav-item:hover > .cp-subnav-group-list.is-closed {
+    opacity: 1;
+    transform: none;
+    clip: auto;
+    pointer-events: auto;
+    z-index: 1;
+  }
+}
+
+/* stacked layout on small screens */
+@mixin max-sm {
+  /* make links more clickable */
+  .cp-subnav-link {
+    @mixin font-md;
+    padding: 0.375em 0;
+  }
+  /* extend hero bg color on small screens */
+  .cp-subnav {
+    background-color: var(--hero-bg-color);
+  }
+  .cp-subnav-secondary {
+    display: none;
+  }
+}
+
+/* horizontal layout on big screens */
+@mixin min-sm {
+  .cp-subnav {
+    display: flex;
+    flex-direction: column;
+    height: var(--subnav-height);
+    padding: 0;
+    top: calc(0px - var(--subnav-height));
+    width: 100%;
+
+    /* stuck state */
+    &.is-fixed {
+      position: fixed;
+      z-index: 2;
+      top: var(--nav-height);
+      height: var(--subnav-height);
+      background-color: var(--hero-bg-color);
+      box-shadow: 0 1px 0.25rem rgba(var(--black-RGB), 0.333);
+    }
+
+    /* overflow list */
+    & .cp-subnav-list {
+      align-items: stretch;
+      display: flex;
+      flex: 1 1 auto;
+      justify-content: center;
+      margin-left: 0;
+      padding: 0 var(--gutter-sm);
+      overflow: visible;
+      &.cp-subnav-secondary {
+        background-color: var(--dark-2);
+        & .cp-subnav-link {
+          color: var(--light-3);
+        }
+        & .cp-subnav-item.is-active {
+          &:after {
+            content: none;
+          }
+          & .cp-subnav-link {
+            color: var(--white);
+          }
+        }
+      }
+    }
+
+    /* equally spaced items where possible */
+    & .cp-subnav-item {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      text-align: center;
+
+      /* prevent the right half dropdown menu items from getting cropped off the page */
+      @for $n from 4 to 20 {
+        &:nth-child(n+$(n)):nth-last-child(-n+$(n)) .cp-subnav-group-list {
+          left: auto;
+          right: 0;
+        }
+      }
+    }
+
+    /* links fill the subnav height */
+    & .cp-subnav-link {
+      padding: 0 var(--gutter-sm);
+    }
+
+    /* show the dummy div */
+    & + .cp-subnav-dummy.is-visible {
+      display: block;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* offset subnav height */
+    & ~ .cp-main {
+      margin-top: calc(0px - var(--subnav-height));
+    }
+  }
+}
+
+/* jack up z-index in IE to accomodate for incrementing z-index sticky section hack (see #752) */
+@mixin ie-only {
+  .cp-subnav.is-fixed { z-index: 200; }
+}

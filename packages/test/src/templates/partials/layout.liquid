@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{title}}</title>
+  <link rel="stylesheet" type="text/css" href="normalize.css" />
+  <link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="content">
+      <h1>{{title}}</h1>
+    </div>
+  </header>
+  <div class="content">
+    {% block %}{% endblock %}
+  </div>
+  <footer>
+    <div class="content">
+      {% block footer %}{% endblock %}
+    </div>
+  </footer>
+</body>
+</html>

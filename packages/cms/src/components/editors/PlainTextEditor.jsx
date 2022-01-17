@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import TextInput from "../fields/TextInput";
+import "./PlainTextEditor.css";
 
 class PlainTextEditor extends Component {
 
@@ -43,20 +44,18 @@ class PlainTextEditor extends Component {
 
     const thisLocale = data.content.find(c => c.locale === locale);
 
-    const inputs = fields.map(f =>
-      <TextInput
-        label={f}
-        inline
-        namespace="cms"
-        value={thisLocale[f]}
-        onChange={this.changeField.bind(this, f)}
-        key={f}
-      />
-    );
-
     return (
-      <div id="text-editor">
-        {inputs}
+      <div className="cms-plaintext-editor">
+        {fields.map(f =>
+          <TextInput
+            label={f}
+            inline
+            namespace="cms"
+            value={thisLocale[f]}
+            onChange={this.changeField.bind(this, f)}
+            key={f}
+          />
+        )}
       </div>
     );
   }

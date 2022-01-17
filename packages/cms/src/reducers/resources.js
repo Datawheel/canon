@@ -14,7 +14,7 @@ export default (resources = {}, action) => {
       return Object.assign({}, resources, {formatterFunctions});
     case "FORMATTER_UPDATE": 
       action.locales.forEach(locale => {
-        formatterFunctions[locale] = funcifyFormatterByLocale(action.data, locale);
+        formatterFunctions[locale] = funcifyFormatterByLocale(action.data.formatters, locale);
       });
       return Object.assign({}, resources, {formatterFunctions});
     case "FORMATTER_DELETE": 

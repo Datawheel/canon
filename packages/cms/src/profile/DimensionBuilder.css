@@ -5,3 +5,17 @@
 .dimension-card-list {
   margin-top: -1.25rem;
 }
+
+.cms-dimension-deck {
+  & .cms-deck-heading {
+    & .bp3-control {
+      margin: 0 0 0 var(--gutter-sm);
+    }
+  }
+  & .cms-card-list {
+    border-top: none !important;
+    & > * {
+      flex: 1;
+    }
+  }
+}

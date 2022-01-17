@@ -21,6 +21,12 @@
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
+
+  & > [class*="-button"] {
+    height: auto; /* let flex handle it */
+    width: auto;
+    margin-left: calc(0px - var(--button-border-width));
+  }
 }
 
 
@@ -28,6 +34,7 @@
 .cms-text-button-group > .cms-button {
   border-top-right-radius: 1px;
   border-bottom-right-radius: 1px;
+  white-space: nowrap;
 }
 
 

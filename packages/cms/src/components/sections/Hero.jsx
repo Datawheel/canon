@@ -1,6 +1,14 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
+import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
 import {nest} from "d3-collection";
+import PropTypes from "prop-types";
+import {Dialog} from "@blueprintjs/core";
+
+import {strip} from "d3plus-text";
+const filename = str => strip(str.replace(/<[^>]+>/g, ""))
+  .replace(/^\-/g, "")
+  .replace(/\-$/g, "");
 
 import stripHTML from "../../utils/formatters/stripHTML";
 
@@ -10,7 +18,9 @@ import StatGroup from "../Viz/StatGroup";
 
 import Button from "../fields/Button";
 
+import PDFButton from "./components/PDFButton";
 import Parse from "./components/Parse";
+import ProfileSearch from "../fields/ProfileSearch";
 
 import "./Section.css";
 import "./Hero.css";
@@ -19,20 +29,9 @@ import "./Hero.css";
 class Hero extends Component {
 
   constructor(props) {
-    super(props);
-    this.state = {
-      contents: props.contents,
-      loading: false,
-      selectors: {},
-      sources: [],
-      images: [],
-      creditsVisible: false
-    };
-  }
 
-  componentDidMount() {
-    const {profile} = this.props;
-    const {dims} = profile;
+    super(props);
+    const {contents, profile, type} = props;
 
     /** Image Metadata
       * A profile is a set of one more slug/id pairs. In multi-variate profiles, these pairs are strictly
@@ -43,12 +42,13 @@ class Hero extends Component {
       * one of the three that have an image, then this image array will be [null, {imageData}, null].
       */
 
+    const {dims} = profile;
     const images = [];
     if (dims) {
       for (let i = 0; i < dims.length; i++) {
         if (profile.images[i]) {
           images.push({
-            src: `/api/image?slug=${dims[i].slug}&id=${dims[i].id}&type=splash`,
+            src: `/api/image?slug=${dims[i].slug}&memberSlug=${dims[i].memberSlug}&size=splash`,
             author: profile.images[i].author,
             meta: profile.images[i].meta,
             permalink: profile.images[i].url
@@ -57,18 +57,72 @@ class Hero extends Component {
       }
     }
 
-    this.setState({images});
+    if (type === "story") {
+      images.push({
+        src: profile.image,
+        permalink: ""
+      });
+    }
+
+    this.state = {
+      contents,
+      loading: false,
+      selectors: {},
+      sources: [],
+      images,
+      creditsVisible: false,
+      clickedIndex: undefined
+    };
+
+    if (typeof window !== "undefined") window.titleClick = this.titleClick.bind(this);
+  }
+
+  titleClick(index) {
+    this.setState({clickedIndex: index});
+    setTimeout(() => {
+      document.querySelector(".cp-hero-search .cp-input").focus();
+    }, 300);
+  }
+
+  spanifyTitle(title) {
+
+    const {profile} = this.props;
+    const {variables} = profile;
+
+    // stories don't have variables
+    if (variables && title) {
+
+      const names = [variables.name1, variables.name2];
+
+      // must swap names completely out, longest to shortest, to protect against
+      // titles within other titles (ie. "Brazil Nuts from Brazil")
+      const swappedTitle = names.sort((a, b) => b.length - a.length)
+        .reduce((t, name) => t.replace(name, `{{name${names.indexOf(name) + 1}}}`), title);
+
+      // some titles have <> signs in them. encode them, so the span doesn't break.
+      const fixHTML = d => d ? d.replace(/\</g, "&lt;").replace(/\>/g, "&gt;") : d;
+
+      return swappedTitle.replace(/\{\{name([0-2])\}\}/g, (str, i) => {
+        const name = names[i - 1];
+        return `<span class="cp-hero-heading-dimension" title=${fixHTML(name)} onClick=titleClick(${i - 1})>${fixHTML(name)}</span>`;
+      });
+
+    }
+
+    return title;
+
   }
 
   render() {
-    const {contents, loading, sources, profile} = this.props;
-    const {images, creditsVisible} = this.state;
+    const {contents, loading, sources, profile, t, type} = this.props;
+    const {images, creditsVisible, clickedIndex} = this.state;
+    const {searchProps} = this.context;
 
-    let title = profile.title;
+    let title = this.spanifyTitle(profile.title);
     let paragraphs, sourceContent, statContent, subtitleContent;
 
     if (contents) {
-      title = contents.title;
+      title = this.spanifyTitle(contents.title);
       // subtitles
       if (contents.subtitles.length) {
         subtitleContent = contents.subtitles.map((subhead, i) =>
@@ -82,7 +136,7 @@ class Hero extends Component {
       if (contents.stats.length > 0) {
         const statGroups = nest().key(d => d.title).entries(contents.stats);
 
-        statContent = <div className="cp-stat-group-wrapper cp-hero-stat-group-wrapper">
+        statContent = <div className={`cp-stat-group-wrapper cp-hero-stat-group-wrapper${statGroups.length === 1 ? " single-stat" : ""}`}>
           {statGroups.map(({key, values}) => <StatGroup className="cp-hero-stat" key={key} title={key} stats={values} />)}
         </div>;
       }
@@ -102,19 +156,22 @@ class Hero extends Component {
       sourceContent = <SourceGroup sources={sources} />;
     }
 
-
     // heading & subhead(s)
-    const heading = <React.Fragment>
+    const heading = <div className="cp-hero-heading-wrapper">
       <Parse El="h1" id={contents ? contents.slug : `${stripHTML(profile.title)}-hero`} className="cp-section-heading cp-hero-heading u-font-xxl">
         {title}
       </Parse>
       {subtitleContent}
-    </React.Fragment>;
+    </div>;
 
+    // custom images can be uploaded with no flickr source. Only show the "image credits" section
+    // if at least one of the images has the flickr data to show
+    const hasFlickrSource = images.some(d => !d.permalink.includes("custom-image"));
 
     return (
       <header className="cp-section cp-hero">
         <div className="cp-section-inner cp-hero-inner">
+          <PDFButton className="cp-hero-pdf" filename={filename(profile.title)} />
           {/* caption */}
           <div className="cp-section-content cp-hero-caption">
             {heading}
@@ -127,7 +184,15 @@ class Hero extends Component {
           {contents && contents.visualizations && contents.visualizations.length
             ? <div className="cp-hero-figure">
               {contents.visualizations.map((visualization, ii) => ii === 0
-                ? <Viz section={this} config={visualization} showTitle={false} sectionTitle={title} options={false} slug={contents.slug} key={ii} />
+                ? <Viz
+                  section={this}
+                  config={visualization}
+                  showTitle={false}
+                  sectionTitle={title}
+                  hideOptions
+                  slug={contents.slug}
+                  key={ii}
+                />
                 : ""
               )}
             </div> : ""
@@ -135,58 +200,60 @@ class Hero extends Component {
         </div>
 
         {/* display image credits, and images */}
-        {images && images.length
-          ? <React.Fragment>
+        {images.length
+          ? <Fragment>
             {/* credits */}
-            <div className={`cp-hero-credits ${creditsVisible ? "is-open" : "is-closed"}`}>
-              <Button
-                className="cp-hero-credits-button"
-                onClick={() => this.setState({creditsVisible: !creditsVisible})}
-                icon={creditsVisible ? "eye-off" : "eye-open"}
-                iconPosition="left"
-                fontSize="xxs"
-                active={creditsVisible}
-              >
-                <span className="u-visually-hidden">
-                  {creditsVisible ? "view " : "hide "}
-                </span>
-                image credits
-              </Button>
+            { type !== "story" && hasFlickrSource &&
+              <div className={`cp-hero-credits ${creditsVisible ? "is-open" : "is-closed"}`}>
+                <Button
+                  className="cp-hero-credits-button"
+                  onClick={() => this.setState({creditsVisible: !creditsVisible})}
+                  icon={creditsVisible ? "eye-off" : "eye-open"}
+                  iconPosition="left"
+                  fontSize="xxs"
+                  active={creditsVisible}
+                >
+                  <span className="u-visually-hidden">
+                    {creditsVisible ? "view " : "hide "}
+                  </span>
+                  {t("CMS.Profile.image credits")}
+                </Button>
 
-              {creditsVisible
-                ? <ul className="cp-hero-credits-list">
-                  {images.map((img, i) =>
-                    <li className="cp-hero-credits-item" key={img.permalink}>
-                      {images.length > 1
-                        ? <h2 className="cp-hero-credits-item-heading u-font-md">
-                          Image {i + 1}
-                        </h2> : ""
-                      }
+                {creditsVisible
+                  ? <ul className="cp-hero-credits-list">
+                    {images.map((img, i) =>
+                      <li className="cp-hero-credits-item" key={img.permalink}>
+                        {images.length > 1
+                          ? <h2 className="cp-hero-credits-item-heading u-font-md">
+                            Image {i + 1}
+                          </h2> : ""
+                        }
 
-                      {/* author */}
-                      {img.author
-                        ? <p className="cp-hero-credits-text">
-                          Photograph by <span className="cp-hero-credits-name heading">
-                            {img.author}
-                          </span>
-                        </p> : ""
-                      }
-                      {/* description */}
-                      {img.meta ? <p className="cp-hero-credits-text">
-                        {img.meta}
-                      </p> : ""}
-                      {/* flickr link */}
-                      {img.permalink ? <p className="cp-hero-credits-text u-font-xs">
-                        <span className="u-visually-hidden">Direct link: </span>
-                        <a className="cp-hero-credits-link" href={img.permalink}>
-                          {img.permalink.replace("https://", "")}
-                        </a>
-                      </p> : ""}
-                    </li>
-                  )}
-                </ul> : ""
-              }
-            </div>
+                        {/* author */}
+                        {img.author
+                          ? <p className="cp-hero-credits-text">
+                            {t("CMS.Profile.Photograph by")} <span className="cp-hero-credits-name heading">
+                              {img.author}
+                            </span>
+                          </p> : ""
+                        }
+                        {/* description */}
+                        {img.meta ? <p className="cp-hero-credits-text">
+                          {img.meta}
+                        </p> : ""}
+                        {/* flickr link */}
+                        {img.permalink && !img.permalink.includes("custom-image") ? <p className="cp-hero-credits-text u-font-xs">
+                          <span className="u-visually-hidden">Direct link: </span>
+                          <a className="cp-hero-credits-link" href={img.permalink}>
+                            {img.permalink.replace("https://", "")}
+                          </a>
+                        </p> : ""}
+                      </li>
+                    )}
+                  </ul> : ""
+                }
+              </div>
+            }
 
             {/* images */}
             <div className="cp-hero-img-outer">
@@ -199,13 +266,34 @@ class Hero extends Component {
                 )}
               </div>
             </div>
-          </React.Fragment> : ""
+          </Fragment> : ""
         }
+        <Dialog
+          className="cp-hero-search"
+          isOpen={clickedIndex !== undefined}
+          onClose={() => this.setState({clickedIndex: undefined})}
+        >
+          <ProfileSearch
+            defaultProfiles={`${profile.id}`}
+            defaultQuery={contents ? stripHTML(contents.title) : ""}
+            filters={true}
+            inputFontSize="lg"
+            display="grid"
+            showExamples={true}
+            {...searchProps}
+          />
+        </Dialog>
+
       </header>
     );
   }
 }
 
-export default connect(state => ({
+Hero.contextTypes = {
+  router: PropTypes.object,
+  searchProps: PropTypes.object
+};
+
+export default withNamespaces()(connect(state => ({
   locale: state.i18n.locale
-}))(Hero);
+}))(Hero));

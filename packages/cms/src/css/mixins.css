@@ -138,8 +138,8 @@ theming
   background: var(--light-1); /* base */
   background-image: linear-gradient(
     180deg,
-    color(var(--light-3) a(0.02)) 0%,
-    color(var(--black) a(0.02)) 100%
+    rgba(var(--light-3-RGB), 0.02) 0%,
+    rgba(var(--black-RGB), 0.02) 100%
   );
   color: var(--dark-2);
 
@@ -147,36 +147,36 @@ theming
     background: var(--dark-2); /* base */
     background-image: linear-gradient(
       180deg,
-      color(var(--light-3) a(0.02)) 0%,
-      color(var(--black) a(0.02)) 100%
+      rgba(var(--light-3-RGB), 0.02) 0%,
+      rgba(var(--black-RGB), 0.02) 100%
     );
     color: var(--dark-1);
   }
 }
 @define-mixin cms-button-shadow {
   box-shadow:
-    0 1px 2px color(var(--black) a(0.1)),
-    0 1px 8px color(var(--black) a(0.1)),
-    inset 0 1px 0 color(var(--white) a(0.33));
+    0 1px 2px rgba(var(--black-RGB), 0.1),
+    0 1px 8px rgba(var(--black-RGB), 0.1),
+    inset 0 1px 0 rgba(var(--white-RGB), 0.33);
 
   @mixin dark-mode {
     box-shadow:
-      0 1px 4px color(var(--black) a(0.333)),
-      0 4px 8px color(var(--black) a(0.2)),
-      inset 0 1px 0 color(var(--dark-2) a(0.333));
+      0 1px 4px rgba(var(--black-RGB), 0.333),
+      0 4px 8px rgba(var(--black-RGB), 0.2),
+      inset 0 1px 0 rgba(var(--dark-2-RGB), 0.333);
   }
 
   &:hover, &:focus {
     box-shadow:
-      0 1px 2px color(var(--black) a(0.1)),
-      0 2px 8px color(var(--black) a(0.2)),
-      inset 0 1px 0 color(var(--white) a(0.33));
+      0 1px 2px rgba(var(--black-RGB), 0.1),
+      0 2px 8px rgba(var(--black-RGB), 0.2),
+      inset 0 1px 0 rgba(var(--white-RGB), 0.33);
 
     @mixin dark-mode {
       box-shadow:
-        0 2px 4px color(var(--black) a(0.5)),
-        0 2px 12px color(var(--black) a(0.333)),
-        inset 0 1px 0 color(var(--dark-2) a(0.333));
+        0 2px 4px rgba(var(--black-RGB), 0.5),
+        0 2px 12px rgba(var(--black-RGB), 0.333),
+        inset 0 1px 0 rgba(var(--dark-2-RGB), 0.333);
     }
   }
 }
@@ -227,6 +227,18 @@ theming
   }
 }
 
+/* dialog/alert overlay */
+@define-mixin overlay-theme {
+  @mixin button-reset;
+  z-index: -1;
+
+  &:focus {
+    border: 2px solid var(--accent-dark);
+    outline: none;
+    transition-delay: 0.5s;
+  }
+}
+
 /* text input */
 @define-mixin cms-text-input-style {
   /* theming */
@@ -240,7 +252,7 @@ theming
   }
 
   @mixin dark-mode {
-    background-color: color(var(--black) a(0.75));
+    background-color: rgba(var(--black-RGB) 0.75);
     border-color: var(--black);
     color: var(--light-1);
 
@@ -298,14 +310,17 @@ layout
 /* overflow with inertia scrolling */
 @define-mixin overflow-container {
   overflow: auto;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 @define-mixin vertical-overflow-container {
   overflow-y: auto;
+  overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
 }
 @define-mixin horizontal-overflow-container {
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -384,6 +399,24 @@ CMS nav links & dropdowns
 }
 
 /* -----------------------------------
+Link styles
+----------------------------------- */
+@define-mixin link-theme {
+  font-weight: var(--display-font-weight);
+  letter-spacing: 0.01em;
+  color: var(--accent);
+
+  &:hover, &:focus {
+    text-decoration: underline;
+    color: var(--accent-dark);
+
+    @mixin dark-mode {
+      color: var(--accent-light);
+    }
+  }
+}
+
+/* -----------------------------------
 VarTable & VarList
 ----------------------------------- */
 @define-mixin var-overflow {
@@ -402,7 +435,7 @@ VarTable & VarList
 
   /* DARK THEME */
   @mixin dark-mode {
-    background-color: color(var(--black) a(0.75));
+    background-color: rgba(var(--black-RGB) 0.75);
     border: 1px solid var(--dark-3);
     box-shadow: none;
     color: var(--light-3);
@@ -434,7 +467,7 @@ meta editor images
   transition: border 0.2s ease-out;
 
   @mixin dark-mode {
-    background-color: color(var(--black) a(0.5));
+    background-color: rgba(var(--black-RGB), 0.5);
     border-color: var(--black);
   }
 }

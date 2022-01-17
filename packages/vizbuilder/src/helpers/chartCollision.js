@@ -1,6 +1,10 @@
-import {isValidGrouping} from "./validation";
+import {isValidGroup} from "./validation";
 
-export default function chartCollision(charts) {
+/**
+ * Removes charts too similar to one another, leaving only the first one.
+ * @param {Chart[]} charts
+ */
+export function chartCollision(charts) {
   const chartKeys = {};
   const filteredCharts = [];
 
@@ -10,9 +14,9 @@ export default function chartCollision(charts) {
     const groups = new Map();
     const totalGroups = chart.query.groups.length;
     for (let j = 0; j < totalGroups; j++) {
-      const grouping = chart.query.groups[j];
-      if (isValidGrouping(grouping)) {
-        groups.set(grouping.key, grouping);
+      const group = chart.query.groups[j];
+      if (isValidGroup(group)) {
+        groups.set(group.key, group);
       }
     }
 

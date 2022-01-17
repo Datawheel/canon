@@ -1,0 +1,22 @@
+@import "../../../css/mixins.css";
+
+.cms-dialog-footer {
+  /* positioning */
+  z-index: 4; /* in front of js editor */
+}
+
+/* override default button styles */
+.cms-dialog.is-modal .cms-dialog-footer-button {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+
+  /* tweak margin */
+  &:first-of-type       { margin-left: auto; }
+  &:not(:last-of-type)  { margin-right: 0.5em; }
+  &:last-of-type        { margin-right: -0.5em; } /* offset padding */
+
+  &.cms-dialog-footer-delete-button:hover,
+  &.cms-dialog-footer-delete-button:focus {
+    @mixin error-text;
+  }
+}

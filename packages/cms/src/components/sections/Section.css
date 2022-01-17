@@ -213,8 +213,4 @@
 /* button for resetting variables */
 .cp-var-reset-button {
   transition-property: color, border, background-color, box-shadow, opacity;
-
-  &[disabled] {
-    @mixin visually-hidden;
-  }
 }

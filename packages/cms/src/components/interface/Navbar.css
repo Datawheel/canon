@@ -216,7 +216,7 @@
   }
   &.is-visible {
     position: absolute;
-    animation: unfold-from-above 0.1s ease-out;
+    animation: unfoldFromAbove 0.1s ease-out;
   }
 
   /* clickable overlay */
@@ -225,7 +225,7 @@
     @mixin button-reset;
     position: fixed;
     z-index: 1;
-    background-color: color(var(--black) a(0.875));
+    background-color: rgba(var(--black-RGB), 0.875);
     transition:
       opacity 0.2s ease-out,
       background-color 0.2s ease-out;

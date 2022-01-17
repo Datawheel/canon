@@ -1,8 +1,15 @@
-import {assign} from "d3plus-common";
 import {dataConcat} from "d3plus-viz";
 import {parse} from "./FUNC";
 
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
+
+const frontEndMessage = "Error Rendering Visualization";
+const errorStub = {
+  data: [],
+  dataFormat: d => d,
+  type: "Treemap",
+  noDataHTML: `<p style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${frontEndMessage}</strong></p>`
+};
 
 export default (logic, formatters = {}, variables = {}, locale = envLoc, id = null, actions = {}) => {
 
@@ -17,25 +24,23 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc, id = nu
   catch (e) {
     console.error(`Parsing Error in propify (ID: ${id})`);
     console.error(`Error message: ${e.message}`);
-    const frontEndMessage = "Error Rendering Visualization";
     return {
       error: `${e}`,
-      config: {
-        data: [],
-        type: "Treemap",
-        noDataHTML: `<p style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${frontEndMessage}</strong></p>`}
+      config: errorStub
+    };
+  }
+  // If the user added correct javascript, but it doesn't return an object, don't attempt to render.
+  if (typeof config !== "object") {
+    return {
+      error: "Visualization JS code must return an object",
+      config: errorStub
     };
   }
 
   // strip out the "dataFormat" from config
   const dataFormat = config.dataFormat ? config.dataFormat : resp => {
-
-    const hasMultiples = Array.isArray(config.data) && config.data.some(d => typeof d === "string");
+    const hasMultiples = Array.isArray(config.data) && config.data.length > 1 && config.data.some(d => typeof d === "string");
     const sources = hasMultiples ? resp : [resp];
-
-    // console.log(`d`, d);
-    // console.log(`sources`, sources);
-    // console.log(`dataConcat(sources, "data")`, dataConcat(sources, "data"));
     return dataConcat(sources, "data");
   };
   delete config.dataFormat;
@@ -48,21 +53,6 @@ export default (logic, formatters = {}, variables = {}, locale = envLoc, id = nu
 
   const topojsonFormat = config.topojsonFormat || undefined;
   delete config.topojsonFormat;
-
-  // hides the non-discrete axis, if necessary
-  const discrete = config.discrete || "x";
-  const opposite = discrete === "x" ? "y" : "x";
-  config[`${discrete}Config`] = assign({}, config[`${discrete}Config`] || {}, {
-    gridConfig: {
-      "stroke-width": 0
-    },
-    tickSize: 0
-  });
-  config[`${opposite}Config`] = assign({}, config[`${opposite}Config`] || {}, {
-    barConfig: {
-      "stroke-width": 0
-    }
-  });
 
   return {config, dataFormat, linksFormat, nodesFormat, topojsonFormat};
 

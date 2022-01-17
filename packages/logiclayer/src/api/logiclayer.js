@@ -8,6 +8,7 @@ const Sequelize = require("sequelize"),
       path = require("path"),
       yn = require("yn");
 
+const {CANON_LOGICLAYER_CUBE} = process.env;
 const logging = process.env.CANON_LOGICLAYER_LOGGING;
 const slugs = yn(process.env.CANON_LOGICLAYER_SLUGS);
 const verbose = yn(logging);
@@ -97,8 +98,10 @@ module.exports = function(app) {
 
   app.get("/api/data/", async(req, res) => {
 
+    if (!CANON_LOGICLAYER_CUBE) return res.json({error: "Logic Layer path not defined."});
+
     const measures = findKey(req.query, "measures", []);
-    if (!measures.length) res.json({error: "Query must contain at least one measure."});
+    if (!measures.length) return res.json({error: "Query must contain at least one measure."});
     else {
 
       let reserved = ["captions", "drilldowns", "limit", "measures", "order", "parents", "properties", "sort", "Year", "debug"];
@@ -155,20 +158,16 @@ module.exports = function(app) {
         if (obj instanceof Array) return obj;
         else if (obj.cut && obj.drilldown) {
           drilldowns.push(obj.drilldown);
-          const cuts = obj.cut instanceof Array ? obj.cut : [obj.cut];
-          for (let i = 0; i < cuts.length; i++) {
-            const cut = cuts[i];
-            if (searchDim in searchDims) {
-              dimensions.push({
-                alternate: key,
-                dimension: searchDim,
-                id: cut,
-                relation: obj.drilldown
-              });
-            }
-            else {
-              cuts.push([key, cut]);
-            }
+          if (searchDim in searchDims) {
+            dimensions.push({
+              alternate: key,
+              dimension: searchDim,
+              id: obj.cut,
+              relation: obj.drilldown
+            });
+          }
+          else {
+            cuts.push([key, obj.cut]);
           }
         }
         else if (obj.drilldown) {
@@ -267,21 +266,25 @@ module.exports = function(app) {
       const attributes = await Promise.all(searchQueries);
 
       const queries = {};
-      const dimCuts = d3Array.merge(attributes).reduce((obj, d) => {
-        const {hierarchy} = d;
-        const dim = dimensions.find(dim => dim.dimension === d.dimension);
-        const dimension = dim.alternate;
-        if (dim.relation) {
-          cuts.push([{dimension, level: hierarchy, hierarchy: dim.relation}, d.id]);
-          renames.push({[dimension]: dim.relation});
-        }
-        else {
-          if (!obj[dimension]) obj[dimension] = {};
-          if (!obj[dimension][hierarchy]) obj[dimension][hierarchy] = [];
-          obj[dimension][hierarchy].push(d);
-        }
-        return obj;
-      }, {});
+      const dimCuts = d3Collection.nest()
+        .key(d => d.hierarchy)
+        .entries(d3Array.merge(attributes))
+        .reduce((obj, group) => {
+          const hierarchy = group.key;
+          const dim = dimensions.find(dim => dim.dimension === group.values[0].dimension);
+          const dimension = dim.alternate;
+          const ids = group.values.map(d => d.id);
+          if (dim.relation) {
+            cuts.push([{dimension, level: hierarchy, hierarchy: dim.relation}, group.values.map(d => d.id)]);
+            renames.push({[dimension]: dim.relation});
+          }
+          else {
+            if (!obj[dimension]) obj[dimension] = {};
+            if (!obj[dimension][hierarchy]) obj[dimension][hierarchy] = [];
+            obj[dimension][hierarchy] = obj[dimension][hierarchy].concat(group.values);
+          }
+          return obj;
+        }, {});
 
       for (let i = 0; i < measures.length; i++) {
         const measure = measures[i];
@@ -771,7 +774,7 @@ module.exports = function(app) {
         return d;
       });
 
-      res.json({data: mergedData, source});
+      return res.json({data: mergedData, source});
 
     }
 

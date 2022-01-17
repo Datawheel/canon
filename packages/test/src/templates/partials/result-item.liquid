@@ -1,0 +1,4 @@
+<td class="icon-td">{% include 'status', error:item.result.error %}</td>
+<td>{{ item.title }}</td>
+<td>{{ item.description }}</td>
+<td>{{ item.result.msg | json }}</td>

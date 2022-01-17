@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from "react";
-import {hot} from "react-hot-loader/root";
+import PropTypes from "prop-types";
 
 import toSpacedCase from "../../utils/formatters/toSpacedCase";
 import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
@@ -38,14 +38,33 @@ class Tabs extends Component {
     };
   }
 
+  componentDidMount() {
+    const {visualizations} = this.props;
+    const {id} = this.props.contents;
+    const {query} = this.context.router.location;
+    // If a query param was set that matches this section's id, then a panelIndex was provided in the URL.
+    if (query[`tabsection-${id}`] !== undefined) {
+      const targetTab = Number(query[`tabsection-${id}`]);
+      const panelIndex = targetTab < visualizations.length ? targetTab : 0;
+      this.setState({panelIndex});
+    }
+  }
+
+  /**
+   * When a tab changes, report the action out to ProfileRenderer so that it can inject the tab state into the URL.
+   * This way, direct links to pages can auto-open certain tabs (see componentDidMount)
+   */
   updateTabs(panelIndex) {
+    const {id} = this.props.contents;
+    if (this.context.onTabSelect) this.context.onTabSelect(id, panelIndex);
     this.setState({panelIndex});
   }
 
   render() {
-    const {slug, title, heading, loading, filters, resetButton, paragraphs, stats, sources, visualizations, vizHeadingLevel} = this.props;
+    const {configOverride, slug, title, heading, hideOptions, loading, filters, resetButton, paragraphs, stats, sources, visualizations, vizHeadingLevel} = this.props;
     const selectors = filters || [];
     const {panelIndex} = this.state;
+    const {print} = this.context;
 
     const visualization = visualizations.length ? visualizations[panelIndex] : false;
 
@@ -77,14 +96,16 @@ class Tabs extends Component {
       return title || `Visualization ${i + 1}`;
     }) : paragraphs.map((d, i) => `Tab ${i + 1}`);
 
-    const tabDescriptions = paragraphs.length === tabs.length ? [paragraphs[panelIndex]] : paragraphs;
+    const tabDescriptions = paragraphs.length === tabs.length
+      ? [paragraphs[panelIndex]]
+      : paragraphs;
 
     return <div className={`cp-section-inner cp-${slug}-section-inner cp-tabs-section-inner`} ref={comp => this.section = comp}>
       {/* sidebar */}
       <div className="cp-section-content cp-tabs-section-caption">
         {heading}
 
-        {tabs.length > 1 &&
+        {!print && tabs.length > 1 &&
           <Fragment>
             <p className="u-visually-hidden">Select tab: </p>
             <ButtonGroup>
@@ -110,10 +131,11 @@ class Tabs extends Component {
           </div>
         }
 
-        {tabDescriptions && tabDescriptions.map((content, i) =>
-          <Parse key={i}>
-            {content.description}
-          </Parse>
+        {tabDescriptions.map((content, i) =>
+          content && content.description &&
+            <Parse key={i}>
+              {content.description}
+            </Parse>
         )}
 
         {stats}
@@ -124,10 +146,25 @@ class Tabs extends Component {
       { visualization && <div className={`cp-tabs-section-figure${
         visualizations.filter(viz => viz.logic_simple && viz.logic_simple.type === "Graphic").length ? " cp-graphic-viz-grid" : ""
       }`}>
-        <Viz section={this} config={visualization} key={panelIndex} slug={slug} headingLevel={vizHeadingLevel} sectionTitle={title}  />
+        <Viz
+          section={this}
+          config={visualization}
+          key={panelIndex}
+          slug={slug}
+          headingLevel={vizHeadingLevel}
+          configOverride={configOverride}
+          hideOptions={hideOptions}
+          sectionTitle={title}
+        />
       </div> }
     </div>;
   }
 }
 
-export default hot(Tabs);
+Tabs.contextTypes = {
+  onTabSelect: PropTypes.func,
+  print: PropTypes.bool,
+  router: PropTypes.object
+};
+
+export default Tabs;

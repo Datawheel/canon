@@ -1,6 +1,5 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import {hot} from "react-hot-loader/root";
 import {Icon} from "@blueprintjs/core";
 
 import sectionIconLookup from "../../utils/sectionIconLookup";
@@ -22,14 +21,30 @@ class Outline extends Component {
     }
   }
 
-  createSection(id) {
+  createSection(node) {
+    const ordering = node.ordering + 1;
+    const {type} = node;
     const {tab} = this.props.status.pathObj;
     const {currentPid, currentStoryPid} = this.props.status;
     if (tab === "profiles") {
-      this.props.newEntity("section", {profile_id: currentPid});
+      const payload = {profile_id: currentPid, ordering};
+      // Groups are special, when adding a new group it should "jump" past all the child sections and
+      // Add itself before the next grouping, or, if there is none, at the end (but still as a Grouping)
+      if (type === "Grouping") {
+        payload.type = type;
+        const nextGrouping = this.props.tree.find(s => s.type === "Grouping" && s.ordering > node.ordering);
+        payload.ordering = nextGrouping ? nextGrouping.ordering : undefined;
+      }
+      this.props.newEntity("section", payload);
     }
-    if (tab === "stories") {
-      this.props.newEntity("storysection", {story_id: currentStoryPid});
+    else if (tab === "stories") {
+      const payload = {story_id: currentStoryPid, ordering};
+      if (type === "Grouping") {
+        payload.type = type;
+        const nextGrouping = this.props.tree.find(s => s.type === "Grouping" && s.ordering > node.ordering);
+        payload.ordering = nextGrouping ? nextGrouping.ordering : undefined;
+      }
+      this.props.newEntity("storysection", payload);
     }
   }
 
@@ -76,21 +91,21 @@ class Outline extends Component {
   }
 
   /** avoids duplication */
-  renderNode = (node, nodes, sectionKey, tree, i) => (
+  renderNode = (node, nodes, sectionKey, tree, i) =>
     <li className="cms-outline-item" key={node.id}>
       <a
         className={`cms-outline-link${this.getSelectedClass(node, nodes, sectionKey)}`}
         onClick={() => this.handleSectionClick.bind(this)(node)}
       >
         <Icon className="cms-outline-link-icon" icon={sectionIconLookup(node.type, node.position)} />
-        {this.props.getNodeTitle(node)}
+        <span className="cms-outline-link-text" dangerouslySetInnerHTML={{__html: this.props.getNodeTitle(node)}} />
       </a>
 
       {/* add section / swap section position buttons */}
       <div className="cms-outline-item-actions cms-button">
         {/* add section */}
         <Button
-          onClick={() => this.createSection(node.id)}
+          onClick={() => this.createSection(node)}
           className="cms-outline-item-actions-button"
           namespace="cms"
           fontSize="xxs"
@@ -116,7 +131,7 @@ class Outline extends Component {
         }
       </div>
     </li>
-  );
+  ;
 
   render() {
     const {tree, isOpen} = this.props;
@@ -138,14 +153,14 @@ class Outline extends Component {
       {/* top row */}
       <ul className={`cms-outline ${isOpen ? "is-open" : "is-closed"}`} key="outline-main">
         {nodes.map((node, i) =>
-          this.renderNode(node, nodes, sectionKey, tree, i)
+          this.renderNode(node, nodes, sectionKey, nodes, i)
         )}
       </ul>
 
       {/* render nested list with current grouping's sections, if the current section is a grouping or within a group */}
       <ul className={`cms-outline cms-nested-outline ${nestedOutline && isOpen ? "is-open" : "is-closed"}`} key="outline-nested">
         {nestedOutline && nestedOutline.sections.map((node, i) =>
-          this.renderNode(node, nodes, sectionKey, tree, i)
+          this.renderNode(node, nodes, sectionKey, nestedOutline.sections, i)
         )}
       </ul>
     </Fragment>;
@@ -162,4 +177,4 @@ const mapDispatchToProps = dispatch => ({
   deleteEntity: (type, payload) => dispatch(deleteEntity(type, payload))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(hot(Outline));
+export default connect(mapStateToProps, mapDispatchToProps)(Outline);

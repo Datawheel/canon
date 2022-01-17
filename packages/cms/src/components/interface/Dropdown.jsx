@@ -1,5 +1,4 @@
 import React, {Component, Fragment} from "react";
-import {hot} from "react-hot-loader/root";
 import {Icon} from "@blueprintjs/core";
 import "./Dropdown.css";
 
@@ -84,8 +83,8 @@ class Dropdown extends Component {
         {/* loop through nav links */}
         {items && items.length &&
           <ul className={`${namespace}-dropdown-list ${isOpen ? "is-open" : "is-closed"}`} key={`${title}-dropdown-list`}>
-            {items.map(item =>
-              <li className={`${namespace}-dropdown-item`} key={`${item.title}-dropdown-item`}>
+            {items.map((item, i) =>
+              <li className={`${namespace}-dropdown-item`} key={`${item.title}-${i}-dropdown-item`}>
                 {item.items && item.items.length
                   // nested items array; render them in a nested list
                   ? <Fragment>
@@ -115,4 +114,4 @@ Dropdown.defaultProps = {
   namespace: "cms"
 };
 
-export default hot(Dropdown);
+export default Dropdown;

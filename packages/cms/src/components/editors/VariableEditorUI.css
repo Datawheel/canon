@@ -1,0 +1,67 @@
+@import "../../css/mixins.css";
+
+.cms-variable-editor-ui {
+  width: 100%;
+
+  & .cms-variable-editor-heading {
+    margin-bottom: 0.55em; /* fudged */
+  }
+}
+
+.cms-variable-editor-heading-button {
+  margin-top: -0.375em; /* fudge 2nd column into place */
+}
+
+/* tables */
+.cms-variable-table-wrapper {
+  padding: 0 var(--gutter-sm);
+}
+.cms-variable-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: -0.25rem; /* still more fudging */
+
+  & thead {
+    border-bottom: 1px solid var(--gray);
+    @mixin dark-mode { border-color: var(--dark-2); }
+  }
+
+  /* fake margin, because tables */
+  & tbody {
+    border-top: var(--gutter-sm) solid transparent;
+  }
+
+  & .cms-variable-table-row.is-inactive {
+    opacity: 0.5;
+
+    &:hover, &:focus { opacity: 0.75; }
+  }
+
+  & tr {
+    vertical-align: top;
+    transition: opacity 0.1s ease-out;
+
+    & + tr {
+      border-top: 1px solid var(--light-2);
+      @mixin dark-mode { border-color: var(--dark-2); }
+    }
+  }
+
+  & td {
+    padding: 0.75rem;
+
+    /* override padding on first & last cell */
+    &:first-child { padding-left: 0; }
+    &:last-child  { padding-right: 0; text-align: right;}
+  }
+
+  & .bp3-checkbox {
+    margin-bottom: 0;
+  }
+}
+
+.cms-variable-table-button-group {
+  display: inline-flex;
+  width: auto;
+  margin: -0.25em -1em 0 0.25em;
+}

@@ -1,0 +1,32 @@
+{
+  "name": "@datawheel/canon-test",
+  "description": "Canon health test.",
+  "main": "./src/index.js",
+  "version": "0.0.4",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Datawheel/canon.git",
+    "directory": "packages/test"
+  },
+  "author": "Pablo H. Paladino <pablo@datawheel.us>",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/Datawheel/canon/issues"
+  },
+  "homepage": "https://github.com/Datawheel/canon#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "liquidjs": "^9.25.0",
+    "sequelize": "^4.13.10"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}

@@ -1,0 +1,84 @@
+#login, #signup {
+
+  & .bp3-input-group,
+  & .bp3-button {
+    margin-bottom: 10px;
+  }
+
+}
+
+#socials {
+  display: flex;
+
+  & .bp3-button {
+    align-items: center;
+    color: white;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    margin-right: 10px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    & .icon {
+      height: 15px;
+      margin-right: 10px;
+    }
+
+    &:hover {
+      filter: brightness(0.5);
+    }
+
+    &.facebook {
+      background: #3b5998;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0)) left no-repeat, center no-repeat #3b5998;
+
+      & .icon {
+        margin-bottom: 2px;
+      }
+    }
+
+    &.github {
+      background-color: #ececec;
+      background-image: linear-gradient(#f4f4f4, #ececec);
+      color: #333;
+
+      & .icon {
+        margin-bottom: 2px;
+      }
+    }
+
+    &.google {
+      background: #ffffff;
+      color: #444;
+
+      & .icon {
+        margin-bottom: 2px;
+      }
+    }
+
+    &.instagram {
+      background: #8a3ab9;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0)) left no-repeat, center no-repeat #8a3ab9;
+    }
+
+    &.linkedin {
+      background: #fdfdfd;
+      background: linear-gradient(#fdfdfd, #eee);
+      color: #000;
+
+      & .icon {
+        margin-bottom: 2px;
+      }
+    }
+
+    &.twitter {
+      background: #0084b4;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0)) left no-repeat, center no-repeat #0084b4;
+    }
+
+  }
+
+}

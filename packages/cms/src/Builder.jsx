@@ -22,29 +22,32 @@ import "./css/base.css";
 import "./css/blueprint-overrides.css";
 import "./css/form-fields.css";
 import "./css/layout.css";
+import "./css/keyframes.css";
 
 class Builder extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
       formatters: {},
-      userInit: false,
+      userInit: props.auth.user ? true : false,
       outlineOpen: true
     };
   }
 
   componentDidMount() {
-    const {isEnabled, env} = this.props;
+    const {auth, isEnabled, env} = this.props;
     const {router} = this.props;
     const {location} = router;
     const {tab, profile, section, previews, story, storysection} = location.query;
 
-    this.props.isAuthenticated();
+    if (!auth.loading && !auth.user) this.props.isAuthenticated();
     this.props.getFormatters();
 
     // The CMS is only accessible on localhost/dev. Redirect the user to root otherwise.
     if (!isEnabled && typeof window !== "undefined" && window.location.pathname !== "/") window.location = "/";
+
+    // Prevent accidental back swipes while working in the admin panel
+    if (typeof window !== "undefined") document.querySelector("body").setAttribute("style", "overscroll-behavior-x: contain;");
 
     let currentTab;
     if (tab) {
@@ -76,7 +79,7 @@ class Builder extends Component {
     if (prevProps.auth.loading && !this.props.auth.loading) {
       this.setState({userInit: true});
     }
-    // if location queries change, create new pathobj & set that 
+    // if location queries change, create new pathobj & set that
     if (JSON.stringify(prevProps.status.pathObj) !== JSON.stringify(this.props.status.pathObj)) {
       this.setPath.bind(this)();
     }
@@ -86,14 +89,26 @@ class Builder extends Component {
     }
   }
 
+  componentWillUnmount() {
+    // When the user leaves the page to view the front-end profile, clear the back/reload blocker that was 
+    // only meant for the CMS (prevents the popup from erroneously occuring when the user tries to leave the front-end)
+    if (typeof window !== "undefined") {
+      window.onbeforeunload = () => undefined;
+    }
+  }
+
   /**
    * Almost every child of Builder makes use of redux "resources" to access formatters. However, Viz.jsx
    * misbehaves when wrapped in redux-connect, so for Viz.jsx ONLY, we pass it down via context.
+   * Router is required because SectionEditor embeds a ProfileEmbed, which contains vizes, which
+   * contain Options.jsx, which has need of router.
    */
   getChildContext() {
     const {formatters} = this.state;
+    const {router} = this.props;
     return {
-      formatters
+      formatters,
+      router
     };
   }
 
@@ -108,7 +123,7 @@ class Builder extends Component {
     // previews may come in as a string (from the URL) or an array (from the app).
     // Set the url correctly either way.
     if (pathObj.previews) {
-      const previews = typeof pathObj.previews === "string" ? pathObj.previews : pathObj.previews.map(d => d.id).join();
+      const previews = typeof pathObj.previews === "string" ? pathObj.previews : pathObj.previews.map(d => d.memberSlug).join();
       url += `&previews=${previews}`;
     }
     // Story
@@ -119,7 +134,7 @@ class Builder extends Component {
 
   render() {
     const {userInit} = this.state;
-    const {isEnabled, env, auth, router} = this.props;
+    const {isEnabled, env, auth, router, minRole} = this.props;
     const {pathObj, formattersLoaded} = this.props.status;
     const currentTab = pathObj.tab;
     let {pathname} = router.location;
@@ -131,7 +146,7 @@ class Builder extends Component {
 
     if (yn(env.CANON_LOGINS) && !auth.user) return <AuthForm redirect={pathname}/>;
 
-    if (yn(env.CANON_LOGINS) && auth.user && auth.user.role < 1) {
+    if (yn(env.CANON_LOGINS) && auth.user && !isNaN(minRole) && auth.user.role < minRole) {
       return (
         <AuthForm redirect={pathname} error={true} auth={auth} />
       );
@@ -163,12 +178,14 @@ class Builder extends Component {
 
 
 Builder.childContextTypes = {
-  formatters: PropTypes.object
+  formatters: PropTypes.object,
+  router: PropTypes.object
 };
 
 
 Builder.need = [
-  fetchData("isEnabled", "/api/cms")
+  fetchData("isEnabled", "/api/cms"),
+  fetchData("minRole", "/api/cms/minRole")
 ];
 
 const mapStateToProps = state => ({
@@ -176,7 +193,8 @@ const mapStateToProps = state => ({
   auth: state.auth,
   status: state.cms.status,
   resources: state.cms.resources,
-  isEnabled: state.data.isEnabled
+  isEnabled: state.data.isEnabled,
+  minRole: state.data.minRole
 });
 
 const mapDispatchToProps = dispatch => ({

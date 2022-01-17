@@ -1,0 +1,99 @@
+@import "../../css/mixins.css";
+
+.cms-variable-editor-dialog .cms-ace-container:only-child {
+  margin-bottom: -2rem;
+}
+
+.cms-variable-editor {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  & > *:not(:last-child),
+  & .cms-viz-editor > *:not(:last-child) {
+    margin-bottom: 1.25rem;
+  }
+
+  & .cms-text-button-group {
+    margin-bottom: var(--gutter-xs);
+  }
+}
+
+/* equal sized columns */
+.cms-variable-editor .cms-variable-editor-group {
+  display: flex;
+
+  & > * {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.cms-variable-editor .cms-variable-editor-switcher {
+  position: absolute;
+  top: 0;
+  margin-top: -1px;
+  right: 0;
+  z-index: 1;
+  flex-direction: row;
+  align-items: center;
+
+  &.cms-generator-variable-editor-switcher {
+    top: 1em;
+  }
+
+  & .bp3-control-indicator {
+    max-width: 1em;
+    top: 1px;
+  }
+}
+
+/* compiled generator link */
+.cms-generator-variable-editor-url {
+  @mixin description-color;
+}
+.cms-generator-variable-editor-url-link {
+  @mixin link-theme;
+}
+
+.cms-variable-editor-json,
+.cms-variable-table-wrapper {
+  height: 100%;
+  background-color: var(--white);
+
+  @mixin dark-mode {
+    background-color: var(--black);
+  }
+}
+
+/* json data */
+.cms-variable-editor-json {
+  padding: var(--gutter-sm);
+}
+
+.cms-variable-editor-js-outer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+
+  & .cms-variable-editor-js {
+    position: relative;
+    width: 100%;
+    flex: 1 0 auto;
+  }
+
+  & .cms-ace-container {
+    @mixin absolute-expand;
+  }
+
+  & .cms-variable-editor-heading {
+    margin-top: 1em;
+  }
+}
+
+/* help text */
+/* TODO: move to tooltip */
+.cms-variable-editor-help > *                   { margin-bottom: 0; margin-top: 0; }
+.cms-variable-editor-help > h3                  { margin-bottom: 0.5em; }
+.cms-variable-editor-help > p:not(:last-child)  { margin-bottom: 0.25em; }

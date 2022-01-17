@@ -1,6 +1,6 @@
 @import "../../css/mixins.css";
 
-.cms .cms-status {
+[class] .cms-status {
   position: fixed; /* override default of relative */
 }
 
@@ -23,10 +23,10 @@
     opacity 0.1s ease-out;
   /* theming */
   @mixin description-color;
-  background-color: color(var(--white) a(0.9));
+  background-color: rgba(var(--white-RGB), 0.9);
 
   @mixin dark-mode {
-    background-color: color(var(--dark-2) a(0.9));
+    background-color: rgba(var(--dark-2-RGB), 0.9);
   }
 
   &.is-done {
@@ -57,13 +57,4 @@
   height: auto;
   /* positioning */
   margin-right: 0.25em;
-}
-
-@keyframes rotate {
-  0% {
-    transform: none;
-  }
-  100% {
-    transform: rotate(360deg);
-  }
 }

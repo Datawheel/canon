@@ -9,3 +9,20 @@
 .cp-single-column-section .cp-viz-container {
   margin-top: 1.125rem;
 }
+
+/* equal height columns */
+.cp-single-column-section-inner {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+/* caption takes up all available space */
+.cp-single-column-section-caption {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+}
+/* viz pushes away from text */
+.cp-single-column-section-caption > .cp-viz-container:first-of-type {
+  margin-top: auto;
+}

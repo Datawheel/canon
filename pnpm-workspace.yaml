@@ -1,0 +1,7 @@
+packages:
+  - 'examples'
+  - 'packages/cms'
+  - 'packages/core'
+  - 'packages/logiclayer'
+  - 'packages/vizbuilder'
+  - 'packages/test'

@@ -1,7 +1,12 @@
 @import "../../css/mixins.css";
 
+.cms-table-viz-container .cms-viz-figure,
 .cp-table-viz-container .cp-viz-figure {
   height: auto !important;
+
+  & [class*="-loading"] {
+    text-align: center;
+  }
 
   & .rt-table {
     @mixin overflow-container;
@@ -16,6 +21,10 @@ NOTE: ripped from ReactTable
 .cp-table {
   flex-direction: column;
   min-width: 100%;
+
+  &.cp-table-loading {
+    opacity: 0.1;
+  }
 
   & * {
     outline: none;
@@ -96,7 +105,7 @@ NOTE: ripped from ReactTable
   }
 
   &:focus {
-    background-color: color(var(--white) a(0.125));
+    background-color: rgba(var(--white-RGB), 0.125);
     outline: 2px solid var(--accent);
     outline-offset: -2px;
 
@@ -124,7 +133,7 @@ NOTE: ripped from ReactTable
   /* interactions */
   &.-sort-desc, &.-sort-asc,
   &.rt-th.rt-th:hover {
-    background-color: color(var(--table-thead-bg-color) a(0.875));
+    background-color: rgba(var(--dark-1-RGB), 0.875);
 
     & .cp-table-header-icon {
       opacity: 1;
@@ -161,6 +170,9 @@ THEMING
 }
 
 /* nested / primary header */
+.rt-thead.-header {
+  background-color: var(--table-thead-bg-color);
+}
 .rt-thead.-header .rt-th {
   background-color: var(--table-thead-bg-color);
   border: 1px solid var(--table-thead-border-color);
@@ -289,4 +301,14 @@ THEMING
 
 [class="-loading"] {
   display: none;
+}
+
+.cp-table-cell-inner {
+  &.cp-table-cell-inner-clickable {
+    color: var(--accent-dark);
+    cursor: pointer;
+    &:hover, &:focus {
+      text-decoration: underline;
+    }
+  }
 }

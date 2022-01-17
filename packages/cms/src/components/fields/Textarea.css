@@ -1,0 +1,8 @@
+@import "../../css/mixins.css";
+
+/* shared input styles */
+[class*="-textarea"] {
+  min-height: 2em;
+  max-height: 10em;
+  resize: vertical;
+}

@@ -22,7 +22,7 @@
   padding: 2rem;
   border-radius: 4px;
   background-color: var(--white);
-  box-shadow: 0 0.125rem 0.75rem color(var(--black) a(0.2));
+  box-shadow: 0 0.125rem 0.75rem rgba(var(--black-RGB), 0.2);
 
   @mixin dark-mode {
     background-color: var(--dark-3);
@@ -66,16 +66,5 @@
 .cms-auth-form-paragraph {
   @mixin min-md {
     text-align: center;
-  }
-}
-
-@keyframes appear-from-below {
-  0% {
-    opacity: 0;
-    transform: translateY(25%);
-  }
-  100% {
-    opacity: 1;
-    transform: none;
   }
 }

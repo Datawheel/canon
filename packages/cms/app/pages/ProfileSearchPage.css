@@ -1,0 +1,12 @@
+.profilesearchpage-area {
+  display: flex;
+  height: 600px;
+  padding: 50px;
+  width: 100%;
+  &.list {
+    width: 400px;
+  }
+  &.popup {
+    height: 200px;
+  }
+}

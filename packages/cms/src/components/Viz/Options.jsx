@@ -1,20 +1,19 @@
 import React, {Component} from "react";
-import {hot} from "react-hot-loader/root";
 import {withNamespaces} from "react-i18next";
 import {connect} from "react-redux";
-import {animateScroll} from "react-scroll";
 import ReactTable from "react-table";
 import PropTypes from "prop-types";
 import "./Table.css";
 import "./Options.css";
 
-import {Checkbox, Dialog, Icon, Label, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
+import {Checkbox, Dialog, Icon, NonIdealState, Spinner, Tab, Tabs} from "@blueprintjs/core";
 
 import {max, sum} from "d3-array";
-import {event, select} from "d3-selection";
+import {select} from "d3-selection";
 import {uuid} from "d3plus-common";
 import {saveAs} from "file-saver";
 import JSZip from "jszip";
+import XLSX from "xlsx";
 import axios from "axios";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
@@ -27,6 +26,12 @@ import ButtonGroup from "../fields/ButtonGroup";
 import ShareDirectLink from "./ShareDirectLink";
 import ShareFacebookLink from "./ShareFacebookLink";
 import ShareTwitterLink from "./ShareTwitterLink";
+
+const DOWNLOAD_TYPES = {
+  CSV: "CSV",
+  JSON: "JSON",
+  XLS: "XLS"
+};
 
 const measureText = str => sum(`${str}`.split("")
   .map(c => ["I", "i", "l", "."].includes(c) ? 4 : 9));
@@ -52,7 +57,7 @@ class Options extends Component {
   constructor(props) {
     super(props);
 
-    const hasMultiples = Array.isArray(props.data) && props.data.some(d => typeof d === "string");
+    const hasMultiples = Array.isArray(props.data) && props.data.length > 1 && props.data.some(d => typeof d === "string");
 
     this.state = {
       backgroundColor: true,
@@ -72,55 +77,89 @@ class Options extends Component {
 
   componentDidUpdate(prevProps) {
     const {data} = this.props;
-    if (prevProps.data !== data) {
-      this.setState({results: data instanceof Array ? data : false});
+    if (JSON.stringify(prevProps.data) !== JSON.stringify(data)) {
+      const hasMultiples = Array.isArray(data) && data.length > 1 && data.some(d => typeof d === "string");
+      const results = !hasMultiples && Array.isArray(data) ? data : false;
+      this.setState({results});
     }
   }
 
-  listenForBlur() {
-    select(document).on("keydown", () =>
-      setTimeout(() => {
-        if (this.state.dialogOpen) {
-          if (document.activeElement.matches(".cp-section-heading") || document.activeElement.matches(".options-button")) {
-            this.setState({dialogOpen: false});
-          }
-        }
-      }, 20)
-    );
-  }
-
-  onCSV() {
-    const {title} = this.props;
+  onDownload(type) {
+    const {title, dataAttachments} = this.props;
     const {results} = this.state;
-
-    const colDelim = ",";
-    const rowDelim = "\r\n";
-
-    const columns = Object.keys(results[0]);
-    let csv = columns.map(val => `\"${val}\"`).join(colDelim);
-
-    for (let i = 0; i < results.length; i++) {
-      const data = results[i];
-
-      csv += rowDelim;
-      csv += columns.map(key => {
-
-        const val = data[key];
-
-        return typeof val === "number" ? val
-          : val ? `\"${val}\"` : "";
-
-      }).join(colDelim);
-    }
-
     const zip = new JSZip();
-    zip.file(`${filename(title)}.csv`, csv);
-    zip.generateAsync({type: "blob"})
-      .then(content => saveAs(content, `${filename(title)}.zip`));
+    if (type === DOWNLOAD_TYPES.JSON) {
+      zip.file(`${filename(title)}.json`, JSON.stringify(results));
+    }
+    else if (type === DOWNLOAD_TYPES.XLS) {
+      const ws = XLSX.utils.json_to_sheet(results);
+      const wb = XLSX.utils.book_new();
+      const SHEET_NAME_MAX_LENGTH = 30;
+      XLSX.utils.book_append_sheet(wb, ws, filename(title).substring(0, SHEET_NAME_MAX_LENGTH));
+      const xls = XLSX.write(wb, {bookType: "xlsx", bookSST: true, type: "binary"});
+      zip.file(`${filename(title)}.xlsx`, xls, {binary: true});
+    }
+    else if (type === DOWNLOAD_TYPES.CSV) {  // csv
+      const colDelim = ",";
+      const rowDelim = "\r\n";
+
+      const columns = results && results[0] ? Object.keys(results[0]) : [];
+      let csv = columns.map(val => `\"${val}\"`).join(colDelim);
+
+      for (let i = 0; i < results.length; i++) {
+        const data = results[i];
+
+        csv += rowDelim;
+        csv += columns.map(key => {
+
+          const val = data[key];
+
+          return typeof val === "number" ? val
+            : val ? `\"${val}\"` : "";
+
+        }).join(colDelim);
+      }
+      // add generated data table to ZIP
+      zip.file(`${filename(title)}.csv`, csv);
+    }
+    else {
+      console.error(`Invalid download type: ${type}`);
+      return;
+    }
+    // Include any additional files defined in config
+    if (typeof dataAttachments !== "undefined") {
+
+      const attachmentURLs = dataAttachments ? Array.isArray(dataAttachments) ? dataAttachments : [dataAttachments] : [];
+
+      const requests = [];
+      attachmentURLs.forEach(url => {
+        requests.push(axios.get(url, {responseType: "blob"}));
+      });
+
+      Promise.all(requests)
+        .then(responses => {
+          responses.forEach(response => {
+            if (response.status === 200 || response.status === 0) {
+              // Pull data, grab file name, and add to ZIP
+              const blob = new Blob([response.data], {type: response.data.type});
+              const dAName = response.config.url.split("/").pop();
+              zip.file(`${dAName}`, blob, {binary: true});
+            }
+          });
+          return zip.generateAsync({type: "blob"});
+        })
+        .then(content => saveAs(content, `${filename(title)}.zip`));
+
+    }
+    else {
+      // No attachments listed in config, only ZIP data table
+      zip.generateAsync({type: "blob"})
+        .then(content => saveAs(content, `${filename(title)}.zip`));
+    }
   }
 
   onSave() {
-    const {title} = this.props;
+    const {mirrorSelector, title} = this.props;
     const {backgroundColor, imageContext, imageFormat} = this.state;
     this.setState({imageProcessing: true});
 
@@ -147,10 +186,10 @@ class Options extends Component {
         const height = node.offsetHeight + 120;
 
         // make a copy of the node so we're not editing the original
-        node = node.parentNode.cloneNode(true);
+        node = node.cloneNode(true);
 
         // get the mirror, make it visible, and size it
-        const mirror = document.body.querySelector(".mirror");
+        const mirror = document.body.querySelector(mirrorSelector);
         mirror.classList.add("is-visible", `${imageContext}-context`);
         mirror.classList.remove("is-hidden");
         mirror.style.width = `${width}px`;
@@ -186,9 +225,9 @@ class Options extends Component {
               const fakeHeader = document.createElement("span");
               // remove header button screen reader text & icon
               const hiddenText = header.querySelector(".u-visually-hidden");
-              hiddenText.parentNode.removeChild(hiddenText);
+              if (hiddenText) hiddenText.parentNode.removeChild(hiddenText);
               const icon = header.querySelector(".cp-table-header-icon");
-              icon.parentNode.removeChild(icon);
+              if (icon) icon.parentNode.removeChild(icon);
               // get header text
               fakeHeader.innerHTML = header.textContent || header.innerText;
               // get the classes from the real header & add them to the fake
@@ -267,28 +306,24 @@ class Options extends Component {
     }
 
     this.setState({dialogOpen: slug});
-    this.listenForBlur();
     const {results, loading} = this.state;
 
     if (slug === "view-table" && !results && !loading) {
       const {data, dataFormat} = this.props;
       const paths = typeof data === "string" ? [data] : data;
       this.setState({loading: true});
-      const loaded = [];
-      paths.forEach(path => {
-        if (typeof path === "string") {
-          axios.get(path)
-            .then(resp => {
-              loaded.push(resp.data);
-              if (loaded.length === paths.length) {
-                const results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
-                this.setState({loading: false, results});
-              }
-            });
+      Promise.all(paths.map(path => typeof path === "string" ? axios.get(path) : {data: path})).then(resps => {
+        const loaded = resps.map(d => d.data);
+        let results;
+        try {
+          results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
+          if (typeof results === "object" && !(results instanceof Array)) results = results.data || [];
         }
-        else {
-          loaded.push(path);
+        catch (e) {
+          console.log("Error in Options Panel: ", e);
+          results = [];
         }
+        this.setState({loading: false, results});
       });
     }
   }
@@ -322,6 +357,7 @@ class Options extends Component {
   });
 
   render() {
+    if (this.context.print) return null;
     const {backgroundColor, imageContext, imageFormat, imageProcessing, includeSlug, dialogOpen, results, focusOptions} = this.state;
     const {data, iconOnly, slug, t, transitionDuration} = this.props;
 
@@ -333,19 +369,19 @@ class Options extends Component {
     const node = this.getNode();
     const svgAvailable = node && select(node).select(".d3plus-viz").size() > 0;
 
-    const columns = results ? Object.keys(results[0]).filter(d => d.indexOf("ID ") === -1 && d.indexOf("Slug ") === -1) : [];
+    const columns = results && results[0] ? Object.keys(results[0]).filter(d => !d.includes("ID ") && !d.includes("Slug ")) : [];
 
     const dataURLs = typeof data === "string"
       ? [data] : Array.isArray(data)
-        ? data : false;
+        ? data.filter(d => typeof d === "string") : false;
 
     const DataPanel = () => results
       ? <div className="bp3-dialog-body view-table">
 
         {dataURLs && dataURLs.map((link, i) =>
           <ShareDirectLink
-            link={data.indexOf("http") === 0 ? link : `${ domain }${ link }`}
-            label={`Endpoint${dataURLs.length > 1 ? ` ${i + 1}` : "" }`}
+            link={link.indexOf("http") === 0 ? link : `${ domain }${ link }`}
+            label={`${t("CMS.Options.Endpoint")}${dataURLs.length > 1 ? ` ${i + 1}` : "" }`}
             key={link}
           />
         )}
@@ -361,10 +397,17 @@ class Options extends Component {
             resizable={false}
           />
         </div>
-
-        <Button key="data-download" icon="download" fontSize="md" onClick={this.onCSV.bind(this)} fill>
-          {t("CMS.Options.Download as CSV")}
-        </Button>
+        <div className="cms-options-download-button-group">
+          <Button key="data-download" icon="download" fontSize="sm" onClick={() => this.onDownload.bind(this)(DOWNLOAD_TYPES.CSV)} >
+            {t("CMS.Options.Download as CSV")}
+          </Button>
+          <Button key="data-download" icon="download" fontSize="sm" onClick={() => this.onDownload.bind(this)(DOWNLOAD_TYPES.XLS)} >
+            {t("CMS.Options.Download as XLS")}
+          </Button>
+          <Button key="data-download" icon="download" fontSize="sm" onClick={() => this.onDownload.bind(this)(DOWNLOAD_TYPES.JSON)} >
+            {t("CMS.Options.Download as JSON")}
+          </Button>
+        </div>
       </div>
       : <div className="bp3-dialog-body view-table">
         <NonIdealState title={t("CMS.Options.Loading Data")} visual={<Spinner />} />
@@ -425,14 +468,14 @@ class Options extends Component {
         transitionDuration={transitionDuration}
         ref={this.dialog}
       >
-        <h2 className="u-visually-hidden">Visualization options</h2>
+        <h2 className="u-visually-hidden">{t("CMS.Options.Visualization options")}</h2>
         <Tabs onChange={this.toggleDialog.bind(this)} selectedTabId={dialogOpen}>
           <Tab id="view-table" title={t("CMS.Options.View Data")} panel={<DataPanel />} />
           <Tab id="save-image" title={t("CMS.Options.Save Image")} panel={
             <div className="bp3-dialog-body save-image">
 
               <div className="save-image-button-group-wrapper">
-                <h3 className="save-image-button-group-label label u-font-xs">Image area</h3>
+                <h3 className="save-image-button-group-label label u-font-xs">{t("CMS.Options.Image area")}</h3>
                 <ButtonGroup className="save-image-button-group">
                   <Button
                     className="save-image-format-button"
@@ -442,7 +485,7 @@ class Options extends Component {
                     onClick={() => this.setState({imageContext: "viz"})}
                     active={imageContext === "viz"}
                   >
-                    visualization only
+                    {t("CMS.Options.visualization only")}
                   </Button>
                   <Button
                     className="save-image-format-button"
@@ -455,14 +498,14 @@ class Options extends Component {
                     })}
                     active={imageContext === "section"}
                   >
-                    entire section
+                    {t("CMS.Options.entire section")}
                   </Button>
                 </ButtonGroup>
               </div>
 
               {svgAvailable && imageContext !== "section" &&
                 <div className="save-image-button-group-wrapper">
-                  <h3 className="save-image-button-group-label label u-font-xs">Image format</h3>
+                  <h3 className="save-image-button-group-label label u-font-xs">{t("CMS.Options.Image Format")}</h3>
                   <ButtonGroup className="save-image-button-group">
                     <Button
                       className="save-image-format-button"
@@ -472,7 +515,7 @@ class Options extends Component {
                       onClick={() => this.setState({imageFormat: "png"})}
                       active={imageFormat === "png"}
                     >
-                      <span className="u-visually-hidden">Save visualization as </span>PNG
+                      <span className="u-visually-hidden">{t("CMS.Options.Save visualization as")}</span>PNG
                     </Button>
                     <Button
                       className="save-image-format-button"
@@ -482,7 +525,7 @@ class Options extends Component {
                       onClick={() => this.setState({imageFormat: "svg"})}
                       active={imageFormat === "svg"}
                     >
-                      <span className="u-visually-hidden">Save visualization as </span>SVG
+                      <span className="u-visually-hidden">{t("CMS.Options.Save visualization as")}</span>SVG
                     </Button>
                   </ButtonGroup>
                 </div>
@@ -504,13 +547,13 @@ class Options extends Component {
                 fontSize="md"
                 fill
               >
-                {imageProcessing ? "Processing image" : `Download ${imageFormat}`}
+                {imageProcessing ? t("CMS.Options.Processing image") : `${t("CMS.Options.Download")} ${imageFormat}`}
               </Button>
             </div>
           } />
           <Tab id="share" title={t("CMS.Options.Share")} panel={<SharePanel />} />
           <Button icon="small-cross" iconOnly className="close-button bp3-dialog-close-button bp3-minimal" onClick={this.toggleDialog.bind(this, false)}>
-            Close
+            {t("CMS.Options.Close")}
           </Button>
         </Tabs>
       </Dialog>
@@ -519,13 +562,15 @@ class Options extends Component {
 }
 
 Options.defaultProps = {
+  mirrorSelector: ".mirror",
   transitionDuration: 100,
   iconOnly: false
 };
 Options.contextTypes = {
+  print: PropTypes.bool,
   router: PropTypes.object
 };
 
 export default withNamespaces()(connect(state => ({
   location: state.location
-}))(hot(Options)));
+}))(Options));

@@ -1,0 +1,38 @@
+@import "../../css/mixins.css";
+
+.cms-viz-editor {
+  height: auto; /* override vh */
+  width: 100%;
+  overflow: hidden !important; /* prevent .viz-select-group from overflowing */
+
+  & .cms-variable-editor-switcher {
+    top: -1.125rem !important;
+  }
+
+  /* groupBy, x, y, etc. (hidden until a Data & Type are entered) */
+  & .viz-select-group {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-right: -1.5rem; /* offset select right margin */
+    margin-bottom: calc(0px - var(--gutter-sm));
+
+    & .cms-variable-editor-switcher:only-child {
+      position: relative !important;
+      text-align: right;
+    }
+
+    & > * {
+      flex: 1 0 calc(50% - 1.5rem);
+      margin-right: 1.5rem; /* create gutter */
+    }
+
+    & .cms-input-label {
+      margin-bottom: 1em;
+    }
+  }
+
+  & .cms-select-text {
+    text-transform: capitalize;
+  }
+}

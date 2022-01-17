@@ -5,6 +5,11 @@
   justify-content: flex-end;
 }
 
+.cms-options-download-button-group {
+  display: flex;
+  justify-content: space-between;
+}
+
 .options-dialog {
   max-width: calc(100% - 50px);
 

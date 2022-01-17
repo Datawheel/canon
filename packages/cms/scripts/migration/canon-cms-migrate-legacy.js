@@ -1,10 +1,10 @@
 #! /usr/bin/env node
- 
+
 const utils = require("./migrationUtils.js");
 const {catcher, resetSequence, fetchOldModel, fetchNewModel} = utils;
 const shell = require("shelljs");
-const oldDBName = process.env.CANON_CONST_MIGRATION_OLD_DB_NAME;
-const newDBName = process.env.CANON_CONST_MIGRATION_NEW_DB_NAME;
+const oldDBName = process.env.CANON_CMS_MIGRATION_OLD_DB_NAME || process.env.CANON_CONST_MIGRATION_OLD_DB_NAME;
+const newDBName = process.env.CANON_CMS_MIGRATION_NEW_DB_NAME || process.env.CANON_CONST_MIGRATION_NEW_DB_NAME;
 
 const migrate = async() => {
 
@@ -20,7 +20,7 @@ const migrate = async() => {
   };
 
   const storyLookup = {
-    authors: "author", 
+    authors: "author",
     descriptions: "story_description",
     footnotes: "story_footnote"
   };
@@ -31,7 +31,7 @@ const migrate = async() => {
     visualizations: "storytopic_visualization",
     stats: "storytopic_stat"
   };
-  
+
   // Copy the non-cms tables wholesale
   for (const table of ["images", "search"]) {
     let rows = await dbold[table].findAll();
@@ -67,7 +67,7 @@ const migrate = async() => {
   ]});
   profiles = profiles.map(profile => profile.toJSON());
   profiles.sort((a, b) => a.ordering - b.ordering);
-  for (const oldprofile of profiles) { 
+  for (const oldprofile of profiles) {
     // initiate the topic ordering head counter
     let nextTopicLoc = 0;
     // make the top-level profile itself
@@ -132,7 +132,7 @@ const migrate = async() => {
         if (list !== "visualizations") await dbnew[`${tableLookup[list]}_content`].create({id: newTopicEntity.id, lang: "en", description, title, subtitle, value, tooltip}).catch(catcher);
       }
     }
-    
+
     oldprofile.sections.sort((a, b) => a.ordering - b.ordering);
     for (const oldsection of oldprofile.sections) {
       // make this section into a new topic, with an ordering of the current "ordering head"
@@ -172,7 +172,7 @@ const migrate = async() => {
             const {ordering, allowed, logic, options, name, type} = entity;
             const simple = entity.simple || false;
             let newTopicEntity = await dbnew[tableLookup[list]].create({topic_id: newtopic.id, ordering, allowed, logic, options, name, type, title: entity.title, default: entity.default, simple}).catch(catcher);
-            newTopicEntity = newTopicEntity.toJSON();     
+            newTopicEntity = newTopicEntity.toJSON();
             // create associated english content
             const {description, title, subtitle, value, tooltip} = entity;
             if (list !== "visualizations" && list !== "selectors") await dbnew[`${tableLookup[list]}_content`].create({id: newTopicEntity.id, lang: "en", description, title, subtitle, value, tooltip}).catch(catcher);
@@ -196,7 +196,7 @@ const migrate = async() => {
   ]});
   stories = stories.map(story => story.toJSON());
   stories.sort((a, b) => a.ordering - b.ordering);
-  for (const oldstory of stories) { 
+  for (const oldstory of stories) {
     // make the top-level story itself
     const {slug, ordering} = oldstory;
     let newstory = await dbnew.story.create({slug, ordering}).catch(catcher);
@@ -229,7 +229,7 @@ const migrate = async() => {
         for (const entity of oldstorytopic[list]) {
           const {ordering, logic} = entity;
           let newStoryTopicEntity = await dbnew[storytopicLookup[list]].create({storytopic_id: newstorytopic.id, ordering, logic});
-          newStoryTopicEntity = newStoryTopicEntity.toJSON();     
+          newStoryTopicEntity = newStoryTopicEntity.toJSON();
           // create associated english content
           const {description, title, subtitle, value, tooltip} = entity;
           if (list !== "visualizations") await dbnew[`${storytopicLookup[list]}_content`].create({id: newStoryTopicEntity.id, lang: "en", description, title, subtitle, value, tooltip});
@@ -237,7 +237,7 @@ const migrate = async() => {
       }
     }
   }
-  console.log(`Successfully migrated from CMS legacy on ${oldDBName} to CMS version 0.1 on ${newDBName}`);
+  console.log(`Successfully migrated from CMS legacy on ${oldDBName} to CMS version 0.6 on ${newDBName}`);
   shell.exit(0);
 };
 

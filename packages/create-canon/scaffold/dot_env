@@ -1,0 +1,8 @@
+CANON_API="http://localhost:3300"
+
+CANON_LANGUAGE_DEFAULT=en
+CANON_LANGUAGES=en,es
+
+# Env vars prefixed with CANON_CONST_ are later replaced in builds
+# You have to use the __{KEY}__ global variable
+CANON_CONST_TESTCONST=23

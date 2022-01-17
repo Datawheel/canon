@@ -1,0 +1,150 @@
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Container */
+.content{
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: block;
+  padding: 20px;
+}
+
+/* h2 */
+h2{
+  display: flex;
+  align-items: center;
+}
+h2 .text{
+  margin-left: 1em;
+}
+
+/* Header */
+header{
+  width: 100%;
+  background-color: #ccc;
+}
+
+/* Footer */
+footer{
+  width: 100%;
+  background-color: #ccc;
+}
+
+/* Table */
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  empty-cells: show;
+  border: 1px solid #ccc;
+}
+.result-table thead {
+  background-color: black;
+  color: white;
+  text-align: left;
+  vertical-align: bottom;
+}
+.result-table thead th {
+  padding: .5em 1em;
+}
+.result-table tbody {
+  color: black;
+}
+.result-table tbody td {
+  padding: .5em 1em;
+  border-bottom: 1px solid #ccc;
+  border-left: 1px solid #cbcbcb;
+  border-right-width: 0;
+  border-top-width: 0;
+  font-size: inherit;
+  margin: 0;
+  overflow: visible;
+}
+
+.result-table tbody td.icon-td {
+  text-align: center;
+}
+
+/* Status ball*/
+.status-ball{
+  display: inline-block;
+  height: 30px;
+  width: 30px;
+}
+
+.status-ball-success{
+}
+.status-ball-success-circle-back{
+  transform-origin: center center;
+}
+.status-ball-success-circle {
+  stroke-dasharray: 260.75219024795285px, 260.75219024795285px;
+  stroke-dashoffset: 260.75219024795285px;
+  transform-origin: center center;
+  stroke-linecap: round;
+  animation: ani-success-circle 1s ease-in both;
+}
+.status-ball-success-path {
+  stroke-dasharray: 60px 64px;
+  stroke-dashoffset: 62px;
+  stroke-linecap: round;
+  animation: ani-success-path .4s 1s ease-in both;
+}
+
+@keyframes ani-success-circle {
+	to{stroke-dashoffset: 782.2565707438586px;}
+}
+
+@keyframes ani-success-path {
+	0% {stroke-dashoffset: 62px;}
+	65% {stroke-dashoffset: -5px;}
+	84%{stroke-dashoffset: 4px;}
+	100%{stroke-dashoffset: -2px;}
+}
+
+.status-ball-error{
+}
+.status-ball-error-circle{
+  stroke-dasharray:260.75219024795285px, 260.75219024795285px;
+  stroke-dashoffset: 260.75219024795285px;
+  animation: ani-error-circle 1.2s linear;
+}
+.status-ball-error-line1{
+  stroke-dasharray: 54px 55px;
+  stroke-dashoffset: 55px;
+  stroke-linecap: round;
+  animation: ani-error-line .15s 1.2s linear both;
+}
+.status-ball-error-line2{
+  stroke-dasharray: 54px 55px;
+  stroke-dashoffset: 55px;
+  stroke-linecap: round;
+  animation: ani-error-line .2s .9s linear both;
+}
+
+@keyframes ani-error-line{
+	to { stroke-dashoffset: 0; }
+}
+
+ @keyframes ani-error-circle {
+		0% {
+				stroke-dasharray: 0, 260.75219024795285px;
+				stroke-dashoffset: 0;
+		}
+		35% {
+				stroke-dasharray: 120px, 120px;
+				stroke-dashoffset: -120px;
+		}
+		70% {
+				stroke-dasharray: 0, 260.75219024795285px;
+				stroke-dashoffset: -260.75219024795285px;
+		}
+		100% {
+				stroke-dasharray: 260.75219024795285px, 0;
+				stroke-dashoffset: -260.75219024795285px;
+		}
+}

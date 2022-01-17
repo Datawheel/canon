@@ -132,7 +132,7 @@
   }
 
   /* theming */
-  & .rt-tbody .rt-tr.-even .rt-td { background-color: color(var(--white) a(0.5)); }
+  & .rt-tbody .rt-tr.-even .rt-td { background-color: rgba(var(--white-RGB), 0.5); }
   & .rt-tbody                     { @mixin font-xxs; }
   & .-pageJump > input            { @mixin cms-text-input-style; }
   & .-pageJump > *                { margin: 0 0.125em; }
@@ -151,7 +151,7 @@
     & .rt-thead.-headerGroups .rt-th { background-color: var(--dark-3); }
     & .rt-thead.-header .rt-th       { background-color: var(--dark-2); }
     & .rt-tbody .rt-tr.-odd .rt-td   { background-color: transparent; }
-    & .rt-tbody .rt-tr.-even .rt-td  { background-color: color(var(--dark-3) a(0.5)); }
+    & .rt-tbody .rt-tr.-even .rt-td  { background-color: rgba(var(--dark-3-RGB), 0.5); }
     & .rt-resizer                    { border-left-color: var(--light-3); }
 
     /* keep editable text visible */
@@ -196,48 +196,20 @@
   }
 }
 .cms-meta-table-link {
-  font-weight: var(--display-font-weight);
-  letter-spacing: 0.01em;
-  color: var(--accent);
-
-  &:hover, &:focus {
-    text-decoration: underline;
-    color: var(--accent-dark);
-
-    @mixin dark-mode {
-      color: var(--accent-light);
-    }
-  }
+  @mixin link-theme;
 }
 
 /* searching for images */
 .cms-meta-popover {
   will-change: width;
   transition: width 0.1s ease-out;
-
-  /* override blueprint */
-  & .cms-meta-popover-inner {
-    padding: var(--gutter-md);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* enable inertia scrolling */
-  }
-}
-
-/* header with title and tabs */
-.cms-meta-popover-header {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: baseline;
 }
 
 /* button group */
 .cms-meta-popover-button-group {
-  @mixin absolute-horizontal-center;
+  @mixin absolute-center;
   position: absolute !important;
   box-shadow: none !important;
-  top: 0;
-  min-height: 2.75rem;
   width: auto;
 
   & .cms-button {
@@ -338,4 +310,22 @@
   text-align: center;
   padding-top: calc(var(--gutter-xs) + 10vh);
   padding-bottom: calc(var(--gutter-xl) + 10vh);
+}
+
+.cms-img-upload-icon {
+  position: absolute;
+  bottom: 2px;
+  right: 3px;
+  background-color: white;
+}
+
+.cms-img-upload-popover {
+  width: 300px;
+  padding: 5px;
+}
+
+.cms-img-status-box {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
 }

@@ -32,10 +32,34 @@
     border-bottom-right-radius: 2px;
   }
 
-  & .cms-card-description[class] {
+  & .cms-card-description {
     @mixin font-xxs;
+    @mixin description-color;
     margin-top: 0.5em;
   }
+
+  /* read only (special attributes card) */
+  &.is-read-only {
+    cursor: not-allowed;
+
+    & .cms-var-table {
+      cursor: auto;
+    }
+  }
+
+  &.is-not-allowed {
+    & > *:not(.cms-dialog) {
+      filter: grayscale(25%) opacity(75%);
+    }
+    &:before {
+      @mixin font-xxs;
+      color: var(--alert);
+      content: "Disabled for the selected preview member.";
+      display: block;
+      margin-bottom: var(--gutter-xs);
+    }
+  }
+
 }
 
 
@@ -64,7 +88,7 @@
   }
 
   /* adjacent preview content */
-  & ~ *:not(.cms-reorder) {
+  & ~ *:not([class*="u-font-"]) {
     @mixin font-xs; /* default font size */
   }
 }
@@ -116,7 +140,7 @@
 
     @mixin dark-mode {
       box-shadow: none;
-      background-color: color(var(--gray) a(0.01));
+      background-color: rgba(var(--gray-RGB), 0.01);
 
       & ~ .cms-card-heading > [class*="cms-card-heading-"] {
         color: var(--accent);

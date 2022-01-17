@@ -1,0 +1,11 @@
+{% layout 'layout' %}
+
+<div>
+  {% for result in results %}
+    <div>{% include 'result-block', result:result %}</div>
+  {% endfor %}
+</div>
+
+{% block 'footer' %}
+  Canon-test, powered by Datawheel
+{% endblock %}

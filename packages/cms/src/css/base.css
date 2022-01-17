@@ -15,6 +15,23 @@ html:root       { font-size: var(--body-font-scale-sm);
     position: relative;
   }
 
+  /* fixes previous reset with react-ace component */
+  & .ace_text-input,
+  & .ace_gutter,
+  & .ace_gutter-cell,
+  & .ace_scroller,
+  & .ace_content,
+  & .ace_layer,
+  & .ace_cursor,
+  & .ace_print-margin,
+  & .ace_scrollbar,
+  & .ace_scrollbar-inner {
+    position: absolute;
+  }
+  & .ace_tooltip {
+    position: fixed;
+  }
+
   & code {
     padding: 0.125em 0.5em;
   }
@@ -112,59 +129,11 @@ strong, [class] > strong,
       color: var(--light-1);
     }
   }
-
-  /* use blueprint theming for quill editor for now */
-  /* TODO: dark theme */
-  & .quill {
-    background-color: #f5f8fa;
-    color: #182026;
-  }
 }
 
 /* highlighted text style */
 .cms ::selection,
 .cp ::selection {
   color: var(--black);
-  background-color: color(var(--accent-light) a(0.75));
-}
-
-
-
-/* TODO: move to Dialog wrapper component */
-.cms-dialog-footer-button {
-  background-color: transparent;
-  border: none;
-  padding: 0;
-  /* TODO: adjust the container margin, not button margin */
-  margin-top: -2.25rem;
-  /* theming */
-  color: var(--dark-3);
-
-  @mixin dark-mode {
-    color: var(--light-1);
-  }
-
-  & .cms-dialog-footer-button-icon {
-    top: -2px;
-    color: var(--dark-1);
-
-    @mixin dark-mode {
-      color: var(--gray);
-    }
-  }
-
-  /* interactions */
-  &:hover, &:focus {
-    & .cms-dialog-footer-button-icon {
-      color: var(--dark-3);
-
-      @mixin dark-mode {
-        color: var(--light-1);
-      }
-    }
-  }
-
-  &:not(:last-of-type) {
-    margin-right: 1.5em;
-  }
+  background-color: rgba(var(--accent-light-RGB), 0.75);
 }

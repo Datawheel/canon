@@ -1,0 +1,44 @@
+.bp3-popover-content .bp3-menu {
+  max-height: 400px;
+  overflow: auto;
+  width: 400px;
+}
+
+.hierarchy-list-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.hierarchy-list-header-tokens {
+  margin-left: 0.5rem;
+  flex: 1;
+}
+.hierarchy-list-token {
+  display: block;
+}
+.hierarchy-list-content,
+.filter-list-content {
+  position: relative;
+}
+.filter-list-optgroup {
+  background: #fff;
+  position: sticky;
+  top: 0;
+  white-space: pre-line;
+  z-index: 100;
+}
+.filter-list-optgroup strong {
+  display: block;
+  margin-bottom: 0;
+}
+
+.measure-label .name {
+  display: block;
+}
+.measure-label .source {
+  display: block;
+  font-size: 0.7em;
+}
+.measure-label .dimensions {
+  white-space: normal;
+}

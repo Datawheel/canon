@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 import Button from "../components/fields/Button";
 import Deck from "../components/interface/Deck";
 import TextCard from "../components/cards/TextCard";
+import Select from "../components/fields/Select";
 import Loading from "components/Loading";
 import {DatePicker} from "@blueprintjs/datetime";
 import deepClone from "../utils/deepClone";
@@ -27,7 +28,7 @@ class StoryEditor extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.id !== this.props.id) {
       this.setState({minData: deepClone(this.props.minData)});
-    }    
+    }
   }
 
   setDate(date) {
@@ -39,6 +40,14 @@ class StoryEditor extends Component {
   // Strip leading/trailing spaces and URL-breaking characters
   urlPrep(str) {
     return str.replace(/^\s+|\s+$/gm, "").replace(/[^a-zA-ZÀ-ž0-9-\ _]/g, "");
+  }
+
+  changeVisibility(e) {
+    const {minData} = this.state;
+    minData.visible = e.target.value;
+    const payload = {id: minData.id, visible: minData.visible};
+    this.setState({minData});
+    this.props.updateEntity("story", payload);
   }
 
   changeField(field, e) {
@@ -53,8 +62,8 @@ class StoryEditor extends Component {
 
   save() {
     const {minData} = this.state;
-    const {id, slug, date} = minData;
-    const payload = {id, slug, date};
+    const {id, slug, date, image} = minData;
+    const payload = {id, slug, date, image};
     this.props.updateEntity("story", payload);
   }
 
@@ -82,10 +91,10 @@ class StoryEditor extends Component {
             key="title-card"
             minData={minData}
             fields={["title", "subtitle"]}
-            plainfields={["image"]}
             type="story"
           />}
         >
+
           <div className="cms-editor-header">
             {/* change slug */}
             <label className="bp3-label cms-slug">
@@ -93,6 +102,14 @@ class StoryEditor extends Component {
               <div className="bp3-input-group">
                 <input className="bp3-input" type="text" value={minDataState.slug} onChange={this.changeField.bind(this, "slug")}/>
                 <Button namespace="cms" onClick={this.save.bind(this)}>Rename</Button>
+              </div>
+            </label>
+
+            <label className="bp3-label cms-slug">
+              Static Hero Image Path
+              <div className="bp3-input-group">
+                <input className="bp3-input" type="text" value={minDataState.image} onChange={this.changeField.bind(this, "image")}/>
+                <Button namespace="cms" onClick={this.save.bind(this)}>Set</Button>
               </div>
             </label>
 
@@ -110,6 +127,18 @@ class StoryEditor extends Component {
                 }
               </div>
             </div>
+            <Select
+              label="Story Visibility"
+              className="cms-profile-visible-selector"
+              namespace="cms"
+              fontSize="xs"
+              inline
+              value={minData.visible}
+              onChange={this.changeVisibility.bind(this)}
+            >
+              <option key="true" value={true}>Visible</option>
+              <option key="false" value={false}>Hidden</option>
+            </Select>
           </div>
         </Deck>
 
@@ -119,7 +148,7 @@ class StoryEditor extends Component {
           entity="description"
           addItem={this.addItem.bind(this, "story_description")}
           cards={minData.descriptions && minData.descriptions.map(d =>
-            <TextCard 
+            <TextCard
               key={d.id}
               minData={d}
               fields={["description"]}
@@ -135,7 +164,7 @@ class StoryEditor extends Component {
           entity="footnote"
           addItem={this.addItem.bind(this, "story_footnote")}
           cards={minData.footnotes && minData.footnotes.map(d =>
-            <TextCard 
+            <TextCard
               key={d.id}
               minData={d}
               fields={["title", "description"]}
@@ -151,11 +180,11 @@ class StoryEditor extends Component {
           entity="author"
           addItem={this.addItem.bind(this, "author")}
           cards={minData.authors && minData.authors.map(d =>
-            <TextCard 
+            <TextCard
               key={d.id}
               minData={d}
               fields={["bio"]}
-              plainfields={["name", "title", "image", "twitter"]}
+              plainFields={["name", "title", "image", "twitter"]}
               type="author"
               showReorderButton={minData.authors[minData.authors.length - 1].id !== d.id}
             />

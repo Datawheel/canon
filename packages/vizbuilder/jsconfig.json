@@ -1,7 +1,19 @@
 {
   "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
     "checkJs": true,
     "jsx": "react",
+    "moduleResolution": "node",
+    "baseUrl": "app",
+    "rootDirs": [
+      "app",
+      "./node_modules/@datawheel/canon-core/src/",
+      "./node_modules/"
+    ],
+    "strictNullChecks": true,
     "target": "es2015"
-  }
+  },
+  "include": [
+    "src/**/*"
+  ]
 }

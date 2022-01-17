@@ -1,1 +1,168 @@
+@import "../css/mixins.css";
 
+.cp-error {
+  background-color: var(--dark);
+  color: var(--white);
+  height: 100vh;
+  width: 100%;
+  & .bp3-heading {
+    color: var(--white);
+  }
+}
+
+@define-mixin cp-print-styles {
+  background: white;
+  background-color: white;
+  & a::after {
+    content: " <" attr(href) ">";
+    overflow-wrap: break-word;
+    word-break: break-all;
+    word-wrap: break-word;
+  }
+  & .cp-section-content {
+    margin-bottom: 0;
+    & > * {
+      margin-bottom: var(--gutter-sm);
+    }
+    & .cp-button-group {
+      display: inline-block;
+      margin-right: var(--gutter-sm);
+      width: auto;
+      & .cp-button {
+        flex: none;
+      }
+    }
+    & .cp-var-reset-button {
+      display: none;
+    }
+    & .multi-list {
+      & .multi-item {
+        & button {
+          display: none;
+        }
+      }
+    }
+  }
+  & .cp-section-heading {
+    margin: 0 0 var(--gutter-md);
+    padding: 0;
+  }
+  & .cp-section-heading-anchor {
+    display: none;
+  }
+  & .cp-grouping,
+  & .cp-section:not(.cp-grouping-section):not(.cp-hero):not(.cp-sticky) {
+    background: transparent;
+    background-color: transparent;
+  }
+  & .cp-section.is-sticky {
+    position: relative;
+  }
+  & .cp-section.cp-hero {
+    box-sizing: border-box;
+  }
+  & .cp-grouping-section {
+    box-sizing: border-box;
+    page-break-after: avoid;
+    page-break-before: always;
+  }
+  & .cp-grouping-section + .cp-section {
+    page-break-before: avoid;
+  }
+  & .cp-section:not(.cp-grouping-section):not(.cp-hero) {
+    background: white;
+    background-color: white;
+  }
+  & img, & svg, & .cp-section:not([id*=-data-appendix-]) {
+    page-break-inside: avoid;
+  }
+  & .cp-default-section-figure {
+    margin-bottom: 0;
+  }
+  & .cp-viz-container {
+    margin-top: 0;
+    &.cp-table-viz-container {
+      margin: 0;
+    }
+    & .cp-viz.header {
+      position: relative;
+    }
+    & .cp-viz-figure {
+      margin: 0;
+      min-height: 400px;
+      padding: 0;
+      position: relative;
+      & .cp-viz {
+        position: relative;
+        text-align: center;
+        & svg {
+          & line[stroke-width="0"] {
+            display: none;
+          }
+        }
+        & .d3plus-zoom-control {
+          display: none;
+        }
+      }
+    }
+  }
+
+  & .cp-table-viz-container .cp-viz-figure {
+    min-height: 0;
+  }
+
+  & .cp-table {
+    min-width: 0 !important;
+  }
+
+  & .rt-table {
+    display: block;
+    overflow: visible;
+    width: auto !important;
+    & .rt-tr-group {
+      page-break-inside: avoid;
+    }
+    & .cp-table-header-button {
+      hyphens: auto;
+      padding: 0;
+    }
+    & .rt-thead {
+      background: transparent;
+      page-break-after: avoid;
+      page-break-inside: avoid;
+    }
+    & .rt-thead, & .rt-tbody , & .rt-tr-group {
+      display: block;
+    }
+    & .rt-tr {
+      display: table;
+    }
+    & .rt-th, & .rt-td {
+      display: table-cell;
+      padding: 0.25rem !important;
+    }
+    & .rt-th > [class=""] {
+      min-height: 0;
+    }
+    & .rt-td {
+      hyphens: auto;
+    }
+    & .cp-table-header-button, & .rt-td {
+      overflow: visible;
+      position: static;
+      white-space: normal;
+    }
+    & .rt-tbody {
+      max-height: none;
+    }
+  }
+}
+
+.cp.cp-print {
+  @mixin cp-print-styles;
+}
+@media print {
+  .cp {
+    @mixin cp-print-styles;
+  }
+}
