@@ -1,7 +1,7 @@
 /* react */
 import React, {useMemo} from "react";
 import {useSelector} from "react-redux";
-import {Textarea} from "@mantine/core";
+import {Textarea, Popover, Tooltip} from "@mantine/core";
 import {format} from "pretty-format";
 
 /* hooks */
@@ -13,7 +13,6 @@ import InputMenuItem from "../components/InputMenuItem";
 /* css */
 import "./VariableList.css";
 import {BLOCK_TYPES} from "../../utils/consts/cms";
-
 
 /**
  *
@@ -41,7 +40,16 @@ function VariableList({id, setInlineId}) {
         }}
       >
         {Object.keys(variablesById).sort(a => a === "attributes" ? -1 : 1).map(vid =>
-          <div key={vid} onClick={() => onClick(vid)}><InputMenuItem variables={variablesById[vid]} active={attributeKeys} /></div>
+          <Tooltip
+            key={vid}
+            withArrow
+            label="Click to edit this generator"
+            position="right-end"
+          >
+            <div className="cr-variable-group" onClick={() => onClick(vid)}><InputMenuItem variables={variablesById[vid]} active={attributeKeys} /></div>
+          </Tooltip>
+
+
         )}
       </div>
       {response &&

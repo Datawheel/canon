@@ -182,7 +182,7 @@ function Block({id, modified, callbacks, inline}) {
         </Tooltip>
         <ConsumerMenu id={id} />
         <Button key="cancel" color="red" onClick={maybeCloseWithoutSaving}>Cancel</Button>
-        <Button key="save" color="green" disabled={!isValid} onClick={() => onSave(false)}>Save &amp; Close</Button>
+        <Button key="save" color="green" disabled={!isValid} onClick={() => onSave(false)}>{`Save & ${inline ? "Return" : "Close"}`}</Button>
       </Group>
     </React.Fragment>
   );

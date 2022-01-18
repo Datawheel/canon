@@ -14,3 +14,7 @@
   }
   margin-right: 10px;
 }
+
+.cr-variable-group:hover {
+  outline: 1px solid blue;
+}

@@ -19,7 +19,7 @@ const DEFAULT_SELECTOR_TYPE = SELECTOR_TYPE.SINGLE.value;
  */
 function SelectorUI(props) {
 
-  const {executeButton, onChange, simpleState} = props;
+  const {locale, executeButton, onChange, simpleState} = props;
 
   const [selectorIdentifier, setSelectorIdentifier] = useState("");
   const [selectorType, setSelectorType] = useState(DEFAULT_SELECTOR_TYPE);
