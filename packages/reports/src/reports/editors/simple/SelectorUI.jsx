@@ -15,17 +15,18 @@ const DEFAULT_SELECTOR_TYPE = SELECTOR_TYPE.SINGLE.value;
 /**
  * Component for rendering user-friendly simple UI for creating selector-type blocks
  * and converting a user's selections into code.
- * @param {import("../SimpleUI").SimpleUIProps} props
+ * @param {import("../SimpleUI").BlockEditorUIProps} props
  */
 function SelectorUI(props) {
 
-  const {locale, onChange, simpleState} = props;
+  const {locale, executeButton, onChange, simpleState} = props;
 
   const [selectorIdentifier, setSelectorIdentifier] = useState("");
   const [selectorType, setSelectorType] = useState(DEFAULT_SELECTOR_TYPE);
   const [options, setOptions] = useState([]);
   const stateFields = [selectorIdentifier, selectorType, options];
 
+  // on mount, set form state using existing simpleState
   useEffect(() => {
     setSelectorIdentifier(simpleState?.name || "");
     setSelectorType(simpleState.type);
@@ -86,9 +87,10 @@ function SelectorUI(props) {
         type: selectorType,
         options
       };
-      onChange(simpleState, logic, locale);
+      // todo1.0 - add actual validation function
+      onChange(simpleState, logic, true);
     },
-    [...stateFields, locale]
+    [...stateFields]
   );
 
   return <>
@@ -131,7 +133,7 @@ function SelectorUI(props) {
       </table>
       <ActionIcon onClick={addOption}><PlusIcon/></ActionIcon>
     </InputWrapper>
-    {props.executeButton}
+    {executeButton}
   </>;
 }
 

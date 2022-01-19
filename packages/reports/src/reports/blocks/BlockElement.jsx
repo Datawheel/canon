@@ -1,5 +1,5 @@
 /* react */
-import React, {useState, useMemo, useEffect} from "react";
+import React, {useState, useMemo} from "react";
 import {useSelector} from "react-redux";
 import {Modal, ActionIcon, Tooltip, useMantineTheme} from "@mantine/core";
 import {HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiEyeOff} from "react-icons/hi";
@@ -32,8 +32,7 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
 
   /* redux */
   const localeDefault = useSelector(state => state.cms.status.localeDefault);
-  const blocks = useSelector(state => state.cms.reports.entities.blocks);
-  const block = blocks[id];
+  const block = useSelector(state => state.cms.reports.entities.blocks)?.[id];
 
   const {getConfirmation} = useConfirmationDialog();
 
@@ -119,10 +118,8 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
         <BlockPreview
           style={{color: "red"}}
           key="bp"
-          block={block}
-          blockState={block}
+          id={id}
           active={active}
-          variables={variables}
           locale={localeDefault}
           allowed={allowed}
         />

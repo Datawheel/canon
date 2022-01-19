@@ -1,4 +1,5 @@
 import React, {useCallback, useMemo, useRef, useState} from "react";
+import {useSelector} from "react-redux";
 import {EditorState, ContentState, convertFromHTML, RichUtils} from "draft-js";
 import Editor from "@draft-js-plugins/editor";
 import {stateToHTML} from "draft-js-export-html";
@@ -25,10 +26,10 @@ import "@draft-js-plugins/mention/lib/plugin.css";
 import "@draft-js-plugins/static-toolbar/lib/plugin.css";
 
 /** */
-function DraftWrapper({defaultValue, variables, formatters, onChange, showToolbar, onDirty}) {
+function DraftWrapper({defaultValue, variables, onChange, showToolbar, onDirty}) {
 
   const ref = useRef();
-
+  const formatters = useSelector(state => state.cms.formatters);
   const [editorState, setEditorState] = useState(() => {
     let editorState = EditorState.createEmpty();
     if (defaultValue && defaultValue !== "") {

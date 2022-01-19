@@ -2,20 +2,20 @@
 import React, {useMemo} from "react";
 import {useSelector} from "react-redux";
 import {Badge, Center, Textarea, Text} from "@mantine/core";
-import {format} from "pretty-format";
 
 /* utils */
 import varSwapRecursive from "../../utils/variables/varSwapRecursive";
 import spoiler from "../../utils/blocks/spoiler";
+import {getBlockContent} from "../../utils/blocks/getBlockContent";
 import mortarEval from "../../utils/variables/mortarEval";
-import runSelector from "../../utils/selectors/runSelector";
+import {useBlock} from "../hooks/blocks/selectors";
+import {useVariables} from "../hooks/blocks/useVariables";
 
+/** type-specific render components */
+import TypeRenderers from "./types/renderers";
 
-/* enums */
-import {BLOCK_TYPES} from "../../utils/consts/cms";
-
-/* type-specific render components */
-import TypeRenderers from "./types/index.jsx";
+/** type-specific methods for deriving data needed for rendering from current Block state */
+import PreviewAdapters from "./types/PreviewAdapters";
 
 
 /**
@@ -25,12 +25,23 @@ import TypeRenderers from "./types/index.jsx";
  */
 function BlockPreview(props) {
 
-  const {block, blockState, active, variables, locale, allowed, debug} = props;
+  const {active, allowed, blockStateContent, debug, id, locale} = props;
+
+  /** Input variables for block with given ID */
+  const {variables} = useVariables(id);
+
+  const block = useBlock(id);
+
+  /**
+   * The block content data to use for rendering.
+   * If no "blockStateContent" prop is given, defaults to the redux store value of block.
+   * Use the "blockStateContent" prop to provide override values if you want to show a
+   * live preview of unsaved changes.
+   */
+  const blockContent = blockStateContent || getBlockContent(block, locale);
 
   /* redux */
   const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
-
-  const LENGTH_CUTOFF_CHAR = 10000;
 
   /**
    * todo1.0 this is a pretty gnarly statement, which needs to be thought about. Block types have some things in common:
@@ -60,35 +71,30 @@ function BlockPreview(props) {
    */
 
   const {content, error, log, duration} = useMemo(() => {
-    const payload = {};
-    if (block.type === BLOCK_TYPES.GENERATOR) {
-      if (!active) return {content: {}, log: "", error: false, duration: false};
-      payload.content = {outputVariables: format(block._variables)};
-      payload.log = block._status && block._status.log ? block._status.log.map(d => format(d)).join("\n") : false;
-      payload.error = block._status && block._status.error ? block._status.error : block._variables.length > LENGTH_CUTOFF_CHAR ? `Warning - Large Output (${block._variables.length} chars)` : false;
-      payload.duration = block._status && block._status.duration ? block._status.duration : false;
+    let payload = {};
+    // if a Block-specific preview adapter function exists, use that to build payload
+    if (PreviewAdapters[block.type] && typeof PreviewAdapters[block.type] === "function") {
+
+      /** @type {import("./types/PreviewAdapters").BlockPreviewAdapterParams} */
+      const adapterParams = {active, block, blockContent, debug, locale, variables};
+      payload = PreviewAdapters[block.type](adapterParams);
     }
-    else if (block.type === BLOCK_TYPES.SELECTOR) {
-      const {config, log, error} = runSelector(block.contentByLocale[locale].content.logic, variables, locale);
-      payload.content = {id: block.id, config};
-      payload.log = log ? log.join("\n") : "";
-      payload.error = error;
-    }
-    else if (block.type === BLOCK_TYPES.VIZ) {
-      payload.content = props;
-    }
+    // if no such adapter exists, fallback to default where blockState logic is evaluated
     else {
-      const {vars, error, log} = mortarEval("variables", variables, blockState.contentByLocale[locale].content.logic, formatterFunctions[locale], locale);
+      const {vars, error, log} = mortarEval("variables", variables, blockContent?.logic, formatterFunctions[locale], locale);
+      // if Block is active...
       payload.content = active
+        // swap out variables with block's available input variables
         ? varSwapRecursive(vars, formatterFunctions[locale], variables)
+        // else, put spoiler marks on dynamic variables
         : spoiler(vars);
       payload.log = log ? log.join("\n") : "";
       payload.error = error;
     }
     return payload;
-  }, [block, blockState, active]);
+  }, [block, blockContent, active]);
 
-  const Renderer = TypeRenderers[blockState.type];
+  const Renderer = TypeRenderers[block.type];
 
   const overlayStyle = {width: "100%", height: "100%", position: "absolute", top: -1, left: -1, opacity: 0.3, zIndex: 5, pointerEvents: "none"};
   const allowedOverlay = <div style={{...overlayStyle, backgroundColor: "pink"}}></div>;
@@ -99,7 +105,7 @@ function BlockPreview(props) {
       {debug && duration && <Text>{`duration: ${duration} ms`}</Text>}
       { Renderer
         ? <Renderer key="renderer" debug={debug} {...content} />
-        : <Center style={{minHeight: 100}}><Badge key="type" color="gray" variant="outline">{blockState.type}</Badge></Center> }
+        : <Center style={{minHeight: 100}}><Badge key="type" color="gray" variant="outline">{block.type}</Badge></Center> }
       {debug && log && <Textarea label="Console" minRows={3} value={log} error="Warning - Remove console.log after debugging"/>}
       {debug && error && <Textarea label="Error" minRows={3} value={error} />}
     </div>

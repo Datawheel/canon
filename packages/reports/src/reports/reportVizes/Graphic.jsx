@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, {useState, useEffect} from "react";
-import Stat from "../blocks/types/Stat";
+import Stat from "../blocks/types/renderers/Stat";
 import "./Graphic.css";
 
 /** */

@@ -11,10 +11,14 @@ import DraftWrapper from "./DraftWrapper";
 import sanitizeBlockContent from "../../utils/blocks/sanitizeBlockContent";
 import deepClone from "../../utils/js/deepClone";
 
+import {useVariables} from "../hooks/blocks/useVariables";
+
 /**
  *
  */
-function RichTextEditor({locale, defaultContent, fields, onChange, variables, formatters, onTextModify}) {
+function RichTextEditor({fields, locale, defaultContent, id, onChange, onTextModify}) {
+
+  const {variables} = useVariables(id);
 
   /* redux */
   const showToolbar = useSelector(state => state.cms.status.showToolbar);
@@ -67,7 +71,6 @@ function RichTextEditor({locale, defaultContent, fields, onChange, variables, fo
                 id={field}
                 key="draft-wrapper"
                 onDirty={onDirty}
-                formatters={formatters}
                 variables={variables}
                 defaultValue={stateContent[field] || ""}
                 onChange={text => handleEditor(field, text)}

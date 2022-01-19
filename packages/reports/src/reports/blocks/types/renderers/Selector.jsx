@@ -4,8 +4,8 @@ import {useDispatch, useSelector} from "react-redux";
 import {Select, MultiSelect} from "@mantine/core";
 
 /* hooks */
-import {setStatus} from "../../../actions/status";
-import {SELECTOR_TYPES} from "../../../utils/consts/cms";
+import {setStatus} from "../../../../actions/status";
+import {SELECTOR_TYPES} from "../../../../utils/consts/cms";
 
 /**
  * "selector" block renderer

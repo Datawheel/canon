@@ -81,7 +81,7 @@ const BLOCK_CONTENT_TYPES = {
   AUTHOR: "author",
   FOOTNOTE: "footnote",
   PARAGRAPH: "paragraph",
-  SELECTOR: "selector",
+  SELECTOR: "selector", // todo1.0 - move to logic types
   STAT: "stat",
   SUBTITLE: "subtitle",
   TITLE: "title"
@@ -183,6 +183,7 @@ module.exports = {
   BLOCK_FIELDS_EXCLUDE,
   BLOCK_MAP,
   BLOCK_SETTINGS,
+  BLOCK_LOGIC_TYPES,
   BLOCK_TYPES,
   ENTITY_TYPES,
   ENTITY_PRETTY_NAMES,

@@ -1,7 +1,7 @@
 /* react */
 import React from "react";
-import {useSelector} from "react-redux";
 import {Col, Grid, useMantineTheme} from "@mantine/core";
+import {useBlock} from "../hooks/blocks/selectors";
 
 /* consts */
 import {BLOCK_TYPES} from "../../utils/consts/cms";
@@ -16,9 +16,7 @@ function BlockOutputPanel({id, components, mode}) {
 
   /* redux */
   // const localeDefault = useSelector(state => state.cms.status.localeDefault);
-  const blocks = useSelector(state => state.cms.reports.entities.blocks);
-
-  const block = blocks[id];
+  const blockType = useBlock(id)?.type;
 
   const {apiInput, codeEditor, executeButton, blockPreview, uiEditor} = components;
 
@@ -29,7 +27,7 @@ function BlockOutputPanel({id, components, mode}) {
       <Col span={7} className={`cr-block-output-editor ${mode}`}>
         {mode === "code"
           ? <React.Fragment>
-            {block.type === BLOCK_TYPES.GENERATOR && apiInput}
+            {blockType === BLOCK_TYPES.GENERATOR && apiInput}
             {codeEditor}
             {executeButton}
           </React.Fragment>

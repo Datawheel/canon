@@ -1,5 +1,5 @@
 /* react */
-import React, {useMemo, useState} from "react";
+import React, {useMemo} from "react";
 import {useSelector} from "react-redux";
 import {Textarea, Popover, Tooltip} from "@mantine/core";
 import {format} from "pretty-format";

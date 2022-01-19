@@ -3,20 +3,20 @@ import React, {useMemo} from "react";
 import {Badge, Center} from "@mantine/core";
 
 /* utils */
-import d3plusPropify from "../../../utils/d3plusPropify";
-import varSwapRecursive from "../../../utils/variables/varSwapRecursive";
+import d3plusPropify from "../../../../utils/d3plusPropify";
+import varSwapRecursive from "../../../../utils/variables/varSwapRecursive";
 
 /* vizes */
 import * as d3plus from "d3plus-react";
-import Graphic from "../../reportVizes/Graphic";
-import HTML from "../../reportVizes/HTML";
-import Table from "../../reportVizes/Table";
-import Options from "../../reportVizes/Options";
+import Graphic from "../../../reportVizes/Graphic";
+import HTML from "../../../reportVizes/HTML";
+import Table from "../../../reportVizes/Table";
+import Options from "../../../reportVizes/Options";
 
-import defaultConfig from "../../../utils/viz/defaultConfig";
+import defaultConfig from "../../../../utils/viz/defaultConfig";
 
 /* context */
-import useAppContext from "../../hooks/context/useAppContext";
+import useAppContext from "../../../hooks/context/useAppContext";
 
 // User must define custom sections in app/reports/sections, and export them from an index.js in that folder.
 import * as CustomVizzes from "CustomVizzes";
@@ -36,7 +36,7 @@ const ErrorMessage = ({message}) => <Center style={{height: "100%"}}><Badge key=
 /**
  * Viz Renderer
 */
-export default function Viz({block, blockState, active, locale, variables, debug, configOverride = {}}) {
+export default function Viz({block, active, locale, variables, debug, configOverride = {}}) {
 
   const context = useAppContext();
 
@@ -45,7 +45,7 @@ export default function Viz({block, blockState, active, locale, variables, debug
 
   const vizProps = useMemo(() => {
     if (!active) return {error: "Activate to View"};
-    if (!block.content.logic) return {error: "Add a Configuration"};
+    if (!block?.content?.logic) return {error: "Add a Configuration"};
     // todo1.0 fix all these arguments!
     const transpiledLogic = varSwapRecursive({logic: block.content.logic}, {}, variables, {}).logic;
     return d3plusPropify(transpiledLogic, {}, variables, locale, block.id, {});
