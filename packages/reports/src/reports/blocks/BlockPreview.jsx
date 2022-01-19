@@ -12,7 +12,7 @@ import {useBlock} from "../hooks/blocks/selectors";
 import {useVariables} from "../hooks/blocks/useVariables";
 
 /** type-specific render components */
-import TypeRenderers from "./types/index.jsx";
+import TypeRenderers from "./types/renderers";
 
 /** type-specific methods for deriving data needed for rendering from current Block state */
 import PreviewAdapters from "./types/PreviewAdapters";

@@ -3,20 +3,20 @@ import React, {useMemo} from "react";
 import {Badge, Center} from "@mantine/core";
 
 /* utils */
-import d3plusPropify from "../../../utils/d3plusPropify";
-import varSwapRecursive from "../../../utils/variables/varSwapRecursive";
+import d3plusPropify from "../../../../utils/d3plusPropify";
+import varSwapRecursive from "../../../../utils/variables/varSwapRecursive";
 
 /* vizes */
 import * as d3plus from "d3plus-react";
-import Graphic from "../../reportVizes/Graphic";
-import HTML from "../../reportVizes/HTML";
-import Table from "../../reportVizes/Table";
-import Options from "../../reportVizes/Options";
+import Graphic from "../../../reportVizes/Graphic";
+import HTML from "../../../reportVizes/HTML";
+import Table from "../../../reportVizes/Table";
+import Options from "../../../reportVizes/Options";
 
-import defaultConfig from "../../../utils/viz/defaultConfig";
+import defaultConfig from "../../../../utils/viz/defaultConfig";
 
 /* context */
-import useAppContext from "../../hooks/context/useAppContext";
+import useAppContext from "../../../hooks/context/useAppContext";
 
 // User must define custom sections in app/reports/sections, and export them from an index.js in that folder.
 import * as CustomVizzes from "CustomVizzes";

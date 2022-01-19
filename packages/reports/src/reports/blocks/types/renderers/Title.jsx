@@ -1,7 +1,7 @@
 import React from "react";
 import {Title} from "@mantine/core";
 
-import sanitizeBlockContent from "../../../utils/blocks/sanitizeBlockContent";
+import sanitizeBlockContent from "../../../../utils/blocks/sanitizeBlockContent";
 
 /**
  * "title" block renderer
