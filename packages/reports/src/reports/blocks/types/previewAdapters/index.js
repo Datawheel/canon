@@ -18,9 +18,10 @@ import selectorAdapter from "./Selector";
  * @typedef BlockPreviewAdapterParams
  * Params given to an adapter function that might be needed to render content correctly.
  *
+ * @param {boolean} active - flag to indicate whether the block has been run, or "activated"
  * @param {Object} block - block data from database
  * @param {Object} blockContent - the working block state, only given if block is being currently edited
- * @param {boolean} active - flag to indicate whether the block has been run, or "activated"
+ * @param {boolean} debug - whether debugging mode is active
  * @param {Object} variables - input variables of Block
  * @param {string} locale - current locale key
  */

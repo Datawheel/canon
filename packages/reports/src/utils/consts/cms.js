@@ -81,7 +81,7 @@ const BLOCK_CONTENT_TYPES = {
   AUTHOR: "author",
   FOOTNOTE: "footnote",
   PARAGRAPH: "paragraph",
-  SELECTOR: "selector", // TODO - move to logic types
+  SELECTOR: "selector", // todo1.0 - move to logic types
   STAT: "stat",
   SUBTITLE: "subtitle",
   TITLE: "title"

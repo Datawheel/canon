@@ -36,7 +36,7 @@ const ErrorMessage = ({message}) => <Center style={{height: "100%"}}><Badge key=
 /**
  * Viz Renderer
 */
-export default function Viz({block, blockState, active, locale, variables, debug, configOverride = {}}) {
+export default function Viz({block, active, locale, variables, debug, configOverride = {}}) {
 
   const context = useAppContext();
 

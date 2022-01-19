@@ -1,6 +1,6 @@
 /* react */
 import React from "react";
-import {BLOCK_TYPES} from "../../utils/consts/cms";
+import {BLOCK_MAP, BLOCK_TYPES} from "../../utils/consts/cms";
 import SelectorUI from "./simple/SelectorUI";
 import RichTextEditor from "../editors/RichTextEditor";
 
@@ -51,6 +51,7 @@ const SimpleUI = props => {
   // else, fall back to RichTextEditor
   return <RichTextEditor
     key="text-editor"
+    fields={BLOCK_MAP[blockType]}
     locale={locale}
     defaultContent={simpleState}
     blockType={blockType}

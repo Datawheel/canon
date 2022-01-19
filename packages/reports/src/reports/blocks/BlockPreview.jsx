@@ -11,10 +11,6 @@ import mortarEval from "../../utils/variables/mortarEval";
 import {useBlock} from "../hooks/blocks/selectors";
 import {useVariables} from "../hooks/blocks/useVariables";
 
-
-/* enums */
-import {BLOCK_TYPES} from "../../utils/consts/cms";
-
 /** type-specific render components */
 import TypeRenderers from "./types/index.jsx";
 
@@ -78,10 +74,10 @@ function BlockPreview(props) {
     let payload = {};
     // if a Block-specific preview adapter function exists, use that to build payload
     if (PreviewAdapters[block.type] && typeof PreviewAdapters[block.type] === "function") {
-      payload = PreviewAdapters[block.type]({active, block, blockContent, locale, variables});
-    }
-    else if (block.type === BLOCK_TYPES.VIZ) {
-      payload.content = props;
+
+      /** @type {import("./types/PreviewAdapters").BlockPreviewAdapterParams} */
+      const adapterParams = {active, block, blockContent, debug, locale, variables};
+      payload = PreviewAdapters[block.type](adapterParams);
     }
     // if no such adapter exists, fallback to default where blockState logic is evaluated
     else {
