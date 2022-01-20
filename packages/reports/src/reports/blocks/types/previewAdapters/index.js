@@ -2,6 +2,7 @@ import {BLOCK_TYPES} from "../../../../utils/consts/cms";
 
 import generatorAdapter from "./Generator";
 import selectorAdapter from "./Selector";
+import vizAdapter from "./Viz";
 
 /**
  * @typedef BlockPreviewContent
@@ -40,7 +41,8 @@ import selectorAdapter from "./Selector";
  */
 const allAdapters = {
   [BLOCK_TYPES.GENERATOR]: generatorAdapter,
-  [BLOCK_TYPES.SELECTOR]: selectorAdapter
+  [BLOCK_TYPES.SELECTOR]: selectorAdapter,
+  [BLOCK_TYPES.VIZ]: vizAdapter
 };
 
 export default allAdapters;
