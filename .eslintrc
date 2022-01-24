@@ -118,7 +118,13 @@
     "no-sparse-arrays": 2,
     "no-undef": 2,
     "no-unreachable": 2,
-    "no-unused-vars": 2,
+    "no-unused-vars": [
+      2,
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
     "no-var": 2,
     "object-curly-spacing": 2,
     "object-shorthand": 2,

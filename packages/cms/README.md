@@ -26,6 +26,7 @@ Content Management System for Canon sites.
 - [Frequently Asked Questions](#frequently-asked-questions)
 - [Release Notes](#release-notes)
 - [Migration](#migration)
+- [Sitemaps](#sitemaps)
 
 ---
 
@@ -1337,3 +1338,96 @@ These variables represent the old db you are migration **from** and the new db y
 🔥 DO NOT SET `CANON_CMS_MIGRATION_NEW_DB_*` TO A CURRENTLY IMPORTANT DB🔥
 
 After the migration is done, you can switch your dev environment to the new DB for testing, and eventually switch it to prod.
+
+
+## Sitemaps
+
+Google [loves](https://developers.google.com/search/docs/advanced/sitemaps/overview) sitemaps. They are the very first step to let search engines know about our pages and our conent. The indexation process will happen sooner or later but with sitemaps we speed up the whole round up.
+
+### Automatic but not magic
+
+Canon CMS generates sitemaps for your content automatically. But that is not enough, remember to [setup the prod site and submit](https://search.google.com/search-console) your sitemaps properly into Google Search Console.
+
+### Prerequisites
+
+- Your site needs `canon-cms` installed and working.
+
+- Make sure that both `CANON_API` and `CANON_LANGUAGES` environmental variables are setted.
+
+```bash
+CANON_API="https://yoursite.com"
+CANON_LANGUAGES="en,es"
+```
+
+- Add and fill your `canon.js` with the following structure:
+
+```javascript
+module.exports = {
+  //... other canon.js configs
+  sitemap: { // Main object
+    paths: {  // profile and stories template, hast to match with your route for profiles. :lang could be ignored
+      profiles: '/:lang/profile/:profile/:page',
+      stories: '/:lang/story/:page'
+    },
+    rss: { // If your site has stories, a sitemap for blog posts will be generated. This information is required for generate the RSS version
+      blogName: "My Datawheel blog",
+      blogDescription: "It is a fantastic blog based on data."
+    },
+    // getMainPaths: you can provide canon-cms all your custom pages paths to be included in the sitemap. Default is ["/"]: the home page.
+    getMainPaths: async (app) => {
+      //You can run queries in here and return an array of paths
+      return [
+        "/",
+        "/about",
+        "/about/data",
+        "/blog/es/super-post",
+        "/blog/en/super-posteo",
+        "/another/custom/thing"
+      ]
+    }
+  },
+  //... other canon.js configs
+```
+
+- That's all!
+
+### Generated links
+
+Canon CMS generates several sitemaps/endpoints for you, combining CMS and custom data and with i18n support.
+
+**General Sitemap**
+
+List and group all the generated sitemaps:
+
+  - `/api/sitemap.xml`: Valid sitemap to submit, built following the definition to inform [multiples sitemaps](https://developers.google.com/search/docs/advanced/sitemaps/large-sitemaps) at once. All the other sitemaps are listed here. You can submit this file to Google and that's it.
+  - `/api/sitemap.txt`: Informative url with all the links generated. Is not a valid sitemap.
+  - `/api/sitemap.json`: Informative url with all the links generated with profiles ids and slugs. Not a valid sitemap.
+
+**Main Sitemap**
+
+Generate valid sitemaps for the urls listed in `getMainPaths` inside `canon.js`:
+
+- `/api/sitemap/main.txt`: valid sitemap in TXT format.
+- `/api/sitemap/main.xml`: valid sitemap in XML format.
+
+**Stories Sitemap**
+
+If your site has stories `canon-cms` generates the following endpoints:
+- `/api/sitemap/stories.txt`: valid sitemap in TXT format.
+- `/api/sitemap/stories.xml`: valid sitemap in XML format.
+- `/api/sitemap/stories.rss`: valid RSS feed compatible with ATOM scheme.
+
+**Profiles Sitemaps**
+
+The most important sitemaps in the site. Per profile type, `canon-cms` creates a single sitemap with all the profile' urls.
+
+- `/api/sitemap/profiles/<profileTypeId>.txt`: valid sitemap in TXT format.
+- `/api/sitemap/profiles/<profileTypeId>.xml`: valid sitemap in XML format.
+
+Example: `/sitemap/profiles/1.txt`, `/sitemap/profiles/7.xml`
+
+NOTE: There is a limit of 50k urls per sitemap. Right now the list is truncated but the plan is to implement pagination to split the results when 50k urls limit is hitted.
+
+### Usage
+
+Submit `https://www.yoursite.com/api/sitemap.xml` to [Search Console](https://search.google.com/search-console) and let Google know all the information we have.
