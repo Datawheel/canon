@@ -70,6 +70,7 @@ function CMSHeader({id}) {
 
   const onSelectPreview = preview => {
     const newPathObj = {...pathObj, previews: [preview.slug]}; // todo1.0 fix this spread to work with bilaterals
+    console.log(newPathObj);
     dispatch(setStatus({pathObj: newPathObj}));
     setQuery(preview.name);
   };

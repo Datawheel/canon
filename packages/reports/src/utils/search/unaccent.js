@@ -18,49 +18,63 @@ const unaccentCheck = async dbQuery => {
   }
 };
 
-const maybeGenerateUnaccentQuery = async(dbQuery, term) => {
+const generateUnaccentedQuery = async(dbQuery, terms) => {
   if (!checkedUnaccent) {
     await unaccentCheck(dbQuery);
     checkedUnaccent = true;
   }
   const orArray = [];
-  if (unaccentExtensionInstalled) {
-    // Where by name
-    orArray.push(
-      sequelize.where(sequelize.fn("unaccent", sequelize.col("name")), {
-        [sequelize.Op.iLike]: sequelize.fn(
-          "concat",
-          "%",
-          sequelize.fn("unaccent", term),
-          "%"
-        )
-      })
-    );
-
-    // Where by keywords
-    orArray.push(
-      sequelize.where(
-        sequelize.fn(
-          "unaccent",
-          sequelize.fn(
-            "array_to_string",
-            sequelize.col("keywords"),
-            " ",
-            ""
-          )
-        ),
-        {
+  terms.forEach(term => {
+    if (unaccentExtensionInstalled) {
+      // Where by name
+      orArray.push(
+        sequelize.where(sequelize.fn("unaccent", sequelize.col("name")), {
           [sequelize.Op.iLike]: sequelize.fn(
             "concat",
             "%",
             sequelize.fn("unaccent", term),
             "%"
           )
-        }
-      )
-    );
-  }
+        })
+      );
+
+      // Where by keywords
+      orArray.push(
+        sequelize.where(
+          sequelize.fn(
+            "unaccent",
+            sequelize.fn(
+              "array_to_string",
+              sequelize.col("keywords"),
+              " ",
+              ""
+            )
+          ),
+          {
+            [sequelize.Op.iLike]: sequelize.fn(
+              "concat",
+              "%",
+              sequelize.fn("unaccent", term),
+              "%"
+            )
+          }
+        )
+      );
+    }
+    else {
+      // Where by name: Use simple ilike query if unaccent extension doesn't exist.
+      orArray.push({name: {[sequelize.Op.iLike]: `%${term}%`}});
+      // Keywords are stored as an array but arrays can't use LIKE. cast to varchar and search.
+      orArray.push(
+        sequelize.where(
+          sequelize.cast(sequelize.col("keywords"), "varchar"),
+          {[sequelize.Op.iLike]: `%${term}%`}
+        )
+      );
+    }
+  });
+
   return orArray;
 };
 
-module.exports = {maybeGenerateUnaccentQuery};
+module.exports = {generateUnaccentedQuery};
