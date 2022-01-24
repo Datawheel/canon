@@ -32,7 +32,7 @@ class Home extends Component {
         <main id="docs">
           <SideNav key="sidenav" pathname={location.pathname} />
           <div key="children" className="content">
-            Hello Home
+            <h1>Canon Demo</h1>
           </div>
         </main>
         <Footer />

@@ -1,5 +1,6 @@
 import {cmsReducer} from "@datawheel/canon-cms";
 import {cartStateReducer} from "@datawheel/canon-cart";
+import cartExampleStateReducer from "./cartExample";
 
 /** */
 export const initialState = {};
@@ -21,5 +22,6 @@ if (__DEV__ && !__SERVER__) {
  */
 export const reducers = {
   cms: cmsReducer,
-  cart: cartStateReducer
+  cart: cartStateReducer,
+  cartExample: cartExampleStateReducer
 };

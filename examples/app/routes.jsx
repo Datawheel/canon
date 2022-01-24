@@ -4,7 +4,8 @@ import {Route, IndexRoute} from "react-router";
 import App from "./App";
 import Home from "./pages/Home";
 import Docs from "./pages/Docs";
-import Cart from "./pages/cart/CartComponent";
+import CartPage from "./pages/cart/CartPage";
+import CartDemo from "./pages/cart/CartDemo";
 import Error from "./pages/core/NotFound";
 
 import {Builder, Profile, ProfileSearch, Story, StoryLanding} from "@datawheel/canon-cms";
@@ -21,7 +22,8 @@ export default function RouteCreate() {
       <Route path="docs/:pkg/:page" component={Docs} />
 
       <Route path="/cms" component={Builder} />
-      <Route path="/cart" component={Cart} />
+      <Route path="/cart/demo" component={CartDemo} />
+      <Route path="/cart" component={CartPage} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={SignUp} />
       <Route path="/:lang/profile/:slug/:id" component={Profile} />

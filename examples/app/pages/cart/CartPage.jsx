@@ -1,16 +1,15 @@
 import React, {Component} from "react";
-import {Cart} from "../../src/";
-
-import "./CartPage.css";
+import {Cart} from "@datawheel/canon-cart";
+import TopNav from "components/TopNav";
 
 export default class CartPage extends Component {
 
   render() {
     return (
-      <div id="cart-example">
+      <div>
+        <TopNav />
         <Cart />
       </div>
     );
   }
-
 }

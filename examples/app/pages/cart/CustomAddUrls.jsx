@@ -1,9 +1,8 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import {InputGroup, Tooltip, Button} from "@blueprintjs/core";
-import {addCustomUrl, removeCustomUrl} from "../actions/example";
-import {addToCartAction, AddToCartControl} from "../../src/";
-import "./CustomAddUrls.css";
+import {addCustomUrl} from "../../actions/cartExample";
+import {addToCartAction, AddToCartControl} from "@datawheel/canon-cart";
 
 /**
   This component is displayed when the needs of another component are being
@@ -23,7 +22,7 @@ class CustomAddUrls extends Component {
   }
 
   handleTextChange(textEvent) {
-    this.setState({urlValue:textEvent.currentTarget.value});
+    this.setState({urlValue: textEvent.currentTarget.value});
   };
 
   handleAddClick() {
@@ -36,7 +35,7 @@ class CustomAddUrls extends Component {
   addAvailable(urlValue) {
     const {activeSiteObject} = this.props;
     let valid = false;
-    if (urlValue.indexOf(activeSiteObject.base)===0){
+    if (urlValue.indexOf(activeSiteObject.base) === 0) {
       valid = true;
     }
     //TODO validate complete url
@@ -76,11 +75,11 @@ class CustomAddUrls extends Component {
         value={urlValue}
       />
       <p>Must start with "{activeSiteObject.base}"</p>
-      <hr/>
+      <hr />
       {customUrls && <div>
         <p>{customUrls.length} urls</p>
-        <hr/>
-        {customUrls.map(url=>
+        <hr />
+        {customUrls.map(url =>
           <InputGroup
             large={true}
             leftIcon="link"
@@ -89,13 +88,13 @@ class CustomAddUrls extends Component {
             value={url}
           />
         )}
-        </div>}
+      </div>}
     </div>);
   }
 }
 
 export default
   connect(state => ({
-    activeSiteObject: state.data.home_data ? state.data.home_data : false,
-    customUrls: state.example.customUrls
+    activeSiteObject: state.cartExample.selectedExampleCart ? state.cartExample.selectedExampleCart : false,
+    customUrls: state.cartExample.customUrls
   }))(CustomAddUrls);

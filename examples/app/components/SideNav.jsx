@@ -64,7 +64,7 @@ class SideNav extends Component {
                       alignText={Alignment.LEFT}
                       fill={true}
                       minimal={true}
-                      href={`/docs/${strip(title).toLowerCase()}/${strip(page.title).toLowerCase()}`}
+                      href={page.link ? page.link : `/docs/${strip(title).toLowerCase()}/${strip(page.title).toLowerCase()}`}
                     >
                       {page.title}
                     </AnchorButton>

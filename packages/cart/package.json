@@ -1,10 +1,9 @@
 {
-  "name": "canon-cart",
+  "name": "@datawheel/canon-cart",
   "version": "1.0.0",
-  "description": "",
+  "description": "Data cart for canon sites",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "NODE_OPTIONS=--max-old-space-size=4096 canon-build",
     "dev": "canon-dev",
     "locales": "canon-locales",
@@ -12,25 +11,25 @@
     "setup": "canon-setup",
     "start": "node index.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Pablo H. Paladino",
+  "license": "MIT",
   "devDependencies": {
-    "@datawheel/canon-core": "^0.17.35"
+    "@datawheel/canon-core": "workspace:^"
   },
   "peerDependencies": {
-    "@datawheel/canon-core": "^0.17.35"
+    "@datawheel/canon-core": "^0.24.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/datawheel/canon.git"
   },
   "dependencies": {
-    "@blueprintjs/select": "^3.10.0",
-    "@datawheel/olap-client": "^1.2",
+    "@blueprintjs/select": "^3.16.4",
+    "@datawheel/olap-client": "^2.0.0-beta.1",
     "file-saver": "^2.0.2",
     "form-urldecoded": "0.0.6",
     "jszip": "^3.2.2",
     "localforage": "^1.7.3",
-    "react-table": "^6.10.0"
+    "react-table": "^6.10.3"
   }
 }

@@ -41,7 +41,7 @@ import IntroCreateCanon from "./create-canon/Intro";
 import IntroCart from "./cart/Intro";
 import AddToCartButton from "./cart/AddToCartButton";
 import NavControl from "./cart/NavControl";
-import CartPanel from "./cart/Cart";
+import CartPanel from "./cart/CartComponent";
 
 const PACKAGES = [
   {
@@ -97,7 +97,9 @@ const PACKAGES = [
       {title: "Intro", component: IntroCart},
       {title: "Add To Cart", component: AddToCartButton},
       {title: "Nav Control", component: NavControl},
-      {title: "Cart", component: CartPanel}
+      {title: "Cart Component", component: CartPanel},
+      {title: "Cart Demo Page", link: "/cart"},
+      {title: "Cart Demo Link & buttons", link: "/cart/demo"}
     ]
   }
 

@@ -1,13 +1,13 @@
 /** EXAMPLE url*/
-export function setExampleVizBuilder(url) {
+export function setExampleCart(key) {
   return dispatch => {
-    dispatch(setExampleVizBuilderUrl(url));
+    dispatch(setExampleCartAction(key));
   };
 }
-export const SET_EXAMPLE_VIZ_BUILDER_URL = "SET_EXAMPLE_VIZ_BUILDER_URL";
-export const setExampleVizBuilderUrl = (url) => ({
-  type: SET_EXAMPLE_VIZ_BUILDER_URL,
-  payload: url
+export const SET_EXAMPLE_CART = "SET_EXAMPLE_CART";
+export const setExampleCartAction = (key) => ({
+  type: SET_EXAMPLE_CART,
+  payload: key
 });
 
 /** CUSTOM url*/

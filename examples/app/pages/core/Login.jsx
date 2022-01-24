@@ -5,7 +5,7 @@ import {connect} from "react-redux";
 class LoginWrapper extends Component {
 
   render() {
-    console.log("\nUSER\n", this.props.auth);
+    //console.log("\nUSER\n", this.props.auth);
     return <div>
       <h1>Core Package</h1>
       <h2>Login</h2>

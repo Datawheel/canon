@@ -5,7 +5,7 @@ import {connect} from "react-redux";
 class FetchData extends Component {
 
   render() {
-    console.log(this.props.data);
+    //console.log(this.props.data);
     return <div>
       <h1>Core Package</h1>
       <h2>FetchData</h2>
