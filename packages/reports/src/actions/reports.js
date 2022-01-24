@@ -8,7 +8,7 @@ const catcher = e => {
 };
 
 const getParamsFromStore = store => ({
-  slugs: store.cms.status.pathObj.previews.map(d => d.slug).join(),
+  slugs: store.cms.status.pathObj.previews?.map(d => d.slug).join(),
   query: Object.entries(store.cms.status.query).map(([k, v]) => `${k}=${v}`).join("&")
 });
 
