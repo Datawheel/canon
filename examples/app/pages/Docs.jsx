@@ -37,6 +37,12 @@ import IntroVB from "./vizbuilder/Intro";
 // Create Canon
 import IntroCreateCanon from "./create-canon/Intro";
 
+// Cart package
+import IntroCart from "./cart/Intro";
+import AddToCartButton from "./cart/AddToCartButton";
+import NavControl from "./cart/NavControl";
+import CartPanel from "./cart/Cart";
+
 const PACKAGES = [
   {
     title: "Overview",
@@ -83,7 +89,18 @@ const PACKAGES = [
     pages: [
       {title: "Intro", component: IntroVB}
     ]
+  },
+  {
+    title: "Cart Package",
+    icon: "shopping-cart",
+    pages: [
+      {title: "Intro", component: IntroCart},
+      {title: "Add To Cart", component: AddToCartButton},
+      {title: "Nav Control", component: NavControl},
+      {title: "Cart", component: CartPanel}
+    ]
   }
+
 
 ];
 
@@ -117,7 +134,7 @@ class Docs extends Component {
 }
 
 Docs.need = [
-  FetchData
+
 ];
 
 Docs.contextTypes = {

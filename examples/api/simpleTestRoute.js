@@ -1,8 +1,14 @@
-module.exports = function(app) {
+module.exports = function (app) {
 
   app.get("/api/simple", (req, res) => {
 
     res.json({simple: false});
+
+  });
+
+  app.get("/api/test-simple", (req, res) => {
+
+    res.json({test: false});
 
   });
 

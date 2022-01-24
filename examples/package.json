@@ -19,6 +19,7 @@
   "author": "Dave Landry <dave@datawheel.us>",
   "license": "MIT",
   "dependencies": {
+    "@datawheel/canon-cart": "workspace:*",
     "@datawheel/canon-cms": "workspace:*",
     "@datawheel/canon-core": "workspace:*",
     "@datawheel/canon-logiclayer": "*",

@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Link} from "react-router";
 import {Alignment, Icon, Navbar} from "@blueprintjs/core";
+import {NavCartControl} from "@datawheel/canon-cart";
 
 // const userLinks = "<a class='user-link' data-refresh='true' href='/login'>Login</a><a class='user-link' href='/reset'>Reset</a><a class='user-link' href='/signup'>Sign Up</a><a class='user-link' href='/no/route/here/please/stop'>No Route</a><a class='user-link' target='_blank' href='http://www.google.com'>Google</a>";
 
@@ -19,6 +20,8 @@ class Nav extends Component {
         </Navbar.Group>
         <Navbar.Group align={Alignment.RIGHT}>
           <Link to="/cms">CMS</Link>
+          |
+          <NavCartControl cartRoute={"/cart"} />
           {/* { user
             ? <div className="user-info">
               { user.role >= 2 ? <Link className="user-link" to="/admin">Admin</Link> : null }
