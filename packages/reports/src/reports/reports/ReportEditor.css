@@ -43,3 +43,8 @@
     }
   }
 }
+
+/* increases max-height of Modal component */
+.mantine-Modal-body {
+  max-height: 90vw;
+}

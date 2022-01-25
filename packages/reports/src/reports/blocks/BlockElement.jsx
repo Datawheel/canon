@@ -75,12 +75,12 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const modalProps = {
     centered: true,
+    hideCloseButton: true,
     opened,
     onClose: maybeCloseWithoutSaving,
     overflow: "inside",
-    padding: theme.spacing.xl,
-    size: "90%",
-    title: `${upperCaseFirst(block.type)} Editor`
+    padding: theme.spacing.sm,
+    size: "90%"
   };
 
   const cogProps = {
