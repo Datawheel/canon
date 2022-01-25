@@ -11,8 +11,6 @@ import {useDebouncedValue} from "@mantine/hooks";
 /* utils */
 import paramString from "../../utils/js/paramString";
 
-import "./MemberEditor.css";
-
 /** */
 export default function MemberEditor() {
 
@@ -64,7 +62,7 @@ export default function MemberEditor() {
         value={query}
         onChange={e => setQuery(e.target.value)}
       />
-      <table {...getTableProps()}>
+      <table className="reports-member-table" {...getTableProps()}>
         <thead>
           {// Loop over the header rows
             headerGroups.map((headerGroup, hg) =>
