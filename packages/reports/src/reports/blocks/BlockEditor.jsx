@@ -82,7 +82,8 @@ function BlockEditor({
 
   const blockSettings = <BlockSettings
     id={id}
-    onChange={setBlockSettings}
+    setBlockSettings={setBlockSettings}
+    setBlockContent={setBlockContent}
   />;
 
   const blockOutputPanel = <BlockOutputPanel

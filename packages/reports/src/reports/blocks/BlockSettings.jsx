@@ -4,10 +4,11 @@ import {useSelector, useDispatch} from "react-redux";
 import {Select, Button, SegmentedControl, TextInput, Group, Checkbox} from "@mantine/core";
 
 /* enums */
-import {BLOCK_SETTINGS, ENTITY_TYPES} from "../../utils/consts/cms";
+import {BLOCK_SETTINGS, BLOCK_TYPES, ENTITY_TYPES} from "../../utils/consts/cms";
 
 /* hooks */
 import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
+import {useBlock} from "../hooks/blocks/selectors";
 
 /* redux */
 import {deleteEntity} from "../../actions/reports";
@@ -15,6 +16,7 @@ import {deleteEntity} from "../../actions/reports";
 /* utils */
 import {useVariables} from "../hooks/blocks/useVariables";
 import AceWrapper from "../editors/AceWrapper";
+import VizSettings from "./VizSettings";
 
 export const settings = {
   display: {
@@ -39,14 +41,14 @@ export const settings = {
 /**
  *
  */
-function BlockSettings({id, onChange}) {
+function BlockSettings({id, setBlockSettings, setBlockContent}) {
 
   const dispatch = useDispatch();
   const {getConfirmation} = useConfirmationDialog();
 
   /* redux */
-  const blocks = useSelector(state => state.cms.reports.entities.blocks);
-  const block = blocks[id];
+
+  const block = useBlock(id);
 
   /* state */
   const [width, setWidth] = useState(block.settings.width || "stretch");
@@ -69,7 +71,7 @@ function BlockSettings({id, onChange}) {
   };
 
   const handleChange = (field, value) => {
-    onChange({[field]: value});
+    setBlockSettings({[field]: value});
   };
 
   const handleChangeWidth = (stretch, value) => {
@@ -85,8 +87,8 @@ function BlockSettings({id, onChange}) {
 
   const handleChangeAllowedDropdown = allowed => {
     const allowedLogic = `return ${allowed === "always" ? "true" : `variables.${allowed}`};`;
-    // These need to occur in the same onChange action to avoid a race condition
-    onChange({
+    // These need to occur in the same setBlockSettings action to avoid a race condition
+    setBlockSettings({
       [BLOCK_SETTINGS.ALLOWED]: allowed,
       [BLOCK_SETTINGS.ALLOWED_LOGIC]: allowedLogic
     });
@@ -107,12 +109,11 @@ function BlockSettings({id, onChange}) {
         />
         <span>Sharing</span>
         <SegmentedControl defaultValue={String(block.shared)} onChange={e => handleChange("shared", e === "true")} data={shared}/>
-        <span>[Coming soon - Viz Options]</span>
         <Button variant="outline" color="red" onClick={maybeDelete}>Delete Block</Button>
       </Group>
       <Group direction="column">
         <span>Layout Options</span>
-        <Group>
+        <Group direction="column">
           <TextInput label="width" error={width !== "stretch" && isNaN(width) ? "Width must be an integer" : ""} disabled={width === "stretch"} defaultValue={width} value={width} onChange={e => handleChangeWidth(false, e.target.value)} />
           <Checkbox label="stretch" checked={width === "stretch"} onChange={e => handleChangeWidth(true, e.target.checked)} />
         </Group>
@@ -125,6 +126,9 @@ function BlockSettings({id, onChange}) {
           )
         }
       </Group>
+      {block.type === BLOCK_TYPES.VIZ &&
+        <VizSettings id={id} onChange={setBlockContent}/>
+      }
     </Group>
   );
 

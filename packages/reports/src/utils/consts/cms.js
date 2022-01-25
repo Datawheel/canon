@@ -62,6 +62,10 @@ const ALLOWED = {
   ALLOWED_LOGIC: "allowedLogic"
 };
 
+const VIZ_SETTINGS = {
+  VIZ_SETTINGS_LOGIC: "vizSettingsLogic"
+};
+
 const REPORT_SETTINGS = {
   ...ALLOWED
 };
@@ -193,5 +197,6 @@ module.exports = {
   REPORT_TYPES,
   SECTION_FIELDS,
   SECTION_SETTINGS,
-  SELECTOR_TYPES
+  SELECTOR_TYPES,
+  VIZ_SETTINGS
 };
