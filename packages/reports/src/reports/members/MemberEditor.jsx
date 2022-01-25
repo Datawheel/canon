@@ -29,7 +29,9 @@ export default function MemberEditor() {
     {Header: "id", accessor: "id"},
     {Header: "slug", accessor: "slug"},
     {Header: "name", accessor: d => d.contentByLocale[localeDefault].name},
-    {Header: "namespace", accessor: "namespace"}
+    {Header: "namespace", accessor: "namespace"},
+    {Header: "keywords", accessor: d => d.contentByLocale[localeDefault].keywords},
+    {Header: "attributes", accessor: d => d.contentByLocale[localeDefault].attr}
   ], []);
 
   useEffect(() => {
