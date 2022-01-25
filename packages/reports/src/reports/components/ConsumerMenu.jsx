@@ -15,12 +15,21 @@ function ConsumerMenu({id}) {
   const consumerBlocks = useMemo(() => Object.values(consumers || []).filter(d => block.consumers.includes(d.id)), [consumers]);
 
   return (
-    <Menu zIndex={1001} position="top" control={<Button disabled={!consumerBlocks.length} variant="outline" leftIcon={<HiOutlineRss />}>View Consumers</Button>}>
-      {consumerBlocks.map(({id, type}) =>
-        <Menu.Item key={id}>
-          {`${type}(${id})`}
-        </Menu.Item>)}
-    </Menu>
+    consumerBlocks.length
+      ? <Menu
+        control={<Button variant="filled"><HiOutlineRss size={16} /></Button>}
+        placement="center"
+        position="top"
+        trigger="hover"
+        zIndex={1001}
+      >
+        <Menu.Label>Consumers</Menu.Label>
+        {consumerBlocks.map(({id, type}) =>
+          <Menu.Item key={id}>
+            {`${type}(${id})`}
+          </Menu.Item>)}
+      </Menu>
+      : null
   );
 
 }
