@@ -11,6 +11,10 @@ import {Portal, Toaster} from "@blueprintjs/core";
 import {titleCase} from "d3plus-text";
 import "./CanonProvider.css";
 
+// returns true if an element is either a specific semantic tag or has an id attribute,
+// which determines if the element should send a click event to Google Analytics
+const clickElement = elem => ["nav", "footer"].includes(elem.tagName.toLowerCase()) || elem.id;
+
 /**
 blueprint tooltip IE fix; check that the window exists and that we're in IE first
 related issue: https://github.com/DataScienceSquad/open-compass/issues/247
@@ -131,6 +135,32 @@ class CanonProvider extends Component {
   }
 
   onClick(e) {
+
+    if (typeof window.ga === "function") {
+
+      const clickEl = e.target;
+
+      let eventEl = clickEl;
+      while (eventEl !== document.body && !clickElement(eventEl)) eventEl = eventEl.parentNode;
+
+      if (clickElement(eventEl)) {
+
+        const category = eventEl.id ? `#${eventEl.id}` : eventEl.tagName.toLowerCase();
+        const action = "Click";
+        const label = clickEl.innerText ||
+          clickEl.alt ||
+          clickEl.id ||
+          clickEl.className ||
+          `<${clickEl.tagName.toLowerCase()}>`;
+
+        const trackers = window.ga.getAll().map(t => t.get("name"));
+        trackers
+          .forEach(key => {
+            window.ga(`${key}.send`, "event", category, action, label);
+          });
+      }
+
+    }
 
     // Ignore canceled events, modified clicks, and right clicks.
     if (e.defaultPrevented) return;
