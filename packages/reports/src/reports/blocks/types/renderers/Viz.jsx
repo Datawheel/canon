@@ -54,7 +54,6 @@ export default function Viz({block, active, locale, variables, debug, configOver
     if (!active || !block?.content?.[VIZ_SETTINGS.VIZ_SETTINGS_LOGIC]) return {};
     const logic = block.content[VIZ_SETTINGS.VIZ_SETTINGS_LOGIC];
     const {vars} = mortarEval("variables", variables, logic, formatterFunctions, locale);
-    console.log(vars);
     return vars;
   }, [block, active]);
 
