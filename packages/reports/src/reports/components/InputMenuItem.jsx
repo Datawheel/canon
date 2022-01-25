@@ -7,7 +7,7 @@ import {Text, useMantineTheme} from "@mantine/core";
 import ConsoleVariable from "./ConsoleVariable";
 
 /** */
-function InputMenuItem({active = [], id, variables}) {
+function InputMenuItem({reserved = [], id, variables}) {
 
   const block = useSelector(state => id ? state.cms.reports.entities.blocks[id] : false);
 
@@ -23,7 +23,7 @@ function InputMenuItem({active = [], id, variables}) {
           ? keys.filter(o => variables[o]).map(d => <tr key={d}
           >
             <td>
-              <Text color={active.includes(d) ? theme.primaryColor : "dimmed"} size="xs" weight={700}>
+              <Text color={reserved.includes(d) ? "dimmed" : theme.primaryColor} size="xs" weight={700}>
                 {`{{${d}}}`}
               </Text>
             </td>

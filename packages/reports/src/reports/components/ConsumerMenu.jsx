@@ -20,6 +20,7 @@ function ConsumerMenu({id}) {
         control={<Button variant="filled"><HiOutlineRss size={16} /></Button>}
         placement="center"
         position="top"
+        transition="pop"
         trigger="hover"
         zIndex={1001}
       >
