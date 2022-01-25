@@ -20,7 +20,7 @@ module.exports = function(app) {
     const query = req.query.query || req.query.q;
     const locale = req.query.locale || localeDefault;
     const limit = req.query.limit ? Number(req.query.limit) : 10;
-    const {slug, namespace} = req.query;
+    const {all, slug, namespace} = req.query;
 
     // If the slug was provided, this is a direct lookup, find the members and return them.
     if (slug) {
@@ -37,7 +37,12 @@ module.exports = function(app) {
 
     // todo1.0 return top 10s
     if (!query) {
-      return res.json([]);
+      if (all) {
+        const results = await db.search.findAll({include: {association: "contentByLocale"}}).then(arr => arr
+          .map(d => ({...d.toJSON(), contentByLocale: d.contentByLocale.reduce(contentReducer, {})})));
+        return res.json(results);
+      }
+      else return res.json([]);
     }
 
     // Namespaces may have properties - in traditional tesseract these were hierarchy, level, etc.
@@ -60,7 +65,8 @@ module.exports = function(app) {
           {contentId: Array.from(new Set(contentRows.map(r => r.id)))},
           // If the user searched by direct id, it must be matched against the id itself directly the in search table
           {id: {[sequelize.Op.iLike]: `%${query}%`}}
-        ]
+        ],
+      ...namespace && {namespace}
     };
 
     /* // todo1.0 - how to work this in using new properties?
@@ -98,19 +104,19 @@ module.exports = function(app) {
         order: [["zvalue", "DESC NULLS LAST"]],
         where: searchWhere
       })
-      .then(arr => arr
-        .map(d => ({...d.toJSON(), contentByLocale: d.contentByLocale.reduce(contentReducer, {})})))
+      .then(arr => arr.map(d => ({...d.toJSON(), contentByLocale: d.contentByLocale.reduce(contentReducer, {})})))
       .catch(() => []);
 
     for (const prop of allProps) {
       if (req.query[prop]) results = results.filter(d => d.properties[prop] === req.query[prop]);
     }
 
+    if (all) return res.json(results);
+
     const members = results.map(result => {
       const res = ["id", "slug", "namespace"].reduce((acc, d) => ({...acc, [d]: result[d]}), result.properties);
       const content = result.contentByLocale[locale];
       res.name = content && content.name ? content.name : result.slug;
-
       return res;
     });
 

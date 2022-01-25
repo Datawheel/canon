@@ -1,8 +1,9 @@
 /* react */
 import axios from "axios";
 import React, {useEffect, useMemo, useState} from "react";
+import {useSelector} from "react-redux";
 import {TextInput} from "@mantine/core";
-import {useTable} from "react-table";
+import {useTable, usePagination} from "react-table";
 
 /* hooks */
 import {useDebouncedValue} from "@mantine/hooks";
@@ -10,34 +11,40 @@ import {useDebouncedValue} from "@mantine/hooks";
 /* utils */
 import paramString from "../../utils/js/paramString";
 
+import "./MemberEditor.css";
+
 /** */
 export default function MemberEditor() {
 
+  /* state */
   const [query, setQuery] = useState("");
   const [data, setData] = useState([]);
   const [debouncedQuery] = useDebouncedValue(query, 500);
 
+  /* redux */
+  const env = useSelector(state => state.env);
+  const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
+
   const columns = useMemo(() => [
     {Header: "id", accessor: "id"},
     {Header: "slug", accessor: "slug"},
-    {Header: "name", accessor: "name"},
+    {Header: "name", accessor: d => d.contentByLocale[localeDefault].name},
     {Header: "namespace", accessor: "namespace"}
   ], []);
 
   useEffect(() => {
     const fetchMembers = async() => {
       const url = `/api/reports/newsearch?${paramString({
-        query
+        query,
+        all: true
       })}`;
-      console.log(url);
       const data = await axios.get(url).then(d => d.data).catch(() => []);
-      console.log(data);
       setData(data);
     };
     fetchMembers();
   }, [debouncedQuery]);
 
-  const tableInstance = useTable({columns, data});
+  const tableInstance = useTable({columns, data}, usePagination);
 
   const {
     getTableProps,
