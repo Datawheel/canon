@@ -126,7 +126,7 @@ export function activateSection(id, previews, query) {
     return axios.get("/api/reports/section/activate", config)
       .then(resp => {
         if (resp.status === 200) {
-          dispatch({type: "SECTION_ACTIVATE", data: resp.data});
+          dispatch({type: "SECTION_ACTIVATE", data: resp.data, id});
           return {status: REQUEST_STATUS.SUCCESS};
         }
         else {

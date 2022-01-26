@@ -33,6 +33,7 @@ function Section({id, isDragging, dragHandleProps}) {
   /* redux */
   const section = useSelector(state => state.cms.reports.entities.sections[id]);
   const blocks = useSelector(state => state.cms.reports.entities.blocks);
+  const active = useSelector(state => state.cms.status?.activeSection === id);
 
   const [hoverBlock, setHoverBlock] = useState();
 
@@ -47,8 +48,6 @@ function Section({id, isDragging, dragHandleProps}) {
     }
   }, [hoverBlock]);
 
-  const [active, setActive] = useState(false);
-
   const addBlock = (blockcol, type) => {
     const payload = {
       blockcol,
@@ -61,8 +60,7 @@ function Section({id, isDragging, dragHandleProps}) {
   const onActivate = () => {
     dispatch(activateSection(id)).then(resp => {
       if (resp.status === REQUEST_STATUS.SUCCESS) {
-        dispatch(setStatus({activeSection: id}));
-        setActive(true);
+        // todo1.0 toast success
       }
       else {
         // todo1.0 toast error
