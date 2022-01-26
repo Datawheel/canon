@@ -3,6 +3,7 @@ import React, {useEffect, useState, useCallback} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import yn from "yn";
 import {MantineProvider} from "@mantine/core";
+import {NotificationsProvider} from "@mantine/notifications";
 
 /* components */
 import Loading from "$app/components/Loading";
@@ -109,12 +110,14 @@ function ReportBuilder({router}) {
 
   return (
     <MantineProvider>
-      <ConfirmationDialogProvider>
-        {pathObj.report && currentReport
-          ? <ReportEditor id={Number(pathObj.report)}/>
-          : <ReportPicker />
-        }
-      </ConfirmationDialogProvider>
+      <NotificationsProvider position="bottom-center">
+        <ConfirmationDialogProvider>
+          {pathObj.report && currentReport
+            ? <ReportEditor id={Number(pathObj.report)}/>
+            : <ReportPicker />
+          }
+        </ConfirmationDialogProvider>
+      </NotificationsProvider>
     </MantineProvider>
   );
 
