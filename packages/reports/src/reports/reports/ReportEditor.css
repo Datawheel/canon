@@ -48,3 +48,9 @@
 .mantine-Modal-body {
   max-height: 90vw;
 }
+
+/* decreases default Prism code font-size */
+.mantine-Prism-root pre {
+  font-size: 12px;
+  line-height: 1.25;
+}

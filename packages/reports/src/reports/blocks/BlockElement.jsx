@@ -137,8 +137,13 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
         </div>
       </div>
       <Modal centered key="d" {...modalProps}>
-        {inlineId && <Block id={inlineId} inline={true} key={inlineId} modified={modified} callbacks={callbacks}/>}
-        {!inlineId && <Block id={id} key={id} inline={false} modified={modified} callbacks={callbacks}/>}
+        <Block
+          callbacks={callbacks}
+          id={inlineId || id}
+          inline={inlineId}
+          key={inlineId || id}
+          modified={modified}
+        />
       </Modal>
     </React.Fragment>
   );

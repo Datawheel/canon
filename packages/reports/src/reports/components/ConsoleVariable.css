@@ -1,51 +1,23 @@
-@import "../../css/mixins.css";
+.mantine-Prism-root .cr-variable {
+  background-color: transparent !important;
+  font-size: 11px;
+  padding: 0;
+  & > div {
+    padding: 0;
+  }
+}
 
-.cr-variable {
-  color: inherit;
-  display: block;
-  font-family: "Menlo", monospace;
-  font-style: inherit;
-  font-weight: 500;
-  word-break: keep-all;
-  max-width: 100%;
-
-  &.object, &.array, &.function {
-    font-style: italic;
-    & pre {
-      white-space: pre-wrap;
-      margin: 0; /* reset browser default */
-    }
+.cr-variable-accordion {
+  & .mantine-Accordion-item {
+    border-bottom: 0;
   }
-
-  /* theming */
-  &.number {
-    color: "#2D4A7F";
-    @mixin dark-mode {
-      color: "#8EB6FF";
-    }
+  & .mantine-Accordion-control {
+    padding: 2px;
   }
-  &.string {
-    color: "#62873B";
-    @mixin dark-mode {
-      color: "#B9E28C";
-    }
+  & .mantine-Accordion-contentInner {
+    padding: 0;
   }
-  &.boolean {
-    color: "#7F6516";
-    @mixin dark-mode {
-      color: "#FFD65B";
-    }
-  }
-  &.undefined {
-    color: "#2A2F3B";
-    @mixin dark-mode {
-      color: "#AEBDCC";
-    }
-  }
-  &.error {
-    color: "#75224D";
-    @mixin dark-mode {
-      color: "#DB64A6";
-    }
+  & .mantine-Accordion-icon {
+    margin-right: 4px;
   }
 }

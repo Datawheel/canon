@@ -1,5 +1,6 @@
 import React from "react";
-import {Text} from "@mantine/core";
+import {Accordion, Group, Text, useMantineTheme} from "@mantine/core";
+import {Prism} from "@mantine/prism";
 import "./ConsoleVariable.css";
 
 const evalType = value => {
@@ -12,31 +13,72 @@ const evalType = value => {
   return t;
 };
 
+const sortOrder = ["object", "array", "string", "number"];
+
 /**
  * Displays a variable output by a block.
  * @param {*} value
  */
-function ConsoleVariable({value}) {
-
-  const JSON_CUTOFF = 1000;
-  const ARRAY_CUTOFF = 5;
-  const STRING_CUTOFF = 12; // todo1.0 this is temporary due to dave's inputmenu width
+function ConsoleVariable({dimmed, label, root = true, value}) {
 
   const t = evalType(value);
   let v = value;
-  if (t === "string") v = `"${v.substring(0, STRING_CUTOFF)}${v.length > STRING_CUTOFF ? "..." : ""}"`;
-  else if (t === "object") {
-    const str = JSON.stringify(v, null, 2);
-    v = str.length > JSON_CUTOFF ? <pre>JSON object too large to display.</pre> : <pre>{ str }</pre>;
+
+  if (t === "object") {
+    return <Accordion iconSize={12} className="cr-variable-accordion">
+      <Accordion.Item label={<Text lineClamp={1} size="xs" weight={700}>{label}</Text>}>
+        { Object.keys(value)
+          .sort((a, b) => {
+            const aType = evalType(value[a]);
+            const bType = evalType(value[b]);
+            if (aType !== bType) return sortOrder.indexOf(aType) - sortOrder.indexOf(bType);
+            return a.localeCompare(b);
+          })
+          .map(k => <ConsoleVariable root={false} key={k} label={k} value={value[k]} />) }
+      </Accordion.Item>
+    </Accordion>;
   }
+  else if (t === "array") {
+    return <Accordion iconSize={12} className="cr-variable-accordion">
+      <Accordion.Item label={<Text lineClamp={1} size="xs" weight={700}>{label}</Text>}>
+        { value.map((k, i) => <ConsoleVariable root={false} key={i} label={i} value={k} />) }
+      </Accordion.Item>
+    </Accordion>;
+  }
+
+  if (t === "string") v = `"${v}"`;
   else if (t === "error") v = `Error: ${v.message}`;
   else if (t === "undefined") v = t;
-  else if (t === "array") {
-    v = <span>{v.slice(0, ARRAY_CUTOFF).map((l, i) => <span key={i}><ConsoleVariable value={l} /></span>)}</span>;
-  }
   else if (v.toString) v = v.toString();
 
-  return <Text size="xs" lineClamp={1} className={`cr-variable ${t}`}>{v}</Text>;
+  const theme = useMantineTheme();
+
+  return <Group noWrap={true}>
+    <Text
+      color={dimmed ? "dimmed" : theme.primaryColor}
+      lineClamp={1}
+      size="xs"
+      style={{
+        overflow: "initial"
+      }}
+      weight={700}
+    >
+      { root ? `{{${label}}}` : label }
+    </Text>
+    <Prism
+      className="cr-variable"
+      language="js"
+      noCopy
+      style={{
+        flex: "1 1 100%",
+        overflowY: "scroll",
+        padding: 0,
+        textAlign: "right"
+      }}
+    >
+      {v}
+    </Prism>
+  </Group>;
 
 }
 
