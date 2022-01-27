@@ -13,7 +13,7 @@ import {initialState as appInitialState} from "$app/store";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 import pretty from "pretty";
 import maybeRedirect from "./helpers/maybeRedirect";
-import {servicesAvailable, servicesBody, servicesScript} from "./helpers/services";
+import {servicesAvailable, servicesBody, servicesScript, servicesHeadTags} from "./helpers/services";
 import yn from "yn";
 
 import CanonProvider from "./CanonProvider";
@@ -30,27 +30,27 @@ const BASE_URL = process.env.CANON_BASE_URL || "/";
 const basename = BASE_URL.replace(/^[A-z]{4,5}\:\/{2}[A-z0-9\.\-]{1,}\:{0,}[0-9]{0,4}/g, "");
 const baseTag = process.env.CANON_BASE_URL === undefined ? ""
   : `
-    <base href='${ BASE_URL }'>`;
+    <base href='${BASE_URL}'>`;
 
 /**
     Returns the default server logic for rendering a page.
 */
-export default function(defaultStore = appInitialState, headerConfig, reduxMiddleware = false) {
+export default function (defaultStore = appInitialState, headerConfig, reduxMiddleware = false) {
 
-  return function(req, res) {
+  return function (req, res) {
 
     const locale = req.i18n.language,
-          resources = req.i18n.getResourceBundle(req.i18n.language);
+      resources = req.i18n.getResourceBundle(req.i18n.language);
 
     const windowLocation = {
       basename,
       host: req.headers.host,
       hostname: req.headers.host.split(":")[0],
-      href: `${ req.protocol }://${ req.headers.host }${ req.url }`,
-      origin: `${ req.protocol }://${ req.headers.host }`,
+      href: `${req.protocol}://${req.headers.host}${req.url}`,
+      origin: `${req.protocol}://${req.headers.host}`,
       pathname: req.url.split("?")[0],
       port: req.headers.host.includes(":") ? req.headers.host.split(":")[1] : "80",
-      protocol: `${ req.protocol }:`,
+      protocol: `${req.protocol}:`,
       query: req.query,
       search: req.url.includes("?") ? `?${req.url.split("?")[1]}` : ""
     };
@@ -120,8 +120,8 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                 const helmetContext = {};
 
                 let componentHTML,
-                    scriptTags = "<script type=\"text/javascript\" charset=\"utf-8\" src=\"/assets/client.js\"></script>",
-                    styleTags = "<link rel=\"stylesheet\" type=\"text/css\" href=\"/assets/styles.css\">";
+                  scriptTags = "<script type=\"text/javascript\" charset=\"utf-8\" src=\"/assets/client.js\"></script>",
+                  styleTags = "<link rel=\"stylesheet\" type=\"text/css\" href=\"/assets/styles.css\">";
 
                 if (production) {
 
@@ -152,7 +152,7 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                     .replace(/\n/g, "\n    ");
 
                   const cssOrder = ["normalize", "blueprint", "canon"];
-                  const cssRegex = RegExp(`(?:${ cssOrder.join("|") })`);
+                  const cssRegex = RegExp(`(?:${cssOrder.join("|")})`);
 
                   styleTags = extractor
                     .getStyleTags()
@@ -198,26 +198,30 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
                 const serialize = obj => `JSON.parse('${jsesc(JSON.stringify(obj))}')`;
 
                 return res.status(status).send(`<!doctype html>
-<html dir="${ rtl ? "rtl" : "ltr" }" ${htmlAttrs}${defaultAttrs}>
+<html dir="${rtl ? "rtl" : "ltr"}" ${htmlAttrs}${defaultAttrs}>
   <head>
+
     ${baseTag}
-    ${ pretty(header.title.toString()).replace(/\n/g, "\n    ") }
 
-    ${ pretty(header.meta.toString()).replace(/\n/g, "\n    ") }
+    ${servicesHeadTags}
 
-    ${ pretty(header.link.toString()).replace(/\n/g, "\n    ") }
+    ${pretty(header.title.toString()).replace(/\n/g, "\n    ")}
+
+    ${pretty(header.meta.toString()).replace(/\n/g, "\n    ")}
+
+    ${pretty(header.link.toString()).replace(/\n/g, "\n    ")}
 
     ${styleTags}
 
   </head>
   <body>
     ${servicesBody}
-    <div id="React-Container">${ componentHTML }</div>
+    <div id="React-Container">${componentHTML}</div>
 
     <script>
 
       window.__SSR__ = true;
-      window.__APP_NAME__ = "${ req.i18n.options.defaultNS }";
+      window.__APP_NAME__ = "${req.i18n.options.defaultNS}";
       window.__HELMET_DEFAULT__ = ${serialize(headerConfig)};
       window.__INITIAL_STATE__ = ${serialize(initialState)};
       ${GDPR ? `
