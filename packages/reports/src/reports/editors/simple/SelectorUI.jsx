@@ -8,6 +8,21 @@ import {useVariables} from "../../hooks/blocks/useVariables";
 import "./SelectorUI.css";
 import {stringifyObject} from "../../../utils/js/stringifyObject";
 
+
+// TYPEDEFS
+
+/**
+ * @typedef DynamicOptionsSimpleState
+ * @property {string} optionsVar - variable name that provides list of data used to generate Selector options
+ * @property {string} idKey - property name of data objects in optionsVar list to be used as options' identifier
+ * @property {string} labelKey - property name of data objects in optionsVar list to be used as options' human readable label
+ * @property {string} defaultVar - variable name of variable that specifies the ID of the option that should be selected
+ * by default in a selector
+ */
+
+
+// CONSTANTS
+
 const SELECTOR_TYPE = {
   SINGLE: {value: "single", label: "Single"},
   MULTI: {value: "multi", label: "Multi"}
@@ -22,11 +37,17 @@ const SELECTOR_OPTION_TYPE = {
 
 const DEFAULT_OPTION_TYPE = SELECTOR_OPTION_TYPE.STATIC.value;
 
+
+// HELPER FUNCTIONS
+
 /** Function to determine whether a variable could be used as a list of Selector options */
 const isValidSelectorOptionsArray = variable => variable && Array.isArray(variable);
 
 /** Function to determine whether a variable could be used as a Selector's default value ID */
 const isValidDefaultVariable = variable => variable && !Array.isArray(variable);
+
+
+// COMPONENTS
 
 /**
  * Component for rendering user-friendly simple UI for creating selector-type blocks
@@ -185,7 +206,10 @@ function StaticSelectorOptionsEditor({staticOptions, setStaticOptions}) {
         <thead>
           {staticOptions.length > 0 &&
             <tr>
-              {["Default", "ID", "Label", ""].map((label, idx) => <td className={idx ? "" : "selector-option-default-col"} key={`heading-${idx}`}>{label}</td>)}
+              {["Default", "ID", "Label", ""]
+                .map((label, idx) =>
+                  <td className={idx ? "" : "selector-option-default-col"} key={`heading-${idx}`}>{label}</td>)
+              }
             </tr>
           }
         </thead>
@@ -240,17 +264,23 @@ function StaticSelectorOptionRow({option, editOption, deleteOption}) {
   </tr>;
 }
 
-/** */
+/**
+ * Component that handles the UI for composing Selector state for a dynamic options-type Selector
+ * @param {{id: string, dynamicOptions: DynamicOptionsSimpleState, setDynamicOptions}} props
+ * @returns
+ */
 function DynamicSelectorOptionsEditor({id, dynamicOptions, setDynamicOptions}) {
   // State that will actually be stored in the selector block state
   const {variables} = useVariables(id);
 
+  console.log("DEV dynamic options", dynamicOptions); // TODO - remove
+
   // TODO - add internal state to track isDefault var
 
-  const [optionListVariableKey, setOptionListVariableKey] = useState();
-  const [optionValueSelector, setOptionValueSelector] = useState();
-  const [optionLabelSelector, setOptionLabelSelector] = useState();
-  const [defaultId, setDefaultId] = useState();
+  const [optionListVariableKey, setOptionListVariableKey] = useState(dynamicOptions?.optionsVar);
+  const [optionValueSelector, setOptionValueSelector] = useState(dynamicOptions?.idKey);
+  const [optionLabelSelector, setOptionLabelSelector] = useState(dynamicOptions?.labelKey);
+  const [defaultId, setDefaultId] = useState(dynamicOptions?.defaultVar);
 
   const stateFields = [defaultId, optionListVariableKey, optionValueSelector, optionLabelSelector];
 
@@ -293,19 +323,19 @@ function DynamicSelectorOptionsEditor({id, dynamicOptions, setDynamicOptions}) {
     // set available options for choosing each of the selector's option's value and label
     setValueSelectorList(allPropertyOptions);
 
-    if (!keySet.has(optionValueSelector)) setOptionValueSelector();
-    if (!keySet.has(optionLabelSelector)) setOptionLabelSelector();
+    // if (!keySet.has(optionValueSelector)) setOptionValueSelector();
+    // if (!keySet.has(optionLabelSelector)) setOptionLabelSelector();
   }, [optionVariableMap, optionListVariableKey]);
 
-  // use existing state on mount
-  useEffect(() => {
-    console.log("Init Set dynamic options", dynamicOptions);
-    if (!dynamicOptions) return;
-    setOptionListVariableKey(dynamicOptions.optionsVar);
-    setOptionValueSelector(dynamicOptions.optionsValue);
-    setOptionLabelSelector(dynamicOptions.optionsLabel);
-    setDefaultId(dynamicOptions.defaultId);
-  }, []);
+  // // use existing state on mount
+  // useEffect(() => {
+  //   console.log("Init Set dynamic options", dynamicOptions);
+  //   if (!dynamicOptions) return;
+  //   setOptionListVariableKey(dynamicOptions.optionsVar);
+  //   setOptionValueSelector(dynamicOptions.optionsValue);
+  //   setOptionLabelSelector(dynamicOptions.optionsLabel);
+  //   setDefaultId(dynamicOptions.defaultId);
+  // }, []);
 
   // signal that state has changed
   useEffect(() => {
