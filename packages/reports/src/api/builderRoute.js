@@ -8,6 +8,10 @@ const {translateReport, translateSection, fetchUpsertHelpers} = require("../util
 const {REPORT_FIELDS} = require("../utils/consts/cms");
 const {REQUEST_STATUS} = require("../utils/consts/redux");
 const runConsumers = require("../utils/blocks/runConsumers");
+const formatters4eval = require("../utils/formatters4eval");
+const getLocales = require("../utils/canon/getLocales");
+
+let formatterFunctionsByLocale = null;
 
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_REPORTS_LOGGING);
@@ -146,6 +150,12 @@ module.exports = function(app) {
 
     const locale = req.query.locale ? req.query.locale : localeDefault;
 
+    if (!formatterFunctionsByLocale) {
+      const formatters = await db.formatter.findAll().catch(() => []);
+      const locales = getLocales(process.env);
+      formatterFunctionsByLocale = locales.reduce((acc, locale) => ({...acc, [locale]: formatters4eval(formatters, locale)}), {});
+    }
+
     let blocks = await db.block.findAll(blockReqFull).catch(catcher);
     if (!blocks) return {status: REQUEST_STATUS.ERROR};
     blocks = blocks.map(d => d.toJSON());
@@ -169,7 +179,7 @@ module.exports = function(app) {
         .filter(d => d.section_id === sid && (d.inputs.length === 0 || d.inputs.length > 0 && d.inputs.every(i => nonNativeBlocks.includes(i))))
         .reduce((acc, d) => ({...acc, [d.id]: d}), {});
     // todo1.0 fix formatter usage here, add error logging
-    return await runConsumers(req, attributes, blocks, locale, {}, rootBlocks);
+    return await runConsumers(req, attributes, blocks, locale, formatterFunctionsByLocale[locale], rootBlocks);
   };
 
   /*

@@ -17,7 +17,8 @@ const catcher = e => {
  * varSwapRecursive in translateContent. Export a function so external invokers can easily get these
  */
 const fetchUpsertHelpers = async(db, pid, source) => {
-  const formatterFunctions = await formatters4eval(db, source);
+  const formatters = await db.formatter.findAll().catch(() => []);
+  const formatterFunctions = await formatters4eval(formatters, source);
   // todo1.0 selectors will come from a different place
   let allSelectors = await db.selector.findAll({where: {report_id: pid}}).catch(catcher);
   allSelectors = allSelectors.map(d => d.toJSON());

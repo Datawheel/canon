@@ -33,6 +33,7 @@ function ReportBuilder({router}) {
   const auth = useSelector(state => state.auth);
   const env = useSelector(state => state.env);
   const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
+  // todo1.0 bundle these into a "useAppReady" hook
   const isEnabled = useSelector(state => state.data.isEnabled);
   const minRole = useSelector(state => state.data.minRole);
   const pathObj = useSelector(state => state.cms.status.pathObj);

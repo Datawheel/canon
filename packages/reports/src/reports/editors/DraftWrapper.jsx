@@ -1,5 +1,4 @@
 import React, {useCallback, useMemo, useRef, useState} from "react";
-import {useSelector} from "react-redux";
 import {EditorState, ContentState, convertFromHTML, RichUtils} from "draft-js";
 import Editor from "@draft-js-plugins/editor";
 import {stateToHTML} from "draft-js-export-html";
@@ -7,6 +6,8 @@ import createMentionPlugin, {defaultSuggestionsFilter} from "@draft-js-plugins/m
 import createToolbarPlugin from "@draft-js-plugins/static-toolbar";
 import createToolbarLinkPlugin from "draft-js-toolbar-link-plugin";
 import customLinkifyPlugin from "./customLinkifyPlugin";
+
+import {useRawFormatters} from "../hooks/blocks/selectors";
 
 import {
   ItalicButton,
@@ -29,7 +30,7 @@ import "@draft-js-plugins/static-toolbar/lib/plugin.css";
 function DraftWrapper({defaultValue, variables, onChange, showToolbar, onDirty}) {
 
   const ref = useRef();
-  const formatters = useSelector(state => state.cms.formatters);
+  const formatters = useRawFormatters();
   const [editorState, setEditorState] = useState(() => {
     let editorState = EditorState.createEmpty();
     if (defaultValue && defaultValue !== "") {
