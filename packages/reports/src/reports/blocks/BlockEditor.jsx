@@ -72,6 +72,7 @@ function BlockEditor({
 
   const uiEditor = <SimpleUI
     blockType={blockType}
+    id={id}
     locale={locale}
     simpleState={simpleState}
     setBlockContent={setBlockContent}

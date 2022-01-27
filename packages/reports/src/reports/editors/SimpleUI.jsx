@@ -9,6 +9,7 @@ import RichTextEditor from "../editors/RichTextEditor";
  * @typedef {Object} SimpleUIProps
  * @property {string} blockType - type of block being edited (BLOCK_TYPES)
  * @property {React.Component} executeButton - button for saving changes to database
+ * @property {number} id - the ID of the block that this editor is editing
  * @property {string} locale - locale key for locale currently being edited
  * @property {(content: Object, locale: string, flagModified: boolean, isValidated: boolean) => void} setBlockContent
  * - callback for submitting changes to a Block's working state while editing
@@ -19,6 +20,8 @@ import RichTextEditor from "../editors/RichTextEditor";
  * Props expected by all SimpleUI-type component implementations.
  * @typedef {Object} BlockEditorUIProps
  * @property {React.Component} executeButton - button for saving changes to database
+ * @property {number} id - the ID of the block that this editor is editing
+ * @property {string} locale - locale key for locale currently being edited
  * @property {(logic: string, simpleState: string, isValidated: boolean) => void} onChange - callback submitting changes
  * @property {Object} simpleState - saved state of simple UI form
  */
@@ -34,7 +37,7 @@ const CUSTOM_SIMPLE_UI_COMPONENTS = {
  */
 const SimpleUI = props => {
 
-  const {blockType, executeButton, locale, setBlockContent, simpleState} = props;
+  const {blockType, executeButton, id, locale, setBlockContent, simpleState} = props;
 
   /** Tailor-made component for editing and composing a specific Block type */
   const CustomUIComponent = CUSTOM_SIMPLE_UI_COMPONENTS[blockType];
@@ -42,6 +45,7 @@ const SimpleUI = props => {
   // if a custom "simple" UI editor is implemented for Block type, use that
   if (CustomUIComponent) {
     return <CustomUIComponent
+      id={id}
       executeButton={executeButton}
       onChange={(simple, logic, isValidated = true) => setBlockContent({simple, logic}, locale, true, isValidated)}
       simpleState={simpleState}
