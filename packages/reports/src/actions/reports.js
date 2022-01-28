@@ -25,11 +25,15 @@ axios.interceptors.response.use(d => {
 
 /** */
 export function getReports() {
-  return function(dispatch, getStore) {
-    return axios.get(`${getStore().env.CANON_API}/api/reports/tree`)
-      .then(({data}) => {
-        dispatch({type: "REPORTS_GET", data});
-      });
+  return async function(dispatch, getStore) {
+    const resp = await axios.get(`${getStore().env.CANON_API}/api/reports/tree`).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
+    if (resp.status === 200) {
+      dispatch({type: "REPORTS_GET", data: resp.data});
+      return {status: REQUEST_STATUS.SUCCESS};
+    }
+    else {
+      return {status: REQUEST_STATUS.ERROR, error: resp.status};
+    }
   };
 }
 
