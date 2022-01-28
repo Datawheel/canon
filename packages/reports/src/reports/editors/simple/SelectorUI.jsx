@@ -11,6 +11,8 @@ import {stringifyObject} from "../../../utils/js/stringifyObject";
 
 // TYPEDEFS
 
+/** @typedef {"single" | "multi"} SelectorType  */
+/** @typedef {"static" | "dynamic"} OptionType  */
 /**
  * @typedef DynamicOptionsSimpleState
  * @property {string} optionsVar - variable name that provides list of data used to generate Selector options
@@ -20,22 +22,26 @@ import {stringifyObject} from "../../../utils/js/stringifyObject";
  * by default in a selector
  */
 
+/**
+ * @typedef SelectorSimpleState
+ * @property {string} name - label used to when rendering the selector
+ * @property {{static: StaticOptionsArray, dynamic: DynamicOptionsSimpleState}} options - state for describing the editor state
+ * for both methods of generating options
+ * @property {OptionType} optionsType - the chosen method of defining a Selector's options
+ * @property {SelectorType} type - whether selector is single choice or multi-choice
+ */
 
 // CONSTANTS
 
 const SELECTOR_TYPE = {
-  SINGLE: {value: "single", label: "Single"},
-  MULTI: {value: "multi", label: "Multi"}
+  SINGLE: "single",
+  MULTI: "multi"
 };
 
-const DEFAULT_SELECTOR_TYPE = SELECTOR_TYPE.SINGLE.value;
-
-const SELECTOR_OPTION_TYPE = {
-  STATIC: {value: "static", label: "Static"},
-  DYNAMIC: {value: "dynamic", label: "Dynamic"}
+const OPTION_TYPE = {
+  STATIC: "static",
+  DYNAMIC: "dynamic"
 };
-
-const DEFAULT_OPTION_TYPE = SELECTOR_OPTION_TYPE.STATIC.value;
 
 
 // HELPER FUNCTIONS
@@ -45,6 +51,18 @@ const isValidSelectorOptionsArray = variable => variable && Array.isArray(variab
 
 /** Function to determine whether a variable could be used as a Selector's default value ID */
 const isValidDefaultVariable = variable => variable && !Array.isArray(variable);
+
+/**
+ * Determines whether the current state of the UI is a valid selector config
+ * @param {SelectorSimpleState} simpleState - state of the Selector Editor
+ */
+const isValidSelectorState = simpleState => {
+  const {name, type, optionsType, options} = simpleState;
+  const allPropertiesPresent = [name, type, optionsType, options].every(Boolean);
+
+  // TODO - add validation of options based on optionsType
+  return allPropertiesPresent;
+};
 
 
 // COMPONENTS
@@ -60,9 +78,9 @@ function SelectorUI(props) {
 
   // TODO - improve variables names
   const [selectorIdentifier, setSelectorIdentifier] = useState("");
-  const [selectorType, setSelectorType] = useState(DEFAULT_SELECTOR_TYPE);
+  const [selectorType, setSelectorType] = useState(SELECTOR_TYPE.SINGLE);
   const [options, setOptions] = useState({static: [], dynamic: {}});
-  const [optionsType, setOptionsType] = useState(DEFAULT_OPTION_TYPE);
+  const [optionsType, setOptionsType] = useState(OPTION_TYPE.STATIC);
 
   // gather all state-changing fields to detect when this block's content logic
   // and simple state needs to be updated
@@ -94,9 +112,9 @@ function SelectorUI(props) {
       console.log("Convert to logic", options); // TODO - remove
 
       // for selectors with statically-defined options...
-      if (optionsType === SELECTOR_OPTION_TYPE.STATIC.value) {
+      if (optionsType === OPTION_TYPE.STATIC) {
         // choose one or more default values based on whether they have been marked as default
-        defaultValue = selectorType === SELECTOR_TYPE.SINGLE.value
+        defaultValue = selectorType === SELECTOR_TYPE.SINGLE
           ? options.static.find(o => o.isDefault)?.id
           : options.static.filter(o => o.isDefault).map(o => o.id);
         // and simply return the user-defined options with a copied ID as a label (if none exists)
@@ -104,13 +122,13 @@ function SelectorUI(props) {
       }
       // for selectors with dynamically-defined options...
       else {
-        // TODO - write logic for transforming dynamic options
-        const {optionsVar, optionsValue, optionsLabel} = options.dynamic;
+        const {optionsVar, idKey, labelKey, defaultVar} = options.dynamic;
         console.log("optionsVar", optionsVar);
-        logicOptions = `(variables["${optionsVar}"] || []).map(d => ({id: String(d["${optionsValue}"]), label: d["${optionsLabel || optionsValue}"]}))`;
+        if (defaultVar) defaultValue = `{{${defaultVar}}}`;
+        logicOptions = `(variables["${optionsVar}"] || []).map(d => ({id: String(d["${idKey}"]), label: d["${labelKey || idKey}"]}))`;
       }
 
-      logicObj.defaultValue = defaultValue;
+      if (defaultValue) logicObj.defaultValue = defaultValue;
       logicObj.options = logicOptions;
 
       // const logic = `return ${JSON.stringify(logicObj, null, "\t")};`;
@@ -125,7 +143,7 @@ function SelectorUI(props) {
         options
       };
       // todo1.0 - add actual validation function
-      onChange(simpleState, logic, true);
+      onChange(simpleState, logic, isValidSelectorState(simpleState));
     },
     [...stateFields]
   );
@@ -148,10 +166,10 @@ function SelectorUI(props) {
       label="Options Type"
       value={optionsType}
       onChange={setOptionsType}
-      data={Object.values(SELECTOR_OPTION_TYPE)}
+      data={Object.values(OPTION_TYPE)}
     />
     {
-      optionsType === SELECTOR_OPTION_TYPE.STATIC.value
+      optionsType === OPTION_TYPE.STATIC
         ? <StaticSelectorOptionsEditor
           staticOptions={options.static}
           setStaticOptions={optionsState => setOptions({...options, static: optionsState})}
@@ -270,24 +288,21 @@ function StaticSelectorOptionRow({option, editOption, deleteOption}) {
  * @returns
  */
 function DynamicSelectorOptionsEditor({id, dynamicOptions, setDynamicOptions}) {
+
+  const {optionsVar, idKey, labelKey, defaultVar} = dynamicOptions;
+
   // State that will actually be stored in the selector block state
   const {variables} = useVariables(id);
-
-  console.log("DEV dynamic options", dynamicOptions); // TODO - remove
-
-  // TODO - add internal state to track isDefault var
-
-  const [optionListVariableKey, setOptionListVariableKey] = useState(dynamicOptions?.optionsVar);
-  const [optionValueSelector, setOptionValueSelector] = useState(dynamicOptions?.idKey);
-  const [optionLabelSelector, setOptionLabelSelector] = useState(dynamicOptions?.labelKey);
-  const [defaultId, setDefaultId] = useState(dynamicOptions?.defaultVar);
-
-  const stateFields = [defaultId, optionListVariableKey, optionValueSelector, optionLabelSelector];
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // State that is used to populate the select component options
   const [optionVariableMap, setOptionVariableMap] = useState({});
   const [defaultVariableList, setDefaultVariableList] = useState([]);
   const [valueSelectorList, setValueSelectorList] = useState([]);
+
+  // TODO - handle isDefault Logic better
+
+  console.log("DEV dynamicOptions", dynamicOptions, optionVariableMap);
 
   // populate the select options for choosing variables for the Selector options list and the default ID
   useEffect(() => {
@@ -304,75 +319,77 @@ function DynamicSelectorOptionsEditor({id, dynamicOptions, setDynamicOptions}) {
         return acc;
       }, {});
     setOptionVariableMap(validVariableMap);
-    if (!validVariableMap.hasOwnProperty(optionListVariableKey)) setOptionListVariableKey();
 
     // get and set all possible variables that can be used to get the default Selector value ID
-    const validDefaultIdList = Object.values(variables).filter(isValidDefaultVariable);
+    const validDefaultIdList = Object.entries(variables)
+      .filter(([key, val]) => isValidDefaultVariable(val))
+      .map(([key, val]) => key);
+
     setDefaultVariableList(validDefaultIdList);
-    if (!validDefaultIdList.includes(defaultId)) setDefaultId();
+    setIsInitialized(true);
   }, [variables]);
 
   // populate option list for the value and label selectors when the variable option list changes
   useEffect(() => {
     // get list of all unique keys in variable arrays
     const keySet = new Set();
-    (optionVariableMap[optionListVariableKey] || []).forEach(
+    (optionVariableMap[dynamicOptions.optionsVar] || []).forEach(
       content => Object.keys(typeof content === "object" ? content : {}).forEach(varProperty => keySet.add(varProperty))
     );
     const allPropertyOptions = Array.from(keySet).sort().map(propertyName => propertyName);
     // set available options for choosing each of the selector's option's value and label
     setValueSelectorList(allPropertyOptions);
+  }, [optionVariableMap, optionsVar]);
 
-    // if (!keySet.has(optionValueSelector)) setOptionValueSelector();
-    // if (!keySet.has(optionLabelSelector)) setOptionLabelSelector();
-  }, [optionVariableMap, optionListVariableKey]);
+  const setState = useCallback((key, val) => {
+    setDynamicOptions({...dynamicOptions, [key]: val});
+  }, [dynamicOptions]);
 
-  // // use existing state on mount
-  // useEffect(() => {
-  //   console.log("Init Set dynamic options", dynamicOptions);
-  //   if (!dynamicOptions) return;
-  //   setOptionListVariableKey(dynamicOptions.optionsVar);
-  //   setOptionValueSelector(dynamicOptions.optionsValue);
-  //   setOptionLabelSelector(dynamicOptions.optionsLabel);
-  //   setDefaultId(dynamicOptions.defaultId);
-  // }, []);
+  const setOptionVar = useCallback(val => {
+    setDynamicOptions({
+      ...dynamicOptions,
+      optionsVar: val,
+      idKey: null,
+      labelKey: null
+    });
+  }, [dynamicOptions, setDynamicOptions]);
 
-  // signal that state has changed
-  useEffect(() => {
-    const dynamicState = {
-      defaultId,
-      optionsVar: optionListVariableKey,
-      optionsValue: optionValueSelector,
-      optionsLabel: optionLabelSelector
-    };
-    setDynamicOptions(dynamicState);
-  }, stateFields);
+  if (!isInitialized) return null;
+
+  const optionsVarList = Object.keys(optionVariableMap);
+  const isPopulated = list => list && Array.isArray(list) && list.length;
 
   return <>
     <Select
       label="Options List Variable"
-      value={optionListVariableKey}
+      placeholder="Pick a variable"
+      value={isPopulated(optionsVarList) && optionsVar}
       required
-      onChange={setOptionListVariableKey}
-      data={Object.keys(optionVariableMap)}
+      onChange={setOptionVar}
+      data={optionsVarList}
     />
     <Select
       label="Options ID Key"
-      value={optionValueSelector}
+      placeholder="Pick a property key"
+      value={isPopulated(valueSelectorList) && idKey}
       required
-      onChange={setOptionValueSelector}
+      onChange={val => setState("idKey", val)}
       data={valueSelectorList}
     />
     <Select
       label="Options Label Key"
-      value={optionLabelSelector}
-      onChange={setOptionLabelSelector}
+      placeholder="Pick a property key"
+      clearable
+      value={isPopulated(valueSelectorList) && labelKey}
+      onChange={val => setState("labelKey", val)}
       data={valueSelectorList}
     />
     <Select
       label="Default ID Variable"
-      value={defaultId}
-      onChange={setDefaultId}
+      placeholder="Pick a variable"
+      clearable
+      value={isPopulated(defaultVariableList) && defaultVar}
+      onChange={val => setState("defaultVar", val)}
       data={defaultVariableList}
     />
   </>;
