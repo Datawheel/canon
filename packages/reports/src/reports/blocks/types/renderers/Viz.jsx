@@ -1,6 +1,5 @@
 /* react */
 import React, {useMemo} from "react";
-import {useSelector} from "react-redux";
 import {Badge, Center} from "@mantine/core";
 
 /* utils */
@@ -24,6 +23,7 @@ import useAppContext from "../../../hooks/context/useAppContext";
 
 // User must define custom sections in app/reports/sections, and export them from an index.js in that folder.
 import * as CustomVizzes from "CustomVizzes";
+import {useFormatters} from "../../../hooks/blocks/selectors";
 
 const vizTypes = {Table, Graphic, HTML, ...d3plus, ...CustomVizzes};
 
@@ -36,7 +36,7 @@ export default function Viz({block, active, locale, variables, debug, configOver
 
   const context = useAppContext();
 
-  const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
+  const formatterFunctions = useFormatters(locale);
 
   // todo1.0 - There is a ton of missing functionality here. updateSources, getChildContext, various context interactions.
   // This will all need to be brought in, to play nice with legacy context.
@@ -45,8 +45,8 @@ export default function Viz({block, active, locale, variables, debug, configOver
     if (!active) return {error: "Activate to View"};
     if (!block?.content?.logic) return {error: "Add a Configuration"};
     // todo1.0 fix all these arguments!
-    const transpiledLogic = varSwapRecursive({logic: block.content.logic}, {}, variables, {}).logic;
-    return d3plusPropify(transpiledLogic, {}, variables, locale, block.id, {});
+    const transpiledLogic = varSwapRecursive({logic: block.content.logic}, formatterFunctions, variables, {}).logic;
+    return d3plusPropify(transpiledLogic, formatterFunctions, variables, locale, block.id, {});
   }, [block, active]);
 
   // todo1.0 - these vizSettings should be used to implement tabs, mini, options, etc on the front end

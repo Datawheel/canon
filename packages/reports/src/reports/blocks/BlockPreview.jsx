@@ -8,7 +8,7 @@ import varSwapRecursive from "../../utils/variables/varSwapRecursive";
 import spoiler from "../../utils/blocks/spoiler";
 import {getBlockContent} from "../../utils/blocks/getBlockContent";
 import mortarEval from "../../utils/variables/mortarEval";
-import {useBlock} from "../hooks/blocks/selectors";
+import {useBlock, useFormatters} from "../hooks/blocks/selectors";
 import {useVariables} from "../hooks/blocks/useVariables";
 
 /** type-specific render components */
@@ -41,7 +41,7 @@ function BlockPreview(props) {
   const blockContent = blockStateContent || getBlockContent(block, locale);
 
   /* redux */
-  const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
+  const formatterFunctions = useFormatters(locale);
 
   /**
    * todo1.0 this is a pretty gnarly statement, which needs to be thought about. Block types have some things in common:
@@ -76,16 +76,16 @@ function BlockPreview(props) {
     if (PreviewAdapters[block.type] && typeof PreviewAdapters[block.type] === "function") {
 
       /** @type {import("./types/PreviewAdapters").BlockPreviewAdapterParams} */
-      const adapterParams = {active, block, blockContent, debug, locale, variables};
+      const adapterParams = {active, block, blockContent, debug, locale, variables, formatterFunctions};
       payload = PreviewAdapters[block.type](adapterParams);
     }
     // if no such adapter exists, fallback to default where blockState logic is evaluated
     else {
-      const {vars, error, log} = mortarEval("variables", variables, blockContent?.logic, formatterFunctions[locale], locale);
+      const {vars, error, log} = mortarEval("variables", variables, blockContent?.logic, formatterFunctions, locale);
       // if Block is active...
       payload.content = active
         // swap out variables with block's available input variables
-        ? varSwapRecursive(vars, formatterFunctions[locale], variables)
+        ? varSwapRecursive(vars, formatterFunctions, variables)
         // else, put spoiler marks on dynamic variables
         : spoiler(vars);
       payload.log = log ? log.join("\n") : "";
