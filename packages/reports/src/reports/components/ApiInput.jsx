@@ -10,7 +10,7 @@ import useKeyPress from "../hooks/listeners/useKeyPress";
 
 /* utils */
 import varSwap from "../../utils/variables/varSwap";
-import {getBlockContent} from "../../utils/blocks/getBlockContent";
+import {BLOCK_TYPES} from "../../utils/consts/cms";
 import {useVariables} from "../hooks/blocks/useVariables";
 
 /** type-specific methods for deriving data needed for rendering from current Block state */
@@ -18,7 +18,7 @@ import PreviewAdapters from "../blocks/types/PreviewAdapters";
 import {useBlock, useFormatters} from "../hooks/blocks/selectors";
 
 /** */
-function ApiInput({blockStateContent, defaultValue, id, locale, onChange, onEnterPress}) {
+function ApiInput({defaultValue, id, onChange, onEnterPress}) {
 
   const {variables} = useVariables(id);
   const formatterFunctions = useFormatters();
@@ -37,21 +37,13 @@ function ApiInput({blockStateContent, defaultValue, id, locale, onChange, onEnte
 
   const block = useBlock(id);
 
-  /**
-   * The block content data to use for rendering.
-   * If no "blockStateContent" prop is given, defaults to the redux store value of block.
-   * Use the "blockStateContent" prop to provide override values if you want to show a
-   * live preview of unsaved changes.
-   */
-  const blockContent = blockStateContent || getBlockContent(block, locale);
-
   const {duration} = useMemo(() => {
 
     /** @type {import("./types/PreviewAdapters").BlockPreviewAdapterParams} */
-    const adapterParams = {active: true, block, blockContent, debug: true, locale, variables};
-    return PreviewAdapters[block.type](adapterParams);
+    const adapterParams = {active: true, block};
+    return PreviewAdapters[BLOCK_TYPES.GENERATOR](adapterParams);
 
-  }, [block, blockContent]);
+  }, [block]);
 
   return (
     <Group noWrap position="apart" spacing="xs">

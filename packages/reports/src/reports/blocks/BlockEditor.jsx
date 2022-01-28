@@ -97,10 +97,8 @@ function BlockEditor({
         { blockType === BLOCK_TYPES.GENERATOR && <div>
           <Divider label="API Data (resp)" labelPosition="center" />
           <ApiInput
-            blockStateContent={blockContent}
             defaultValue={blockContent?.api}
             id={id}
-            locale={locale}
             onChange={onChangeAPI}
             onEnterPress={() => onSave(true)}
           />
