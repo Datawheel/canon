@@ -3,6 +3,7 @@ import React, {useEffect, useState, useCallback} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import yn from "yn";
 import {MantineProvider} from "@mantine/core";
+import {NotificationsProvider} from "@mantine/notifications";
 
 /* components */
 import Loading from "$app/components/Loading";
@@ -32,6 +33,7 @@ function ReportBuilder({router}) {
   const auth = useSelector(state => state.auth);
   const env = useSelector(state => state.env);
   const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
+  // todo1.0 bundle these into a "useAppReady" hook
   const isEnabled = useSelector(state => state.data.isEnabled);
   const minRole = useSelector(state => state.data.minRole);
   const pathObj = useSelector(state => state.cms.status.pathObj);
@@ -109,12 +111,14 @@ function ReportBuilder({router}) {
 
   return (
     <MantineProvider>
-      <ConfirmationDialogProvider>
-        {pathObj.report && currentReport
-          ? <ReportEditor id={Number(pathObj.report)}/>
-          : <ReportPicker />
-        }
-      </ConfirmationDialogProvider>
+      <NotificationsProvider position="bottom-center">
+        <ConfirmationDialogProvider>
+          {pathObj.report && currentReport
+            ? <ReportEditor id={Number(pathObj.report)}/>
+            : <ReportPicker />
+          }
+        </ConfirmationDialogProvider>
+      </NotificationsProvider>
     </MantineProvider>
   );
 

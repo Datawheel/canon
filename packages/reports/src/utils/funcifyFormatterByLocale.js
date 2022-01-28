@@ -5,10 +5,10 @@ const libs = require("./libs");
  * formatters4eval and FUNC.parse to turn them into "Real Functions." Client-side,
  * we need to create a lookup object so that different CMS cards in different languages
  * can view the different results of passing a different locale into the formatter
- * This function creates a single "instance" of formatters for a given locale, 
+ * This function creates a single "instance" of formatters for a given locale,
  * which can be added to that lookup object, keyed by its locale.
  */
-const funcifyFormatterByLocale = (formatters, locale) => 
+const funcifyFormatterByLocale = (formatters, locale) =>
   formatters.reduce((acc, d) => {
     let f;
     try {

@@ -2,6 +2,7 @@
 import React, {useState, useEffect, useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {ActionIcon, Badge, Center, Overlay, useMantineTheme} from "@mantine/core";
+import {useNotifications} from "@mantine/notifications";
 import {HiPlusCircle} from "react-icons/hi";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 
@@ -29,10 +30,12 @@ import {setStatus} from "../../actions/status";
 function Section({id, isDragging, dragHandleProps}) {
 
   const dispatch = useDispatch();
+  const notifications = useNotifications();
 
   /* redux */
   const section = useSelector(state => state.cms.reports.entities.sections[id]);
   const blocks = useSelector(state => state.cms.reports.entities.blocks);
+  const active = useSelector(state => state.cms.status?.activeSection === id);
 
   const [hoverBlock, setHoverBlock] = useState();
 
@@ -47,8 +50,6 @@ function Section({id, isDragging, dragHandleProps}) {
     }
   }, [hoverBlock]);
 
-  const [active, setActive] = useState(false);
-
   const addBlock = (blockcol, type) => {
     const payload = {
       blockcol,
@@ -61,8 +62,11 @@ function Section({id, isDragging, dragHandleProps}) {
   const onActivate = () => {
     dispatch(activateSection(id)).then(resp => {
       if (resp.status === REQUEST_STATUS.SUCCESS) {
-        dispatch(setStatus({activeSection: id}));
-        setActive(true);
+        notifications.showNotification({
+          title: "Success!",
+          message: "Section Activated",
+          color: "green"
+        });
       }
       else {
         // todo1.0 toast error

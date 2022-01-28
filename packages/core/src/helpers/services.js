@@ -28,13 +28,17 @@ const serviceJavaScript = {
         })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');`
 };
 
+const serviceHeadTag = {
+  GOOGLE_OPTIMIZE: id => `<script src="https://www.googleoptimize.com/optimize.js?id=${id}"></script>`
+}
+
 const serviceHTML = {
   GOOGLE_TAG_MANAGER: id => `<noscript>
       <iframe src="https://www.googletagmanager.com/ns.html?id=${id}" height="0" width="0" style="display:none;visibility:hidden"></iframe>
     </noscript>`
 };
 
-const servicesAvailable = Object.keys(serviceJavaScript).filter(s => process.env[`CANON_${s}`] !== undefined);
+const servicesAvailable = Object.keys(serviceJavaScript).filter(s => [undefined, ''].indexOf(process.env[`CANON_${s}`]) === -1);
 
 const servicesScript = servicesAvailable
   .map(s => `
@@ -51,4 +55,14 @@ const servicesBody = servicesAvailable
     <!-- End ${titleCase(s.replace(/\_/g, " "))} -->
   `).join("\n");
 
-export {servicesAvailable, servicesBody, servicesScript};
+// Services that needs a JS tags scripts
+const servicesHeadTagsAvailable = Object.keys(serviceHeadTag).filter(s => [undefined, ''].indexOf(process.env[`CANON_${s}`]) === -1);
+
+const servicesHeadTags = servicesHeadTagsAvailable
+  .map(s => `
+    <!-- ${titleCase(s.replace(/\_/g, " "))} -->
+    ${serviceHeadTag[s](process.env[`CANON_${s}`])}
+    <!-- End ${titleCase(s.replace(/\_/g, " "))} -->
+  `).join("\n");
+
+export {servicesAvailable, servicesBody, servicesScript, servicesHeadTags};

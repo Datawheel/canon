@@ -12,16 +12,18 @@ import useKeyPress from "../hooks/listeners/useKeyPress";
 import varSwap from "../../utils/variables/varSwap";
 import {getBlockContent} from "../../utils/blocks/getBlockContent";
 import {useVariables} from "../hooks/blocks/useVariables";
-import {useBlock} from "../hooks/blocks/selectors";
 
 /** type-specific methods for deriving data needed for rendering from current Block state */
 import PreviewAdapters from "../blocks/types/PreviewAdapters";
+import {useBlock, useFormatters} from "../hooks/blocks/selectors";
 
 /** */
 function ApiInput({blockStateContent, defaultValue, id, locale, onChange, onEnterPress}) {
 
   const {variables} = useVariables(id);
-  const [preview, setPreview] = useState(() => varSwap(defaultValue, {}, variables));
+  const formatterFunctions = useFormatters();
+
+  const [preview, setPreview] = useState(() => varSwap(defaultValue, formatterFunctions, variables));
   const [editing, setEditing] = useState(false);
 
   const apiRef = useRef();
@@ -29,8 +31,7 @@ function ApiInput({blockStateContent, defaultValue, id, locale, onChange, onEnte
   if (document.activeElement === apiRef.current && enterPress) onEnterPress();
 
   const onChangeLocal = e => {
-    // todo1.0 put formatters in here
-    setPreview(varSwap(e.target.value, {}, variables));
+    setPreview(varSwap(e.target.value, formatterFunctions, variables));
     onChange(e.target.value);
   };
 
