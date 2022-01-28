@@ -13,7 +13,7 @@ import {initialState as appInitialState} from "$app/store";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 import pretty from "pretty";
 import maybeRedirect from "./helpers/maybeRedirect";
-import {servicesAvailable, servicesBody, servicesScript, servicesHeadTags} from "./helpers/services";
+import {servicesAvailable, servicesBody, servicesScript} from "./helpers/services";
 import yn from "yn";
 
 import CanonProvider from "./CanonProvider";
@@ -202,8 +202,6 @@ export default function (defaultStore = appInitialState, headerConfig, reduxMidd
   <head>
 
     ${baseTag}
-
-    ${servicesHeadTags}
 
     ${pretty(header.title.toString()).replace(/\n/g, "\n    ")}
 

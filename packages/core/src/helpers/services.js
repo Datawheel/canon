@@ -19,18 +19,19 @@ const serviceJavaScript = {
         ${id.split(",").map((key, i) => `ga('create', '${key}', 'auto', 'tracker${i + 1}');`).join("\n      ")}
         ${id.split(",").map((key, i) => `ga('tracker${i + 1}.send', 'pageview');`).join("\n      ")}`,
   HOTJAR: id => `(function(h,o,t,j,a,r){
-          h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-          h._hjSettings={hjid:${id},hjsv:6};
-          a=o.getElementsByTagName('head')[0];
-          r=o.createElement('script');r.async=1;
-          r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-          a.appendChild(r);
-        })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');`
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:${id},hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+        })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');`,
+  GOOGLE_OPTIMIZE: id => `(function(w,d, optimizeId){
+        var script = d.createElement('script');
+        script.src = "https://www.googleoptimize.com/optimize.js?id="+optimizeId;
+        d.head.prepend(script);
+      })(window, document, "${id}")`
 };
-
-const serviceHeadTag = {
-  GOOGLE_OPTIMIZE: id => `<script src="https://www.googleoptimize.com/optimize.js?id=${id}"></script>`
-}
 
 const serviceHTML = {
   GOOGLE_TAG_MANAGER: id => `<noscript>
@@ -55,14 +56,4 @@ const servicesBody = servicesAvailable
     <!-- End ${titleCase(s.replace(/\_/g, " "))} -->
   `).join("\n");
 
-// Services that needs a JS tags scripts
-const servicesHeadTagsAvailable = Object.keys(serviceHeadTag).filter(s => [undefined, ''].indexOf(process.env[`CANON_${s}`]) === -1);
-
-const servicesHeadTags = servicesHeadTagsAvailable
-  .map(s => `
-    <!-- ${titleCase(s.replace(/\_/g, " "))} -->
-    ${serviceHeadTag[s](process.env[`CANON_${s}`])}
-    <!-- End ${titleCase(s.replace(/\_/g, " "))} -->
-  `).join("\n");
-
-export {servicesAvailable, servicesBody, servicesScript, servicesHeadTags};
+export {servicesAvailable, servicesBody, servicesScript};

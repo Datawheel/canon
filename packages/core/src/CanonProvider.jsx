@@ -38,7 +38,7 @@ class CanonProvider extends Component {
        *
        * Minor modifications by Chris Price to only polyfill when required.
        */
-      (function(SVGElement) {
+      (function (SVGElement) {
 
         if (!SVGElement || "innerHTML" in SVGElement.prototype) {
           return;
@@ -107,7 +107,7 @@ class CanonProvider extends Component {
               const dXML = new DOMParser();
               dXML.async = false;
               // Wrap the markup into a SVG node to ensure parsing works.
-              const sXML = `<svg xmlns='http://www.w3.org/2000/svg'>${  markupText  }</svg>`;
+              const sXML = `<svg xmlns='http://www.w3.org/2000/svg'>${markupText}</svg>`;
               const svgDocElement = dXML.parseFromString(sXML, "text/xml").documentElement;
 
               // Now take each node, import it and append to this element.
@@ -136,7 +136,7 @@ class CanonProvider extends Component {
 
   onClick(e) {
 
-    if (typeof window.ga === "function") {
+    if (typeof window.ga === "function" && typeof window.ga.getAll === "function") {
 
       const clickEl = e.target;
 
@@ -227,16 +227,16 @@ class CanonProvider extends Component {
         meta={helmet.meta}
         link={helmet.link}
       />
-      { loading ? <Loading /> : <div>{ children }</div> }
+      {loading ? <Loading /> : <div>{children}</div>}
       <Portal>
         <Toaster ref={this.toastRef} />
       </Portal>
-      { gdpr ? <div id="cookies-eu-banner" style={{display: "none"}}>
+      {gdpr ? <div id="cookies-eu-banner" style={{display: "none"}}>
         <span id="cookies-eu-desc">{t("GDPR.desc", {services})}</span>
-        { privacy ? <a href={privacy} id="cookies-eu-more">{t("GDPR.more")}</a> : null }
+        {privacy ? <a href={privacy} id="cookies-eu-more">{t("GDPR.more")}</a> : null}
         <button id="cookies-eu-reject" className="bp3-button">{t("GDPR.reject")}</button>
         <button id="cookies-eu-accept" className="bp3-button">{t("GDPR.accept")}</button>
-      </div> : null }
+      </div> : null}
     </div>;
   }
 }
