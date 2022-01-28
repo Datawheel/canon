@@ -59,8 +59,9 @@ function ConsoleVariable({dimmed, label, root = true, value}) {
       lineClamp={1}
       size="xs"
       style={{
-        overflow: "initial",
-        wordBreak: "keep-all"
+        overflow: "visible",
+        wordBreak: "keep-all",
+        whiteSpace: "nowrap"
       }}
       weight={700}
     >
