@@ -1,11 +1,13 @@
 /* react */
 import React, {useMemo, useState} from "react";
-import {useSelector} from "react-redux";
 import {Col, Divider, Grid, Tabs} from "@mantine/core";
 import {HiOutlineEye, HiOutlineCog} from "react-icons/hi";
 
 /* consts */
 import {BLOCK_TYPES} from "../../utils/consts/cms";
+
+/* hooks */
+import {useBlock} from "../hooks/blocks/selectors";
 
 /* components */
 import ApiInput from "../components/ApiInput";
@@ -77,9 +79,8 @@ function BlockEditor({
 
   const components = {blockPreview, codeEditor, executeButton, uiEditor};
 
-  const blocks = useSelector(state => state.cms.reports.entities.blocks);
-  const block = blocks[id];
-  const response = useMemo(() => block._status && block._status.response ? block._status.response : false, [blocks]);
+  const block = useBlock(id);
+  const response = useMemo(() => block._status && block._status.response ? block._status.response : false, [block]);
 
   return (
     <Grid style={{height: "60vh"}}>
