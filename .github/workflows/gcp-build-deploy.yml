@@ -94,7 +94,7 @@ jobs:
             --set-env-vars=CANON_CONST_STORAGE_BUCKET=${{ env.CANON_CONST_STORAGE_BUCKET }} \
             --set-env-vars=CANON_LOGICLAYER_CUBE=${{ env.CANON_LOGICLAYER_CUBE }} \
             --set-env-vars=FLICKR_API_KEY=${{ env.FLICKR_API_KEY }} \
-            --add-cloudsql-instances=${{ env.GCP_PSQL_CONNECTION_NAME }}
+            --add-cloudsql-instances=${{ env.GCP_PSQL_CONNECTION_NAME }} \
             --port=3300 \
             --region=us-central1 \
             --min-instances=0 \
