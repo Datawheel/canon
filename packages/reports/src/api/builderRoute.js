@@ -2,7 +2,8 @@ const sequelize = require("sequelize"),
       Op = sequelize.Op, // eslint-disable-line
       yn = require("yn");
 
-const {searchIngest} = require("../utils/searchIngest");
+const {searchIngest} = require("../utils/search/searchIngest");
+const {generateAttributesFromSlugs} = require("../utils/search/searchHelpers");
 const {reportReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables, blockReqFull} = require("../utils/sequelize/ormHelpers");
 const {translateReport, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
 const {REPORT_FIELDS} = require("../utils/consts/cms");
@@ -10,6 +11,9 @@ const {REQUEST_STATUS} = require("../utils/consts/redux");
 const runConsumers = require("../utils/blocks/runConsumers");
 const formatters4eval = require("../utils/formatters4eval");
 const getLocales = require("../utils/canon/getLocales");
+const sorter = require("../utils/js/sorter");
+const contentReducer = require("../utils/blocks/contentReducer");
+
 
 let formatterFunctionsByLocale = null;
 
@@ -30,8 +34,6 @@ const catcher = e => {
   }
   return [];
 };
-
-const sorter = (a, b) => a.ordering - b.ordering;
 
 /**
  * Due to yet-unreproducible edge cases, sometimes elements lose their ordering.
@@ -123,28 +125,6 @@ module.exports = function(app) {
   };
 
   /* ACTIVATION */
-
-  const generateAttributesFromSlugs = async(slugs, locale) => {
-    if (!slugs) return {};
-    const orderedSlugs = slugs.split(",");
-    return await db.search
-      .findAll({where: {slug: orderedSlugs}, include: {association: "contentByLocale"}})
-      .then(arr => arr
-        .map(d => ({
-          ...d.toJSON(),
-          contentByLocale: d.contentByLocale.reduce(contentReducer, {})
-        }))
-        .map((d, i) => ({
-          [`id${i + 1}`]: d.id,
-          [`slug${i + 1}`]: d.slug,
-          [`namespace${i + 1}`]: d.namespace,
-          [`name${i + 1}`]: d.contentByLocale[locale].name,
-          ...Object.keys(d.properties).reduce((acc, k) => ({...acc, [`${k}${i + 1}`]: d.properties[k]}), {})
-        }))
-        .sort((a, b) => orderedSlugs.indexOf(a.slug) - orderedSlugs.indexOf(b.slug))
-        .reduce((acc, d) => ({...acc, ...d}), {}))
-      .catch(() => {}); // todo1.0 errors man
-  };
 
   const activate = async(req, sid, attributes, bid) => {
 
@@ -456,7 +436,7 @@ module.exports = function(app) {
 
   const getReportTreeAndActivate = async(req, sid) => {
     const locale = req.query.locale ? req.query.locale : localeDefault;
-    const attributes = await generateAttributesFromSlugs(req.query.slugs, locale);
+    const attributes = await generateAttributesFromSlugs(db, req.query.slugs, locale);
     let reports = await db.report.findAll(reportReqFull).catch(catcher);
     reports = reports.map(p => p.toJSON());
     reports = flatSort(db.report, reports);

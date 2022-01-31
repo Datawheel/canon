@@ -7,6 +7,7 @@ const PromiseThrottle = require("promise-throttle"),
       prepareProfile = require("../utils/prepareProfile"),
       prepareStory = require("../utils/prepareStory"),
       sequelize = require("sequelize"),
+      sorter = require("../utils/js/sorter"),
       urlSwap = require("../utils/urlSwap"),
       varSwapRecursive = require("../utils/varSwapRecursive"),
       yn = require("yn");
@@ -35,8 +36,6 @@ const throttle = new PromiseThrottle({
   requestsPerSecond: REQUESTS_PER_SECOND,
   promiseImplementation: Promise
 });
-
-const sorter = (a, b) => a.ordering - b.ordering;
 
 module.exports = function(app) {
 
