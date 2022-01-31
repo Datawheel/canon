@@ -50,9 +50,6 @@ const OPTION_TYPE = {
 /** Function to determine whether a variable could be used as a list of Selector options */
 const isValidSelectorOptionsArray = variable => variable && Array.isArray(variable) && variable.length > 0;
 
-/** Function to determine whether a variable could be used as a Selector's default value ID */
-const isValidDefaultVariable = variable => variable && !Array.isArray(variable);
-
 const isPrimitiveTypeVariable = variable => isValidSelectorOptionsArray(variable) && ["string"].includes(typeof variable[0]); 
 
 /**
@@ -325,9 +322,7 @@ function DynamicSelectorOptionsEditor({id, dynamicOptions, setDynamicOptions}) {
     setOptionVariableMap(validVariableMap);
 
     // get and set all possible variables that can be used to get the default Selector value ID
-    const validDefaultIdList = Object.entries(variables)
-      .filter(([key, val]) => isValidDefaultVariable(val))
-      .map(([key, val]) => key);
+    const validDefaultIdList = Object.keys(variables);
 
     setDefaultVariableList(validDefaultIdList);
     setIsInitialized(true);
