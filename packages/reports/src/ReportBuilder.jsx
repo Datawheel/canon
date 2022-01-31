@@ -52,9 +52,8 @@ function ReportBuilder({router}) {
   useEffect(() => {
     loadReports();
     // Retrieve the langs from canon vars, use it to build the second language select dropdown.
-    const localeDefault = env.CANON_LANGUAGE_DEFAULT || "en";
+    const {localeDefault, locales} = getLocales(env);
     const localeCurrent = localeDefault;
-    const locales = getLocales(env);
     const localeSecondary = null;
     const {report, section, previews, ...query} = router.location.query;
     const pathObj = {report, section, previews: previews ? previews.split(",") : []};

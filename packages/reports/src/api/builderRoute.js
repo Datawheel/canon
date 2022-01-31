@@ -152,7 +152,7 @@ module.exports = function(app) {
 
     if (!formatterFunctionsByLocale) {
       const formatters = await db.formatter.findAll().catch(() => []);
-      const locales = getLocales(process.env);
+      const {locales} = getLocales(process.env);
       formatterFunctionsByLocale = locales.reduce((acc, locale) => ({...acc, [locale]: formatters4eval(formatters, locale)}), {});
     }
 
