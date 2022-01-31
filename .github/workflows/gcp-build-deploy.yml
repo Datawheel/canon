@@ -84,6 +84,7 @@ jobs:
             --set-env-vars=CANON_API=${{ env.CANON_API }} \
             --set-env-vars=CANON_REPORTS_CUBES=${{ env.CANON_REPORTS_CUBES }} \
             --set-env-vars=CANON_REPORTS_DB=${{ env.CANON_REPORTS_DB }} \
+            --set-env-vars=CANON_CMS_DB=${{ env.CANON_REPORTS_DB }} \
             --set-env-vars=CANON_CONST_STORAGE_BUCKET=${{ env.CANON_CONST_STORAGE_BUCKET }} \
             --set-env-vars=CANON_LOGICLAYER_CUBE=${{ env.CANON_LOGICLAYER_CUBE }} \
             --set-env-vars=FLICKR_API_KEY=${{ env.FLICKR_API_KEY }} \
