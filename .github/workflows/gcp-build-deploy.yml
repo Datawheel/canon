@@ -1,0 +1,94 @@
+name: "[gcp] build and deploy to google cloud"
+
+# trigger the workflow when a push is made on the develop branch
+on:
+  push:
+    # only trigger a new build when a commit is pushed to master
+    branches:
+      - cms-1.0-develop
+
+# environment variables used on the respective workflow
+env:
+  # docker variables
+  IMAGE_NAME: canon-reports-playground
+  # node variables
+  NODE_ENV: development
+  # canon env variables
+  CANON_LANGUAGES: "en,es"
+  CANON_LANGUAGE_DEFAULT: "en"
+  CANON_LOGINS: false
+  CANON_LOGREDUX: false
+  CANON_REPORTS_LOGGING: true
+  CANON_SESSION_TIMEOUT: 57600000000000
+  # canon env secrets
+  CANON_API: ${{ secrets.CANON_API }}
+  CANON_CMS_CUBES: ${{ secrets.CANON_CMS_CUBES }}
+  CANON_CMS_DB: ${{ secrets.CANON_CMS_DB }}
+  CANON_CONST_STORAGE_BUCKET: ${{ secrets.CANON_CONST_STORAGE_BUCKET }}
+  CANON_LOGICLAYER_CUBE: ${{ secrets.CANON_LOGICLAYER_CUBE }}
+  FLICKR_API_KEY: ${{ secrets.FLICKR_API_KEY }}
+  # google cloud platform credentials
+  GCP_ARTIFACT_REGISTRY_REPO_NAME: ${{ secrets.GCP_ARTIFACT_REGISTRY_REPO_NAME }}
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+
+jobs:
+  # builds the new docker image via google cloud build
+  build:
+    name: Build Docker Image via Cloud Build
+    runs-on: ubuntu-latest
+    # environment: develop_environment
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v2
+
+      - name: Set up GCloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ env.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Build Docker Image
+        run: |-
+          gcloud builds submit \
+            --quiet \
+            --timeout=20m \
+            --tag us-central1-docker.pkg.dev/$GCP_PROJECT_ID/$GCP_ARTIFACT_REGISTRY_REPO_NAME/$IMAGE_NAME:latest-dev
+
+  # deploys the recently created docker image via google cloud build
+  deploy:
+    needs: build
+    name: Deploy Docker Image to Cloud Run
+    runs-on: ubuntu-latest
+    # environment: develop_environment
+    steps:
+      - name: Set up GCloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ env.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Deploy Image to Cloud Run
+        run: |-
+          gcloud run deploy ${{ env.IMAGE_NAME }} \
+            --image=us-central1-docker.pkg.dev/${{env.GCP_PROJECT_ID}}/${{env.GCP_ARTIFACT_REGISTRY_REPO_NAME}}/${{env.IMAGE_NAME}}:latest-dev \
+            --set-env-vars=NODE_ENV=${{ env.NODE_ENV }} \
+            --set-env-vars=CANON_LANGUAGES=${{ env.CANON_LANGUAGES }} \
+            --set-env-vars=CANON_LANGUAGE_DEFAULT=${{ env.CANON_LANGUAGE_DEFAULT }} \
+            --set-env-vars=CANON_LOGINS=${{ env.CANON_LOGINS }} \
+            --set-env-vars=CANON_LOGREDUX=${{ env.CANON_LOGREDUX }} \
+            --set-env-vars=CANON_REPORTS_LOGGING=${{ env.CANON_REPORTS_LOGGING }} \
+            --set-env-vars=CANON_SESSION_TIMEOUT=${{ env.CANON_SESSION_TIMEOUT }} \
+            --set-env-vars=CANON_API=${{ env.CANON_API }} \
+            --set-env-vars=CANON_CMS_CUBES=${{ env.CANON_CMS_CUBES }} \
+            --set-env-vars=CANON_CMS_DB=${{ env.CANON_CMS_DB }} \
+            --set-env-vars=CANON_CONST_STORAGE_BUCKET=${{ env.CANON_CONST_STORAGE_BUCKET }} \
+            --set-env-vars=CANON_LOGICLAYER_CUBE=${{ env.CANON_LOGICLAYER_CUBE }} \
+            --set-env-vars=FLICKR_API_KEY=${{ env.FLICKR_API_KEY }} \
+            --port=3300 \
+            --region=us-central1 \
+            --min-instances=0 \
+            --max-instances=1 \
+            --allow-unauthenticated
