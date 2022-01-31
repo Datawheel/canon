@@ -19,6 +19,7 @@ import {stringifyObject} from "../../../utils/js/stringifyObject";
  * @property {string} idKey - property name of data objects in optionsVar list to be used as options' identifier
  * @property {string} labelKey - property name of data objects in optionsVar list to be used as options' human readable label
  * @property {string} defaultVar - variable name of variable that specifies the ID of the option that should be selected
+ * @property {boolean} isPrimitiveType - flag telling whether or not the variable contains primitive elements (not objects)
  * by default in a selector
  */
 
@@ -47,10 +48,12 @@ const OPTION_TYPE = {
 // HELPER FUNCTIONS
 
 /** Function to determine whether a variable could be used as a list of Selector options */
-const isValidSelectorOptionsArray = variable => variable && Array.isArray(variable);
+const isValidSelectorOptionsArray = variable => variable && Array.isArray(variable) && variable.length > 0;
 
 /** Function to determine whether a variable could be used as a Selector's default value ID */
 const isValidDefaultVariable = variable => variable && !Array.isArray(variable);
+
+const isPrimitiveTypeVariable = variable => isValidSelectorOptionsArray(variable) && ["string"].includes(typeof variable[0]); 
 
 /**
  * Determines whether the current state of the UI is a valid selector config
@@ -58,10 +61,13 @@ const isValidDefaultVariable = variable => variable && !Array.isArray(variable);
  */
 const isValidSelectorState = simpleState => {
   const {name, type, optionsType, options} = simpleState;
-  const allPropertiesPresent = [name, type, optionsType, options].every(Boolean);
-
-  // TODO - add validation of options based on optionsType
-  return allPropertiesPresent;
+  // check that all required high level properties are present
+  if (![name, type, optionsType, options].every(Boolean)) return false;
+  // make sure static options have at least one option
+  if (optionsType === OPTION_TYPE.STATIC) return options.static?.length > 0 && options.static?.every(o => o.id);
+  // make sure dynamic options of non-primitive type specify idKey
+  if (!options.dynamic?.isPrimitiveType) return !!options.dynamic?.idKey;
+  return true;
 };
 
 
@@ -109,8 +115,6 @@ function SelectorUI(props) {
       };
       let defaultValue, logicOptions;
 
-      console.log("Convert to logic", options); // TODO - remove
-
       // for selectors with statically-defined options...
       if (optionsType === OPTION_TYPE.STATIC) {
         // choose one or more default values based on whether they have been marked as default
@@ -122,10 +126,11 @@ function SelectorUI(props) {
       }
       // for selectors with dynamically-defined options...
       else {
-        const {optionsVar, idKey, labelKey, defaultVar} = options.dynamic;
-        console.log("optionsVar", optionsVar);
+        const {optionsVar, idKey, labelKey, defaultVar, isPrimitiveType} = options.dynamic;
         if (defaultVar) defaultValue = `{{${defaultVar}}}`;
-        logicOptions = `(variables["${optionsVar}"] || []).map(d => ({id: String(d["${idKey}"]), label: d["${labelKey || idKey}"]}))`;
+        logicOptions = isPrimitiveType
+          ? `variables["${optionsVar}"]`
+          : `(variables["${optionsVar}"] || []).map(d => ({id: String(d["${idKey}"]), label: d["${labelKey || idKey}"]}))`;
       }
 
       if (defaultValue) logicObj.defaultValue = defaultValue;
@@ -133,7 +138,6 @@ function SelectorUI(props) {
 
       // const logic = `return ${JSON.stringify(logicObj, null, "\t")};`;
       const logic = `return ${stringifyObject(logicObj)};`;
-      console.log("DEV logic", logic);
 
       // derive object for saving form state
       const simpleState = {
@@ -143,7 +147,8 @@ function SelectorUI(props) {
         options
       };
       // todo1.0 - add actual validation function
-      onChange(simpleState, logic, isValidSelectorState(simpleState));
+      const isValid = isValidSelectorState(simpleState);
+      onChange(simpleState, logic, isValid);
     },
     [...stateFields]
   );
@@ -226,7 +231,10 @@ function StaticSelectorOptionsEditor({staticOptions, setStaticOptions}) {
             <tr>
               {["Default", "ID", "Label", ""]
                 .map((label, idx) =>
-                  <td className={idx ? "" : "selector-option-default-col"} key={`heading-${idx}`}>{label}</td>)
+                  <td
+                    className={`${idx === 0 ? "selector-option-default-col" : ""} ${idx === 1 ? "required" : ""}`}
+                    key={`heading-${idx}`}>{label}
+                  </td>)
               }
             </tr>
           }
@@ -289,7 +297,7 @@ function StaticSelectorOptionRow({option, editOption, deleteOption}) {
  */
 function DynamicSelectorOptionsEditor({id, dynamicOptions, setDynamicOptions}) {
 
-  const {optionsVar, idKey, labelKey, defaultVar} = dynamicOptions;
+  const {optionsVar, idKey, labelKey, defaultVar, isPrimitiveType} = dynamicOptions;
 
   // State that will actually be stored in the selector block state
   const {variables} = useVariables(id);
@@ -299,10 +307,6 @@ function DynamicSelectorOptionsEditor({id, dynamicOptions, setDynamicOptions}) {
   const [optionVariableMap, setOptionVariableMap] = useState({});
   const [defaultVariableList, setDefaultVariableList] = useState([]);
   const [valueSelectorList, setValueSelectorList] = useState([]);
-
-  // TODO - handle isDefault Logic better
-
-  console.log("DEV dynamicOptions", dynamicOptions, optionVariableMap);
 
   // populate the select options for choosing variables for the Selector options list and the default ID
   useEffect(() => {
@@ -329,21 +333,34 @@ function DynamicSelectorOptionsEditor({id, dynamicOptions, setDynamicOptions}) {
     setIsInitialized(true);
   }, [variables]);
 
-  // populate option list for the value and label selectors when the variable option list changes
-  useEffect(() => {
-    // get list of all unique keys in variable arrays
-    const keySet = new Set();
-    (optionVariableMap[dynamicOptions.optionsVar] || []).forEach(
-      content => Object.keys(typeof content === "object" ? content : {}).forEach(varProperty => keySet.add(varProperty))
-    );
-    const allPropertyOptions = Array.from(keySet).sort().map(propertyName => propertyName);
-    // set available options for choosing each of the selector's option's value and label
-    setValueSelectorList(allPropertyOptions);
-  }, [optionVariableMap, optionsVar]);
-
   const setState = useCallback((key, val) => {
     setDynamicOptions({...dynamicOptions, [key]: val});
   }, [dynamicOptions]);
+
+  // populate option list for the value and label selectors when the variable option list changes
+  useEffect(() => {
+    if (!Object.keys(optionVariableMap).length) return;
+    // if selected variable contains objects
+    const isPrimitiveType = isPrimitiveTypeVariable(optionVariableMap[optionsVar]);
+
+    if (!isPrimitiveType) {
+      // get list of all unique keys in variable arrays
+      const keySet = new Set();
+      (optionVariableMap[dynamicOptions.optionsVar] || []).forEach(
+        content => Object.keys(typeof content === "object" ? content : {}).forEach(varProperty => keySet.add(varProperty))
+      );
+      const allPropertyOptions = Array.from(keySet).sort().map(propertyName => propertyName);
+      // set available options for choosing each of the selector's option's value and label
+      setValueSelectorList(allPropertyOptions);
+    }
+    // else, set the ID and label fields to null
+    else {
+      setValueSelectorList([]);
+      setState("idKey", null);
+      setState("labelKey", null);
+    }
+    setState("isPrimitiveType", isPrimitiveType);
+  }, [optionVariableMap, optionsVar]);
 
   const setOptionVar = useCallback(val => {
     setDynamicOptions({
@@ -372,13 +389,15 @@ function DynamicSelectorOptionsEditor({id, dynamicOptions, setDynamicOptions}) {
       label="Options ID Key"
       placeholder="Pick a property key"
       value={isPopulated(valueSelectorList) && idKey}
-      required
+      required={!isPrimitiveType}
+      disabled={isPrimitiveType}
       onChange={val => setState("idKey", val)}
       data={valueSelectorList}
     />
     <Select
       label="Options Label Key"
       placeholder="Pick a property key"
+      disabled={isPrimitiveType}
       clearable
       value={isPopulated(valueSelectorList) && labelKey}
       onChange={val => setState("labelKey", val)}

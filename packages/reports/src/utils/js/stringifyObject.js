@@ -21,7 +21,7 @@ export const stringifyObject = (obj, depth = 0) => {
       // recursive check for objects/arrays
       if (typeof val === "object") str += `${stringifyObject(val, depth + 1)}`;
       // detect fat arrow functions and don't wrap with quotation marks
-      else if (typeof val === "string" && val.includes("=>")) str += `${val}`;
+      else if (typeof val === "string" && (val.includes("=>") || val.startsWith("variables["))) str += `${val}`;
       // set all empty strings to a false Boolean
       else if (typeof val === "string" && !val.length) str += "false";
       // skip undefined variables
