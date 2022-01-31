@@ -130,7 +130,7 @@ function SelectorUI(props) {
         if (defaultVar) defaultValue = `{{${defaultVar}}}`;
         logicOptions = isPrimitiveType
           ? `variables["${optionsVar}"]`
-          : `(variables["${optionsVar}"] || []).map(d => ({id: String(d["${idKey}"]), label: d["${labelKey || idKey}"]}))`;
+          : `(variables["${optionsVar}"] || []).map(d => ({id: String(d["${idKey}"]), label: String(d["${labelKey || idKey}"])}))`;
       }
 
       if (defaultValue) logicObj.defaultValue = defaultValue;

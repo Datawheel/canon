@@ -19,3 +19,6 @@ dockerfiles/nginx/conf.d/default.conf
 
 # pm2 ecosystem config
 ecosystem.config.js
+
+# vscode configurations
+.vscode
