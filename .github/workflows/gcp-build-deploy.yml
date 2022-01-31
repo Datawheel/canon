@@ -14,7 +14,7 @@ env:
   # node variables
   NODE_ENV: development
   # canon env variables
-  CANON_LANGUAGES: en,es
+  CANON_LANGUAGES: "[en,es]"
   CANON_LANGUAGE_DEFAULT: "en"
   CANON_LOGINS: false
   CANON_LOGREDUX: false
