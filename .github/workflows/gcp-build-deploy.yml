@@ -14,7 +14,7 @@ env:
   # node variables
   NODE_ENV: development
   # canon env variables
-  CANON_LANGUAGES: "en,es"
+  CANON_LANGUAGES: en,es
   CANON_LANGUAGE_DEFAULT: "en"
   CANON_LOGINS: false
   CANON_LOGREDUX: false
@@ -34,27 +34,27 @@ env:
 
 jobs:
   # builds the new docker image via google cloud build
-  build:
-    name: Build Docker Image via Cloud Build
-    runs-on: ubuntu-latest
-    # environment: develop_environment
-    steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v2
-
-      - name: Set up GCloud SDK
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ env.GCP_SA_KEY }}
-          export_default_credentials: true
-
-      - name: Build Docker Image
-        run: |-
-          gcloud builds submit \
-            --quiet \
-            --timeout=20m \
-            --tag us-central1-docker.pkg.dev/$GCP_PROJECT_ID/$GCP_ARTIFACT_REGISTRY_REPO_NAME/$IMAGE_NAME:latest-dev
+  # build:
+  #   name: Build Docker Image via Cloud Build
+  #   runs-on: ubuntu-latest
+  #   # environment: develop_environment
+  #   steps:
+  #     - name: Checkout Source Code
+  #       uses: actions/checkout@v2
+#
+  #     - name: Set up GCloud SDK
+  #       uses: google-github-actions/setup-gcloud@master
+  #       with:
+  #         project_id: ${{ secrets.GCP_PROJECT_ID }}
+  #         service_account_key: ${{ env.GCP_SA_KEY }}
+  #         export_default_credentials: true
+#
+  #     - name: Build Docker Image
+  #       run: |-
+  #         gcloud builds submit \
+  #           --quiet \
+  #           --timeout=20m \
+  #           --tag us-central1-docker.pkg.dev/$GCP_PROJECT_ID/$GCP_ARTIFACT_REGISTRY_REPO_NAME/$IMAGE_NAME:latest-dev
 
   # deploys the recently created docker image via google cloud build
   deploy:
