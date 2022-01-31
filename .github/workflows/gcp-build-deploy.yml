@@ -23,7 +23,10 @@ env:
   # canon env secrets
   CANON_API: ${{ secrets.CANON_API }}
   CANON_REPORTS_CUBES: ${{ secrets.CANON_REPORTS_CUBES }}
-  CANON_REPORTS_DB: ${{ secrets.CANON_REPORTS_DB }}
+  CANON_DB_USER: ${{ secrets.CANON_DB_USER }}
+  CANON_DB_NAME: ${{ secrets.CANON_DB_NAME }}
+  CANON_DB_PW: ${{ secrets.CANON_DB_PW }}
+  CANON_DB_HOST: ${{ secrets.CANON_DB_HOST }}
   CANON_CONST_STORAGE_BUCKET: ${{ secrets.CANON_CONST_STORAGE_BUCKET }}
   CANON_LOGICLAYER_CUBE: ${{ secrets.CANON_LOGICLAYER_CUBE }}
   FLICKR_API_KEY: ${{ secrets.FLICKR_API_KEY }}
@@ -83,8 +86,10 @@ jobs:
             --set-env-vars=CANON_SESSION_TIMEOUT=${{ env.CANON_SESSION_TIMEOUT }} \
             --set-env-vars=CANON_API=${{ env.CANON_API }} \
             --set-env-vars=CANON_REPORTS_CUBES=${{ env.CANON_REPORTS_CUBES }} \
-            --set-env-vars=CANON_REPORTS_DB=${{ env.CANON_REPORTS_DB }} \
-            --set-env-vars=CANON_CMS_DB=${{ env.CANON_REPORTS_DB }} \
+            --set-env-vars=CANON_DB_USER=${{ env.CANON_DB_USER }} \
+            --set-env-vars=CANON_DB_NAME=${{ env.CANON_DB_NAME }} \
+            --set-env-vars=CANON_DB_PW=${{ env.CANON_DB_PW }} \
+            --set-env-vars=CANON_DB_HOST=${{ env.CANON_DB_HOST }} \
             --set-env-vars=CANON_CONST_STORAGE_BUCKET=${{ env.CANON_CONST_STORAGE_BUCKET }} \
             --set-env-vars=CANON_LOGICLAYER_CUBE=${{ env.CANON_LOGICLAYER_CUBE }} \
             --set-env-vars=FLICKR_API_KEY=${{ env.FLICKR_API_KEY }} \
