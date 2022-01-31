@@ -15,7 +15,7 @@ import {useVariables} from "../hooks/blocks/useVariables";
 import TypeRenderers from "./types/renderers";
 
 /** type-specific methods for deriving data needed for rendering from current Block state */
-import PreviewAdapters from "./types/PreviewAdapters";
+import PreviewAdapters from "./types/previewAdapters";
 
 
 /**
