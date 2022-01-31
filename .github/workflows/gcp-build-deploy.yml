@@ -58,7 +58,7 @@ jobs:
 
   # deploys the recently created docker image via google cloud build
   deploy:
-    needs: build
+    # needs: build
     name: Deploy Docker Image to Cloud Run
     runs-on: ubuntu-latest
     # environment: develop_environment
