@@ -4,6 +4,7 @@ import {parse} from "./FUNC";
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
 
 const frontEndMessage = "Error Rendering Visualization";
+
 const errorStub = {
   data: [],
   dataFormat: d => d,

@@ -66,10 +66,9 @@ const getProxyConfig = (opt = {}) => {
 /**
  * Make a request to the given api endpoint, swapping in all vars for anything between <brackets>, return the result
  */
-const apiFetch = async(req, api, locale, vars) => {
+const apiFetch = async(req, api, locale, formatterFunctions, vars) => {
   const origin = `${ req.protocol }://${ req.headers.host }`;
-  // todo1.0 add formatters here
-  let url = varSwap(api, {}, {...vars, ...canonVars, locale});
+  let url = varSwap(api, formatterFunctions, {...vars, ...canonVars, locale});
   if (url.indexOf("http") !== 0) {
     url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
   }
@@ -121,7 +120,7 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
       }
       else {
         // todo1.0, pass the correct vars here, including canonVars, etc
-        apiResponse = await apiFetch(req, block.content.api, locale, variables).catch(catcher);
+        apiResponse = await apiFetch(req, block.content.api, locale, formatterFunctions, variables).catch(catcher);
         if (!apiCache[block.content.api]) apiCache[block.content.api] = apiResponse;
       }
       setStatus({duration: apiResponse.requestDuration, response: apiResponse.data});
@@ -129,14 +128,14 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
     }
     // If this block is a selector, then it should export *its currently selected option*
     if (block.type === BLOCK_TYPES.SELECTOR) {
-      const {config, log, error} = runSelector(block.contentByLocale[locale].content.logic, variables, locale);
+      const {config, log, error} = runSelector(block.contentByLocale[locale].content.logic, formatterFunctions, variables, locale);
       setStatus({error, log});
       result = selectorQueryToVariable(block.id, req.query.query, config);
     }
     else {
       const logic = block.type === BLOCK_TYPES.GENERATOR ? block.content.logic : block.contentByLocale[locale].content.logic;
       const swappedLogic = varSwap(logic, formatterFunctions, variables);
-      const evalResults = mortarEval("resp", resp, swappedLogic, formatterFunctions, locale, variables); // todo1.0 add formatters here
+      const evalResults = mortarEval("resp", resp, swappedLogic, formatterFunctions, locale, variables);
       const {vars, error, log} = evalResults;
       setStatus({error, log});
       if (typeof vars === "object") {

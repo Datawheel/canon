@@ -1,7 +1,13 @@
 /* react */
-import React, {useState} from "react";
-import {Center, Col, Grid, SegmentedControl, useMantineTheme} from "@mantine/core";
+import React, {useMemo, useState} from "react";
+import {Col, Divider, Grid, Tabs} from "@mantine/core";
 import {HiOutlineEye, HiOutlineCog} from "react-icons/hi";
+
+/* consts */
+import {BLOCK_TYPES} from "../../utils/consts/cms";
+
+/* hooks */
+import {useBlock} from "../hooks/blocks/selectors";
 
 /* components */
 import ApiInput from "../components/ApiInput";
@@ -10,6 +16,7 @@ import BlockOutputPanel from "./BlockOutputPanel";
 import BlockPreview from "./BlockPreview";
 import BlockSettings from "./BlockSettings";
 import InputMenu from "../components/InputMenu";
+import InputMenuItem from "../components/InputMenuItem";
 import SimpleUI from "../editors/SimpleUI";
 import VariableList from "./VariableList";
 
@@ -24,8 +31,7 @@ function BlockEditor({
 }) {
 
   /* HOOKS */
-  const [tab, setTab] = useState("output");
-  const theme = useMantineTheme();
+  const [tab, setTab] = useState(0);
 
   /* CHANGE HANDLERS */
 
@@ -50,14 +56,6 @@ function BlockEditor({
     debug={true}
   />;
 
-  const apiInput = <ApiInput
-    key="api-input"
-    defaultValue={blockContent?.api}
-    id={id}
-    onChange={onChangeAPI}
-    onEnterPress={() => onSave(true)}
-  />;
-
   /** Editor for modifying a block's JS logic directly */
   // The codeEditor is the only editor that changes *based on another editor, i.e, the simpleUI.
   // Therefore it must be controlled, and its state must live here in Block.jsx
@@ -79,61 +77,82 @@ function BlockEditor({
     executeButton={executeButton}
   />;
 
-  const components = {blockPreview, apiInput, codeEditor, blockSettings, executeButton, uiEditor};
+  const components = {blockPreview, codeEditor, executeButton, uiEditor};
 
-  const blockSettings = <BlockSettings
-    id={id}
-    onChange={setBlockSettings}
-  />;
-
-  const blockOutputPanel = <BlockOutputPanel
-    id={id}
-    components={components}
-    mode={currentMode}
-  />;
-
-  const variableList = <VariableList id={id} setInlineId={setInlineId}/>;
-
-  const panels = {blockSettings, blockOutputPanel, variableList};
+  const block = useBlock(id);
+  const response = useMemo(() => block._status && block._status.response ? block._status.response : false, [block]);
 
   return (
     <Grid style={{height: "60vh"}}>
-      <Col span={3} style={{display: "flex", flexDirection: "column"}}>
+      <Col span={3}
+        style={{
+          alignSelf: "stretch",
+          display: "flex",
+          flexDirection: "column",
+          height: "100%"
+        }}
+      >
         <InputMenu id={id}/>
-        {panels.variableList}
+        <VariableList id={id} setInlineId={setInlineId}/>
+        { blockType === BLOCK_TYPES.GENERATOR && <div>
+          <Divider label="API Data (resp)" labelPosition="center" />
+          <ApiInput
+            defaultValue={blockContent?.api}
+            id={id}
+            onChange={onChangeAPI}
+            onEnterPress={() => onSave(true)}
+          />
+          { response && <div
+            style={{
+              maxHeight: 200,
+              overflowY: "scroll"
+            }}
+          >
+            <InputMenuItem variables={response} />
+          </div> }
+        </div>}
       </Col>
       <Col span={9}
         style={{
+          alignSelf: "stretch",
           display: "flex",
-          flexDirection: "column"
+          flexDirection: "column",
+          height: "100%"
         }}
       >
-        <Center>
-          <SegmentedControl
-            value={tab}
-            onChange={setTab}
-            data={[
-              {
-                label: <Center>
-                  <HiOutlineEye />
-                  <div style={{marginLeft: theme.spacing.sm}}>Content</div>
-                </Center>,
-                value: "output"
-              },
-              {
-                label: <Center>
-                  <HiOutlineCog />
-                  <div style={{marginLeft: theme.spacing.sm}}>Settings</div>
-                </Center>,
-                value: "settings"
-              }
-            ]}
-          />
-        </Center>
-        {{
-          output: panels.blockOutputPanel,
-          settings: panels.blockSettings
-        }[tab]}
+        <Tabs
+          active={tab}
+          onTabChange={setTab}
+          position="center"
+          style={{
+            display: "flex",
+            flex: 1,
+            flexDirection: "column",
+            width: "100%"
+          }}
+          styles={{
+            body: {
+              display: "flex",
+              flex: "1 1 100%"
+            }
+          }}
+          variant="pills"
+        >
+          <Tabs.Tab label="Content" icon={<HiOutlineEye />}>
+            <BlockOutputPanel
+              id={id}
+              components={components}
+              mode={currentMode}
+            />
+          </Tabs.Tab>
+          <Tabs.Tab label="Settings" icon={<HiOutlineCog />}>
+            <BlockSettings
+              id={id}
+              setBlockSettings={setBlockSettings}
+              setBlockContent={setBlockContent}
+            />
+          </Tabs.Tab>
+        </Tabs>
       </Col>
     </Grid>
   );

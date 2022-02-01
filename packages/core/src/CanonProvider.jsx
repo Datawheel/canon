@@ -15,6 +15,10 @@ import "./CanonProvider.css";
 // https://martinratinaud.medium.com/use-usecontext-with-legacy-react-context-api-a09fcfc8a541
 export const AppContext = createContext({});
 
+// returns true if an element is either a specific semantic tag or has an id attribute,
+// which determines if the element should send a click event to Google Analytics
+const clickElement = elem => ["nav", "footer"].includes(elem.tagName.toLowerCase()) || elem.id;
+
 /**
 blueprint tooltip IE fix; check that the window exists and that we're in IE first
 related issue: https://github.com/DataScienceSquad/open-compass/issues/247
@@ -135,6 +139,32 @@ class CanonProvider extends PureComponent {
   }
 
   onClick(e) {
+
+    if (typeof window.ga === "function") {
+
+      const clickEl = e.target;
+
+      let eventEl = clickEl;
+      while (eventEl !== document.body && !clickElement(eventEl)) eventEl = eventEl.parentNode;
+
+      if (clickElement(eventEl)) {
+
+        const category = eventEl.id ? `#${eventEl.id}` : eventEl.tagName.toLowerCase();
+        const action = "Click";
+        const label = clickEl.innerText ||
+          clickEl.alt ||
+          clickEl.id ||
+          clickEl.className ||
+          `<${clickEl.tagName.toLowerCase()}>`;
+
+        const trackers = window.ga.getAll().map(t => t.get("name"));
+        trackers
+          .forEach(key => {
+            window.ga(`${key}.send`, "event", category, action, label);
+          });
+      }
+
+    }
 
     // Ignore canceled events, modified clicks, and right clicks.
     if (e.defaultPrevented) return;

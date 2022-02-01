@@ -3,6 +3,7 @@ import React from "react";
 import {BLOCK_MAP, BLOCK_TYPES} from "../../utils/consts/cms";
 import SelectorUI from "./simple/SelectorUI";
 import RichTextEditor from "../editors/RichTextEditor";
+import {useVariables} from "../hooks/blocks/useVariables";
 
 /**
  * Props expected by generalized SimpleUI components.
@@ -39,6 +40,8 @@ const SimpleUI = props => {
 
   const {blockType, executeButton, id, locale, setBlockContent, simpleState} = props;
 
+  const {variables} = useVariables(id);
+
   /** Tailor-made component for editing and composing a specific Block type */
   const CustomUIComponent = CUSTOM_SIMPLE_UI_COMPONENTS[blockType];
 
@@ -59,6 +62,7 @@ const SimpleUI = props => {
     locale={locale}
     defaultContent={simpleState}
     blockType={blockType}
+    variables={variables}
     onChange={setBlockContent}
     onTextModify={() => setBlockContent()}// set modified to be true  but don't update state
   />;

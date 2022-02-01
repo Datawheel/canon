@@ -8,7 +8,7 @@ const catcher = e => {
 };
 
 const getParamsFromStore = store => ({
-  slugs: store.cms.status.pathObj.previews.map(d => d.slug).join(),
+  slugs: store.cms.status.pathObj.previews?.map(d => d.slug).join(),
   query: Object.entries(store.cms.status.query).map(([k, v]) => `${k}=${v}`).join("&")
 });
 
@@ -25,11 +25,15 @@ axios.interceptors.response.use(d => {
 
 /** */
 export function getReports() {
-  return function(dispatch, getStore) {
-    return axios.get(`${getStore().env.CANON_API}/api/reports/tree`)
-      .then(({data}) => {
-        dispatch({type: "REPORTS_GET", data});
-      });
+  return async function(dispatch, getStore) {
+    const resp = await axios.get(`${getStore().env.CANON_API}/api/reports/tree`).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
+    if (resp.status === 200) {
+      dispatch({type: "REPORTS_GET", data: resp.data});
+      return {status: REQUEST_STATUS.SUCCESS};
+    }
+    else {
+      return {status: REQUEST_STATUS.ERROR, error: resp.status};
+    }
   };
 }
 
@@ -126,7 +130,7 @@ export function activateSection(id, previews, query) {
     return axios.get("/api/reports/section/activate", config)
       .then(resp => {
         if (resp.status === 200) {
-          dispatch({type: "SECTION_ACTIVATE", data: resp.data});
+          dispatch({type: "SECTION_ACTIVATE", data: resp.data, id});
           return {status: REQUEST_STATUS.SUCCESS};
         }
         else {

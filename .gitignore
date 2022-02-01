@@ -22,3 +22,5 @@ ecosystem.config.js
 
 # vscode configurations
 .vscode
+
+examples/.pnpm-debug.log

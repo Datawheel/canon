@@ -12,6 +12,9 @@ import DimensionBuilder from "../dimensions/DimensionBuilder";
 /* redux */
 import {setStatus} from "../../actions/status";
 
+/* utils */
+import paramString from "../../utils/js/paramString";
+
 /* consts */
 import {ENTITY_TYPES} from "../../utils/consts/cms";
 
@@ -41,14 +44,13 @@ function CMSHeader({id}) {
   const inputRef = useRef();
 
   useEffect(() => {
-    const params = {
+    const url = `/api/reports/newsearch?${paramString({
       query: debouncedQuery,
       // todo1.0 fix this accessor for bilaterals
       namespace: metas && meta && meta[0] ? metas[meta[0]].namespace : ""
-    };
-    const paramString = Object.keys(params).map(key => `${key}=${params[key]}`).join("&");
+    })}`;
 
-    axios.get(`/api/reports/newsearch?${paramString}`).then(resp => {
+    axios.get(url).then(resp => {
       setResults(resp.data);
     });
   }, [debouncedQuery]);

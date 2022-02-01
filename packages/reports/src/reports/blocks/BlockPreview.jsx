@@ -8,14 +8,14 @@ import varSwapRecursive from "../../utils/variables/varSwapRecursive";
 import spoiler from "../../utils/blocks/spoiler";
 import {getBlockContent} from "../../utils/blocks/getBlockContent";
 import mortarEval from "../../utils/variables/mortarEval";
-import {useBlock} from "../hooks/blocks/selectors";
+import {useBlock, useFormatters} from "../hooks/blocks/selectors";
 import {useVariables} from "../hooks/blocks/useVariables";
 
 /** type-specific render components */
 import TypeRenderers from "./types/renderers";
 
 /** type-specific methods for deriving data needed for rendering from current Block state */
-import PreviewAdapters from "./types/PreviewAdapters";
+import PreviewAdapters from "./types/previewAdapters";
 
 
 /**
@@ -41,7 +41,7 @@ function BlockPreview(props) {
   const blockContent = blockStateContent || getBlockContent(block, locale);
 
   /* redux */
-  const formatterFunctions = useSelector(state => state.cms.resources.formatterFunctions);
+  const formatterFunctions = useFormatters(locale);
 
   /**
    * todo1.0 this is a pretty gnarly statement, which needs to be thought about. Block types have some things in common:
@@ -70,22 +70,22 @@ function BlockPreview(props) {
    * think with dave and ryan on this
    */
 
-  const {content, error, log, duration} = useMemo(() => {
+  const {content, error, log} = useMemo(() => {
     let payload = {};
     // if a Block-specific preview adapter function exists, use that to build payload
     if (PreviewAdapters[block.type] && typeof PreviewAdapters[block.type] === "function") {
 
       /** @type {import("./types/PreviewAdapters").BlockPreviewAdapterParams} */
-      const adapterParams = {active, block, blockContent, debug, locale, variables};
+      const adapterParams = {active, block, blockContent, debug, locale, variables, formatterFunctions};
       payload = PreviewAdapters[block.type](adapterParams);
     }
     // if no such adapter exists, fallback to default where blockState logic is evaluated
     else {
-      const {vars, error, log} = mortarEval("variables", variables, blockContent?.logic, formatterFunctions[locale], locale);
+      const {vars, error, log} = mortarEval("variables", variables, blockContent?.logic, formatterFunctions, locale);
       // if Block is active...
       payload.content = active
         // swap out variables with block's available input variables
-        ? varSwapRecursive(vars, formatterFunctions[locale], variables)
+        ? varSwapRecursive(vars, formatterFunctions, variables)
         // else, put spoiler marks on dynamic variables
         : spoiler(vars);
       payload.log = log ? log.join("\n") : "";
@@ -102,7 +102,6 @@ function BlockPreview(props) {
   return (
     <div className="cms-block-preview" style={{width: "100%"}}>
       {!allowed && allowedOverlay}
-      {debug && duration && <Text>{`duration: ${duration} ms`}</Text>}
       { Renderer
         ? <Renderer key="renderer" debug={debug} {...content} />
         : <Center style={{minHeight: 100}}><Badge key="type" color="gray" variant="outline">{block.type}</Badge></Center> }

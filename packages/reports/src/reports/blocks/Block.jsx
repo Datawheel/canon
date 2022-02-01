@@ -1,7 +1,7 @@
 /* react */
 import React, {useState, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Button, Group, Tooltip} from "@mantine/core";
+import {Button, Group, Space, Tooltip} from "@mantine/core";
 import {HiOutlineCode} from "react-icons/hi";
 
 /* components */
@@ -164,7 +164,11 @@ function Block({id, modified, callbacks, inline}) {
         setBlockSettings={setBlockSettings}
         setInlineId={setInlineId}
       />
-      <Group position="right">
+      <Space h="xs"/>
+      <Group
+        position="right"
+        style={{flexDirection: inline ? "row-reverse" : "row"}}
+      >
         <Tooltip
           label={`${currentMode === MODES.UI ? "Show" : "Hide"} Code`}
           withArrow

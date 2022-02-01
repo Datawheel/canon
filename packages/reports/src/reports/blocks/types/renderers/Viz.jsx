@@ -5,6 +5,8 @@ import {Badge, Center} from "@mantine/core";
 /* utils */
 import d3plusPropify from "../../../../utils/d3plusPropify";
 import varSwapRecursive from "../../../../utils/variables/varSwapRecursive";
+import mortarEval from "../../../../utils/variables/mortarEval";
+import defaultConfig from "../../../../utils/viz/defaultConfig";
 
 /* vizes */
 import * as d3plus from "d3plus-react";
@@ -13,23 +15,17 @@ import HTML from "../../../reportVizes/HTML";
 import Table from "../../../reportVizes/Table";
 import Options from "../../../reportVizes/Options";
 
-import defaultConfig from "../../../../utils/viz/defaultConfig";
+/* enums */
+import {VIZ_SETTINGS} from "../../../../utils/consts/cms";
 
 /* context */
 import useAppContext from "../../../hooks/context/useAppContext";
 
 // User must define custom sections in app/reports/sections, and export them from an index.js in that folder.
 import * as CustomVizzes from "CustomVizzes";
+import {useFormatters} from "../../../hooks/blocks/selectors";
 
 const vizTypes = {Table, Graphic, HTML, ...d3plus, ...CustomVizzes};
-
-// A stub viz, shown when the config is inactive or broken
-const stub = message => ({
-  data: [],
-  dataFormat: d => d,
-  type: "Treemap",
-  noDataHTML: `<p style="font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>${message}</strong></p>`
-});
 
 const ErrorMessage = ({message}) => <Center style={{height: "100%"}}><Badge key="type" color="gray" variant="outline">{message}</Badge></Center>;
 
@@ -40,6 +36,8 @@ export default function Viz({block, active, locale, variables, debug, configOver
 
   const context = useAppContext();
 
+  const formatterFunctions = useFormatters(locale);
+
   // todo1.0 - There is a ton of missing functionality here. updateSources, getChildContext, various context interactions.
   // This will all need to be brought in, to play nice with legacy context.
 
@@ -47,8 +45,16 @@ export default function Viz({block, active, locale, variables, debug, configOver
     if (!active) return {error: "Activate to View"};
     if (!block?.content?.logic) return {error: "Add a Configuration"};
     // todo1.0 fix all these arguments!
-    const transpiledLogic = varSwapRecursive({logic: block.content.logic}, {}, variables, {}).logic;
-    return d3plusPropify(transpiledLogic, {}, variables, locale, block.id, {});
+    const transpiledLogic = varSwapRecursive({logic: block.content.logic}, formatterFunctions, variables, {}).logic;
+    return d3plusPropify(transpiledLogic, formatterFunctions, variables, locale, block.id, {});
+  }, [block, active]);
+
+  // todo1.0 - these vizSettings should be used to implement tabs, mini, options, etc on the front end
+  const vizSettings = useMemo(() => {
+    if (!active || !block?.content?.[VIZ_SETTINGS.VIZ_SETTINGS_LOGIC]) return {};
+    const logic = block.content[VIZ_SETTINGS.VIZ_SETTINGS_LOGIC];
+    const {vars} = mortarEval("variables", variables, logic, formatterFunctions, locale);
+    return vars;
   }, [block, active]);
 
   // strip out the "type" from config
@@ -64,7 +70,7 @@ export default function Viz({block, active, locale, variables, debug, configOver
 
   vizProps.config = {...vizProps.config, ...configOverride};
 
-  const vizConfig = {locale, ...vizProps.config};
+  const vizConfig = {locale, variables, ...vizProps.config};
 
   // todo1.0 this probably doesn't work as print is added to context later, come back for this
   if (context.print) vizConfig.detectVisible = false;
@@ -77,8 +83,7 @@ export default function Viz({block, active, locale, variables, debug, configOver
   return <div
     style={{
       display: "flex",
-      flex: "1 1 100%",
-      minHeight: "300px"
+      flex: "1 1 100%"
     }}
   // todo1.0 this ref needs to be updated
   // ref={ comp => this.viz = comp }

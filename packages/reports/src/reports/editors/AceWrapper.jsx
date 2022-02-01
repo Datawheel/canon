@@ -29,7 +29,8 @@ export default class AceWrapper extends Component {
       require("ace-builds/src-noconflict/theme-monokai");
 
       const options = {
-        fontSize: "14px",
+        fontFamily: "'Menlo', monospace",
+        fontSize: "12px",
         useWorker: "false",
         enableBasicAutocompletion: true,
         enableLiveAutocompletion: true

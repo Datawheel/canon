@@ -1,26 +1,18 @@
 import React from "react";
-import {Textarea, Center, Badge} from "@mantine/core";
+import {Badge, Center, Divider} from "@mantine/core";
+import InputMenuItem from "../../../components/InputMenuItem";
 
 /**
  *
  */
 function Generator({outputVariables, debug}) {
 
-  if (!debug) return <Center><Badge key="type" color="gray" variant="outline">GENERATOR</Badge></Center>;
-
-  return (
-    <div>
-      <Textarea
-        label="Output"
-        value={outputVariables}
-        style={{width: 300}}
-        styles={{input: {fontFamily: "monospace"}}}
-        size="xs"
-        autosize
-        minRows={10}
-      />
-    </div>
-  );
+  return debug
+    ? <React.Fragment>
+      <Divider label="Output Variables" labelPosition="center" />
+      <InputMenuItem variables={outputVariables} />
+    </React.Fragment>
+    : <Center><Badge key="type" color="gray" variant="outline">GENERATOR</Badge></Center>;
 
 }
 
