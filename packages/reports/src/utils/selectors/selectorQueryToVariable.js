@@ -15,7 +15,7 @@ const selectorQueryToVariable = (id, query, config) => {
     const options = config.options.filter(d => queryIds.includes(d.id));
     return {
       [`selector${id}id`]: queryIds,
-      [`selector${id}label`]: options.map(d => d.label)
+      [`selector${id}label`]: (options || []).map(d => d.label)
     };
   }
   else { // single
@@ -23,7 +23,7 @@ const selectorQueryToVariable = (id, query, config) => {
     const option = config.options.find(d => d.id === queryId);
     return {
       [`selector${id}id`]: queryId,
-      [`selector${id}label`]: option.label
+      [`selector${id}label`]: option && option.label || undefined
     };
 
   }
