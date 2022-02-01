@@ -1,16 +1,21 @@
 /* react */
-import React, {useState, useRef} from "react";
+import React, {useMemo, useState, useRef} from "react";
 
 /* components */
-import {TextInput} from "@mantine/core";
+import {ActionIcon, Badge, Group, Popover, Text, TextInput} from "@mantine/core";
+import {HiOutlineCheckCircle, HiOutlinePencil} from "react-icons/hi";
 
 /* hooks */
 import useKeyPress from "../hooks/listeners/useKeyPress";
 
 /* utils */
 import varSwap from "../../utils/variables/varSwap";
+import {BLOCK_TYPES} from "../../utils/consts/cms";
 import {useVariables} from "../hooks/blocks/useVariables";
-import {useFormatters} from "../hooks/blocks/selectors";
+
+/** type-specific methods for deriving data needed for rendering from current Block state */
+import PreviewAdapters from "../blocks/types/PreviewAdapters";
+import {useBlock, useFormatters} from "../hooks/blocks/selectors";
 
 /** */
 function ApiInput({defaultValue, id, onChange, onEnterPress}) {
@@ -19,6 +24,7 @@ function ApiInput({defaultValue, id, onChange, onEnterPress}) {
   const formatterFunctions = useFormatters();
 
   const [preview, setPreview] = useState(() => varSwap(defaultValue, formatterFunctions, variables));
+  const [editing, setEditing] = useState(false);
 
   const apiRef = useRef();
   const enterPress = useKeyPress(13);
@@ -29,19 +35,51 @@ function ApiInput({defaultValue, id, onChange, onEnterPress}) {
     onChange(e.target.value);
   };
 
+  const block = useBlock(id);
+
+  const {duration} = useMemo(() => {
+
+    /** @type {import("./types/PreviewAdapters").BlockPreviewAdapterParams} */
+    const adapterParams = {active: true, block};
+    return PreviewAdapters[BLOCK_TYPES.GENERATOR](adapterParams);
+
+  }, [block]);
+
   return (
-    <div>
-      <TextInput
-        key="text-input"
-        placeholder="API"
-        defaultValue={defaultValue}
-        ref={apiRef}
-        type="url"
-        onChange={onChangeLocal}
-        size="xs"
-      />
-      <span key="api-preview">{preview}</span>
-    </div>
+    <Group noWrap position="apart" spacing="xs">
+      <Text lineClamp={1} size="xs">
+        <a href={preview} target="_blank" rel="noreferrer">{preview}</a>
+      </Text>
+      <Group noWrap spacing="xs">
+        { duration && <Badge color={duration < 150 ? "green" : duration < 1000 ? "yellow" : "red"}>{duration}ms</Badge> }
+        <Popover
+          onClose={() => setEditing(false)}
+          opened={editing}
+          position="right"
+          spacing="xs"
+          target={
+            <ActionIcon size="xs" onClick={() => setEditing(e => !e)} variant="filled" color={ editing ? "green" : "gray"}>
+              { editing ? <HiOutlineCheckCircle /> : <HiOutlinePencil /> }
+            </ActionIcon>
+          }
+          withArrow={true}
+        >
+          <TextInput
+            key="text-input"
+            placeholder="API"
+            defaultValue={defaultValue}
+            ref={apiRef}
+            type="url"
+            onChange={onChangeLocal}
+            size="xs"
+            style={{
+              maxWidth: 800,
+              width: "60vw"
+            }}
+          />
+        </Popover>
+      </Group>
+    </Group>
   );
 
 }

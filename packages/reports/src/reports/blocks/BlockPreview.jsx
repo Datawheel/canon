@@ -15,7 +15,7 @@ import {useVariables} from "../hooks/blocks/useVariables";
 import TypeRenderers from "./types/renderers";
 
 /** type-specific methods for deriving data needed for rendering from current Block state */
-import PreviewAdapters from "./types/PreviewAdapters";
+import PreviewAdapters from "./types/previewAdapters";
 
 
 /**
@@ -70,7 +70,7 @@ function BlockPreview(props) {
    * think with dave and ryan on this
    */
 
-  const {content, error, log, duration} = useMemo(() => {
+  const {content, error, log} = useMemo(() => {
     let payload = {};
     // if a Block-specific preview adapter function exists, use that to build payload
     if (PreviewAdapters[block.type] && typeof PreviewAdapters[block.type] === "function") {
@@ -102,7 +102,6 @@ function BlockPreview(props) {
   return (
     <div className="cms-block-preview" style={{width: "100%"}}>
       {!allowed && allowedOverlay}
-      {debug && duration && <Text>{`duration: ${duration} ms`}</Text>}
       { Renderer
         ? <Renderer key="renderer" debug={debug} {...content} />
         : <Center style={{minHeight: 100}}><Badge key="type" color="gray" variant="outline">{block.type}</Badge></Center> }

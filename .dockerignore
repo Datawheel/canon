@@ -1,0 +1,18 @@
+*.md
+*.env
+*.envrc
+*.gcp.json
+*.gcp.encoded
+npm-debug.log*
+Dockerfile
+.github
+node_modules
+**/static/assets
+**/static/reports
+examples/index.js
+# docker files
+dockerfiles/nginx/certs/*
+dockerfiles/nginx/conf.d/default.conf
+# pm2 ecosystem config
+ecosystem.config.js
+examples/.pnpm-debug.log

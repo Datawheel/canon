@@ -75,12 +75,12 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
 
   const modalProps = {
     centered: true,
+    hideCloseButton: true,
     opened,
     onClose: maybeCloseWithoutSaving,
     overflow: "inside",
-    padding: theme.spacing.xl,
-    size: "90%",
-    title: `${upperCaseFirst(block.type)} Editor`
+    padding: theme.spacing.sm,
+    size: "90%"
   };
 
   const cogProps = {
@@ -137,8 +137,13 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
         </div>
       </div>
       <Modal centered key="d" {...modalProps}>
-        {inlineId && <Block id={inlineId} inline={true} key={inlineId} modified={modified} callbacks={callbacks}/>}
-        {!inlineId && <Block id={id} key={id} inline={false} modified={modified} callbacks={callbacks}/>}
+        <Block
+          callbacks={callbacks}
+          id={inlineId || id}
+          inline={inlineId}
+          key={inlineId || id}
+          modified={modified}
+        />
       </Modal>
     </React.Fragment>
   );
