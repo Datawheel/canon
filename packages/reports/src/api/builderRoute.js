@@ -14,7 +14,6 @@ const getLocales = require("../utils/canon/getLocales");
 const sorter = require("../utils/js/sorter");
 const contentReducer = require("../utils/blocks/contentReducer");
 
-
 let formatterFunctionsByLocale = null;
 
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
@@ -52,8 +51,6 @@ const flatSort = (conn, array) => {
   });
   return array;
 };
-
-const contentReducer = (acc, d) => ({...acc, [d.locale]: d});
 
 const sortReport = (db, report) => {
   // Don't use flatSort for meta. Meta can have multiple entities in the same ordering, so do not attempt to "flatten" them out

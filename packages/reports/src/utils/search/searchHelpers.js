@@ -6,6 +6,8 @@ const generateAttributesFromSlugs = async(db, pid, slugs, locale) => {
   // ids are not necessarily deduplicated across namespaces. Therefore, we must fetch the
   // profile and its metadata, in order to have the specificity required for a unique id lookup.
 
+  // todo1.0: Port content of `fetchAttr` in reportRoute.js to this function.
+
   const orderedSlugs = slugs.split(",");
   return await db.search
     .findAll({where: {slug: orderedSlugs}, include: {association: "contentByLocale"}})
