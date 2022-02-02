@@ -12,13 +12,14 @@ const runSelector = (logic, formatterFunctions, variables, locale) => {
   const type = vars.type || SELECTOR_TYPES.SINGLE;
   const name = vars.name || "Unlabeled Selector";
   const options = scaffoldDynamic(vars.options || []);
-  const defaultValue = vars.defaultValue
-    ? vars.defaultValue
-    : options[0] && options[0].id
-      ? options[0].id
-      : options[0]
-        ? options[0]
-        : "";
+  const defaultIsPresent = vars.defaultValue && options.find(o => o.id === vars.defaultValue);
+  let defaultValue = defaultIsPresent && vars.defaultValue ||
+    options && options[0] && options[0].id ||
+    options[0] ||
+    "";
+  if (type === SELECTOR_TYPES.MULTI && !Array.isArray(defaultValue)) {
+    defaultValue = [defaultValue];
+  }
   const config = {name, type, options, defaultValue};
   return {config, log, error};
 };
