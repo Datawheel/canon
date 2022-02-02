@@ -1,3 +1,8 @@
 .selector-option-default-col {
   width: 60px;
 }
+
+.required:after {
+  content:" *";
+  color: red;
+}

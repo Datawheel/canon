@@ -98,5 +98,5 @@ jobs:
             --port=3300 \
             --region=us-central1 \
             --min-instances=0 \
-            --max-instances=1 \
+            --max-instances=3 \
             --allow-unauthenticated

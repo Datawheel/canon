@@ -1,7 +1,21 @@
 import axios from "axios";
 import {activateSection} from "./reports";
 
-/** */
+/** Helper function for editing the status' query parameters */
+async function setStatusQuery(dispatch, getStore, status) {
+  const oldStatus = getStore().cms.status;  
+  const newStatus = {...oldStatus, ...status};
+  const newQuery = {...oldStatus.query, ...status.query};
+  // filter out undefined properties (so keys can be deleted if necessary)
+  Object.keys(newQuery).forEach(key => newQuery[key] === undefined && delete newQuery[key]);
+  dispatch({type: "STATUS_SET", data: {...newStatus, query: newQuery}});
+  // todo1.0 ask ryan about this status bounce
+  if (oldStatus.activeSection) {
+    dispatch(activateSection(oldStatus.activeSection, null, newQuery));
+  }
+}
+
+/** Set the status state to a given status */
 export function setStatus(status) {
   return async function(dispatch, getStore) {
     if (status.pathObj?.previews?.length > 0) {
@@ -24,16 +38,20 @@ export function setStatus(status) {
       }
     }
     else if (status.query) {
-      const {activeSection, query} = getStore().cms.status;
-      const newQuery = {...query, ...status.query};
-      dispatch({type: "STATUS_SET", data: {...status, query: newQuery}});
-      // todo1.0 ask ryan about this status bounce
-      if (activeSection) {
-        dispatch(activateSection(activeSection, null, newQuery));
-      }
+      setStatusQuery(dispatch, getStore, status);
     }
     else {
       dispatch({type: "STATUS_SET", data: status});
     }
   };
+}
+
+/** Deletes a given key from the current query parameters */
+export function deleteQueryParam(key) {
+  return async(dispatch, getStore) => setStatusQuery(dispatch, getStore, {query: {[key]: undefined}});
+}
+
+/** Adds to or edits the current status query parameters to include the given key/val */
+export function setQueryParam(key, value) {
+  return async(dispatch, getStore) => setStatusQuery(dispatch, getStore, {query: {[key]: value}});
 }
