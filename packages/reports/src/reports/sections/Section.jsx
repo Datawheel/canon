@@ -22,7 +22,6 @@ import {REQUEST_STATUS} from "../../utils/consts/redux";
 
 /* css */
 import "./Section.css";
-import {setStatus} from "../../actions/status";
 
 /**
  *

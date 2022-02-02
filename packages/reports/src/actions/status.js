@@ -2,15 +2,16 @@ import axios from "axios";
 import {activateSection} from "./reports";
 
 /** Helper function for editing the status' query parameters */
-async function setStatusQuery(dispatch, getStore, queryParams) {
-  const status = getStore().cms.status;
-  const newQuery = {...status.query, ...queryParams};
+async function setStatusQuery(dispatch, getStore, status) {
+  const oldStatus = getStore().cms.status;  
+  const newStatus = {...oldStatus, ...status};
+  const newQuery = {...oldStatus.query, ...status.query};
   // filter out undefined properties (so keys can be deleted if necessary)
   Object.keys(newQuery).forEach(key => newQuery[key] === undefined && delete newQuery[key]);
-  dispatch({type: "STATUS_SET", data: {...status, query: newQuery}});
+  dispatch({type: "STATUS_SET", data: {...newStatus, query: newQuery}});
   // todo1.0 ask ryan about this status bounce
-  if (status.activeSection) {
-    dispatch(activateSection(status.activeSection, null, newQuery));
+  if (oldStatus.activeSection) {
+    dispatch(activateSection(oldStatus.activeSection, null, newQuery));
   }
 }
 
@@ -37,7 +38,7 @@ export function setStatus(status) {
       }
     }
     else if (status.query) {
-      setStatusQuery(dispatch, getStore, {...status.query});
+      setStatusQuery(dispatch, getStore, status);
     }
     else {
       dispatch({type: "STATUS_SET", data: status});
@@ -47,10 +48,10 @@ export function setStatus(status) {
 
 /** Deletes a given key from the current query parameters */
 export function deleteQueryParam(key) {
-  return async(dispatch, getStore) => setStatusQuery(dispatch, getStore, {[key]: undefined});
+  return async(dispatch, getStore) => setStatusQuery(dispatch, getStore, {query: {[key]: undefined}});
 }
 
 /** Adds to or edits the current status query parameters to include the given key/val */
 export function setQueryParam(key, value) {
-  return async(dispatch, getStore) => setStatusQuery(dispatch, getStore, {[key]: value});
+  return async(dispatch, getStore) => setStatusQuery(dispatch, getStore, {query: {[key]: value}});
 }

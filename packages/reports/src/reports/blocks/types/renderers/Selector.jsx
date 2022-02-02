@@ -5,6 +5,11 @@ import {Select, MultiSelect} from "@mantine/core";
 
 /* hooks */
 import {deleteQueryParam, setQueryParam} from "../../../../actions/status";
+
+/* utils */
+import valueInOptions from "../../../../utils/selectors/valueInOptions";
+
+/* consts */
 import {SELECTOR_TYPES} from "../../../../utils/consts/cms";
 
 /**
@@ -31,10 +36,13 @@ export default function SelectorPreview({id, config}) {
     const newOptions = config.options.map(d => ({value: d.id, label: d.label}));
     setData(newOptions);
 
+    const relevantValue = config.type === SELECTOR_TYPES.SINGLE ? value : multiValue;
+    const relevantSetter = config.type === SELECTOR_TYPES.SINGLE ? setValue : setMultiValue;
+
     // if the selected value is not in the new list of options...
-    if (!newOptions.find(obj => obj.id === value)) {
+    if (!valueInOptions(config.type, relevantValue, newOptions)) {
       // set the value to the new default
-      setValue(config.defaultValue);
+      relevantSetter(config.defaultValue);
       // and remove the query params for this selector
       dispatch(deleteQueryParam(`selector${id}id`));
     }
