@@ -9,6 +9,6 @@ module.exports = (type, value, options) => {
     return options.find(obj => obj.id === value);
   }
   else { // multi
-    return Array.isArray(value) && value.every(d => options.map(o => o.id).includes(d));
+    return Array.isArray(value) && value.every(d => options.map(o => o.value).includes(d));
   }    
 };

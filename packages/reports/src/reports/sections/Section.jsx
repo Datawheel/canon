@@ -155,7 +155,7 @@ function Section({id, isDragging, dragHandleProps}) {
           {Object.entries(columns).map(([columnId, column], index) => {
 
             const staticWidths = column.items
-              .map(({id}) => parseFloat(blocks[id].settings.width))
+              .map(({id}) => parseFloat(blocks[id]?.settings?.width))
               .filter(d => !isNaN(d));
 
             return <div
@@ -178,12 +178,15 @@ function Section({id, isDragging, dragHandleProps}) {
                         ? theme.colors[theme.primaryColor][0]
                         : "inherit",
                       display: "flex",
-                      flexDirection: column.items.find(item => blocks[item.id].settings.display === "inline") ? "row" : "column",
-                      flexWrap: column.items.find(item => blocks[item.id].settings.display === "inline") ? "wrap" : "nowrap",
+                      flexDirection: column.items.find(item => blocks[item.id]?.settings?.display === "inline") ? "row" : "column",
+                      flexWrap: column.items.find(item => blocks[item.id]?.settings?.display === "inline") ? "wrap" : "nowrap",
                       height: "100%"
                     }}
                   >
                     {column.items.map((item, index) => {
+                      // After a block is deleted, there is a quick render moment when there is no block, and therefore
+                      // no settings to access. todo1.0 Audit the render loop and find a smarter way to protect against this
+                      if (!blocks[item.id]) return null;
                       const {settings, type} = blocks[item.id];
 
                       return <Draggable
