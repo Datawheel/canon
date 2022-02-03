@@ -6,7 +6,7 @@ const arrayFinder = obj => {
   const keys = [];
   if (Array.isArray(obj)) return [];
   const parse = (obj, prefix = "") => {
-    if (typeof obj !== "object") return;
+    if (!obj || typeof obj !== "object") return;
     Object.keys(obj).forEach(key => {
       if (Array.isArray(obj[key])) {
         keys.push(`${prefix ? `${prefix}.` : ""}${key}`);
