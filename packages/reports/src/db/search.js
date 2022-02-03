@@ -18,7 +18,10 @@ module.exports = function(sequelize, db) {
         type: db.JSONB,
         defaultValue: {}
       },
-      namespace: db.TEXT,
+      namespace: {
+        primaryKey: true,
+        type: db.TEXT
+      },
       visible: {
         type: db.BOOLEAN,
         defaultValue: true
