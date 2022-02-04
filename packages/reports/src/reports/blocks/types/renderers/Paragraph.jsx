@@ -4,7 +4,7 @@ import {Text} from "@mantine/core";
 import sanitizeBlockContent from "../../../../utils/blocks/sanitizeBlockContent";
 
 /**
- * "title" block renderer
+ * "paragraph" block renderer
 */
 export default function ParagraphPreview({paragraph, size = "md"}) {
 

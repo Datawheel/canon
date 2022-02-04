@@ -1,7 +1,6 @@
 /* react */
 import React, {useMemo} from "react";
-import {useSelector} from "react-redux";
-import {Badge, Center, Textarea, Text} from "@mantine/core";
+import {Badge, Center, Textarea} from "@mantine/core";
 
 /* utils */
 import varSwapRecursive from "../../utils/variables/varSwapRecursive";
@@ -16,7 +15,6 @@ import TypeRenderers from "./types/renderers";
 
 /** type-specific methods for deriving data needed for rendering from current Block state */
 import PreviewAdapters from "./types/previewAdapters";
-
 
 /**
  * BlockPreview shows the varswapped version of the content currently being edited, it is used
@@ -42,33 +40,6 @@ function BlockPreview(props) {
 
   /* redux */
   const formatterFunctions = useFormatters(locale);
-
-  /**
-   * todo1.0 this is a pretty gnarly statement, which needs to be thought about. Block types have some things in common:
-   * 1) they subscribe to other blocks which gives them variables
-   * 2) they can have API(s) which gives them a resp
-   * 3) they return some javascript, which MAY then be used visually (but not necessarily)
-   * 4) they export a set of variables for others to consume
-   *
-   * The problem is, each block acts a little bit differently:
-   * - GENERATORS run serverside, and they return variables DIRECTLY, no rendering needed, just variables to pass to consumers
-   * - SELECTORS run serverside, which returns their *config*. This config is then combined with the state of query args,
-   *   to determine which variables this should export, which represents the *current id and label of the selector state*
-   *   Further complicating things, selectors are also run client-side, so that the dropdown can be rendered by getting its
-   *   list of options, default, name, etc.
-   * - VIZES run clientside, and return a d3plus config
-   * - STATLIKES run serverside so their variables can be calculated (stat1title, stat2value, etc) but are also run locally
-   *   so that keystroke updates can show immediately in the preview. But it's important to note that the config returns
-   *   {title, subtitle} but then the block actually exports {stat1title, stat1value}
-   *
-   * FURTHER. Any of these can have an API call that feeds them. In the case of statlikes, we don't want to be hitting that API
-   * over and over for each keystroke. So we hybridly run a local eval using the resp *from the SSR run*.
-   *
-   * This prompts a discussion on what a block exactly is - because some of them return real vars, some return materialized vars,
-   * and some return configs.
-   *
-   * think with dave and ryan on this
-   */
 
   const {content, error, log} = useMemo(() => {
     let payload = {};
