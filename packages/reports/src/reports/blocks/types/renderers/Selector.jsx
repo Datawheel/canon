@@ -40,9 +40,7 @@ export default function SelectorPreview({id, config}) {
     const relevantSetter = config.type === SELECTOR_TYPES.SINGLE ? setValue : setMultiValue;
 
     // if the selected value is not in the new list of options...
-    console.log(config.type, relevantValue, newOptions);
-    if (!valueInOptions(config.type, relevantValue, newOptions)) {
-      console.log("dath");
+    if (!valueInOptions(config.type, relevantValue, config.options)) {
       // set the value to the new default
       relevantSetter(config.defaultValue);
       // and remove the query params for this selector
