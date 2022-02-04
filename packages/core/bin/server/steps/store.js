@@ -1,16 +1,16 @@
 const path = require("path"),
-      shell = require("shelljs"),
-      yn = require("yn");
+  shell = require("shelljs"),
+  yn = require("yn");
 
 let everDetect = false;
 
-module.exports = function(config) {
+module.exports = function (config) {
 
   const {NODE_ENV, paths} = config;
   const {appPath, serverPath} = paths;
 
   const resolve = require(path.join(serverPath, "helpers/resolve")),
-        title = require(path.join(serverPath, "helpers/title"));
+    title = require(path.join(serverPath, "helpers/title"));
 
   title(`${everDetect ? "Re-initializing" : "Initializing"} Redux Store`, "🏪");
   everDetect = true;
@@ -25,6 +25,7 @@ module.exports = function(config) {
     CANON_LANGUAGES: LANGUAGES,
     CANON_LANGUAGE_DEFAULT: LANGUAGE_DEFAULT,
     CANON_LOGINS: process.env.CANON_LOGINS || false,
+    CANON_GOOGLE_OPTIMIZE: process.env.CANON_GOOGLE_OPTIMIZE || false,
     CANON_LOGLOCALE: process.env.CANON_LOGLOCALE,
     CANON_LOGREDUX: process.env.CANON_LOGREDUX,
     CANON_PORT: process.env.CANON_PORT || 3300,
