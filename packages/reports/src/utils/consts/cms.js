@@ -84,6 +84,7 @@ const SECTION_SETTINGS = {
 const BLOCK_CONTENT_TYPES = {
   AUTHOR: "author",
   FOOTNOTE: "footnote",
+  IMAGE: "image",
   PARAGRAPH: "paragraph",
   SELECTOR: "selector", // todo1.0 - move to logic types
   STAT: "stat",
@@ -99,7 +100,16 @@ const BLOCK_LOGIC_TYPES = {
 
 const BLOCK_TYPES = {...BLOCK_CONTENT_TYPES, ...BLOCK_LOGIC_TYPES};
 
+// Types that shouldn't update on keystroke -- only after the user presses execute.
+const BLOCK_EXECUTE_TYPES = [
+  BLOCK_TYPES.GENERATOR,
+  BLOCK_TYPES.SELECTOR,
+  BLOCK_TYPES.VIZ,
+  BLOCK_TYPES.IMAGE
+];
+
 const BLOCK_FIELDS = {
+  ALT: "alt",
   AUTHOR: "author",
   FOOTNOTE: "footnote",
   BIO: "bio",
@@ -112,6 +122,7 @@ const BLOCK_FIELDS = {
   SELECTOR_DYNAMIC: "selectorDynamic",
   SELECTOR_NAME: "selectorName",
   SELECTOR_TYPE: "selectorType",
+  SRC: "src",
   SLUG: "slug",
   SUBTITLE: "subtitle",
   TITLE: "title",
@@ -138,6 +149,10 @@ const BLOCK_MAP = {
   ],
   [BLOCK_TYPES.FOOTNOTE]: [
     BLOCK_FIELDS.FOOTNOTE
+  ],
+  [BLOCK_TYPES.IMAGE]: [
+    BLOCK_FIELDS.SRC,
+    BLOCK_FIELDS.ALT
   ],
   [BLOCK_TYPES.PARAGRAPH]: [
     BLOCK_TYPES.PARAGRAPH
@@ -183,6 +198,7 @@ const BLOCK_SETTINGS = {
 };
 
 module.exports = {
+  BLOCK_EXECUTE_TYPES,
   BLOCK_FIELDS,
   BLOCK_FIELDS_EXCLUDE,
   BLOCK_MAP,

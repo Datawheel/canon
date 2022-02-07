@@ -124,7 +124,7 @@ function SelectorUI(props) {
       // for selectors with dynamically-defined options...
       else {
         const {optionsVar, idKey, labelKey, defaultVar, isPrimitiveType} = options.dynamic;
-        if (defaultVar) defaultValue = `{{${defaultVar}}}`;
+        if (defaultVar) defaultValue = `variables["${defaultVar}"]`;
         logicOptions = isPrimitiveType
           ? `variables["${optionsVar}"]`
           : `(variables["${optionsVar}"] || []).map(d => ({id: String(d["${idKey}"]), label: String(d["${labelKey || idKey}"])}))`;

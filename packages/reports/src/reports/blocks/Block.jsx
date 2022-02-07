@@ -36,7 +36,6 @@ function Block({id, modified, callbacks, inline}) {
   const dispatch = useDispatch();
   const {setOpened, setModified, maybeCloseWithoutSaving, setInlineId} = callbacks;
 
-
   /* REDUX SELECTORS */
 
   /** Locale key that has been set as default */
@@ -75,6 +74,9 @@ function Block({id, modified, callbacks, inline}) {
 
   /** This blockState's content object */
   const blockContent = blockHasNoLocaleContent ? blockState?.content : blockState.contentByLocale[localeDefault]?.content;
+  // todo1.0 discuss with ryan: We need a way to designate whether a block is coming from redux or state
+  // I've currently set up the EXECUTE type but we need to discuss this hollistically - especially whether
+  // we should be passing null to BlockPreview just to make it choose the redux.
 
   /**
    * Generic method for updating the content of the current block's working state.

@@ -64,7 +64,7 @@ const SimpleUI = props => {
     blockType={blockType}
     variables={variables}
     onChange={setBlockContent}
-    onTextModify={() => setBlockContent()}// set modified to be true  but don't update state
+    onTextModify={() => setBlockContent()}// set modified to be true, but don't update state
   />;
 };
 
