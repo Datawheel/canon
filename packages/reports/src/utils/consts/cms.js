@@ -98,6 +98,8 @@ const BLOCK_LOGIC_TYPES = {
   VIZ: "visualization"
 };
 
+const BLOCK_TYPES = {...BLOCK_CONTENT_TYPES, ...BLOCK_LOGIC_TYPES};
+
 // Types that shouldn't update on keystroke -- only after the user presses execute.
 const BLOCK_EXECUTE_TYPES = [
   BLOCK_TYPES.GENERATOR,
@@ -105,8 +107,6 @@ const BLOCK_EXECUTE_TYPES = [
   BLOCK_TYPES.VIZ,
   BLOCK_TYPES.IMAGE
 ];
-
-const BLOCK_TYPES = {...BLOCK_CONTENT_TYPES, ...BLOCK_LOGIC_TYPES};
 
 const BLOCK_FIELDS = {
   ALT: "alt",
