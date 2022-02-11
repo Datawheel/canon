@@ -25,13 +25,20 @@ const serviceJavaScript = {
         r=o.createElement('script');r.async=1;
         r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
         a.appendChild(r);
-        })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');`,
-  GOOGLE_OPTIMIZE: id => `(function(w,d, optimizeId){
-        var script = d.createElement('script');
-        script.src = "https://www.googleoptimize.com/optimize.js?id="+optimizeId;
-        d.head.prepend(script);
-      })(window, document, "${id}")`
+        })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');`
 };
+
+const serviceHeadTag = {
+  GOOGLE_OPTIMIZE: id => `
+      <script src="https://www.googleoptimize.com/optimize.js?id=${id}"></script>
+      <script>
+        //Launch SSR optimize activation event
+        if(window.dataLayer){
+          window.dataLayer.push({'event': 'optimize.activate'});
+        }
+      </script>
+      `
+}
 
 const serviceHTML = {
   GOOGLE_TAG_MANAGER: id => `<noscript>
@@ -56,4 +63,15 @@ const servicesBody = servicesAvailable
     <!-- End ${titleCase(s.replace(/\_/g, " "))} -->
   `).join("\n");
 
-export {servicesAvailable, servicesBody, servicesScript};
+// Services that needs a JS tags scripts
+const servicesHeadTagsAvailable = Object.keys(serviceHeadTag)
+  .filter(s => [undefined, ''].indexOf(process.env[`CANON_${s}`]) === -1);
+
+const servicesHeadTags = servicesHeadTagsAvailable
+  .map(s => `
+    <!-- ${titleCase(s.replace(/\_/g, " "))} -->
+    ${serviceHeadTag[s](process.env[`CANON_${s}`])}
+    <!-- End ${titleCase(s.replace(/\_/g, " "))} -->
+  `).join("\n");
+
+export {servicesAvailable, servicesBody, servicesScript, servicesHeadTags};
