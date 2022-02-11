@@ -61,7 +61,7 @@ ${style}
   printBackground: true
 };
 
-const generate = async(path, userOptions = {}, viewportOptions = {}) => {
+const generate = async(path, userOptions = {}, viewportOptions = {}, pageOptions = {timeout: 0}) => {
 
   const width = 1200;
   const height = Math.round(width / 8.5 * 11);
@@ -80,7 +80,7 @@ const generate = async(path, userOptions = {}, viewportOptions = {}) => {
   if (CANON_CMS_HTACCESS_USER && CANON_CMS_HTACCESS_PW) {
     await page.authenticate({username: CANON_CMS_HTACCESS_USER, password: CANON_CMS_HTACCESS_PW});
   }
-  await page.goto(path, {waitUntil: "networkidle2"});
+  await page.goto(path, {waitUntil: "networkidle2", ...pageOptions});
   const pdf = await page.pdf(assign({width, height}, defaultOptions, userOptions));
 
   await browser.close();
@@ -143,7 +143,7 @@ module.exports = function(app) {
       if (!valid) return res.json({error: "Error in pdfRoute: Invalid path"});
       res.connection.setTimeout(1000 * 60 * 5);
       const path = `${req.protocol}://${req.headers.host}/${req.body.path}`;
-      const pdf = await generate(path, req.body.pdfOptions, req.body.viewportOptions);
+      const pdf = await generate(path, req.body.pdfOptions, req.body.viewportOptions, req.body.pageOptions);
       res.set({"Content-Type": "application/pdf", "Content-Length": pdf.length});
       return res.send(pdf);
     });
@@ -157,7 +157,8 @@ module.exports = function(app) {
       }
       const pdfOptions = canon.pdf && canon.pdf.pdfOptions ? canon.pdf.pdfOptions : {};
       const viewportOptions = canon.pdf && canon.pdf.viewportOptions ? canon.pdf.viewportOptions : {};
-      const pdf = await generate(path, pdfOptions, viewportOptions);
+      const pageOptions = canon.pdf && canon.pdf.pageOptions ? canon.pdf.pageOptions : {};
+      const pdf = await generate(path, pdfOptions, viewportOptions, pageOptions);
       return res.send(pdf);
     });
   }

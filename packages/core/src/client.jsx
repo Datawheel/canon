@@ -49,7 +49,7 @@ import defaultTranslations from "./i18n/canon";
 import CanonProvider from "./CanonProvider";
 
 const {locale, resources} = window.__INITIAL_STATE__.i18n;
-const {CANON_LOGLOCALE, NODE_ENV} = window.__INITIAL_STATE__.env;
+const {CANON_LOGLOCALE, NODE_ENV, CANON_GOOGLE_OPTIMIZE} = window.__INITIAL_STATE__.env;
 const name = window.__APP_NAME__;
 
 const resourceObj = {canon: {[name]: defaultTranslations}};
@@ -132,6 +132,13 @@ function renderMiddleware() {
       const chunks = props.components.filter(comp => comp && comp.preload && comp.load);
       const {action, hash, pathname, query, search, state} = location;
 
+      //Launch Optimize activation event if client side navigation
+      function launchOptimizeEvent() {
+        if (CANON_GOOGLE_OPTIMIZE && !window.__SSR__ && window.dataLayer) {
+          window.dataLayer.push({'event': 'optimize.activate'});
+        }
+      }
+
       /** */
       function postRender() {
         if (!window.__SSR__) {
@@ -153,6 +160,7 @@ function renderMiddleware() {
 
       if (action !== "REPLACE" || !Object.keys(query).length) {
         selectAll(".d3plus-tooltip").remove();
+        launchOptimizeEvent();
         if (window.__SSR__ || state === "HASH" || !needs.length && !chunks.length) {
           postRender();
           window.__SSR__ = false;
@@ -184,7 +192,7 @@ function renderMiddleware() {
         }
       }
 
-      return <RouterContext {...props}/>;
+      return <RouterContext {...props} />;
 
     }
   };

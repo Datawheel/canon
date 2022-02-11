@@ -42,7 +42,7 @@ class CanonProvider extends PureComponent {
        *
        * Minor modifications by Chris Price to only polyfill when required.
        */
-      (function(SVGElement) {
+      (function (SVGElement) {
 
         if (!SVGElement || "innerHTML" in SVGElement.prototype) {
           return;
@@ -111,7 +111,7 @@ class CanonProvider extends PureComponent {
               const dXML = new DOMParser();
               dXML.async = false;
               // Wrap the markup into a SVG node to ensure parsing works.
-              const sXML = `<svg xmlns='http://www.w3.org/2000/svg'>${  markupText  }</svg>`;
+              const sXML = `<svg xmlns='http://www.w3.org/2000/svg'>${markupText}</svg>`;
               const svgDocElement = dXML.parseFromString(sXML, "text/xml").documentElement;
 
               // Now take each node, import it and append to this element.
@@ -140,7 +140,7 @@ class CanonProvider extends PureComponent {
 
   onClick(e) {
 
-    if (typeof window.ga === "function") {
+    if (typeof window.ga === "function" && typeof window.ga.getAll === "function") {
 
       const clickEl = e.target;
 
