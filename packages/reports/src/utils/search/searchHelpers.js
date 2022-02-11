@@ -1,6 +1,7 @@
 const contentReducer = require("../blocks/contentReducer");
 const verbose = require("../canon/getLogging")();
 const sequelize = require("sequelize");
+const {reportReqFull} = require("../sequelize/ormHelpers");
 
 const catcher = e => {
   if (verbose) console.log("Error in searchHelpers", e);
@@ -15,7 +16,7 @@ const fallback = e => {
 const fetchReportFromDims = async(db, dims) => {
   const slug = dims[0].dimension ? dims[0].dimension : false;
   const meta = await db.report_meta.findOne({where: {slug}}).catch(catcher); 
-  const report = await db.report.findOne({where: {id: meta.report_id}, include: [{association: "meta"}]}).then(d => d.toJSON()).catch(catcher); 
+  const report = await db.report.findOne({where: {id: meta.report_id}, ...reportReqFull}).then(d => d.toJSON()).catch(catcher); 
   return report;
 };
 
@@ -26,7 +27,7 @@ const fetchReportFromDims = async(db, dims) => {
  * @param {Array} dims Ordered list of {report/member} pairs
  * @param {String} locale Two character language code
  */
-const generateAttributesFromIdsOrSlugs = async(db, dims, locale) => {
+const fetchReportAndAttributesFromIdsOrSlugs = async(db, dims, locale) => {
   
   const report = await fetchReportFromDims(db, dims).catch(catcher);
   
@@ -45,10 +46,13 @@ const generateAttributesFromIdsOrSlugs = async(db, dims, locale) => {
     }
   }
   if (!foundAll) return fallback("id not found");
-  return await generateAttributesFromSlugs(db, dims.map(d => d.member), locale);
+  return {
+    report,
+    attributes: await fetchAttributesFromSlugs(db, dims.map(d => d.member), locale)
+  }
 };
 
-const generateAttributesFromSlugs = async(db, slugs, locale) => {
+const fetchAttributesFromSlugs = async(db, slugs, locale) => {
   if (!slugs) return {};
 
   const attributes = await db.search
@@ -72,4 +76,4 @@ const generateAttributesFromSlugs = async(db, slugs, locale) => {
   return attributes;
 };
 
-module.exports = {generateAttributesFromIdsOrSlugs, generateAttributesFromSlugs};
+module.exports = {fetchReportAndAttributesFromIdsOrSlugs, fetchAttributesFromSlugs};

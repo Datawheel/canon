@@ -3,7 +3,7 @@ const sequelize = require("sequelize"),
       yn = require("yn");
 
 const {searchIngest} = require("../utils/search/searchIngest");
-const {generateAttributesFromSlugs} = require("../utils/search/searchHelpers");
+const {fetchAttributesFromSlugs} = require("../utils/search/searchHelpers");
 const {reportReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables, blockReqFull} = require("../utils/sequelize/ormHelpers");
 const {translateReport, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
 const {REPORT_FIELDS} = require("../utils/consts/cms");
@@ -434,7 +434,7 @@ module.exports = function(app) {
   const getReportTreeAndActivate = async(req, sid) => {
     const locale = req.query.locale ? req.query.locale : localeDefault;
     const slugs = req.query.slugs ? req.query.slugs.split(",") : [];
-    const attributes = await generateAttributesFromSlugs(db, slugs, locale);
+    const attributes = await fetchAttributesFromSlugs(db, slugs, locale);
     let reports = await db.report.findAll(reportReqFull).catch(catcher);
     reports = reports.map(p => p.toJSON());
     reports = flatSort(db.report, reports);
