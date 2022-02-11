@@ -22,4 +22,7 @@ module.exports = (env = process.env) => {
     if (k.startsWith("CANON_CONST_")) {
       canonVars[k.replace("CANON_CONST_", "")] = env[k];
     }
+  });
+
+  return canonVars;
 };

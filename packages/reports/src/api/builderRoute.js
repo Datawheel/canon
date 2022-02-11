@@ -433,7 +433,8 @@ module.exports = function(app) {
 
   const getReportTreeAndActivate = async(req, sid) => {
     const locale = req.query.locale ? req.query.locale : localeDefault;
-    const attributes = await generateAttributesFromSlugs(db, req.query.slugs, locale);
+    const slugs = req.query.slugs ? req.query.slugs.split(",") : [];
+    const attributes = await generateAttributesFromSlugs(db, slugs, locale);
     let reports = await db.report.findAll(reportReqFull).catch(catcher);
     reports = reports.map(p => p.toJSON());
     reports = flatSort(db.report, reports);

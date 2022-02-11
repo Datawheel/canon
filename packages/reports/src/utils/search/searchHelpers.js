@@ -1,16 +1,58 @@
 const contentReducer = require("../blocks/contentReducer");
+const verbose = require("../canon/getLogging")();
+const sequelize = require("sequelize");
 
-const generateAttributesFromSlugs = async(db, pid, slugs, locale) => {
+const catcher = e => {
+  if (verbose) console.log("Error in searchHelpers", e);
+  return false;
+};
+
+const fallback = e => {
+  if (verbose) console.log("Lookup error in searchHelpers", e);
+  return {};
+};
+
+const fetchReportFromDims = async(db, dims) => {
+  const slug = dims[0].dimension ? dims[0].dimension : false;
+  const meta = await db.report_meta.findOne({where: {slug}}).catch(catcher); 
+  const report = await db.report.findOne({where: {id: meta.report_id}, include: [{association: "meta"}]}).then(d => d.toJSON()).catch(catcher); 
+  return report;
+};
+
+/**
+ * Given report/member pairs, where members can have non-unique ids, look up the report and use it
+ * to select the correct search member.
+ * @param {Object} db Reference to the sequelize instance
+ * @param {Array} dims Ordered list of {report/member} pairs
+ * @param {String} locale Two character language code
+ */
+const generateAttributesFromIdsOrSlugs = async(db, dims, locale) => {
+  
+  const report = await fetchReportFromDims(db, dims).catch(catcher);
+  
+  let foundAll = true;
+  for (const dim of dims) {
+    const thisMeta = report.meta.find(d => d.slug === dim.dimension);
+    const member = await db.search.findOne({where: {
+      [sequelize.Op.or]: [{id: dim.member}, {slug: dim.member}],
+      properties: thisMeta.properties
+    }}).catch(catcher);
+    if (member) {
+      dim.member = member.slug;
+    }
+    else {
+      foundAll = false;
+    }
+  }
+  if (!foundAll) return fallback("id not found");
+  return await generateAttributesFromSlugs(db, dims.map(d => d.member), locale);
+};
+
+const generateAttributesFromSlugs = async(db, slugs, locale) => {
   if (!slugs) return {};
 
-  // ids are not necessarily deduplicated across namespaces. Therefore, we must fetch the
-  // profile and its metadata, in order to have the specificity required for a unique id lookup.
-
-  // todo1.0: Port content of `fetchAttr` in reportRoute.js to this function.
-
-  const orderedSlugs = slugs.split(",");
-  return await db.search
-    .findAll({where: {slug: orderedSlugs}, include: {association: "contentByLocale"}})
+  const attributes = await db.search
+    .findAll({where: {slug: slugs}, include: {association: "contentByLocale"}})
     .then(arr => arr
       .map(d => ({
         ...d.toJSON(),
@@ -23,9 +65,11 @@ const generateAttributesFromSlugs = async(db, pid, slugs, locale) => {
         [`name${i + 1}`]: d.contentByLocale[locale].name,
         ...Object.keys(d.properties).reduce((acc, k) => ({...acc, [`${k}${i + 1}`]: d.properties[k]}), {})
       }))
-      .sort((a, b) => orderedSlugs.indexOf(a.slug) - orderedSlugs.indexOf(b.slug))
+      .sort((a, b) => slugs.indexOf(a.slug) - slugs.indexOf(b.slug))
       .reduce((acc, d) => ({...acc, ...d}), {}))
     .catch(() => {}); // todo1.0 errors man
+
+  return attributes;
 };
 
-module.exports = {generateAttributesFromSlugs};
+module.exports = {generateAttributesFromIdsOrSlugs, generateAttributesFromSlugs};
