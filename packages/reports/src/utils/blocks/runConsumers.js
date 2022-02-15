@@ -91,6 +91,12 @@ const apiFetch = async(req, api, locale, formatterFunctions, vars) => {
  * Given a list of all possible blocks, create a hash object, keyed by id,
  * where each entry contains the variables which that block exports. Requires a "rootBlocks"
  * entry point to determine starting blocks.
+ * @param req 
+ * @param attributes
+ * @param blocks
+ * @param locale
+ * @param formatterFunctions
+ * @param rootBlocks
  */
 const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, rootBlocks) => {
 

@@ -9,12 +9,11 @@ const {translateReport, translateSection, fetchUpsertHelpers} = require("../util
 const {REPORT_FIELDS} = require("../utils/consts/cms");
 const {REQUEST_STATUS} = require("../utils/consts/redux");
 const runConsumers = require("../utils/blocks/runConsumers");
-const formatters4eval = require("../utils/formatters4eval");
-const getLocales = require("../utils/canon/getLocales");
 const sorter = require("../utils/js/sorter");
 const contentReducer = require("../utils/blocks/contentReducer");
-
-let formatterFunctionsByLocale = null;
+const getFormattersFunctionsByLocale = require("../utils/reports/getFormattersFunctionsByLocale");
+const normalizeBlocks = require("../utils/blocks/normalizeBlocks");
+const getRootBlocksForSection = require("../utils/blocks/getRootBlocksForSection");
 
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_REPORTS_LOGGING);
@@ -127,35 +126,17 @@ module.exports = function(app) {
 
     const locale = req.query.locale ? req.query.locale : localeDefault;
 
-    if (!formatterFunctionsByLocale) {
-      const formatters = await db.formatter.findAll().catch(() => []);
-      const {locales} = getLocales(process.env);
-      formatterFunctionsByLocale = locales.reduce((acc, locale) => ({...acc, [locale]: formatters4eval(formatters, locale)}), {});
-    }
+    const formatterFunctionsByLocale = await getFormattersFunctionsByLocale(db).catch(catcher);
 
     let blocks = await db.block.findAll(blockReqFull).catch(catcher);
     if (!blocks) return {status: REQUEST_STATUS.ERROR};
-    blocks = blocks.map(d => d.toJSON());
-    const nonNativeBlocks = blocks.filter(d => d.shared && d.section_id !== sid).map(d => d.id);
-
-    // runConsumers requires a normalized block shape. This emulates that.
-    // todo1.0, either normalize this or create a different way of using runConsumers
-    blocks = blocks.map(d => ({...d,
-      contentByLocale: d.contentByLocale.reduce(contentReducer, {}),
-      inputs: d.inputs.map(d => d.id),
-      consumers: d.consumers.map(d => d.id)
-    })).reduce((acc, d) => ({...acc, [d.id]: d}), {});
-
-    // If a block has been provided, a single block has been saved or changed - start there.
-    // Otherwise, a section is being activated in the report builder, so fetch all roots, which are either:
-    // 1. blocks in this section that have no inputs
-    // 2. blocks in this section that have inputs entirely consisting of shared / global blocks.
+    // runConsumers requires a normalized data shape
+    blocks = normalizeBlocks(blocks.map(d => d.toJSON()));
+    
     const rootBlocks = bid
       ? {[bid]: blocks[bid]}
-      : Object.values(blocks)
-        .filter(d => d.section_id === sid && (d.inputs.length === 0 || d.inputs.length > 0 && d.inputs.every(i => nonNativeBlocks.includes(i))))
-        .reduce((acc, d) => ({...acc, [d.id]: d}), {});
-    // todo1.0 fix formatter usage here, add error logging
+      : getRootBlocksForSection(sid, blocks);
+    // todo1.0 add error logging
     return await runConsumers(req, attributes, blocks, locale, formatterFunctionsByLocale[locale], rootBlocks);
   };
 

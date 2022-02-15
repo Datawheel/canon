@@ -49,7 +49,7 @@ const fetchReportAndAttributesFromIdsOrSlugs = async(db, dims, locale) => {
   return {
     report,
     attributes: await fetchAttributesFromSlugs(db, dims.map(d => d.member), locale)
-  }
+  };
 };
 
 const fetchAttributesFromSlugs = async(db, slugs, locale) => {
