@@ -1174,32 +1174,48 @@ The CMS also exports the `user` object and a `userRole` boolean for the currentl
 Before releasing a production server, it is a good practice to enable some sort of caching (like NGINX) on the server so that subsequent visits to specific profile pages don't need to run all of their generators again. The CMS contains a `canon-cms-warmup` script that will ping every possible profile page, in order of their zvalue.
 
 ```sh
-Usage: npx canon-cms-warmup <command> [args]
+Usage: npx canon-cms-warmup [command] [args]
+
+Available commands are "scan" and "list".
+If the command is not set, the script will execute the "scan" command.
 
 Commands:
-    help    Shows this information.
-    run     Inits a scan of all available routes in the installed CMS.
-            - Required: base, db[-props]
-            - Optional: output, password, profile, threads, username
-    retry   Reads an outputted file from a previous scan and retries to load
-            the failed endpoints.
-            - Required: input
-            - Optional: threads, output
-
-If command is not set, "run" will be executed.
+    scan    The "scan" command checks the available pages in the available
+            profiles, and run the tests on each page.
+            It has 2 modes: the "run" mode and the "retry" mode. The presence
+            of the --input argument determines which mode the script will run.
+            In run mode, the script needs to connect to the database and
+            retrieve the items the profiles are built with, then sets the
+            additional parameters.
+                Required : base, db[-props]
+            In retry mode, the script will use the results.json file generated
+            by a previous run. All the parameters were saved inside, so passing
+            them again is not needed.
+                Required : input
+    list    The "list" command is a reduced version of the scan command.
+            Instead of generating the URLs, loading, and executing tests on
+            them, it just generates the URLs and saves them in a file.
+            This file can later be used in other tools, like siege.
+                Required : base, db[-props]
 
 Arguments:
     -b, --base      The root url to use as template in the generation.
-                    Use ":profile" for the profile name, and ":page" for the page slug.
+                    These variables will be replaced:
+                    - ':profile' for the profile name
+                    - ':page' for the page slug
+    -d, --debug     Prints some extra variables for debugging purposes.
+    -H, --header    Set a header for all requests. Multiple headers are allowed
+                    but each must be preceeded by the flag, like in curl.
+                    The 'Host' header can't be modified.
     -h, --help      Shows this information.
-    -H, --header    Set a header for all requests.
                     This parameter must be used once for each "key: value" combo.
-    -i, --input     The path to the file that contains the errored endpoints.
-    -o, --output    The path to the file where to log the errored endpoints.
+    -i, --input     The path to the 'results.json' file of the previous run.
+    -o, --output    The path to the folder where the reports will be saved.
+                    Defaults to './cms_warmup_YYYYMMDDhhmmss'.
     -p, --password  The password in case of needing basic authentication.
-        --profile   A comma separated string of the profiles that should be loaded.
+        --profile   A comma-separated string with the profiles that should be loaded.
                     If omitted or empty, all available profiles will be used.
-    -t, --threads   The number of concurrent connections to work with. Default: 2.
+    -t, --timeout   Time limit to consider a page load failed, in seconds.
     -u, --username  The username in case of needing basic authentication.
         --db-host   The host and port where to connect to the database.
                     Defaults to "localhost:5432".
@@ -1209,6 +1225,7 @@ Arguments:
         --db        The full connection URI string to connect to the database.
                     Format is "engine://dbUser:dbPswd@dbHost/dbName".
                     If this variable is set, the previous ones are ignored.
+    -w, --workers   The number of concurrent connections to work with. Default: 2
 ```
 
 ---
