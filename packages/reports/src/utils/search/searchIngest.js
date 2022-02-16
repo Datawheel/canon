@@ -1,7 +1,7 @@
 const axios = require("axios");
-const {keyDiver} = require("./js/arrayUtils");
+const {keyDiver} = require("../js/arrayUtils");
 const {strip} = require("d3plus-text");
-const stripHTML = require("./formatters/stripHTML");
+const stripHTML = require("../formatters/stripHTML");
 const slugify = str => strip(stripHTML(str)).replace(/-{2,}/g, "-").toLowerCase();
 
 const searchIngest = async(db, config) => {

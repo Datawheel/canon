@@ -166,7 +166,7 @@ export function updateEntity(type, payload) {
     // Formatters require locales in the payload to know what languages to compile for
     const store = getStore();
     const config = {params: getParamsFromStore(store)};
-    const locales = getLocales(store.env);
+    const {locales} = getLocales(store.env);
     const resp = await axios.post(`${store.env.CANON_API}/api/reports/${type}/update`, payload, config).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       dispatch({type: `${type.toUpperCase()}_UPDATE`, data: resp.data, locales});
@@ -185,7 +185,7 @@ export function deleteEntity(type, payload) {
     const store = getStore();
     const params = getParamsFromStore(store);
     // Formatters require locales in the payload to know what languages to compile for
-    const locales = getLocales(store.env);
+    const {locales} = getLocales(store.env);
     const resp = await axios.delete(`${store.env.CANON_API}/api/reports/${type}/delete`, {data: payload, params}).catch(e => ({status: REQUEST_STATUS.ERROR, error: e.message}));
     if (resp.status === 200) {
       dispatch({type: `${type.toUpperCase()}_DELETE`, data: resp.data, locales});

@@ -232,16 +232,16 @@ class CanonProvider extends PureComponent {
           meta={helmet.meta}
           link={helmet.link}
         />
-        { loading ? <Loading /> : <div>{ children }</div> }
+        {loading ? <Loading /> : <div>{children}</div>}
         <Portal>
           <Toaster ref={this.toastRef} />
         </Portal>
-        { gdpr ? <div id="cookies-eu-banner" style={{display: "none"}}>
+        {gdpr ? <div id="cookies-eu-banner" style={{display: "none"}}>
           <span id="cookies-eu-desc">{t("GDPR.desc", {services})}</span>
-          { privacy ? <a href={privacy} id="cookies-eu-more">{t("GDPR.more")}</a> : null }
+          {privacy ? <a href={privacy} id="cookies-eu-more">{t("GDPR.more")}</a> : null}
           <button id="cookies-eu-reject" className="bp3-button">{t("GDPR.reject")}</button>
           <button id="cookies-eu-accept" className="bp3-button">{t("GDPR.accept")}</button>
-        </div> : null }
+        </div> : null}
       </div>
     </AppContext.Provider>;
   }

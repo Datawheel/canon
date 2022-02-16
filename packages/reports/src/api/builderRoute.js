@@ -2,16 +2,18 @@ const sequelize = require("sequelize"),
       Op = sequelize.Op, // eslint-disable-line
       yn = require("yn");
 
-const {searchIngest} = require("../utils/searchIngest");
+const {searchIngest} = require("../utils/search/searchIngest");
+const {fetchAttributesFromSlugs} = require("../utils/search/searchHelpers");
 const {reportReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables, blockReqFull} = require("../utils/sequelize/ormHelpers");
 const {translateReport, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
 const {REPORT_FIELDS} = require("../utils/consts/cms");
 const {REQUEST_STATUS} = require("../utils/consts/redux");
 const runConsumers = require("../utils/blocks/runConsumers");
-const formatters4eval = require("../utils/formatters4eval");
-const getLocales = require("../utils/canon/getLocales");
-
-let formatterFunctionsByLocale = null;
+const sorter = require("../utils/js/sorter");
+const contentReducer = require("../utils/blocks/contentReducer");
+const getFormattersFunctionsByLocale = require("../utils/reports/getFormattersFunctionsByLocale");
+const normalizeBlocks = require("../utils/blocks/normalizeBlocks");
+const getRootBlocksForSection = require("../utils/blocks/getRootBlocksForSection");
 
 const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const verbose = yn(process.env.CANON_REPORTS_LOGGING);
@@ -31,8 +33,6 @@ const catcher = e => {
   return [];
 };
 
-const sorter = (a, b) => a.ordering - b.ordering;
-
 /**
  * Due to yet-unreproducible edge cases, sometimes elements lose their ordering.
  * This function sorts an array, then checks if the "ordering" property lines up
@@ -50,8 +50,6 @@ const flatSort = (conn, array) => {
   });
   return array;
 };
-
-const contentReducer = (acc, d) => ({...acc, [d.locale]: d});
 
 const sortReport = (db, report) => {
   // Don't use flatSort for meta. Meta can have multiple entities in the same ordering, so do not attempt to "flatten" them out
@@ -124,61 +122,21 @@ module.exports = function(app) {
 
   /* ACTIVATION */
 
-  const generateAttributesFromSlugs = async(slugs, locale) => {
-    if (!slugs) return {};
-    const orderedSlugs = slugs.split(",");
-    return await db.search
-      .findAll({where: {slug: orderedSlugs}, include: {association: "contentByLocale"}})
-      .then(arr => arr
-        .map(d => ({
-          ...d.toJSON(),
-          contentByLocale: d.contentByLocale.reduce(contentReducer, {})
-        }))
-        .map((d, i) => ({
-          [`id${i + 1}`]: d.id,
-          [`slug${i + 1}`]: d.slug,
-          [`namespace${i + 1}`]: d.namespace,
-          [`name${i + 1}`]: d.contentByLocale[locale].name,
-          ...Object.keys(d.properties).reduce((acc, k) => ({...acc, [`${k}${i + 1}`]: d.properties[k]}), {})
-        }))
-        .sort((a, b) => orderedSlugs.indexOf(a.slug) - orderedSlugs.indexOf(b.slug))
-        .reduce((acc, d) => ({...acc, ...d}), {}))
-      .catch(() => {}); // todo1.0 errors man
-  };
-
   const activate = async(req, sid, attributes, bid) => {
 
     const locale = req.query.locale ? req.query.locale : localeDefault;
 
-    if (!formatterFunctionsByLocale) {
-      const formatters = await db.formatter.findAll().catch(() => []);
-      const locales = getLocales(process.env);
-      formatterFunctionsByLocale = locales.reduce((acc, locale) => ({...acc, [locale]: formatters4eval(formatters, locale)}), {});
-    }
+    const formatterFunctionsByLocale = await getFormattersFunctionsByLocale(db).catch(catcher);
 
     let blocks = await db.block.findAll(blockReqFull).catch(catcher);
     if (!blocks) return {status: REQUEST_STATUS.ERROR};
-    blocks = blocks.map(d => d.toJSON());
-    const nonNativeBlocks = blocks.filter(d => d.shared && d.section_id !== sid).map(d => d.id);
-
-    // runConsumers requires a normalized block shape. This emulates that.
-    // todo1.0, either normalize this or create a different way of using runConsumers
-    blocks = blocks.map(d => ({...d,
-      contentByLocale: d.contentByLocale.reduce(contentReducer, {}),
-      inputs: d.inputs.map(d => d.id),
-      consumers: d.consumers.map(d => d.id)
-    })).reduce((acc, d) => ({...acc, [d.id]: d}), {});
-
-    // If a block has been provided, a single block has been saved or changed - start there.
-    // Otherwise, a section is being activated in the report builder, so fetch all roots, which are either:
-    // 1. blocks in this section that have no inputs
-    // 2. blocks in this section that have inputs entirely consisting of shared / global blocks.
+    // runConsumers requires a normalized data shape
+    blocks = normalizeBlocks(blocks.map(d => d.toJSON()));
+    
     const rootBlocks = bid
       ? {[bid]: blocks[bid]}
-      : Object.values(blocks)
-        .filter(d => d.section_id === sid && (d.inputs.length === 0 || d.inputs.length > 0 && d.inputs.every(i => nonNativeBlocks.includes(i))))
-        .reduce((acc, d) => ({...acc, [d.id]: d}), {});
-    // todo1.0 fix formatter usage here, add error logging
+      : getRootBlocksForSection(sid, blocks);
+    // todo1.0 add error logging
     return await runConsumers(req, attributes, blocks, locale, formatterFunctionsByLocale[locale], rootBlocks);
   };
 
@@ -456,7 +414,8 @@ module.exports = function(app) {
 
   const getReportTreeAndActivate = async(req, sid) => {
     const locale = req.query.locale ? req.query.locale : localeDefault;
-    const attributes = await generateAttributesFromSlugs(req.query.slugs, locale);
+    const slugs = req.query.slugs ? req.query.slugs.split(",") : [];
+    const attributes = await fetchAttributesFromSlugs(db, slugs, locale);
     let reports = await db.report.findAll(reportReqFull).catch(catcher);
     reports = reports.map(p => p.toJSON());
     reports = flatSort(db.report, reports);
