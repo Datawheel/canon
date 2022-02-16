@@ -46,14 +46,21 @@ module.exports = function(app) {
     const dims = collateQueryToDims(req.query);
     const {report, attributes} = await fetchReportAndAttributesFromIdsOrSlugs(db, dims, locale);
     const formatterFunctionsByLocale = await getFormattersFunctionsByLocale(db).catch(catcher);
+    const formatterFunctions = formatterFunctionsByLocale[locale];
     
     const blocks = normalizeBlocks(report.sections.reduce((acc, d) => acc.concat(d.blocks), []));
-    const results = await Promise.all(report.sections.map(d => {
+    const sections = await Promise.all(report.sections.map(d => {
       const rootBlocks = getRootBlocksForSection(d.id, blocks);
-      return runConsumers(req, attributes, blocks, locale, formatterFunctionsByLocale[locale], rootBlocks);
-    }));    
+      return runConsumers(req, attributes, blocks, locale, formatterFunctions, rootBlocks);
+    }));
 
-    return res.json(results);
+    report.sections.forEach((section, i) => {
+      section.blocks.forEach(block => {
+        block.content = sections[i].blocksById[block.id];
+      });
+    });
+
+    return res.json(report);
   };
 
   app.get("/api/report", async(req, res) => await fetchReport(req, res));

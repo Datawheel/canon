@@ -6,6 +6,7 @@ const {BLOCK_TYPES} = require("../consts/cms");
 const varSwap = require("../variables/varSwap");
 const runSelector = require("../selectors/runSelector");
 const selectorQueryToVariable = require("../selectors/selectorQueryToVariable");
+const {getBlockContent} = require("../blocks/getBlockContent");
 
 const LOCALE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const LOCALES = process.env.CANON_LANGUAGES || LOCALE_DEFAULT;
@@ -112,12 +113,14 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
   const cache = {};
   const apiCache = {};
   const statusById = {};
+  const blocksById = {};
   // Calculate the vars/status for this block, given the variables from its inputs. Each var will be prepended with the
   // block type and id, which will create variables like "stat14value" for downstream blocks.
   const generateVars = async(block, variables = {}) => {
     let result = {};
     variables = {...variables, ...attributes};
     statusById[block.id] = {};
+    blocksById[block.id] = {};
     const setStatus = obj => statusById[block.id] = {...statusById[block.id], ...obj};
     let apiResponse = {}, resp = {};
     if (block.content.api) {
@@ -137,17 +140,23 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
       const {config, log, error} = runSelector(block.contentByLocale[locale].content.logic, formatterFunctions, variables, locale);
       setStatus({error, log});
       result = selectorQueryToVariable(block.id, req.query.query, config);
+      blocksById[block.id] = config;
+    }
+    else if (block.type === BLOCK_TYPES.VIZ) {
+      result = {}; // todo1.0 this will have to be materialized click-variables
+      blocksById[block.id] = block.content;
     }
     else {
-      const logic = block.type === BLOCK_TYPES.GENERATOR ? block.content.logic : block.contentByLocale[locale].content.logic;
+      const {logic} = getBlockContent(block, locale);
       const swappedLogic = varSwap(logic, formatterFunctions, variables);
       const evalResults = mortarEval("resp", resp, swappedLogic, formatterFunctions, locale, variables);
       const {vars, error, log} = evalResults;
       setStatus({error, log});
       if (typeof vars === "object") {
-        result = block.type === BLOCK_TYPES.GENERATOR
-          ? vars
-          : Object.keys(vars).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: vars[d]}), {});
+        const normalVars = vars;
+        const namespacedVars = Object.keys(vars).reduce((acc, d) => ({...acc, [`${block.type}${block.id}${d}`]: vars[d]}), {});
+        blocksById[block.id] = normalVars;
+        result = block.type === BLOCK_TYPES.GENERATOR ? normalVars : namespacedVars;
       }
     }
     return result;
@@ -224,7 +233,7 @@ const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, 
   for (const id of Object.keys(rootBlocks)) {
     await crawlDown(id);
   }
-  return {variablesById: cache, statusById};
+  return {variablesById: cache, statusById, blocksById};
 };
 
 module.exports = runConsumers;
