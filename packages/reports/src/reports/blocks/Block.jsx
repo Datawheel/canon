@@ -33,6 +33,8 @@ const MODES = {
  */
 function Block({id, modified, callbacks, inline}) {
 
+  console.log("DEV Block render"); // TODO - remove
+
   const dispatch = useDispatch();
   const {setOpened, setModified, maybeCloseWithoutSaving, setInlineId} = callbacks;
 

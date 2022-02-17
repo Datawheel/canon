@@ -3,10 +3,10 @@ import {ActionIcon, Checkbox, InputWrapper, Select, TextInput} from "@mantine/co
 import {AiOutlinePlus as PlusIcon} from "react-icons/ai";
 import {HiOutlineTrash as TrashIcon} from "react-icons/hi";
 
-import {useVariables} from "../../hooks/blocks/useVariables";
+import {useVariables} from "../../../hooks/blocks/useVariables";
+import {stringifyObject} from "../../../../utils/js/stringifyObject";
 
 import "./SelectorUI.css";
-import {stringifyObject} from "../../../utils/js/stringifyObject";
 
 
 // TYPEDEFS

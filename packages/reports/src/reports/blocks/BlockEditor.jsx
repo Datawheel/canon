@@ -30,6 +30,8 @@ function BlockEditor({
   onSave, setBlockContent, setBlockSettings, setInlineId
 }) {
 
+  console.log("DEV BlockEditor render"); // TODO - remove
+
   /* HOOKS */
   const [tab, setTab] = useState(0);
 

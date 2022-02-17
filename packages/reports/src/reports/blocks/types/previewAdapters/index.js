@@ -36,13 +36,8 @@ import vizAdapter from "./Viz";
  * @returns {BlockPreviewContent}
  */
 
-/**
- *
- */
-const allAdapters = {
+export default {
   [BLOCK_TYPES.GENERATOR]: generatorAdapter,
   [BLOCK_TYPES.SELECTOR]: selectorAdapter,
   [BLOCK_TYPES.VIZ]: vizAdapter
 };
-
-export default allAdapters;

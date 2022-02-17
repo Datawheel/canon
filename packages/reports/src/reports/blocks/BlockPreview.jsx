@@ -23,6 +23,8 @@ import PreviewAdapters from "./types/previewAdapters";
  */
 function BlockPreview(props) {
 
+  console.log("DEV BlockPreview render"); // TODO - remove
+
   const {active, allowed, blockStateContent, debug, id, locale} = props;
 
   /** Input variables for block with given ID */
