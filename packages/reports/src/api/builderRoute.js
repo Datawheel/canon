@@ -133,11 +133,7 @@ module.exports = function(app) {
     // runConsumers requires a normalized data shape
     blocks = normalizeBlocks(blocks.map(d => d.toJSON()));
     
-    const rootBlocks = bid
-      ? {[bid]: blocks[bid]}
-      : getRootBlocksForSection(sid, blocks);
-    // todo1.0 add error logging
-    return await runConsumers(req, attributes, blocks, locale, formatterFunctionsByLocale[locale], rootBlocks);
+    return await runConsumers(req, attributes, blocks, locale, formatterFunctionsByLocale[locale], sid, bid);
   };
 
   /*

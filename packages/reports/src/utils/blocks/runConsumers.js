@@ -7,6 +7,7 @@ const varSwap = require("../variables/varSwap");
 const runSelector = require("../selectors/runSelector");
 const selectorQueryToVariable = require("../selectors/selectorQueryToVariable");
 const {getBlockContent} = require("../blocks/getBlockContent");
+const getRootBlocksForSection = require("./getRootBlocksForSection");
 
 const LOCALE_DEFAULT = process.env.CANON_LANGUAGE_DEFAULT || "en";
 const LOCALES = process.env.CANON_LANGUAGES || LOCALE_DEFAULT;
@@ -90,8 +91,7 @@ const apiFetch = async(req, api, locale, formatterFunctions, vars) => {
 
 /**
  * Given a list of all possible blocks, create a hash object, keyed by id,
- * where each entry contains the variables which that block exports. Requires a "rootBlocks"
- * entry point to determine starting blocks.
+ * where each entry contains the variables which that block exports. 
  * @param req 
  * @param attributes
  * @param blocks
@@ -99,7 +99,9 @@ const apiFetch = async(req, api, locale, formatterFunctions, vars) => {
  * @param formatterFunctions
  * @param rootBlocks
  */
-const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, rootBlocks) => {
+const runConsumers = async(req, attributes, blocks, locale, formatterFunctions, sid, bid) => {
+
+  const rootBlocks = bid ? {[bid]: blocks[bid]} : getRootBlocksForSection(sid, blocks);
 
   /**
    * Starting with rootBlocks, crawl down the list of consumers, storing the keyed results in downstreamResult.

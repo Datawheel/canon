@@ -1,5 +1,6 @@
 const PromiseThrottle = require("promise-throttle"),
       axios = require("axios"),
+      bubbleUpLocaleContent = require("../utils/blocks/bubbleUpLocaleContent"),
       collateQueryToDims = require("../utils/search/collateQueryToDims"),
       getFormattersFunctionsByLocale = require("../utils/reports/getFormattersFunctionsByLocale"),
       {fetchReportAndAttributesFromIdsOrSlugs} = require("../utils/search/searchHelpers"),
@@ -49,18 +50,20 @@ module.exports = function(app) {
     const formatterFunctions = formatterFunctionsByLocale[locale];
     
     const blocks = normalizeBlocks(report.sections.reduce((acc, d) => acc.concat(d.blocks), []));
-    const sections = await Promise.all(report.sections.map(d => {
-      const rootBlocks = getRootBlocksForSection(d.id, blocks);
-      return runConsumers(req, attributes, blocks, locale, formatterFunctions, rootBlocks);
-    }));
+    const sections = await Promise.all(report.sections.map(d => runConsumers(req, attributes, blocks, locale, formatterFunctions, d.id)));
 
-    report.sections.forEach((section, i) => {
+    // todo1.0 remove content from profile and sections
+
+    const finalReport = bubbleUpLocaleContent(report, locale);
+    finalReport.sections.forEach((section, i) => {
+      section = bubbleUpLocaleContent(section, locale);
       section.blocks.forEach(block => {
-        block.content = sections[i].blocksById[block.id];
+        block = bubbleUpLocaleContent(block, locale);
+        block.renderContent = sections[i].blocksById[block.id];
       });
     });
 
-    return res.json(report);
+    return res.json(finalReport);
   };
 
   app.get("/api/report", async(req, res) => await fetchReport(req, res));
