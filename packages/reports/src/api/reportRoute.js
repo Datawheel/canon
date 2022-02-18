@@ -10,7 +10,6 @@ const PromiseThrottle = require("promise-throttle"),
       sorter = require("../utils/js/sorter"),
       varSwapRecursive = require("../utils/variables/varSwapRecursive"),
       yn = require("yn");
-const getRootBlocksForSection = require("../utils/blocks/getRootBlocksForSection");
 const normalizeBlocks = require("../utils/blocks/normalizeBlocks");
 
 const getConfig = require("../utils/canon/getConfig");
@@ -44,7 +43,7 @@ module.exports = function(app) {
 
   const fetchReport = async(req, res) => {
     const locale = req.query.locale || localeDefault;
-    const dims = collateQueryToDims(req.query);
+    const dims = collateQueryToDims(req.query); 
     const {report, attributes} = await fetchReportAndAttributesFromIdsOrSlugs(db, dims, locale);
     const formatterFunctionsByLocale = await getFormattersFunctionsByLocale(db).catch(catcher);
     const formatterFunctions = formatterFunctionsByLocale[locale];
@@ -54,16 +53,14 @@ module.exports = function(app) {
 
     // todo1.0 remove content from profile and sections
 
-    const finalReport = bubbleUpLocaleContent(report, locale);
-    finalReport.sections.forEach((section, i) => {
-      section = bubbleUpLocaleContent(section, locale);
+    report.sections.forEach((section, i) => {
       section.blocks.forEach(block => {
         block = bubbleUpLocaleContent(block, locale);
         block.renderContent = sections[i].blocksById[block.id];
       });
     });
 
-    return res.json(finalReport);
+    return res.json(report);
   };
 
   app.get("/api/report", async(req, res) => await fetchReport(req, res));

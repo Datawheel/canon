@@ -82,7 +82,7 @@ function CMSHeader({id}) {
     onClose: () => setOpened(false)
   };
 
-  const reportOptions = Object.values(reports).map(d => ({value: String(d.id), label: d.contentByLocale[localeDefault].content.label}));
+  const reportOptions = Object.values(reports).map(d => ({value: String(d.id), label: d.settings.label}));
   const localeOptions = [localeDefault].concat(locales).map(d => ({value: d, label: d}));
 
   const showPreviewSelector = meta.length > 0;

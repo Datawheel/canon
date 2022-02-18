@@ -47,6 +47,8 @@ module.exports = function(app) {
 
   app.post("/api/reports/dimension/upsert", async(req, res) => {
 
+    console.log("ingestRoute");
+    
     const {config} = req.body;
 
     await db.report_meta.upsert(config);

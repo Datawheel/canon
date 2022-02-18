@@ -13,7 +13,6 @@ const blockReqFull = {
 
 const sectionReqFull = {
   include: [
-    {association: "contentByLocale", separate: true},
     {association: "blocks", separate: true,
       ...blockReqFull
     }
@@ -23,7 +22,6 @@ const sectionReqFull = {
 const reportReqFull = {
   include: [
     {association: "meta", separate: true},
-    {association: "contentByLocale", separate: true},
     {
       association: "sections", separate: true,
       ...sectionReqFull

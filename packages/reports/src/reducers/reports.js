@@ -27,7 +27,7 @@ export default (reports = {}, action) => {
     case "BLOCK_NEW":
       return normalize(action.data, reportSchema);
     // todo1.0 add sorting here, like sections
-    case "BLOCK_UPDATE":
+    case "BLOCK_UPDATE":  
       return normalize(action.data, reportSchema);
     case "BLOCK_DELETE":
       return normalize(action.data, reportSchema);

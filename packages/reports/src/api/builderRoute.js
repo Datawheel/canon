@@ -170,8 +170,7 @@ module.exports = function(app) {
   app.get("/api/reports/reports", async(req, res) => {
     let meta = await db.report.findAll({
       include: [
-        {association: "meta", separate: true},
-        {association: "contentByLocale", separate: true}
+        {association: "meta", separate: true}
       ]
     }).catch(catcher);
     meta = meta.map(m => m.toJSON());
@@ -417,13 +416,11 @@ module.exports = function(app) {
     reports = flatSort(db.report, reports);
     for (const report of reports) {
       report.meta = report.meta.sort(sorter);
-      report.contentByLocale = report.contentByLocale.reduce(contentReducer, {});
       report.sections = flatSort(db.section, report.sections);
       let results;
       // While traversing/preparing the sections, the activated section will eventually be reached. However, due to global/shared
       // blocks, this may have effects outside of the scope of this section. Store the result to be spread later.
       for (const section of report.sections) {
-        section.contentByLocale = section.contentByLocale.reduce(contentReducer, {});
         section.blocks.forEach(block => block.contentByLocale = block.contentByLocale.reduce(contentReducer, {}));
         if (section.id === sid) results = await activate(req, sid, attributes);
         report.attributes = attributes;
