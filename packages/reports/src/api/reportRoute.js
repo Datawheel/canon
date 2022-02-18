@@ -1,21 +1,17 @@
 const PromiseThrottle = require("promise-throttle"),
-      axios = require("axios"),
       bubbleUpLocaleContent = require("../utils/blocks/bubbleUpLocaleContent"),
       collateQueryToDims = require("../utils/search/collateQueryToDims"),
       getFormattersFunctionsByLocale = require("../utils/reports/getFormattersFunctionsByLocale"),
       {fetchReportAndAttributesFromIdsOrSlugs} = require("../utils/search/searchHelpers"),
       libs = require("../utils/libs"), /*leave this! needed for the variable functions.*/ //eslint-disable-line
       runConsumers = require("../utils/blocks/runConsumers"),
-      sequelize = require("sequelize"),
-      sorter = require("../utils/js/sorter"),
-      varSwapRecursive = require("../utils/variables/varSwapRecursive"),
       yn = require("yn");
 const normalizeBlocks = require("../utils/blocks/normalizeBlocks");
 
-const getConfig = require("../utils/canon/getConfig");
+const getConfig = require("../utils/canon/getConfig")();
 const canonVars = require("../utils/canon/getCanonVars")(process.env);
+const verbose = require("../utils/canon/getLogging")();
 
-const verbose = yn(process.env.CANON_REPORTS_LOGGING);
 const localeDefault = canonVars.CANON_LANGUAGE_DEFAULT;
 
 const catcher = e => {
@@ -45,13 +41,19 @@ module.exports = function(app) {
     const locale = req.query.locale || localeDefault;
     const dims = collateQueryToDims(req.query); 
     const {report, attributes} = await fetchReportAndAttributesFromIdsOrSlugs(db, dims, locale);
+    // todo1.0 - set user and userRole as part of attributes
+    // todo1.0 - fetch parents (legacy)
+    // todo1.0 - show when printing
     const formatterFunctionsByLocale = await getFormattersFunctionsByLocale(db).catch(catcher);
     const formatterFunctions = formatterFunctionsByLocale[locale];
     
     const blocks = normalizeBlocks(report.sections.reduce((acc, d) => acc.concat(d.blocks), []));
+    // todo1.0 - slug injections
     const sections = await Promise.all(report.sections.map(d => runConsumers(req, attributes, blocks, locale, formatterFunctions, d.id)));
 
-    // todo1.0 remove content from profile and sections
+    // todo1.0 - handle redirects for ids
+    // todo1.0 - neighbors (legacy)
+    // todo1.0 - images
 
     report.sections.forEach((section, i) => {
       section.blocks.forEach(block => {
