@@ -1,13 +1,35 @@
-import runSelector from "../../../../utils/selectors/runSelector";
+import {SELECTOR_TYPES} from "../../../../utils/consts/cms";
+import scaffoldDynamic from "../../../../utils/selectors/scaffoldDynamic";
+import valueInOptions from "../../../../utils/selectors/valueInOptions";
 
 /** @type {import(".").BlockPreviewAdapterFunction} */
-const selectorPreviewAdapter = ({block, locale, variables, formatterFunctions}) => {
-  const payload = {};
-  const {config, log, error} = runSelector(block.contentByLocale[locale].content.logic, formatterFunctions, variables, locale);
-  payload.content = {id: block.id, config};
-  payload.log = log ? log.join("\n") : "";
-  payload.error = error;
-  return payload;
-};
+export default vars => {
+  const type = vars.type || SELECTOR_TYPES.SINGLE;
+  const name = vars.name || "Unlabeled Selector";
+  const options = scaffoldDynamic(vars.options || []);
 
-export default selectorPreviewAdapter;
+  const maybeFixForMulti = defaultValue => 
+    type === SELECTOR_TYPES.MULTI && !Array.isArray(defaultValue)
+      ? [defaultValue]
+      : defaultValue;
+  
+  let potentialDefaultValue = vars.defaultValue;
+  let defaultValue;
+  
+  if (potentialDefaultValue) {
+    potentialDefaultValue = maybeFixForMulti(potentialDefaultValue);
+    if (valueInOptions(type, potentialDefaultValue, options)) defaultValue = potentialDefaultValue;
+  }
+
+  if (!defaultValue) {
+    const fallbackValue = 
+      options && options[0] && options[0].id ||
+      options[0] ||
+      "";
+    defaultValue = maybeFixForMulti(fallbackValue);
+  }
+
+  console.log("Preview adapter input", vars, "output", {name, type, options, defaultValue});
+
+  return {name, type, options, defaultValue};
+};

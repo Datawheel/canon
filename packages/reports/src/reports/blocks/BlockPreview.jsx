@@ -1,20 +1,21 @@
 /* react */
 import React, {useMemo} from "react";
 import {Badge, Center, Textarea} from "@mantine/core";
+import {format} from "pretty-format";
 
 /* utils */
-import varSwapRecursive from "../../utils/variables/varSwapRecursive";
-import spoiler from "../../utils/blocks/spoiler";
 import {getBlockContent} from "../../utils/blocks/getBlockContent";
 import mortarEval from "../../utils/variables/mortarEval";
 import {useBlock, useFormatters} from "../hooks/blocks/selectors";
 import {useVariables} from "../hooks/blocks/useVariables";
+import varSwap from "../../utils/variables/varSwap";
 
 /** type-specific render components */
 import TypeRenderers from "./types/renderers";
 
 /** type-specific methods for deriving data needed for rendering from current Block state */
 import PreviewAdapters from "./types/previewAdapters";
+import BLOCK_CONFIG from "./types";
 
 /**
  * BlockPreview shows the varswapped version of the content currently being edited, it is used
@@ -38,33 +39,26 @@ function BlockPreview(props) {
    * Use the "blockStateContent" prop to provide override values if you want to show a
    * live preview of unsaved changes.
    */
-  const blockContent = blockStateContent || getBlockContent(block, locale);
+  const blockContent =  BLOCK_CONFIG[block.type].renderPreviewOnEdit && blockStateContent || getBlockContent(block, locale);
 
   /* redux */
   const formatterFunctions = useFormatters(locale);
 
-  const {content, error, log} = useMemo(() => {
-    let payload = {};
-    // if a Block-specific preview adapter function exists, use that to build payload
-    if (PreviewAdapters[block.type] && typeof PreviewAdapters[block.type] === "function") {
+  const [content, error, log] = useMemo(() => {
 
-      /** @type {import("./types/PreviewAdapters").BlockPreviewAdapterParams} */
-      const adapterParams = {active, block, blockContent, debug, locale, variables, formatterFunctions};
-      payload = PreviewAdapters[block.type](adapterParams);
-    }
-    // if no such adapter exists, fallback to default where blockState logic is evaluated
-    else {
-      const {vars, error, log} = mortarEval("variables", variables, blockContent?.logic, formatterFunctions, locale);
-      // if Block is active...
-      payload.content = active
-        // swap out variables with block's available input variables
-        ? varSwapRecursive(vars, formatterFunctions, variables)
-        // else, put spoiler marks on dynamic variables
-        : spoiler(vars);
-      payload.log = log ? log.join("\n") : "";
-      payload.error = error;
-    }
-    return payload;
+    // TODO - Viz was handled differently, handle this 
+    console.log("DEV variable", variables);
+    
+    // swap variables and evaluate block logic
+    const swappedLogic = varSwap(blockContent?.logic, formatterFunctions, variables);
+    const {vars, error, log} = mortarEval("variables", variables, swappedLogic, formatterFunctions, locale);
+
+    // adapt content using type transformer
+    const content = PreviewAdapters[block.type] && typeof PreviewAdapters[block.type] === "function"
+      ? PreviewAdapters[block.type](vars)
+      : vars;
+
+    return [content, error, log && log.map(d => format(d)).join("\n") || ""];
   }, [block, blockContent, active]);
 
   const Renderer = TypeRenderers[block.type];

@@ -10,9 +10,16 @@ import renderers from "./renderers";
  * @property {string} type - a unique identifier for this block type 
  * @property {} renderer - component that will render the visual element of a block
  * @property {} [adapter] - transform function to turn the output of a block's logic to the renderer's required props
+ * @property {} [nonActiveAdapter] - transform function that produces the config for a renderer when a
+ * block is inactive, meaning it is being rendered, but its upstream blocks have not been run so its input variables
+ * have not been materialized. (This happens both in the CMS editor and in an unloaded profile)
+ * @property {boolean} [evalClientSideOnly=false] - evaluate a block's logic only on a client's browser
+ * @property {boolean} [evalWhenNonActive=false] - whether a block's logic will be evaluated even if i
  * @property {} [editor] - component used to provide a user-friendly way to create and edit a block and its logic
- * @property {boolean} [renderPreviewOnEdit=true] - flag that says whether a block should be updated everytime it is updated in the CMS
- * @property {number} [debounceEditInMs=500] - time in milliseconds that edits to the block's content should be debounced
+ * @property {boolean} [renderPreviewOnEdit=true] - flag that says whether a block should be updated everytime
+ * it is updated in the CMS
+ * @property {number} [debounceEditInMs=500] - time in milliseconds that edits to the block's content should
+ * be debounced
  */
 
 /** @type {{[blockType: string]: BlockConfig}} */
@@ -34,7 +41,8 @@ const allBlocks = {
   [BLOCK_TYPES.PARAGRAPH]: {
     type: BLOCK_TYPES.PARAGRAPH,
     renderer: renderers[BLOCK_TYPES.PARAGRAPH],
-    renderPreviewOnEdit: true
+    renderPreviewOnEdit: true,
+    evalWhenNonActive: true
   },
 
   [BLOCK_TYPES.SELECTOR]: {
@@ -48,25 +56,27 @@ const allBlocks = {
   [BLOCK_TYPES.STAT]: {
     type: BLOCK_TYPES.STAT,
     renderer: renderers[BLOCK_TYPES.STAT],
-    renderPreviewOnEdit: true
+    renderPreviewOnEdit: true,
+    evalWhenNonActive: true
   },
 
   [BLOCK_TYPES.SUBTITLE]: {
     type: BLOCK_TYPES.SUBTITLE,
     renderer: renderers[BLOCK_TYPES.SUBTITLE],
-    renderPreviewOnEdit: true
+    renderPreviewOnEdit: true,
+    evalWhenNonActive: true
   },
 
   [BLOCK_TYPES.TITLE]: {
     type: BLOCK_TYPES.TITLE,
     renderer: renderers[BLOCK_TYPES.TITLE],
-    renderPreviewOnEdit: true
+    renderPreviewOnEdit: true,
+    evalWhenNonActive: true
   },
 
   [BLOCK_TYPES.VIZ]: {
     type: BLOCK_TYPES.VIZ,
     renderer: renderers[BLOCK_TYPES.VIZ],
-    adapter: adapters[BLOCK_TYPES.VIZ],
     renderPreviewOnEdit: false
   }
 };
