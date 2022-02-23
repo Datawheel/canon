@@ -10,7 +10,6 @@ import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import SectionHeader from "./SectionHeader";
 import EntityAddButton from "../components/EntityAddButton";
 import BlockElement from "../blocks/BlockElement";
-import {settings as blockSettings} from "../blocks/BlockSettings";
 
 /* redux */
 import {newEntity, activateSection, updateEntity} from "../../actions/reports";
@@ -19,6 +18,7 @@ import {newEntity, activateSection, updateEntity} from "../../actions/reports";
 import {ENTITY_ADD_BUTTON_TYPES} from "../components/consts";
 import {BLOCK_TYPES, ENTITY_TYPES} from "../../utils/consts/cms";
 import {REQUEST_STATUS} from "../../utils/consts/redux";
+import blockSettings from "../../utils/settings/block";
 
 /* css */
 import "./Section.css";
