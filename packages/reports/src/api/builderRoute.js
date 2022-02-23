@@ -195,10 +195,8 @@ module.exports = function(app) {
   app.post("/api/reports/report/new", isEnabled, async(req, res) => {
     const ordering = await findMaxOrdering("report").catch(catcher);
     const reportFields = Object.values(REPORT_FIELDS).reduce((acc, d) => req.body[d] ? {...acc, [d]: req.body[d]} : acc, {});
-    const report = await db.report.create({ordering}).catch(catcher);
-    await db.report_content.create({id: report.id, locale: localeDefault, content: reportFields}).catch(catcher);
-    const section = await db.section.create({ordering: 0, slug: "hero", report_id: report.id});
-    await db.section_content.create({id: section.id, locale: localeDefault}).catch(catcher);
+    const report = await db.report.create({ordering, settings: reportFields}).catch(catcher);
+    await db.section.create({ordering: 0, slug: "hero", report_id: report.id});
     const reports = await getReportTreeAndActivate(req).catch(catcher);
     return res.json(reports);
   });
