@@ -6,7 +6,7 @@ import Home from "./pages/Home";
 import Docs from "./pages/Docs";
 import Error from "./pages/core/NotFound";
 
-import {ReportBuilder, MemberEditor} from "@datawheel/canon-reports";
+import {ReportBuilder, MemberEditor, Report} from "@datawheel/canon-reports";
 import {Login, SignUp} from "@datawheel/canon-core";
 
 /** */
@@ -23,6 +23,7 @@ export default function RouteCreate() {
       <Route path="/login" component={Login} />
       <Route path="/signup" component={SignUp} />
       <Route path="/members" component={MemberEditor} />
+      <Route path="/report/:slug/:id" component={Report} />
 
       <Route path="*" component={Error} status={404} />
 
