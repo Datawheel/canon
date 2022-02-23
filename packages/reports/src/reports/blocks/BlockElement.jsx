@@ -6,7 +6,7 @@ import {HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiEyeOff
 import {AiOutlineGlobal} from "react-icons/ai";
 
 /* components */
-import CogMenu from "../components/CogMenu";
+import DeleteButton from "../components/DeleteButton";
 import BlockPreview from "./BlockPreview";
 import Block from "./Block";
 
@@ -83,11 +83,6 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
     size: "90%"
   };
 
-  const cogProps = {
-    id: block.id,
-    type: ENTITY_TYPES.BLOCK
-  };
-
   const hoverActions = {
     onMouseEnter: () => setHoverBlock(id),
     onMouseLeave: () => setHoverBlock(false)
@@ -133,7 +128,7 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
           {block.shared && <Tooltip key="tt" withArrow label="Sharing: Enabled"><ActionIcon key="globe"><AiOutlineGlobal size={20} /></ActionIcon></Tooltip>}
           {!allowed && <Tooltip key="allowed" withArrow label={allowedMessage}><ActionIcon><HiEyeOff size={20} /></ActionIcon></Tooltip>}
           <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
-          <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
+          <DeleteButton key="cog" type={ENTITY_TYPES.BLOCK} id={id} />
         </div>
       </div>
       <Modal centered key="d" {...modalProps}>

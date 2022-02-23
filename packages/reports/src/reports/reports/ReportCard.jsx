@@ -5,7 +5,7 @@ import {Card, Center, Space, Text, Badge, Button, Group, useMantineTheme} from "
 import {HiOutlineDocumentReport, HiOutlinePencil, HiOutlineCog} from "react-icons/hi";
 
 /* components */
-import CogMenu from "../components/CogMenu";
+import DeleteButton from "../components/DeleteButton";
 
 /* redux */
 import {setStatus} from "../../actions/status";
@@ -49,11 +49,11 @@ function ReportCard({id}) {
         Description of report will go here
       </Text>
       <Space w="xs" />
-      <Group>
+      <Group position="apart">
         <Button onClick={() => openReport(id)} leftIcon={<HiOutlinePencil />} compact>
           Edit
         </Button>
-        <CogMenu type={ENTITY_TYPES.REPORT} id={id} control={<Button leftIcon={<HiOutlineCog size={16} />} compact>Settings</Button>}/>
+        <DeleteButton type={ENTITY_TYPES.REPORT} id={id} />
       </Group>
     </Card>
   );
