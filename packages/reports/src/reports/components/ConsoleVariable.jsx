@@ -74,7 +74,6 @@ function ConsoleVariable({dimmed, label, root = true, value}) {
       style={{
         flex: "1 1 100%",
         overflowY: "scroll",
-        padding: 0,
         textAlign: "right"
       }}
     >

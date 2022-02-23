@@ -1,8 +1,8 @@
-.mantine-Prism-root .cr-variable {
-  background-color: transparent !important;
+.mantine-Prism-root.cr-variable {
   font-size: 11px;
   padding: 0;
-  & > div {
+  & .mantine-Prism-code {
+    background-color: transparent !important;
     padding: 0;
   }
 }
