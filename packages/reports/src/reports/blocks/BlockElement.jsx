@@ -2,16 +2,14 @@
 import React, {useState, useMemo} from "react";
 import {useSelector} from "react-redux";
 import {Modal, ActionIcon, Tooltip, useMantineTheme} from "@mantine/core";
-import {HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiEyeOff} from "react-icons/hi";
+import {HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiEyeOff} from "react-icons/hi";
 import {AiOutlineGlobal} from "react-icons/ai";
 
 /* components */
 import DeleteButton from "../components/DeleteButton";
+import DesignMenu from "../components/DesignMenu";
 import BlockPreview from "./BlockPreview";
 import Block from "./Block";
-
-/* utils */
-import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 
 /* hooks */
 import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
@@ -127,6 +125,7 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
           }}>
           {block.shared && <Tooltip key="tt" withArrow label="Sharing: Enabled"><ActionIcon key="globe"><AiOutlineGlobal size={20} /></ActionIcon></Tooltip>}
           {!allowed && <Tooltip key="allowed" withArrow label={allowedMessage}><ActionIcon><HiEyeOff size={20} /></ActionIcon></Tooltip>}
+          <DesignMenu key="design" id={id} />
           <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
           <DeleteButton key="cog" type={ENTITY_TYPES.BLOCK} id={id} />
         </div>
