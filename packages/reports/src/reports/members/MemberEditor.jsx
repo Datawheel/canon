@@ -29,7 +29,8 @@ export default function MemberEditor() {
     {Header: "name", accessor: d => d.contentByLocale[localeDefault].name},
     {Header: "namespace", accessor: "namespace"},
     {Header: "keywords", accessor: d => d.contentByLocale[localeDefault].keywords},
-    {Header: "attributes", accessor: d => d.contentByLocale[localeDefault].attr}
+    {Header: "attributes", accessor: d => d.contentByLocale[localeDefault].attr},
+    {Header: "image", accessor: d => d.imageId}
   ], []);
 
   useEffect(() => {

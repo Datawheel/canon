@@ -13,11 +13,27 @@ const fallback = e => {
   return {};
 };
 
-const fetchReportFromDims = async(db, dims) => {
-  const slug = dims[0].dimension ? dims[0].dimension : false;
+const fetchReportFromDimensionSlug = async(db, slug, withContent = false) => {
   const meta = await db.report_meta.findOne({where: {slug}}).catch(catcher); 
-  const report = await db.report.findOne({where: {id: meta.report_id}, ...reportReqFull}).then(d => d.toJSON()).catch(catcher); 
+  const report = await db.report
+    .findOne({where: {id: meta.report_id}, ...withContent ? reportReqFull : {include: [{association: "meta"}]}})
+    .then(d => d.toJSON())
+    .catch(catcher); 
   return report;
+};
+
+const fetchMemberFromMemberIdOrSlug = async(db, member, dimension, withContent = false) => {
+  const reqObj = {where: {[sequelize.Op.or]: [{id: member}, {slug: member}]}};
+  if (dimension) {
+    const meta = await db.report_meta.findOne({where: {[sequelize.Op.or]: [{id: dimension}, {slug: dimension}]}}).catch(catcher);
+    if (meta) {
+      reqObj.where.namespace = meta.namespace;
+      reqObj.where.properties = meta.properties;
+    }
+  }
+  if (withContent) reqObj.include = [{association: "image", include: [{association: "contentByLocale"}]}, {association: "contentByLocale"}];
+  const result = await db.search.findOne(reqObj).catch(catcher);
+  return result;
 };
 
 /**
@@ -29,15 +45,13 @@ const fetchReportFromDims = async(db, dims) => {
  */
 const fetchReportAndAttributesFromIdsOrSlugs = async(db, dims, locale) => {
   
-  const report = await fetchReportFromDims(db, dims).catch(catcher);
+  const slug = dims[0] && dims[0].dimension;
+  if (!slug) return {error: "searchHelpers - Report not found"};
+  const report = await fetchReportFromDimensionSlug(db, slug, true).catch(catcher);
   
   let foundAll = true;
   for (const dim of dims) {
-    const thisMeta = report.meta.find(d => d.slug === dim.dimension);
-    const member = await db.search.findOne({where: {
-      [sequelize.Op.or]: [{id: dim.member}, {slug: dim.member}],
-      properties: thisMeta.properties
-    }}).catch(catcher);
+    const member = await fetchMemberFromMemberIdOrSlug(db, dim.member, dim.dimension).catch(catcher);
     if (member) {
       dim.member = member.slug;
     }
@@ -48,11 +62,11 @@ const fetchReportAndAttributesFromIdsOrSlugs = async(db, dims, locale) => {
   if (!foundAll) return fallback("id not found");
   return {
     report,
-    attributes: await fetchAttributesFromSlugs(db, dims.map(d => d.member), locale)
+    attributes: await fetchAttributesFromMemberSlugs(db, dims.map(d => d.member), locale)
   };
 };
 
-const fetchAttributesFromSlugs = async(db, slugs, locale) => {
+const fetchAttributesFromMemberSlugs = async(db, slugs, locale) => {
   if (!slugs) return {};
 
   const attributes = await db.search
@@ -76,4 +90,4 @@ const fetchAttributesFromSlugs = async(db, slugs, locale) => {
   return attributes;
 };
 
-module.exports = {fetchReportAndAttributesFromIdsOrSlugs, fetchAttributesFromSlugs};
+module.exports = {fetchReportAndAttributesFromIdsOrSlugs, fetchAttributesFromMemberSlugs, fetchMemberFromMemberIdOrSlug};

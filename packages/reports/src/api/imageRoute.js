@@ -1,12 +1,17 @@
 const axios = require("axios");
-const sequelize = require("sequelize");
-const yn = require("yn");
 const jwt = require("jsonwebtoken");
+const {fetchMemberFromMemberIdOrSlug} = require("../utils/search/searchHelpers");
 
-const verbose = yn(process.env.CANON_REPORTS_LOGGING);
-const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
-let cubeRoot = process.env.CANON_REPORTS_CUBES || "localhost";
-if (cubeRoot.substr(-1) === "/") cubeRoot = cubeRoot.substr(0, cubeRoot.length - 1);
+const path = require("path");
+const transparent = path.resolve("../packages/reports/static/images/transparent.png");
+
+const {axiosConfig, localeDefault, verbose} = require("../utils/canon/getCommonConfigs")();
+const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
+
+// todo1.0 remove/handle tesseract
+let cubeRoot = process.env.CANON_CMS_CUBES || "localhost";
+if (cubeRoot.substring(-1) === "/") cubeRoot = cubeRoot.substring(0, cubeRoot.length - 1);
+const cubeEnabled = cubeRoot !== "localhost";
 
 const {OLAP_PROXY_SECRET, CANON_REPORTS_MINIMUM_ROLE} = process.env;
 
@@ -26,6 +31,7 @@ const imgCatcher = e => {
 
 const imageInclude = {association: "image", attributes: {exclude: ["splash", "thumb"]}, include: [{association: "contentByLocale"}]};
 
+// todo1.0 update this for 1.0
 const getParentMemberWithImage = async(db, member, meta) => {
   const {id, hierarchy} = member;
   const {dimension, cubeName} = meta;
@@ -66,31 +72,21 @@ module.exports = function(app) {
 
   const {db} = app.settings;
 
-  app.get("/api/image", async(req, res) => {
-    const {slug, id, memberSlug, type, t} = req.query;
+  app.get("/api/newimage", async(req, res) => {
+    const {dimension: queryDimension, member: queryMember, type, t} = req.query;
     const size = req.query.size || "splash";
-    const locale = req.query.locale || envLoc;
+    const locale = req.query.locale || localeDefault;
     const jsonError = () => res.json({error: "Not Found"});
-    const imageError = () => res.sendFile(`${process.cwd()}/static/images/transparent.png`);
-    const reqObj = req.query.dimension && req.query.cubeName ? {where: {dimension: req.query.dimension, cubeName: req.query.cubeName}} : {where: {slug}};
-    const meta = await db.report_meta.findOne(reqObj).catch(catcher);
-    if (!meta) return type === "json" ? jsonError() : imageError();
-    const {dimension, cubeName} = meta;
-    const searchWhere = {
-      where: {dimension, cubeName},
-      include: imageInclude
-    };
-    if (memberSlug) searchWhere.where.slug = memberSlug;
-    if (id) searchWhere.where[sequelize.Op.or] = {id, slug: id};
-    if (req.query.level) searchWhere.where.hierarchy = req.query.level;
-    let member = await db.search.findOne(searchWhere).catch(catcher);
+    const imageError = () => res.sendFile(transparent);
+    const member = await fetchMemberFromMemberIdOrSlug(db, queryMember, queryDimension, true)
+      .then(d => d.toJSON())
+      .catch(catcher);
     if (!member) return type === "json" ? jsonError() : imageError();
-    member = member.toJSON();
     if (type === "json") {
       // If this member didn't have an image, attempt to find a parent image instead.
-      if (!member.image) {
-        const parentMember = await getParentMemberWithImage(db, member, meta);
-        if (parentMember) member.image = parentMember.image;
+      if (cubeEnabled && !member.image) {
+        // const parentMember = await getParentMemberWithImage(db, member, meta);
+        // if (parentMember) member.image = parentMember.image;
       }
       if (member.image && member.image.contentByLocale) {
         const content = member.image.contentByLocale.find(d => d.locale === locale);
@@ -102,28 +98,31 @@ module.exports = function(app) {
       return res.json(member);
     }
     else {
-      let {imageId} = member;
-      const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
-      if (bucket && ["splash", "thumb"].includes(size)) {
-        if (!imageId) {
-          const parentMember = await getParentMemberWithImage(db, member, meta);
-          if (parentMember) imageId = parentMember.imageId;
+      const {imageId} = member;
+      if (["splash", "thumb"].includes(size)) {
+        if (cubeEnabled && !imageId) {
+          // const parentMember = await getParentMemberWithImage(db, member, meta);
+          // if (parentMember) imageId = parentMember.imageId;
         }
         if (imageId) {
           // Check first to see if a blob is stored inside the psql row
           const imageRow = await db.image.findOne({where: {id: imageId}}).catch(() => false);
+          console.log(imageRow);
           if (imageRow && imageRow[size]) {
             res.writeHead(200,  {"Content-Type": "image/jpeg"});
             return res.end(imageRow[size], "binary");
           }
           // Otherwise, try the cloud storage location. A failure here will return a 1x1 transparent png
-          else {
+          else if (bucket) {
             let url = `https://storage.googleapis.com/${bucket}/${size}/${imageId}.jpg`;
             if (t) url += `?t=${t}`;
             const imgData = await axios.get(url, {responseType: "arraybuffer"}).then(resp => resp.data).catch(imgCatcher);
             if (!imgData) return imageError();
             res.writeHead(200,  {"Content-Type": "image/jpeg"});
             return res.end(imgData, "binary");
+          }
+          else {
+            return imageError();
           }
         }
         else {

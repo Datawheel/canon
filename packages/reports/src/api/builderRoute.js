@@ -3,7 +3,7 @@ const sequelize = require("sequelize"),
       yn = require("yn");
 
 const {searchIngest} = require("../utils/search/searchIngest");
-const {fetchAttributesFromSlugs} = require("../utils/search/searchHelpers");
+const {fetchAttributesFromMemberSlugs} = require("../utils/search/searchHelpers");
 const {reportReqFull, sectionReqFull, cmsTables, contentTables, parentOrderingTables, blockReqFull} = require("../utils/sequelize/ormHelpers");
 const {translateReport, translateSection, fetchUpsertHelpers} = require("../utils/translation/translationUtils");
 const {REPORT_FIELDS} = require("../utils/consts/cms");
@@ -13,10 +13,8 @@ const sorter = require("../utils/js/sorter");
 const contentReducer = require("../utils/blocks/contentReducer");
 const getFormattersFunctionsByLocale = require("../utils/reports/getFormattersFunctionsByLocale");
 const normalizeBlocks = require("../utils/blocks/normalizeBlocks");
-const getRootBlocksForSection = require("../utils/blocks/getRootBlocksForSection");
 
-const localeDefault = process.env.CANON_LANGUAGE_DEFAULT || "en";
-const verbose = yn(process.env.CANON_REPORTS_LOGGING);
+const {localeDefault, verbose} = require("../utils/canon/getCommonConfigs")();
 
 const cmsCheck = () => process.env.NODE_ENV === "development" || yn(process.env.CANON_REPORTS_ENABLE);
 const cmsMinRole = () => process.env.CANON_REPORTS_MINIMUM_ROLE ? Number(process.env.CANON_REPORTS_MINIMUM_ROLE) : 1;
@@ -408,7 +406,7 @@ module.exports = function(app) {
   const getReportTreeAndActivate = async(req, sid) => {
     const locale = req.query.locale ? req.query.locale : localeDefault;
     const slugs = req.query.slugs ? req.query.slugs.split(",") : [];
-    const attributes = await fetchAttributesFromSlugs(db, slugs, locale);
+    const attributes = await fetchAttributesFromMemberSlugs(db, slugs, locale);
     let reports = await db.report.findAll(reportReqFull).catch(catcher);
     reports = reports.map(p => p.toJSON());
     reports = flatSort(db.report, reports);
