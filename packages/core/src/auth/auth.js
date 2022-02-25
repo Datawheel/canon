@@ -1,5 +1,5 @@
 const local = require("./local"),
-      social = require("./social");
+  social = require("./social");
 
 const isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) return next();
@@ -19,7 +19,7 @@ const checkService = (app, service) => {
   return;
 };
 
-module.exports = function(app) {
+module.exports = function (app) {
 
   const {db, passport} = app.settings;
 
@@ -31,6 +31,7 @@ module.exports = function(app) {
   checkService(app, "instagram");
   checkService(app, "linkedin");
   checkService(app, "twitter");
+  checkService(app, "openid");
 
   passport.serializeUser((user, done) => done(null, user.id));
 
@@ -50,6 +51,7 @@ module.exports = function(app) {
 
   app.get("/auth/logout", (req, res) => {
     req.logout();
+    //TBD: Force logout for openID? I don't think so. https://github.com/passport/todos-express-auth0/blob/main/routes/auth.js#L43-L50
     return res.redirect("/");
   });
 

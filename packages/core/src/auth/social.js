@@ -109,10 +109,33 @@ const config = {
       };
       return addEmail(userData, p);
     }
+  ],
+  openid: [
+    {
+      module: "openidconnect",
+      authName: "openidconnect",
+      issuer: `${process.env.CANON_OPENID_API}/`,
+      authorizationURL: `${process.env.CANON_OPENID_API}/authorize`,
+      tokenURL: `${process.env.CANON_OPENID_API}/oauth/token`,
+      userInfoURL: `${process.env.CANON_OPENID_API}/userinfo`,
+      clientID: process.env.CANON_OPENID_ID,
+      clientSecret: process.env.CANON_OPENID_SECRET,
+      callbackURL: `${socialRedirectUrl}auth/openid/callback`,
+      scope: ['openid', 'profile', 'email']
+    },
+    p => {
+      const userData = {
+        id: `oi-${p.id}`,
+        name: p.displayName,
+        username: parseEmail(p),
+        activated: true
+      };
+      return addEmail(userData, p);
+    }
   ]
 };
 
-module.exports = function(app, service) {
+module.exports = function (app, service) {
 
   const {db, passport, social} = app.settings;
 
@@ -120,11 +143,15 @@ module.exports = function(app, service) {
   social.push(service);
 
   const servicePackage = strat.module || service;
+  const serviceAuthName = strat.authName || service;
   const Strategy = require(`passport-${servicePackage}`).Strategy;
 
   passport.use(new Strategy(strat, (accessToken, refreshToken, profile, done) => {
 
-    const searchQuery = query(profile);
+    // Disgusting: OpenId plugin has a different contract in the strategy method :/
+    const profileData = refreshToken && refreshToken.id ? refreshToken : profile;
+
+    const searchQuery = query(profileData);
 
     // update the user if s/he exists or add a new user
     return db.users.upsert(searchQuery)
@@ -135,9 +162,12 @@ module.exports = function(app, service) {
   }));
 
   const authOptions = strat.scope ? {scope: strat.scope} : null;
-  app.get(`/auth/${service}/`, passport.authenticate(service, authOptions));
 
-  app.get(`/auth/${service}/callback`, passport.authenticate(service, {failureRedirect: "/"}),
+  console.log(`Registering social urls for ${service} provider`);
+
+  app.get(`/auth/${service}/`, passport.authenticate(serviceAuthName, authOptions));
+
+  app.get(`/auth/${service}/callback`, passport.authenticate(serviceAuthName, {failureRedirect: "/"}),
     (req, res) => res.redirect(socialRedirectUrl), err => console.log(`Error with ${service} login:`, err));
 
 };

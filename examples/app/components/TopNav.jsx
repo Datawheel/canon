@@ -18,16 +18,14 @@ class Nav extends Component {
           </Navbar.Heading>
         </Navbar.Group>
         <Navbar.Group align={Alignment.RIGHT}>
-          <Link to="/cms">CMS</Link>
-          {/* { user
-            ? <div className="user-info">
-              { user.role >= 2 ? <Link className="user-link" to="/admin">Admin</Link> : null }
-              <a className="user-link" href="/auth/logout">Logout</a>
-            </div>
-            : <div className="user-info" dangerouslySetInnerHTML={{__html: userLinks}}></div>
-          } */}
-        </Navbar.Group>
-      </Navbar>
+          {user && <div className="user-info">
+            <span>Hi {user.username} ! ({user.id})</span>
+            {user.role >= 2 ? <Link to="/cms">CMS</Link> : null}
+            <a data-refresh="true" href="/auth/logout">Logout</a>
+          </div>}
+          {!user && <a href="/login">Login</a>}
+        </Navbar.Group >
+      </Navbar >
     );
 
   }

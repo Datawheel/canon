@@ -33,6 +33,7 @@ Canon is a reusable React environment and set of components for creating visuali
     * [Instagram](#instagram)
     * [LinkedIn](#linkedin)
     * [Twitter](#twitter)
+    * [OpenId](#openid)
 * [Custom API Routes](#custom-api-routes)
 * [Server-Side Caching](#server-side-caching)
 * [Opbeat Error Tracking](#opbeat-error-tracking)
@@ -749,6 +750,16 @@ export CANON_LINKEDIN_SECRET="##############################"
 ```sh
 export CANON_TWITTER_API="###############"
 export CANON_TWITTER_SECRET="##############################"
+```
+5. Click the "Permissions" tab then at the bottom under "Additional Permissions" check the box that reads "Request email addresses from users" (if you would like to request e-mail addresses from users).
+---
+
+#### OpenId
+1. TO-DO:
+```sh
+export CANON_OPENID_API="https://openid.server.com"
+export CANON_OPENID_ID="###############"
+export CANON_OPENID_SECRET="##############################"
 ```
 5. Click the "Permissions" tab then at the bottom under "Additional Permissions" check the box that reads "Request email addresses from users" (if you would like to request e-mail addresses from users).
 ---

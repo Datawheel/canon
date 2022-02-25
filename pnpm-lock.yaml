@@ -223,6 +223,7 @@ importers:
       passport-instagram: ^1.0.0
       passport-linkedin-oauth2: ^1.5.0
       passport-local: ^1.0.0
+      passport-openidconnect: ^0.1.1
       passport-twitter: ^1.0.4
       pg: ^6.4.2
       pixrem: ^5.0.0
@@ -348,6 +349,7 @@ importers:
       passport-instagram: 1.0.0
       passport-linkedin-oauth2: 1.6.1
       passport-local: 1.0.0
+      passport-openidconnect: 0.1.1
       passport-twitter: 1.0.4
       pg: 6.4.2
       pixrem: 5.0.0
@@ -9390,6 +9392,14 @@ packages:
       passport-strategy: 1.0.0
       uid2: 0.0.3
       utils-merge: 1.0.1
+    dev: false
+
+  /passport-openidconnect/0.1.1:
+    resolution: {integrity: sha512-r0QJiWEzwCg2MeCIXVP5G6YxVRqnEsZ2HpgKRthZ9AiQHJrgGUytXpsdcGF9BRwd3yMrEesb/uG/Yxb86rrY0g==}
+    engines: {node: '>= 0.6.0'}
+    dependencies:
+      oauth: 0.9.15
+      passport-strategy: 1.0.0
     dev: false
 
   /passport-strategy/1.0.0:
