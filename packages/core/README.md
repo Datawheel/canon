@@ -755,13 +755,22 @@ export CANON_TWITTER_SECRET="##############################"
 ---
 
 #### OpenId
-1. TO-DO:
+1. Ask the client for the SSO service they have.
+2. If it is supported under the [OpenId](https://openid.net/) standard complete the following variables:
 ```sh
 export CANON_OPENID_API="https://openid.server.com"
 export CANON_OPENID_ID="###############"
 export CANON_OPENID_SECRET="##############################"
 ```
-5. Click the "Permissions" tab then at the bottom under "Additional Permissions" check the box that reads "Request email addresses from users" (if you would like to request e-mail addresses from users).
+3. Consider that the server urls are generated inside canon core code based on `CANON_OPENID_API` value:
+```javascript
+{
+      issuer: `${process.env.CANON_OPENID_API}/`,
+      authorizationURL: `${process.env.CANON_OPENID_API}/authorize`,
+      tokenURL: `${process.env.CANON_OPENID_API}/oauth/token`,
+      userInfoURL: `${process.env.CANON_OPENID_API}/userinfo`,
+}
+```
 ---
 
 ## Custom API Routes
