@@ -127,8 +127,8 @@ class Viz extends Component {
                 key="option-key"
                 component={{section, viz: this}}
                 dataAttachments={vizConfig.dataAttachments}
-                data={vizConfig.data}
-                dataFormat={vizProps.dataFormat}
+                data={vizConfig.viewData || vizConfig.data}
+                dataFormat={vizConfig.viewDataFormat || vizProps.dataFormat}
                 slug={slug }
                 title={title || sectionTitle || slug}
                 iconOnly={size && size.width < 320 ? true : false}
