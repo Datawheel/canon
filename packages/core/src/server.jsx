@@ -35,12 +35,12 @@ const baseTag = process.env.CANON_BASE_URL === undefined ? ""
 /**
     Returns the default server logic for rendering a page.
 */
-export default function (defaultStore = appInitialState, headerConfig, reduxMiddleware = false) {
+export default function(defaultStore = appInitialState, headerConfig, reduxMiddleware = false) {
 
-  return function (req, res) {
+  return function(req, res) {
 
     const locale = req.i18n.language,
-      resources = req.i18n.getResourceBundle(req.i18n.language);
+          resources = req.i18n.getResourceBundle(req.i18n.language);
 
     const windowLocation = {
       basename,
@@ -120,8 +120,8 @@ export default function (defaultStore = appInitialState, headerConfig, reduxMidd
                 const helmetContext = {};
 
                 let componentHTML,
-                  scriptTags = "<script type=\"text/javascript\" charset=\"utf-8\" src=\"/assets/client.js\"></script>",
-                  styleTags = "<link rel=\"stylesheet\" type=\"text/css\" href=\"/assets/styles.css\">";
+                    scriptTags = "<script type=\"text/javascript\" charset=\"utf-8\" src=\"/assets/client.js\"></script>",
+                    styleTags = "<link rel=\"stylesheet\" type=\"text/css\" href=\"/assets/styles.css\">";
 
                 if (production) {
 
@@ -195,7 +195,7 @@ export default function (defaultStore = appInitialState, headerConfig, reduxMidd
                   styleTags = styleTags.replace(/\/assets\//g, "assets/");
                 }
 
-                const serialize = obj => `JSON.parse('${jsesc(JSON.stringify(obj))}')`;
+                const serialize = obj => `JSON.parse('${jsesc(JSON.stringify(obj), {isScriptContext: true})}')`;
 
                 return res.status(status).send(`<!doctype html>
 <html dir="${rtl ? "rtl" : "ltr"}" ${htmlAttrs}${defaultAttrs}>
