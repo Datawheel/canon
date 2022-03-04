@@ -38,7 +38,7 @@ module.exports = function(app) {
     // todo1.0 return top 10s
     if (!query) {
       if (all) {
-        const results = await db.search.findAll({include: {association: "contentByLocale"}}).then(arr => arr
+        const results = await db.search.findAll({limit, include: {association: "contentByLocale"}}).then(arr => arr
           .map(d => ({...d.toJSON(), contentByLocale: d.contentByLocale.reduce(contentReducer, {})})));
         return res.json(results);
       }

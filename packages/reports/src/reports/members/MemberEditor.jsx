@@ -2,14 +2,17 @@
 import axios from "axios";
 import React, {useEffect, useMemo, useState} from "react";
 import {useSelector} from "react-redux";
-import {TextInput} from "@mantine/core";
+import {TextInput, Modal} from "@mantine/core";
 import {useTable, usePagination} from "react-table";
+import {Button} from "@mantine/core";
+import {HiUpload} from "react-icons/hi";
 
 /* hooks */
 import {useDebouncedValue} from "@mantine/hooks";
 
 /* utils */
 import paramString from "../../utils/js/paramString";
+import ImageUpload from "./ImageUpload";
 
 /** */
 export default function MemberEditor() {
@@ -18,6 +21,7 @@ export default function MemberEditor() {
   const [query, setQuery] = useState("");
   const [data, setData] = useState([]);
   const [debouncedQuery] = useDebouncedValue(query, 500);
+  const [opened, setOpened] = useState(false);
 
   /* redux */
   const env = useSelector(state => state.env);
@@ -30,14 +34,23 @@ export default function MemberEditor() {
     {Header: "namespace", accessor: "namespace"},
     {Header: "keywords", accessor: d => d.contentByLocale[localeDefault].keywords},
     {Header: "attributes", accessor: d => d.contentByLocale[localeDefault].attr},
-    {Header: "image", accessor: d => d.imageId}
+    // eslint-disable-next-line react/display-name
+    {Header: "image", accessor: d => d.imageId, Cell: cell => 
+      <Button
+        onClick={() => setOpened(cell.row.original.id)}
+        leftIcon={<HiUpload />}
+      >
+        Upload Image
+      </Button>
+    }
   ], []);
 
   useEffect(() => {
     const fetchMembers = async() => {
       const url = `/api/reports/newsearch?${paramString({
         query,
-        all: true
+        all: true,
+        limit: 10
       })}`;
       const data = await axios.get(url).then(d => d.data).catch(() => []);
       setData(data);
@@ -54,6 +67,11 @@ export default function MemberEditor() {
     rows,
     prepareRow
   } = tableInstance;
+
+  const modalProps = {
+    opened,
+    onClose: () => setOpened(false)
+  };
 
   return (
     <React.Fragment>
@@ -104,6 +122,9 @@ export default function MemberEditor() {
             })}
         </tbody>
       </table>
+      <Modal centered key="d" {...modalProps}>
+        <ImageUpload id={opened}/>
+      </Modal>
     </React.Fragment>
   );
 
