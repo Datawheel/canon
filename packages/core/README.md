@@ -758,19 +758,15 @@ export CANON_TWITTER_SECRET="##############################"
 1. Ask the client for the SSO service they have.
 2. If it is supported under the [OpenId](https://openid.net/) standard complete the following variables:
 ```sh
-export CANON_OPENID_API="https://openid.server.com"
+export CANON_OPENID_API="https://openid.server"
+export CANON_OPENID_API_AUTHORIZE="https://openid.server/protocol/openid-connect/auth"
+export CANON_OPENID_API_TOKEN="https://openid.server/protocol/openid-connect/token"
+export CANON_OPENID_API_USERINFO="https://openid.server/protocol/openid-connect/userinfo"
 export CANON_OPENID_ID="###############"
 export CANON_OPENID_SECRET="##############################"
+export CANON_OPENID_ROLES="profile,email"
 ```
-3. Consider that the server urls are generated inside canon core code based on `CANON_OPENID_API` value:
-```javascript
-{
-      issuer: `${process.env.CANON_OPENID_API}/`,
-      authorizationURL: `${process.env.CANON_OPENID_API}/authorize`,
-      tokenURL: `${process.env.CANON_OPENID_API}/oauth/token`,
-      userInfoURL: `${process.env.CANON_OPENID_API}/userinfo`,
-}
-```
+
 ---
 
 ## Custom API Routes

@@ -114,14 +114,14 @@ const config = {
     {
       module: "openidconnect",
       authName: "openidconnect",
-      issuer: `${process.env.CANON_OPENID_API}/`,
-      authorizationURL: `${process.env.CANON_OPENID_API}/authorize`,
-      tokenURL: `${process.env.CANON_OPENID_API}/oauth/token`,
-      userInfoURL: `${process.env.CANON_OPENID_API}/userinfo`,
+      issuer: process.env.CANON_OPENID_API,
+      authorizationURL: process.env.CANON_OPENID_API_AUTHORIZE,
+      tokenURL: process.env.CANON_OPENID_API_TOKEN,
+      userInfoURL: process.env.CANON_OPENID_API_USERINFO,
       clientID: process.env.CANON_OPENID_ID,
       clientSecret: process.env.CANON_OPENID_SECRET,
       callbackURL: `${socialRedirectUrl}auth/openid/callback`,
-      scope: ['openid', 'profile', 'email']
+      scope: process.env.CANON_OPENID_ROLES.split(',')
     },
     p => {
       const userData = {
