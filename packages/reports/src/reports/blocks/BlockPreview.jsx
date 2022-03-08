@@ -14,7 +14,7 @@ import varSwap from "../../utils/variables/varSwap";
 import TypeRenderers from "./types/renderers";
 
 /** type-specific methods for deriving data needed for rendering from current Block state */
-import PreviewAdapters from "./types/previewAdapters";
+import PreviewAdapters from "./types/adapters";
 import BLOCK_CONFIG from "./types";
 
 /**

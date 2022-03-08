@@ -14,7 +14,7 @@ import {BLOCK_TYPES} from "../../utils/consts/cms";
 import {useVariables} from "../hooks/blocks/useVariables";
 
 /** type-specific methods for deriving data needed for rendering from current Block state */
-import PreviewAdapters from "../blocks/types/previewAdapters";
+import PreviewAdapters from "../blocks/types/adapters";
 import {useBlock, useFormatters} from "../hooks/blocks/selectors";
 
 /** */

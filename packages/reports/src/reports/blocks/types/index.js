@@ -1,6 +1,6 @@
 import {BLOCK_TYPES} from "../../../utils/consts/cms";
 
-import adapters from "./previewAdapters";
+import adapters from "./adapters";
 import editors from "./simpleEditors";
 import renderers from "./renderers";
 
