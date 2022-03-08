@@ -12,17 +12,20 @@ import valueInOptions from "../../../../utils/selectors/valueInOptions";
 /* consts */
 import {SELECTOR_TYPES} from "../../../../utils/consts/cms";
 
+const getSelectorIdentifier = id => `selector${id}id`;
+
 /**
  * "selector" block renderer
 */
-export default function SelectorPreview({id, config}) {
+export default function SelectorPreview(config) {
 
   const dispatch = useDispatch();
 
   const query = useSelector(state => state.cms.status.query);
+  const selectorIdentifier = getSelectorIdentifier(config.id);
 
-  const [value, setValue] = useState(query[`selector${id}id`] || config.defaultValue);
-  const [multiValue, setMultiValue] = useState(query[`selector${id}id`] ? query[`selector${id}id`].split(",") : config.defaultValue);
+  const [value, setValue] = useState(query[selectorIdentifier] || config.defaultValue);
+  const [multiValue, setMultiValue] = useState(query[selectorIdentifier] ? query[selectorIdentifier].split(",") : config.defaultValue);
   const [data, setData] = useState(config.options?.map(d => ({value: d.id, label: d.label})) || []);
   const [serializedOptions, setSerializedOptions] = useState((config.options || []).map(d => d.id).join("-"));
 
@@ -44,27 +47,27 @@ export default function SelectorPreview({id, config}) {
       // set the value to the new default
       relevantSetter(config.defaultValue);
       // and remove the query params for this selector
-      dispatch(deleteQueryParam(`selector${id}id`));
+      dispatch(deleteQueryParam(selectorIdentifier));
     }
-  }, [config.options]);
+  }, [config.options, config.id]);
 
   // when a selector is edited and saved, make sure to set the current value
   useEffect(() => {
     if (config.type === SELECTOR_TYPES.MULTI) {
-      setMultiValue(query[`selector${id}id`] ? query[`selector${id}id`].split(",") : config.defaultValue);
+      setMultiValue(query[selectorIdentifier] ? query[selectorIdentifier].split(",") : config.defaultValue);
     }
     else {
-      setValue(query[`selector${id}id`] || config.defaultValue);
+      setValue(query[selectorIdentifier] || config.defaultValue);
     }
   }, [config]);
 
   const onChangeSingle = e => {
-    dispatch(setQueryParam(`selector${id}id`, e));
+    dispatch(setQueryParam(selectorIdentifier, e));
     setValue(e);
   };
 
   const onChangeMulti = e => {
-    dispatch(setQueryParam(`selector${id}id`, e.join()));
+    dispatch(setQueryParam(selectorIdentifier, e.join()));
     setMultiValue(e);
   };
 

@@ -24,8 +24,6 @@ import BLOCK_CONFIG from "./types";
  */
 function BlockPreview(props) {
 
-  console.log("DEV BlockPreview render"); // TODO - remove
-
   const {active, allowed, blockStateContent, debug, id, locale} = props;
 
   /** Input variables for block with given ID */
@@ -47,7 +45,11 @@ function BlockPreview(props) {
   const [content, error, log] = useMemo(() => {
 
     // TODO - Viz was handled differently, handle this 
-    console.log("DEV variable", variables);
+    if (!active && !BLOCK_CONFIG[block.type].evalWhenNonActive) {
+      const nonActiveAdapter = BLOCK_CONFIG[block.type].nonActiveAdapter;
+      const config = nonActiveAdapter && typeof nonActiveAdapter === "function" ? nonActiveAdapter() : {};
+      return [config, false, false];
+    }
     
     // swap variables and evaluate block logic
     const swappedLogic = varSwap(blockContent?.logic, formatterFunctions, variables);
@@ -55,7 +57,7 @@ function BlockPreview(props) {
 
     // adapt content using type transformer
     const content = PreviewAdapters[block.type] && typeof PreviewAdapters[block.type] === "function"
-      ? PreviewAdapters[block.type](vars)
+      ? PreviewAdapters[block.type](vars, id)
       : vars;
 
     return [content, error, log && log.map(d => format(d)).join("\n") || ""];
@@ -65,6 +67,8 @@ function BlockPreview(props) {
 
   const overlayStyle = {width: "100%", height: "100%", position: "absolute", top: -1, left: -1, opacity: 0.3, zIndex: 5, pointerEvents: "none"};
   const allowedOverlay = <div style={{...overlayStyle, backgroundColor: "pink"}}></div>;
+
+  if (!content) return null;
 
   return (
     <div className="cms-block-preview" style={{width: "100%"}}>

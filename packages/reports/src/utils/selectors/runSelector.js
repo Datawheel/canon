@@ -4,6 +4,7 @@ const varSwapRecursive = require("../variables/varSwapRecursive");
 const scaffoldDynamic = require("./scaffoldDynamic");
 const valueInOptions = require("./valueInOptions");
 
+// todo1.0 - delete once runSelector changes!
 const runSelector = (logic, formatterFunctions, variables, locale) => {
   // todo1.0 formatters etc in here
   const transpiledLogic = varSwapRecursive({logic}, formatterFunctions, variables, {}).logic;

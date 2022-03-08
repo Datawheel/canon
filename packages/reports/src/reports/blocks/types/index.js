@@ -49,6 +49,7 @@ const allBlocks = {
     type: BLOCK_TYPES.SELECTOR,
     renderer: renderers[BLOCK_TYPES.SELECTOR],
     adapter: adapters[BLOCK_TYPES.SELECTOR],
+    nonActiveAdapter: () => adapters[BLOCK_TYPES.SELECTOR]({name: "Selector Preview"}),
     editor: editors[BLOCK_TYPES.SELECTOR],
     renderPreviewOnEdit: false
   },
