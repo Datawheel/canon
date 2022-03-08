@@ -16,6 +16,7 @@ import TypeRenderers from "./types/renderers";
 /** type-specific methods for deriving data needed for rendering from current Block state */
 import PreviewAdapters from "./types/adapters";
 import BLOCK_CONFIG from "./types";
+import {BLOCK_TYPES} from "../../utils/consts/cms";
 
 /**
  * BlockPreview shows the varswapped version of the content currently being edited, it is used
@@ -44,7 +45,13 @@ function BlockPreview(props) {
 
   const [content, error, log] = useMemo(() => {
 
-    // TODO - Viz was handled differently, handle this 
+    // todo1.0 - Viz is handled as a special case for now until Viz component is overhauled.
+    // This should be changed so that the adapter(s) are used to create the props for the component
+    if (block.type === BLOCK_TYPES.VIZ) {
+      const config = {block, locale, variables, active};
+      return [config, false, false];
+    }
+
     if (!active && !BLOCK_CONFIG[block.type].evalWhenNonActive) {
       const nonActiveAdapter = BLOCK_CONFIG[block.type].nonActiveAdapter;
       const config = nonActiveAdapter && typeof nonActiveAdapter === "function" ? nonActiveAdapter() : {};

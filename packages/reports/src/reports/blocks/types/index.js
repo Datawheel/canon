@@ -13,13 +13,12 @@ import renderers from "./renderers";
  * @property {} [nonActiveAdapter] - transform function that produces the config for a renderer when a
  * block is inactive, meaning it is being rendered, but its upstream blocks have not been run so its input variables
  * have not been materialized. (This happens both in the CMS editor and in an unloaded profile)
- * @property {boolean} [evalClientSideOnly=false] - evaluate a block's logic only on a client's browser
  * @property {boolean} [evalWhenNonActive=false] - whether a block's logic will be evaluated even if i
  * @property {} [editor] - component used to provide a user-friendly way to create and edit a block and its logic
  * @property {boolean} [renderPreviewOnEdit=true] - flag that says whether a block should be updated everytime
  * it is updated in the CMS
- * @property {number} [debounceEditInMs=500] - time in milliseconds that edits to the block's content should
- * be debounced
+ * @property {number} [debounceEditInMs] - time in milliseconds that edits to the block's content should
+ * be debounced (overrides default debounce time)
  */
 
 /** @type {{[blockType: string]: BlockConfig}} */
