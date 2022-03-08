@@ -127,7 +127,7 @@ const config = {
       const userData = {
         id: `oi-${p.id}`,
         name: p.displayName,
-        username: parseEmail(p),
+        username: p.displayName,
         activated: true
       };
       return addEmail(userData, p);
