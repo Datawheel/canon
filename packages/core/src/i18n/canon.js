@@ -102,6 +102,7 @@ export default {
     "Login": "Login",
     "Password": "Password",
     "Twitter": "Twitter",
+    "OpenId": "OpenId",
     "error": "Wrong Username or Password",
     "success": "Successfully Logged In"
   },
@@ -134,6 +135,7 @@ export default {
     "Sign Up": "Sign Up",
     "TermsText": "By checking this box, you agree to our <a href='{{terms}}'>Terms of Service</a>",
     "Twitter": "Twitter",
+    "OpenId": "OpenId",
     "Username": "Username",
     "error": {
       "Exists": "E-mail or Username already in use",

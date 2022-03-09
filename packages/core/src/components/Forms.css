@@ -79,6 +79,16 @@
       background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0)) left no-repeat, center no-repeat #0084b4;
     }
 
+    &.openid {
+      background: #fdfdfd;
+      background: linear-gradient(#fdfdfd, #eee);
+      color: #000;
+
+      & .icon {
+        height: 15px;
+      }
+    }
+
   }
 
 }

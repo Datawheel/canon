@@ -33,6 +33,7 @@ Canon is a reusable React environment and set of components for creating visuali
     * [Instagram](#instagram)
     * [LinkedIn](#linkedin)
     * [Twitter](#twitter)
+    * [OpenId](#openid)
 * [Custom API Routes](#custom-api-routes)
 * [Server-Side Caching](#server-side-caching)
 * [Opbeat Error Tracking](#opbeat-error-tracking)
@@ -751,6 +752,21 @@ export CANON_TWITTER_API="###############"
 export CANON_TWITTER_SECRET="##############################"
 ```
 5. Click the "Permissions" tab then at the bottom under "Additional Permissions" check the box that reads "Request email addresses from users" (if you would like to request e-mail addresses from users).
+---
+
+#### OpenId
+1. Ask the client for the SSO service they have.
+2. If it is supported under the [OpenId](https://openid.net/) standard complete the following variables:
+```sh
+export CANON_OPENID_API="https://openid.server"
+export CANON_OPENID_API_AUTHORIZE="https://openid.server/protocol/openid-connect/auth"
+export CANON_OPENID_API_TOKEN="https://openid.server/protocol/openid-connect/token"
+export CANON_OPENID_API_USERINFO="https://openid.server/protocol/openid-connect/userinfo"
+export CANON_OPENID_ID="###############"
+export CANON_OPENID_SECRET="##############################"
+export CANON_OPENID_ROLES="profile,email"
+```
+
 ---
 
 ## Custom API Routes
