@@ -121,7 +121,7 @@ const config = {
       clientID: process.env.CANON_OPENID_ID,
       clientSecret: process.env.CANON_OPENID_SECRET,
       callbackURL: `${socialRedirectUrl}auth/openid/callback`,
-      scope: process.env.CANON_OPENID_ROLES.split(',')
+      scope: (process.env.CANON_OPENID_ROLES || "").split(',')
     },
     p => {
       const userData = {
