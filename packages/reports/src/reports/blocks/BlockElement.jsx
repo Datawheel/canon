@@ -17,6 +17,7 @@ import {useVariables} from "../hooks/blocks/useVariables";
 
 /* enums */
 import {ENTITY_TYPES} from "../../utils/consts/cms";
+import siteSettings from "../../utils/settings/site";
 
 /* css */
 import "./BlockElement.css";
@@ -99,7 +100,7 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
         style={{
           display: "flex",
           height: "100%",
-          padding: theme.spacing.xs
+          padding: siteSettings.block.padding
         }}
       >
         { isInput || isConsumer ? <div className={`cr-block-link ${isInput ? "input" : "consumer"}`} key="link"
