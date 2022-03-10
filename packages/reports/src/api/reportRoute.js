@@ -8,7 +8,7 @@ const PromiseThrottle = require("promise-throttle"),
       yn = require("yn");
 const normalizeBlocks = require("../utils/blocks/normalizeBlocks");
 
-const getConfig = require("../utils/canon/getConfig")();
+const axiosConfig = require("../utils/canon/getAxiosConfig")();
 const canonVars = require("../utils/canon/getCanonVars")(process.env);
 const verbose = require("../utils/canon/getLogging")();
 
