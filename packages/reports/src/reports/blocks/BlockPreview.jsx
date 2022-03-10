@@ -52,6 +52,17 @@ function BlockPreview(props) {
       return [config, false, false];
     }
 
+    // todo1.0 - for now, generators are never run client side, so we just need to use the generated variables from the server to preview
+    // CHANGE THIS so that they are run and eval'd like the rest of blocks
+    if (block.type === BLOCK_TYPES.GENERATOR) {
+      if (!active) return [{}, false, false];
+      return [
+        {outputVariables: block._variables || {}},
+        block._status?.error,
+        block._status?.log
+      ];
+    }
+
     if (!active && !BLOCK_CONFIG[block.type].evalWhenNonActive) {
       const nonActiveAdapter = BLOCK_CONFIG[block.type].nonActiveAdapter;
       const config = nonActiveAdapter && typeof nonActiveAdapter === "function" ? nonActiveAdapter() : {};

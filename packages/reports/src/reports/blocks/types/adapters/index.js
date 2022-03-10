@@ -1,6 +1,5 @@
 import {BLOCK_TYPES} from "../../../../utils/consts/cms";
 
-import generatorAdapter from "./Generator";
 import selectorAdapter from "./Selector";
 
 /**
@@ -15,6 +14,5 @@ import selectorAdapter from "./Selector";
  */
 
 export default {
-  [BLOCK_TYPES.GENERATOR]: generatorAdapter,
   [BLOCK_TYPES.SELECTOR]: selectorAdapter
 };

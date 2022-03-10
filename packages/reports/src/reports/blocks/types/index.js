@@ -27,7 +27,6 @@ const allBlocks = {
   [BLOCK_TYPES.GENERATOR]: {
     type: BLOCK_TYPES.GENERATOR,
     renderer: renderers[BLOCK_TYPES.GENERATOR],
-    adapter: adapters[BLOCK_TYPES.GENERATOR],
     renderPreviewOnEdit: false
   },
 
