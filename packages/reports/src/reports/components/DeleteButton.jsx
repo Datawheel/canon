@@ -1,8 +1,8 @@
 /* react */
 import React from "react";
 import {useDispatch} from "react-redux";
-import {Menu} from "@mantine/core";
-import {HiOutlineTrash, HiOutlineEye} from "react-icons/hi";
+import {ActionIcon} from "@mantine/core";
+import {HiOutlineTrash} from "react-icons/hi";
 
 /* redux */
 import {deleteEntity} from "../../actions/reports";
@@ -16,16 +16,12 @@ import {ENTITY_PRETTY_NAMES} from "../../utils/consts/cms";
 /**
  *
  */
-function CogMenu({type, id, control}) {
+function DeleteButton({type, id}) {
 
   const PRETTY_NAME = ENTITY_PRETTY_NAMES[type] || "Entity";
 
   const dispatch = useDispatch();
   const {getConfirmation} = useConfirmationDialog();
-
-  const toggleVisibility = () => {
-    console.log("todo1.0 vis switch");
-  };
 
   const maybeDelete = async() => {
     const confirmed = await getConfirmation({
@@ -36,16 +32,10 @@ function CogMenu({type, id, control}) {
     if (confirmed) dispatch(deleteEntity(type, {id}));
   };
 
-  return (
-    <React.Fragment>
-      <Menu zIndex={1001} control={control}>
-        <Menu.Label>Settings</Menu.Label>
-        <Menu.Item icon={<HiOutlineEye />} onClick={toggleVisibility}>Visible</Menu.Item>
-        <Menu.Item icon={<HiOutlineTrash />} onClick={maybeDelete}>Delete</Menu.Item>
-      </Menu>
-    </React.Fragment>
-  );
+  return <ActionIcon color="red" onClick={maybeDelete}>
+    <HiOutlineTrash size={20} />
+  </ActionIcon>;
 
 }
 
-export default CogMenu;
+export default DeleteButton;

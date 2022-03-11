@@ -14,6 +14,7 @@ import {newEntity, updateEntity} from "../../actions/reports";
 
 /* utils */
 import {insertAtOrdering} from "../../utils/js/arrayUtils";
+import siteSettings from "../../utils/settings/site";
 
 /* enums */
 import {ENTITY_TYPES} from "../../utils/consts/cms";
@@ -63,9 +64,9 @@ function ReportEditor({id}) {
 
   return (
     <AppShell
-      padding="0"
-      styles={{main: {backgroundColor: "#8b8b8b"}}}
       header={<CMSHeader id={report.id} />}
+      padding="0"
+      styles={{main: {backgroundColor: siteSettings.backgroundColor}}}
     >
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="sections">

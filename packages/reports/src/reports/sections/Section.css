@@ -1,10 +1,4 @@
 .cms-section {
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  width: 100%;
-  z-index: 1;
 
   & .cms-section-content {
     display: flex;

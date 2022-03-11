@@ -2,16 +2,14 @@
 import React, {useState, useMemo} from "react";
 import {useSelector} from "react-redux";
 import {Modal, ActionIcon, Tooltip, useMantineTheme} from "@mantine/core";
-import {HiOutlineCog, HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiEyeOff} from "react-icons/hi";
+import {HiOutlineLogout, HiOutlineLogin, HiOutlinePencil, HiEyeOff} from "react-icons/hi";
 import {AiOutlineGlobal} from "react-icons/ai";
 
 /* components */
-import CogMenu from "../components/CogMenu";
+import DeleteButton from "../components/DeleteButton";
+import DesignMenu from "../components/DesignMenu";
 import BlockPreview from "./BlockPreview";
 import Block from "./Block";
-
-/* utils */
-import upperCaseFirst from "../../utils/formatters/upperCaseFirst";
 
 /* hooks */
 import {useConfirmationDialog} from "../hooks/interactions/ConfirmationDialog";
@@ -19,6 +17,7 @@ import {useVariables} from "../hooks/blocks/useVariables";
 
 /* enums */
 import {ENTITY_TYPES} from "../../utils/consts/cms";
+import siteSettings from "../../utils/settings/site";
 
 /* css */
 import "./BlockElement.css";
@@ -83,11 +82,6 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
     size: "90%"
   };
 
-  const cogProps = {
-    id: block.id,
-    type: ENTITY_TYPES.BLOCK
-  };
-
   const hoverActions = {
     onMouseEnter: () => setHoverBlock(id),
     onMouseLeave: () => setHoverBlock(false)
@@ -106,7 +100,7 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
         style={{
           display: "flex",
           height: "100%",
-          padding: theme.spacing.xs
+          padding: siteSettings.block.padding
         }}
       >
         { isInput || isConsumer ? <div className={`cr-block-link ${isInput ? "input" : "consumer"}`} key="link"
@@ -132,8 +126,9 @@ function BlockElement({id, setHoverBlock, isInput, isConsumer, active}) {
           }}>
           {block.shared && <Tooltip key="tt" withArrow label="Sharing: Enabled"><ActionIcon key="globe"><AiOutlineGlobal size={20} /></ActionIcon></Tooltip>}
           {!allowed && <Tooltip key="allowed" withArrow label={allowedMessage}><ActionIcon><HiEyeOff size={20} /></ActionIcon></Tooltip>}
+          <DesignMenu key="design" id={id} />
           <ActionIcon key="edit" onClick={() => setOpened(true)}><HiOutlinePencil size={20} /></ActionIcon>
-          <CogMenu key="cog"{...cogProps} id={id} control={<ActionIcon ><HiOutlineCog size={20} /></ActionIcon>} />
+          <DeleteButton key="cog" type={ENTITY_TYPES.BLOCK} id={id} />
         </div>
       </div>
       <Modal centered key="d" {...modalProps}>

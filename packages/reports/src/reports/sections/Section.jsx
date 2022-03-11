@@ -2,6 +2,7 @@
 import React, {useState, useEffect, useMemo} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {ActionIcon, Badge, Center, Overlay, useMantineTheme} from "@mantine/core";
+import {useMediaQuery} from "@mantine/hooks";
 import {useNotifications} from "@mantine/notifications";
 import {HiPlusCircle} from "react-icons/hi";
 import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
@@ -10,7 +11,6 @@ import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import SectionHeader from "./SectionHeader";
 import EntityAddButton from "../components/EntityAddButton";
 import BlockElement from "../blocks/BlockElement";
-import {settings as blockSettings} from "../blocks/BlockSettings";
 
 /* redux */
 import {newEntity, activateSection, updateEntity} from "../../actions/reports";
@@ -19,6 +19,8 @@ import {newEntity, activateSection, updateEntity} from "../../actions/reports";
 import {ENTITY_ADD_BUTTON_TYPES} from "../components/consts";
 import {BLOCK_TYPES, ENTITY_TYPES} from "../../utils/consts/cms";
 import {REQUEST_STATUS} from "../../utils/consts/redux";
+import blockSettings from "../../utils/settings/block";
+import siteSettings from "../../utils/settings/site";
 
 /* css */
 import "./Section.css";
@@ -137,14 +139,24 @@ function Section({id, isDragging, dragHandleProps}) {
   };
 
   const theme = useMantineTheme();
+  const smallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`);
 
   return (
-    <div className={`cms-section${isDragging || active ? " active" : ""}`}>
+    <div className={`cms-section${isDragging || active ? " active" : ""}`}
+      style={{
+        backgroundColor: siteSettings.section.backgroundColor,
+        borderRadius: siteSettings.section.borderRadius,
+        boxShadow: siteSettings.section.boxShadow,
+        margin: `${siteSettings.section.margin}px ${siteSettings.section.margin}px 0`,
+        overflow: "hidden",
+        width: `calc(100% - ${siteSettings.section.margin * 2}px)`
+      }}>
       <div className="cms-section-content"
         style={{
           alignItems: "stretch",
           display: "flex",
-          padding: theme.spacing.xl,
+          flexDirection: smallScreen ? "column" : "row",
+          padding: siteSettings.section.padding,
           position: "relative",
           zIndex: "0"
         }}
@@ -163,7 +175,7 @@ function Section({id, isDragging, dragHandleProps}) {
               style={{
                 flex: "1 1 100%",
                 maxWidth: staticWidths.length ? Math.max(...staticWidths) : "none",
-                padding: theme.spacing.sm
+                padding: siteSettings.column.padding
               }}
               key={columnId}
             >
@@ -203,7 +215,7 @@ function Section({id, isDragging, dragHandleProps}) {
                               ...provided.draggableProps.style,
                               alignSelf: type === BLOCK_TYPES.VIZ ? "stretch" : "flex-start",
                               boxShadow: snapshot.isDragging ? theme.shadows.lg : "none",
-                              flex: type === BLOCK_TYPES.VIZ ? "1 1 100%"
+                              flex: type === BLOCK_TYPES.VIZ ? smallScreen ? "1 1 300px" : "1 1 100%"
                                 : settings.display === "inline" ? "1 1 auto" : "0 0 auto",
                               margin: "0",
                               textAlign: settings.align || blockSettings.align.defaultValue,
@@ -245,7 +257,15 @@ function Section({id, isDragging, dragHandleProps}) {
         {!active && <Center className="cms-section-click-to-edit" style={{bottom: "0", position: "absolute", width: "100%", left: "0", top: "0"}}>
           <Badge size="xl" variant="outline" color="gray">Click to Edit</Badge>
         </Center>}
-        {!active && <Overlay className="cms-section-overlay" onClick={onActivate} color={theme.black} opacity={0.5} style={{cursor: "pointer"}} />}
+        {!active && <Overlay
+          className="cms-section-overlay"
+          onClick={onActivate}
+          color={theme.black}
+          opacity={0.5}
+          style={{
+            cursor: "pointer"
+          }}
+        />}
       </div>
       <SectionHeader active={active} section={section} isDragging={isDragging} dragHandleProps={dragHandleProps}/>
     </div>
