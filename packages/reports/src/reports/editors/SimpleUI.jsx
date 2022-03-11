@@ -35,8 +35,6 @@ import {useVariables} from "../hooks/blocks/useVariables";
  */
 const SimpleUI = props => {
 
-  console.log("DEV SimpleUI render"); // TODO - remove
-
   const {blockType, executeButton, id, locale, setBlockContent, simpleState} = props;
 
   const {variables} = useVariables(id);

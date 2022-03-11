@@ -34,7 +34,7 @@ function ApiInput({defaultValue, id, onChange, onEnterPress}) {
 
   const block = useBlock(id);
 
-  const {duration} = block?._status?.duration;
+  const duration = block?._status?.duration;
 
   return (
     <Group noWrap position="apart" spacing="xs">
