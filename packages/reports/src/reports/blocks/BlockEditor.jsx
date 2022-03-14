@@ -1,5 +1,5 @@
 /* react */
-import React, {useMemo, useState} from "react";
+import React, {useRef, useState} from "react";
 import {Col, Divider, Grid, Tabs} from "@mantine/core";
 import {HiOutlineEye, HiOutlineCog} from "react-icons/hi";
 
@@ -12,13 +12,15 @@ import {useBlock} from "../hooks/blocks/selectors";
 /* components */
 import ApiInput from "../components/ApiInput";
 import AceWrapper from "../editors/AceWrapper";
-import BlockOutputPanel from "./BlockOutputPanel";
 import BlockPreview from "./BlockPreview";
 import BlockSettings from "./BlockSettings";
 import InputMenu from "../components/InputMenu";
 import InputMenuItem from "../components/InputMenuItem";
 import SimpleUI from "../editors/SimpleUI";
 import VariableList from "./VariableList";
+
+/* css */
+import "./BlockEditor.css";
 
 /**
  *
@@ -32,6 +34,8 @@ function BlockEditor({
 
   /* HOOKS */
   const [tab, setTab] = useState(0);
+  const block = useBlock(id);
+  const response = block._status && block._status.response ? block._status.response : false;
 
   /* CHANGE HANDLERS */
 
@@ -76,11 +80,6 @@ function BlockEditor({
     setBlockContent={setBlockContent}
     executeButton={executeButton}
   />;
-
-  const components = {blockPreview, codeEditor, executeButton, uiEditor};
-
-  const block = useBlock(id);
-  const response = useMemo(() => block._status && block._status.response ? block._status.response : false, [block]);
 
   return (
     <Grid style={{height: "60vh"}}>
@@ -139,11 +138,26 @@ function BlockEditor({
           variant="pills"
         >
           <Tabs.Tab label="Content" icon={<HiOutlineEye />}>
-            <BlockOutputPanel
-              id={id}
-              components={components}
-              mode={currentMode}
-            />
+            {/** Block Editor */}
+            <Grid className="cr-block-output" style={{flex: 1, width: "100%"}}>
+              <Col key="content-col" span={8} className={`cr-block-output-editor ${currentMode}`}>
+                {/*
+                  * todo1.0 - the button for changing modes is in parent component, but it needs to be disabled if a SimpleUI does not exist.
+                  * This is only a problem if there exists types of Blocks with no simple UI mode of editing
+                  */}
+                {currentMode === "code" && 
+                  <>
+                    {codeEditor}
+                    {executeButton}
+                  </>
+                }
+                {currentMode !== "code" && uiEditor}
+              </Col>
+              {/** Block Preview */}
+              <Col span={4} style={{display: "flex", flexDirection: "column"}}>
+                {blockPreview}
+              </Col>
+            </Grid>
           </Tabs.Tab>
           <Tabs.Tab label="Settings" icon={<HiOutlineCog />}>
             <BlockSettings

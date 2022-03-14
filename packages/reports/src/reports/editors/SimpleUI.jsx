@@ -1,7 +1,8 @@
 /* react */
 import React from "react";
-import {BLOCK_MAP, BLOCK_TYPES} from "../../utils/consts/cms";
-import SelectorUI from "./simple/SelectorUI";
+import {BLOCK_MAP} from "../../utils/consts/cms";
+import {editors} from "../blocks/types";
+
 import RichTextEditor from "../editors/RichTextEditor";
 import {useVariables} from "../hooks/blocks/useVariables";
 
@@ -27,10 +28,6 @@ import {useVariables} from "../hooks/blocks/useVariables";
  * @property {Object} simpleState - saved state of simple UI form
  */
 
-const CUSTOM_SIMPLE_UI_COMPONENTS = {
-  [BLOCK_TYPES.SELECTOR]: SelectorUI
-};
-
 /**
  * Generalized wrapper component that renders a simple GUI editor
  * for the appropriate block type
@@ -43,7 +40,7 @@ const SimpleUI = props => {
   const {variables} = useVariables(id);
 
   /** Tailor-made component for editing and composing a specific Block type */
-  const CustomUIComponent = CUSTOM_SIMPLE_UI_COMPONENTS[blockType];
+  const CustomUIComponent = editors[blockType];
 
   // if a custom "simple" UI editor is implemented for Block type, use that
   if (CustomUIComponent) {

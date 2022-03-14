@@ -55,6 +55,8 @@ function Block({id, modified, callbacks, inline}) {
    * will clone their contents on mount, and report their new states here via callbacks.
    * When the user presses save, we have access to the current blockState here, so it can
    * be persisted to psql, pulled back into redux, and redistributed as props again.
+   * 
+   * NOTE: Might want to move this to its own reducer in the future
    */
   const [blockState, setBlockState] = useState(false);
 

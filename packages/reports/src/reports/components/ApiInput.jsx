@@ -1,5 +1,5 @@
 /* react */
-import React, {useMemo, useState, useRef} from "react";
+import React, {useState, useRef} from "react";
 
 /* components */
 import {ActionIcon, Badge, Group, Popover, Text, TextInput} from "@mantine/core";
@@ -10,11 +10,8 @@ import useKeyPress from "../hooks/listeners/useKeyPress";
 
 /* utils */
 import varSwap from "../../utils/variables/varSwap";
-import {BLOCK_TYPES} from "../../utils/consts/cms";
 import {useVariables} from "../hooks/blocks/useVariables";
 
-/** type-specific methods for deriving data needed for rendering from current Block state */
-import PreviewAdapters from "../blocks/types/previewAdapters";
 import {useBlock, useFormatters} from "../hooks/blocks/selectors";
 
 /** */
@@ -37,13 +34,7 @@ function ApiInput({defaultValue, id, onChange, onEnterPress}) {
 
   const block = useBlock(id);
 
-  const {duration} = useMemo(() => {
-
-    /** @type {import("./types/PreviewAdapters").BlockPreviewAdapterParams} */
-    const adapterParams = {active: true, block};
-    return PreviewAdapters[BLOCK_TYPES.GENERATOR](adapterParams);
-
-  }, [block]);
+  const duration = block?._status?.duration;
 
   return (
     <Group noWrap position="apart" spacing="xs">

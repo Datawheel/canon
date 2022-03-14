@@ -1,20 +1,22 @@
 /* react */
 import React, {useMemo} from "react";
 import {Badge, Center, Textarea} from "@mantine/core";
+import {format} from "pretty-format";
 
 /* utils */
-import varSwapRecursive from "../../utils/variables/varSwapRecursive";
-import spoiler from "../../utils/blocks/spoiler";
 import {getBlockContent} from "../../utils/blocks/getBlockContent";
 import mortarEval from "../../utils/variables/mortarEval";
 import {useBlock, useFormatters} from "../hooks/blocks/selectors";
 import {useVariables} from "../hooks/blocks/useVariables";
+import varSwap from "../../utils/variables/varSwap";
 
 /** type-specific render components */
 import TypeRenderers from "./types/renderers";
 
 /** type-specific methods for deriving data needed for rendering from current Block state */
-import PreviewAdapters from "./types/previewAdapters";
+import PreviewAdapters from "./types/adapters";
+import BLOCK_CONFIG from "./types";
+import {BLOCK_TYPES} from "../../utils/consts/cms";
 
 /**
  * BlockPreview shows the varswapped version of the content currently being edited, it is used
@@ -36,39 +38,55 @@ function BlockPreview(props) {
    * Use the "blockStateContent" prop to provide override values if you want to show a
    * live preview of unsaved changes.
    */
-  const blockContent = blockStateContent || getBlockContent(block, locale);
+  const blockContent =  BLOCK_CONFIG[block.type].renderPreviewOnEdit && blockStateContent || getBlockContent(block, locale);
 
   /* redux */
   const formatterFunctions = useFormatters(locale);
 
-  const {content, error, log} = useMemo(() => {
-    let payload = {};
-    // if a Block-specific preview adapter function exists, use that to build payload
-    if (PreviewAdapters[block.type] && typeof PreviewAdapters[block.type] === "function") {
+  const [content, error, log] = useMemo(() => {
 
-      /** @type {import("./types/PreviewAdapters").BlockPreviewAdapterParams} */
-      const adapterParams = {active, block, blockContent, debug, locale, variables, formatterFunctions};
-      payload = PreviewAdapters[block.type](adapterParams);
+    // todo1.0 - Viz is handled as a special case for now until Viz component is overhauled.
+    // This should be changed so that the adapter(s) are used to create the props for the component
+    if (block.type === BLOCK_TYPES.VIZ) {
+      const config = {block, locale, variables, active};
+      return [config, false, false];
     }
-    // if no such adapter exists, fallback to default where blockState logic is evaluated
-    else {
-      const {vars, error, log} = mortarEval("variables", variables, blockContent?.logic, formatterFunctions, locale);
-      // if Block is active...
-      payload.content = active
-        // swap out variables with block's available input variables
-        ? varSwapRecursive(vars, formatterFunctions, variables)
-        // else, put spoiler marks on dynamic variables
-        : spoiler(vars);
-      payload.log = log ? log.join("\n") : "";
-      payload.error = error;
+
+    // todo1.0 - for now, generators are never run client side, so we just need to use the generated variables from the server to preview
+    // CHANGE THIS so that they are run and eval'd like the rest of blocks
+    if (block.type === BLOCK_TYPES.GENERATOR) {
+      if (!active) return [{}, false, false];
+      return [
+        {outputVariables: block._variables || {}},
+        block._status?.error,
+        block._status?.log
+      ];
     }
-    return payload;
+
+    if (!active && !BLOCK_CONFIG[block.type].evalWhenNonActive) {
+      const nonActiveAdapter = BLOCK_CONFIG[block.type].nonActiveAdapter;
+      const config = nonActiveAdapter && typeof nonActiveAdapter === "function" ? nonActiveAdapter() : {};
+      return [config, false, false];
+    }
+    
+    // swap variables and evaluate block logic
+    const swappedLogic = varSwap(blockContent?.logic, formatterFunctions, variables);
+    const {vars, error, log} = mortarEval("variables", variables, swappedLogic, formatterFunctions, locale);
+
+    // adapt content using type transformer
+    const content = PreviewAdapters[block.type] && typeof PreviewAdapters[block.type] === "function"
+      ? PreviewAdapters[block.type](vars, id)
+      : vars;
+
+    return [content, error, log && log.map(d => format(d)).join("\n") || ""];
   }, [block, blockContent, active]);
 
   const Renderer = TypeRenderers[block.type];
 
   const overlayStyle = {width: "100%", height: "100%", position: "absolute", top: -1, left: -1, opacity: 0.3, zIndex: 5, pointerEvents: "none"};
   const allowedOverlay = <div style={{...overlayStyle, backgroundColor: "pink"}}></div>;
+
+  if (!content) return null;
 
   return (
     <div className="cms-block-preview" style={{width: "100%"}}>
