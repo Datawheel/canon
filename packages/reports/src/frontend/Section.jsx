@@ -5,7 +5,6 @@ import {useMediaQuery} from "@mantine/hooks";
 
 /** type-specific render components */
 import TypeRenderers from "../reports/blocks/types/renderers";
-import {BLOCK_TYPES} from "../utils/consts/cms";
 
 /** default siteSettings */
 import siteSettings from "../utils/settings/site";
@@ -61,7 +60,7 @@ function Section({content}) {
                 const {id, renderContent, settings, type} = block;
                 const Renderer = TypeRenderers[type];
                 // todo1.0 fix this as part of ryan's rewrite
-                const payload = type === BLOCK_TYPES.SELECTOR ? {config: renderContent} : renderContent;
+                
                 return <div key={block.id} style={{
                   flex: type === BLOCK_TYPES.VIZ ? "1 1 100%"
                     : settings.display === "inline" ? "1 1 auto" : "0 0 100%",
@@ -69,7 +68,7 @@ function Section({content}) {
                   padding: siteSettings.block.padding,
                   textAlign: settings.align || blockSettings.align.defaultValue
                 }}>
-                  <Renderer key={id} {...payload} />
+                  <Renderer key={id} {...renderContent} />
                 </div>;
               })}
           </div>;

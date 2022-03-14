@@ -25,7 +25,9 @@ const fetchReportFromDimensionSlug = async(db, slug, withContent = false) => {
 const fetchMemberFromMemberIdOrSlug = async(db, member, dimension, withContent = false) => {
   const reqObj = {where: {[sequelize.Op.or]: [{id: member}, {slug: member}]}};
   if (dimension) {
-    const meta = await db.report_meta.findOne({where: {[sequelize.Op.or]: [{id: dimension}, {slug: dimension}]}}).catch(catcher);
+    // Sequelize cannot process an OR statement with differing types (dimension may be a string or a number)
+    const dimWhere = !isNaN(dimension) ? {id: dimension} : {slug: dimension};
+    const meta = await db.report_meta.findOne({where: dimWhere}).catch(catcher);
     if (meta) {
       reqObj.where.namespace = meta.namespace;
       reqObj.where.properties = meta.properties;

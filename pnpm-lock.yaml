@@ -129,7 +129,7 @@ importers:
       jszip: 3.5.0
       localforage: 1.9.0
       multer: 1.4.2
-      node-yaml: 3.2.0_eslint@7.19.0
+      node-yaml: 3.2.0
       promise-throttle: 1.1.2
       puppeteer: 8.0.0
       puppeteer-cluster: 0.22.0_puppeteer@8.0.0
@@ -303,7 +303,7 @@ importers:
       '@pmmmwh/react-refresh-webpack-plugin': 0.4.3_9ee2048269496b6d26a9cb97a289159b
       '@researchgate/react-intersection-observer': 1.3.5_react-dom@16.13.1+react@16.13.1
       axios: 0.21.1
-      babel-eslint: 10.1.0_eslint@7.19.0
+      babel-eslint: 10.1.0
       babel-loader: 8.2.2_c31febe7af0b4cc47a0ace1c9cf75f8a
       bcrypt-nodejs: 0.0.3
       body-parser: 1.19.0
@@ -517,7 +517,7 @@ importers:
       draft-js: 0.11.7
       draft-js-export-html: 1.4.1_draft-js@0.11.7
       draft-js-toolbar-link-plugin: 1.0.1
-      eslint-plugin-react-hooks: 4.2.0_eslint@7.19.0
+      eslint-plugin-react-hooks: 4.2.0
       file-saver: 2.0.5
       flickr-sdk: 3.10.0
       getopts: 2.2.5
@@ -526,7 +526,7 @@ importers:
       jszip: 3.5.0
       localforage: 1.9.0
       multer: 1.4.3
-      node-yaml: 3.2.0_eslint@7.19.0
+      node-yaml: 3.2.0
       normalizr: 3.6.1
       pretty-format: 27.3.1
       promise-throttle: 1.1.2
@@ -2593,15 +2593,14 @@ packages:
       webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
 
-  /@octetstream/eslint-config/3.0.0_eslint@7.19.0:
+  /@octetstream/eslint-config/3.0.0:
     resolution: {integrity: sha512-VX8gZ6h9PNKrWb+N9AoWM2DA+eVBAqAL0OLHwLjh+iwLrICQRFYzJDxxHIpD7rN413PCppr2vp6cy8UGdZGd+A==}
     peerDependencies:
       eslint: ^5.4.0
     dependencies:
       babel-eslint: 9.0.0
-      eslint: 7.19.0
-      eslint-config-airbnb-base: 13.2.0_846d62cfa210dc3f225625c64ae883be
-      eslint-plugin-import: 2.22.1_eslint@7.19.0
+      eslint-config-airbnb-base: 13.2.0_eslint-plugin-import@2.22.1
+      eslint-plugin-import: 2.22.1
       eslint-plugin-promise: 4.2.1
     transitivePeerDependencies:
       - supports-color
@@ -3847,6 +3846,23 @@ packages:
       follow-redirects: 1.14.5
     transitivePeerDependencies:
       - debug
+    dev: false
+
+  /babel-eslint/10.1.0:
+    resolution: {integrity: sha512-ifWaTHQ0ce+448CYop8AdrQiBsGrnC+bMgfyKFdi6EsPLTAWG+QfyDeM6OH+FmWnKvEq5NnBMLvlBUPKQZoDSg==}
+    engines: {node: '>=6'}
+    deprecated: babel-eslint is now @babel/eslint-parser. This package will no longer receive updates.
+    peerDependencies:
+      eslint: '>= 4.12.1'
+    dependencies:
+      '@babel/code-frame': 7.12.13
+      '@babel/parser': 7.12.14
+      '@babel/traverse': 7.12.13
+      '@babel/types': 7.12.13
+      eslint-visitor-keys: 1.3.0
+      resolve: 1.19.0
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /babel-eslint/10.1.0_eslint@7.19.0:
@@ -6516,7 +6532,7 @@ packages:
       source-map: 0.6.1
     dev: false
 
-  /eslint-config-airbnb-base/13.2.0_846d62cfa210dc3f225625c64ae883be:
+  /eslint-config-airbnb-base/13.2.0_eslint-plugin-import@2.22.1:
     resolution: {integrity: sha512-1mg/7eoB4AUeB0X1c/ho4vb2gYkNH8Trr/EgCT/aGmKhhG+F6vF5s8+iRBlWAzFIAphxIdp3YfEKgEl0f9Xg+w==}
     engines: {node: '>= 4'}
     peerDependencies:
@@ -6524,8 +6540,7 @@ packages:
       eslint-plugin-import: ^2.17.2
     dependencies:
       confusing-browser-globals: 1.0.10
-      eslint: 7.19.0
-      eslint-plugin-import: 2.22.1_eslint@7.19.0
+      eslint-plugin-import: 2.22.1
       object.assign: 4.1.2
       object.entries: 1.1.3
     dev: false
@@ -6545,7 +6560,7 @@ packages:
       pkg-dir: 2.0.0
     dev: false
 
-  /eslint-plugin-import/2.22.1_eslint@7.19.0:
+  /eslint-plugin-import/2.22.1:
     resolution: {integrity: sha512-8K7JjINHOpH64ozkAhpT3sd+FswIZTfMZTjdx052pnWrgRCVfp8op9tbjpAk3DdUeI/Ba4C8OjdC0r90erHEOw==}
     engines: {node: '>=4'}
     peerDependencies:
@@ -6556,7 +6571,6 @@ packages:
       contains-path: 0.1.0
       debug: 2.6.9
       doctrine: 1.5.0
-      eslint: 7.19.0
       eslint-import-resolver-node: 0.3.4
       eslint-module-utils: 2.6.0
       has: 1.0.3
@@ -6572,13 +6586,11 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
-  /eslint-plugin-react-hooks/4.2.0_eslint@7.19.0:
+  /eslint-plugin-react-hooks/4.2.0:
     resolution: {integrity: sha512-623WEiZJqxR7VdxFCKLI6d6LLpwJkGPYKODnkH3D7WpOG5KM8yWueBd8TLsNAetEJNF5iJmolaAKO3F8yzyVBQ==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
-    dependencies:
-      eslint: 7.19.0
     dev: false
 
   /eslint-plugin-react/7.22.0_eslint@7.19.0:
@@ -9854,13 +9866,13 @@ packages:
     resolution: {integrity: sha512-Slf2s69+2/uAD79pVVQo8uSiC34+g8GWY8UH2Qtqv34ZfhYrxpYpfzs9Js9d6O0mbDmALuxaTlplnBTnSELcrw==}
     dev: false
 
-  /node-yaml/3.2.0_eslint@7.19.0:
+  /node-yaml/3.2.0:
     resolution: {integrity: sha512-5c7TNdFOLOaY/TN0fBDrfJg+N6Z1+Ch7O/QuN2wostfo9Q4qbpOTAjk1WZ3bxgSfRPrJF4rgWdL26N2Svdljhw==}
     dependencies:
       co: 4.6.0
       js-yaml: 3.14.1
       junk: 3.0.0
-      promise-fs: 2.1.0_eslint@7.19.0
+      promise-fs: 2.1.0
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -11596,11 +11608,11 @@ packages:
     engines: {node: '>=0.4.0'}
     dev: false
 
-  /promise-fs/2.1.0_eslint@7.19.0:
+  /promise-fs/2.1.0:
     resolution: {integrity: sha512-Wl6Y+dSQnw1cJjXdMbXABoH2fRXC3G3KjQHH32qPT6UYyDrh9Iouj/rvI+KKJiVFwQ1/3KiPe1dybp6cHYvUag==}
     engines: {node: '>= 6'}
     dependencies:
-      '@octetstream/eslint-config': 3.0.0_eslint@7.19.0
+      '@octetstream/eslint-config': 3.0.0
       '@octetstream/promisify': 2.0.2
     transitivePeerDependencies:
       - eslint
