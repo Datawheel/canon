@@ -195,7 +195,7 @@ const pruneSearch = async(cubeName, dimension, levels, db) => {
     if (verbose) console.log(`Cleaned up search data. Rows affected: ${resp}`);
   }
   else {
-    if (verbose) console.log(`Skipped search cleanup - ${dimension}/${cubeName} is still in use`);
+    if (verbose) console.log(`Skipped earch cleanup - ${dimension}/${cubeName} is still in use`);
   }
 };
 
@@ -205,6 +205,74 @@ module.exports = function(app) {
 
   app.get("/api/cms", (req, res) => res.json(cmsCheck()));
   app.get("/api/cms/minRole", (req, res) => res.json(cmsMinRole()));
+
+  app.get("/api/cms/audit", async(req, res) => {
+    const variable = req.query.variable.toLowerCase();
+    const contains = obj => Object.keys(obj).some(d =>
+      typeof obj[d] === "string" &&
+      (obj[d].toLowerCase().includes(`{{${variable}}}`) ||
+      obj[d].toLowerCase().includes(variable)));
+    const profiles = await db.profile.findAll(profileReqFull).then(d => d.map(o => o.toJSON())).catch(catcher);
+
+    const results = [];
+    let varCount = 0;
+
+    for (const profile of profiles) {
+      const thisname = profile.meta.reduce((acc, d) => `${acc}/${d.slug}`, "");
+      results.push(`PROFILE ${thisname}`);
+      for (const content of profile.content) {
+        if (contains(content)) {
+          results.push(content);
+          varCount++;
+        }
+      }
+      results.push(`MATERIALIZERS ${thisname}`);
+      for (const materializer of profile.materializers) {
+        if (contains(materializer)) {
+          results.push(materializer);
+          varCount++;
+        }
+      }
+      results.push(`SELECTORS ${thisname}`);
+      for (const selector of profile.selectors) {
+        if (contains(selector)) {
+          results.push(selector);
+          varCount++;
+        }
+      }
+      for (const section of profile.sections) {
+        const thisname = section.content && section.content[0] && section.content[0].title || section.slug || section.id;
+        results.push(`SECTION ${thisname}`);
+        for (const content of section.content) {
+          if (contains(content)) {
+            results.push(content);
+            varCount++;
+          }
+        }
+        for (const entities of ["stats", "descriptions", "subtitles", "visualizations"]) {
+          for (const entity of section[entities]) {
+            results.push(entities.toUpperCase());
+            if (contains(entity)) {
+              results.push(entity);
+              varCount++;
+            }
+            if (entity.content) {
+              for (const content of entity.content) {
+                if (contains(content)) {
+                  varCount++;
+                  results.push(content);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return res.json({
+      count: varCount,
+      results
+    });
+  });
 
   /* BASIC GETS */
 
