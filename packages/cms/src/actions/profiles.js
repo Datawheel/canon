@@ -382,8 +382,7 @@ export function fetchVariables(config) {
         }
         else {
           gids = thisProfile.generators.map(d => d.id);
-          variables[localeDefault] = {_genStatus: {}, _matStatus: {}};
-          if (localeSecondary) variables[localeSecondary] = {_genStatus: {}, _matStatus: {}};
+          variables[thisLocale] = {_genStatus: {}, _matStatus: {}};
         }
 
         for (const gid of gids) {
