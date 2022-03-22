@@ -4,6 +4,7 @@
   background-color: var(--hero-bg-color);
   color: var(--hero-text-color);
   display: flex;
+  flex: 1 1 100%;
   flex-direction: column;
   position: relative;
   /* fill up the screen, but make room for the nav & subnav */
