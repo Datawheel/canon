@@ -86,11 +86,11 @@ class Hero extends Component {
 
   spanifyTitle(title) {
 
-    const {profile} = this.props;
+    const {hideTitleSearch, profile} = this.props;
     const {variables} = profile;
 
     // stories don't have variables
-    if (variables && title) {
+    if (!hideTitleSearch && variables && title) {
 
       const names = [variables.name1, variables.name2];
 
@@ -114,7 +114,7 @@ class Hero extends Component {
   }
 
   render() {
-    const {contents, loading, sources, profile, t, type} = this.props;
+    const {comparisonButton, contents, hidePDF, loading, sources, profile, t, type} = this.props;
     const {images, creditsVisible, clickedIndex} = this.state;
     const {searchProps} = this.context;
 
@@ -171,10 +171,11 @@ class Hero extends Component {
     return (
       <header className="cp-section cp-hero">
         <div className="cp-section-inner cp-hero-inner">
-          <PDFButton className="cp-hero-pdf" filename={filename(profile.title)} />
+          { hidePDF ? null : <PDFButton className="cp-hero-pdf" filename={filename(profile.title)} /> }
           {/* caption */}
           <div className="cp-section-content cp-hero-caption">
             {heading}
+            {comparisonButton}
             {statContent}
             {paragraphs}
             {sourceContent}
@@ -288,6 +289,11 @@ class Hero extends Component {
     );
   }
 }
+
+Hero.defaultProps = {
+  hidePDF: false,
+  hideTitleSearch: false
+};
 
 Hero.contextTypes = {
   router: PropTypes.object,
