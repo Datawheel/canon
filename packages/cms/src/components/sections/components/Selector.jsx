@@ -16,21 +16,25 @@ class Selector extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      comparisons: props && props.default ? props.default.split(",").filter(d => d.length) : [],
+      comparisons: typeof props.default === "string"
+        ? props.default.split(",").filter(d => d.length)
+        : props.default || [],
       activeValue: props.default
     };
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.default !== this.props.default) {
-      this.setState({activeValue: this.props.default});
+      this.setState({
+        comparisons: this.props.default,
+        activeValue: this.props.default
+      });
     }
   }
 
   addComparison(comparison) {
     const {comparisons} = this.state;
     const filteredComparison = comparisons.concat([comparison]);
-    this.setState({comparisons: filteredComparison});
     const {onSelector} = this.context;
     const {name} = this.props;
     onSelector(name, filteredComparison);
@@ -39,7 +43,6 @@ class Selector extends Component {
   removeComparison(option) {
     const {comparisons} = this.state;
     const filteredComparison = comparisons.filter(d => d !== option);
-    this.setState({comparisons: filteredComparison});
     const {onSelector} = this.context;
     const {name} = this.props;
     onSelector(name, filteredComparison);
