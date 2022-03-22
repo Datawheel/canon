@@ -3,14 +3,17 @@ import {withNamespaces} from "react-i18next";
 import React, {Component, Fragment} from "react";
 import {isAuthenticated} from "@datawheel/canon-core";
 import PropTypes from "prop-types";
-import {Dialog, Icon} from "@blueprintjs/core";
+import axios from "axios";
+import {Button, Dialog, Icon} from "@blueprintjs/core";
 
+import Loading from "$app/components/Loading";
 import Hero from "./sections/Hero";
 import Section from "./sections/Section";
 import Related from "./sections/Related";
 import SectionGrouping from "./sections/components/SectionGrouping";
 import Subnav from "./sections/components/Subnav";
 import Mirror from "./Viz/Mirror";
+import ProfileSearch from "./fields/ProfileSearch";
 import isIE from "../utils/isIE.js";
 import mortarEval from "../utils/mortarEval";
 import deepClone from "../utils/deepClone.js";
@@ -31,17 +34,22 @@ import "./Profile.css";
 class ProfileRenderer extends Component {
   constructor(props) {
     super(props);
+    const query = {...props.router.location.query};
+    delete query.compare;
     this.state = {
       profile: props.profile,
       // Take a one-time, initial snapshot of the entire variable set at load time to be passed via context.
       // This is necessary because embedded sections need a pure untouched variable set, so they can reset
       // the variables they changed via setVariables back to the original state at load time.
       initialVariables: deepClone(props.profile.variables),
-      selectors: {},
+      selectors: query,
       modalSlug: null,
       loading: false,
       setVarsLoading: false,
-      formatterFunctions: funcifyFormatterByLocale(props.formatters, props.locale)
+      formatterFunctions: funcifyFormatterByLocale(props.formatters, props.locale),
+      comparison: false,
+      comparisonLoading: false,
+      comparisonSearch: false
     };
   }
 
@@ -57,6 +65,15 @@ class ProfileRenderer extends Component {
       this.onSetVariables.bind(this)({user, userRole}, true);
     }
     if (isIE) this.setState({isIE: true});
+
+    // If there is no main profile error, and the URL contains a "compare" query
+    // slug, run the addComparison function with this slug to load the initial
+    // comparitor's data payload for rendering.
+    if (!this.state.profile.error) {
+      const {query} = this.context.router.location;
+      if (query.compare) this.addComparison.bind(this)(query.compare);
+    }
+
   }
 
   componentDidUpdate(prevProps) {
@@ -139,46 +156,163 @@ class ProfileRenderer extends Component {
     }
   }
 
-  updateQuery(obj) {
+  updateQuery() {
+
     const {router} = this.context;
     const {location} = router;
     const {basename, pathname, query} = location;
-    const newQuery = {...query, ...obj};
+
+    const {comparison, selectors} = this.state;
+
+    const newQuery = {...query, ...selectors};
+
+    if (comparison) newQuery.compare = comparison.dims[0].memberSlug;
+    else delete newQuery.compare;
+
     const queryString = Object.entries(newQuery).map(([key, val]) => `${key}=${val}`).join("&");
-    const newPath = `${basename}${pathname}?${queryString}`;
-    if (queryString) router.replace(newPath);
+    router.replace(`${basename}${pathname}${queryString ? `?${queryString}` : ""}`);
+
   }
 
   onSelector(name, value) {
-    const {profile, selectors, formatterFunctions} = this.state;
-    const {variables} = profile;
+
+    const {comparison, profile, selectors, formatterFunctions} = this.state;
     const {locale} = this.props;
 
     selectors[name] = value;
 
-    this.updateQuery(selectors);
-
+    const {variables} = profile;
     const newProfile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, selectors);
-    this.setState({selectors, profile: {...profile, ...newProfile}});
+    const payload = {selectors, profile: {...profile, ...newProfile}};
+
+    if (comparison) {
+      const compVars = comparison.variables;
+      const newComp = prepareProfile(compVars._rawProfile, compVars, formatterFunctions, locale, selectors);
+      payload.comparison = {...comparison, ...newComp};
+    }
+
+    this.setState(payload, this.updateQuery);
+
   }
 
   onTabSelect(id, index) {
-    this.updateQuery({[`tabsection-${id}`]: index});
+    const {selectors} = this.state;
+    selectors[`tabsection-${id}`] = index;
+    this.setState({selectors}, this.updateQuery);
+  }
+
+  /**
+   * Single entity profiles (not bivariate) can enable the option to add
+   * a comparitor entity to view every profile section for those two selected
+   * entities side-by-side. This function loads the necessary data into state
+   * for comparison profiles and updates the "compare" query arg in the URL
+   * based on a provided memberSlug.
+   */
+  addComparison(memberSlug) {
+
+    const {locale} = this.props;
+    const slug = this.state.profile.meta[0].slug;
+
+    this.setState({
+      comparison: false,
+      comparisonLoading: true,
+      comparisonSearch: false
+    });
+
+    axios.get(`/api/profile?slug=${slug}&id=${memberSlug}&locale=${locale}`)
+      .then(resp => {
+
+        let comparison = resp.data;
+        const {formatterFunctions, selectors} = this.state;
+
+        if (Object.keys(selectors).length) {
+          const compVars = comparison.variables;
+          console.log(selectors);
+          const newComp = prepareProfile(compVars._rawProfile, compVars, formatterFunctions, locale, selectors);
+          comparison = {...comparison, ...newComp};
+        }
+
+        this.setState({comparison, comparisonLoading: false}, this.updateQuery);
+
+      });
+
+  }
+
+  /**
+   * Removes any loaded comparison data, as well as resets the URL to
+   * the that of the base profile.
+   */
+  removeComparison() {
+    this.setState({comparison: false}, this.updateQuery);
+  }
+
+
+  /**
+   * Toggles the visibility and focus of a ProfileSearch component
+   * used in the Hero to select a comparitor profile.
+   */
+  toggleComparisonSearch() {
+
+    const {comparisonSearch} = this.state;
+    this.setState({comparisonSearch: !comparisonSearch});
+
+    if (!comparisonSearch) {
+      setTimeout(() => {
+        document.querySelector(".cp-comparison-search-container .cp-input").focus();
+      }, 300);
+    }
+
   }
 
   render() {
-    const {profile, loading, modalSlug, isIE, setVarsLoading} = this.state;
+    const {comparison, comparisonLoading, comparisonSearch, profile, loading, modalSlug, isIE, setVarsLoading} = this.state;
     const {
       hideAnchor,   // strip out heading anchor link
       hideOptions,  // strip out visualization options buttons
       hideHero,     // strip out the hero section
       hideSubnav    // strip out the subnav
     } = this.props;
-    const {print} = this.context;
-    const {t} = this.props;
+    const {print, searchProps} = this.context;
+    const {comparisonsEnabled, t} = this.props;
 
-    if (!this.state.profile) return null;
-    if (this.state.profile.error) return <div>{this.state.profile.error}</div>;
+    if (!profile) return null;
+    if (profile.error) return <div>{profile.error}</div>;
+
+    // If a comparison profile is loading, render the
+    // site's default Loading component.
+    if (comparisonLoading) return <Loading />;
+
+    // The "Add Comparison" search button that gets added to the Hero section
+    // if comparisons are enabled, the profile is not bi-lateral, and there
+    // is currently no comparitor.
+    const comparisonButton = comparisonsEnabled && profile.dims.length === 1 && !comparison ? <div>
+      { comparisonSearch ? <div className="cp-comparison-search-container"
+        style={{
+          display: "inline-block",
+          marginRight: 10,
+          maxWidth: 300
+        }}>
+        <ProfileSearch
+          defaultProfiles={`${profile.id}`}
+          filters={false}
+          inputFontSize="md"
+          display="list"
+          position="absolute"
+          renderListItem={(result, i, link, title, subtitle) =>
+            <li key={`r-${i}`} className="cms-profilesearch-list-item">
+              <span onClick={this.addComparison.bind(this, result[0].memberSlug)} className="cms-profilesearch-list-item-link">
+                {title}
+                <div className="cms-profilesearch-list-item-sub u-font-xs">{subtitle}</div>
+              </span>
+            </li>
+          }
+          showExamples={true}
+          {...searchProps} />
+      </div> : null }
+      <Button icon={comparisonSearch ? "cross" : "comparison"} onClick={this.toggleComparisonSearch.bind(this)}>
+        {comparisonSearch ? null : "Add Comparison"}
+      </Button>
+    </div> : null;
 
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
@@ -194,36 +328,95 @@ class ProfileRenderer extends Component {
       if (!l.slug) l.slug = `section-${l.id}`;
     });
 
-    const groupableSections = ["SingleColumn"].concat(Object.keys(CustomSections)); // sections to be grouped together
-    const innerGroupedSections = []; // array for sections to be accumulated into
     let groupedSections = [];
+
+    // create a separate "section" Array for comparison mode, because
+    // "groupedSections" is used in places other than rendering, and
+    // modifying its contents directly would cause things like the
+    // SubNav to have incorrect titles and sections
+    const comparisonSections = [];
 
     // make sure there are sections to loop through (issue #700)
     if (sections.length) {
-      // reduce sections into a nested array of groupedSections
-      innerGroupedSections.push(sections.reduce((arr, section) => {
-        if (arr.length === 0) arr.push(section); // push the first one
-        else {
-          const prevType = arr[arr.length - 1].type;
-          const currType = section.type;
-          // if the current and previous types are groupable and the same type, group them into an array
-          if (groupableSections.includes(prevType) && groupableSections.includes(currType) && prevType === currType) {
-            arr.push(section);
-          }
-          // otherwise, push the section as-is
-          else {
-            innerGroupedSections.push(arr);
-            arr = [section];
-          }
-        }
-        return arr;
-      }, []));
 
-      groupedSections = innerGroupedSections.reduce((arr, group) => {
-        if (arr.length === 0 || group[0].type === "Grouping") arr.push([group]);
-        else arr[arr.length - 1].push(group);
-        return arr;
-      }, []);
+      if (comparison) {
+
+        // function used to clone and modify a raw "section" in order
+        // to prep it to be viewed side-by-side with a comparitor section
+        // with similar content
+        const comparifySection = (rawSection, payload) => ({
+
+          ...rawSection,
+
+          // suffix "id" and "slug" keys with "-compare" so that anchor looks do not clash
+          id: payload === profile ? rawSection.id : `${rawSection.id}-compare`,
+          slug: `${rawSection.slug || `section-${rawSection.id}`}${payload === comparison ? "-compare" : ""}`,
+
+          // add member names to each section title to help
+          // differentiate the two comparitors
+          title: rawSection.title.replace(/\<\/p\>$/g, ` - ${payload.variables.name}</p>`),
+
+          // force all sections to use "SingleColumn" layout for split-screen
+          type: "SingleColumn"
+
+        });
+
+        // utilizes the "groupedSections" methodology that places sections side-by-side,
+        // as in the case of the "SingleColumn" layout. this reducer pairs up every base
+        // profile section with it's comparitor section (if available) so that they are
+        // rendered side-by-side
+        groupedSections = [sections.reduce((arr, rawSection) => {
+
+          const section = comparifySection(rawSection, profile);
+
+          const comp = comparison.sections.find(s => s.id === section.id);
+          if (comp) {
+
+            const newComp = comparifySection(comp, comparison);
+            comparisonSections.push([[section, newComp]]);
+
+          }
+          else {
+            comparisonSections.push([[section]]);
+          }
+
+          arr.push([rawSection]);
+
+          return arr;
+
+        }, [])];
+
+      }
+      else {
+
+        const groupableSections = ["SingleColumn"].concat(Object.keys(CustomSections)); // sections to be grouped together
+        const innerGroupedSections = []; // array for sections to be accumulated into
+        // reduce sections into a nested array of groupedSections
+        innerGroupedSections.push(sections.reduce((arr, section) => {
+          if (arr.length === 0) arr.push(section); // push the first one
+          else {
+            const prevType = arr[arr.length - 1].type;
+            const currType = section.type;
+            // if the current and previous types are groupable and the same type, group them into an array
+            if (groupableSections.includes(prevType) && groupableSections.includes(currType) && prevType === currType) {
+              arr.push(section);
+            }
+            // otherwise, push the section as-is
+            else {
+              innerGroupedSections.push(arr);
+              arr = [section];
+            }
+          }
+          return arr;
+        }, []));
+
+        groupedSections = innerGroupedSections.reduce((arr, group) => {
+          if (arr.length === 0 || group[0].type === "Grouping") arr.push([group]);
+          else arr[arr.length - 1].push(group);
+          return arr;
+        }, []);
+
+      }
     }
 
     if (print) {
@@ -283,7 +476,11 @@ class ProfileRenderer extends Component {
 
     const hideElements = {
       hideAnchor,
-      hideOptions
+      hideOptions,
+
+      // hides PDF buttons and clickable titles when in comparison mode
+      hidePDF: comparison,
+      hideTitleSearch: comparison
     };
 
     const relatedProfiles = profile.neighbors;
@@ -292,13 +489,31 @@ class ProfileRenderer extends Component {
       <Fragment>
         <div className={`cp${print ? " cp-print" : ""}`}>
 
-          {!hideHero && <Hero key="cp-hero" profile={profile} contents={heroSection || null} {...hideElements} />}
+          { !hideHero ? <div className={`cp-hero-group ${comparison ? "comparison" : ""}`}
+            style={{
+              display: "flex",
+              flexWrap: "nowrap"
+            }}>
+            <Hero
+              key="cp-hero"
+              profile={profile}
+              contents={heroSection || null}
+              comparisonButton={comparisonButton}
+              {...hideElements}
+            />
+            { comparison ? <Hero
+              key="cp-hero-comparison"
+              profile={comparison}
+              contents={comparison.sections.find(l => l.type === "Hero") || null}
+              {...hideElements}
+            /> : null }
+          </div> : null }
 
           {!hideSubnav && <Subnav sections={groupedSections} />}
 
           {/* main content sections */}
           <main className="cp-main" id="main">
-            {groupedSections.map((groupings, i) =>
+            {(comparisonSections.length ? comparisonSections : groupedSections).map((groupings, i) =>
               <div className="cp-grouping" key={i} style={isIE === true ? {
                 position: "relative",
                 zIndex: i + 1 // in IE, hide sticky sections behind the next grouping
@@ -365,7 +580,21 @@ class ProfileRenderer extends Component {
           </Dialog>
         </div>
 
-        <Mirror inUse="true" /> {/* for rendering visualization/section to save as image */}
+        {/* fixed "Remove Comparison" button that appears when there is a comparison */}
+        {comparison ? <Button
+          className="cp-comparison-remove"
+          icon="cross"
+          fill={true}
+          onClick={this.removeComparison.bind(this)}
+          style={{
+            bottom: 0,
+            position: "fixed",
+            zIndex: 10
+          }}>Remove Comparison</Button> : null}
+
+        {/* hidden DOM element for rendering visualization/section to save as image */}
+        <Mirror inUse="true" />
+
       </Fragment>
     );
   }
@@ -373,7 +602,8 @@ class ProfileRenderer extends Component {
 
 ProfileRenderer.contextTypes = {
   router: PropTypes.object,
-  print: PropTypes.bool
+  print: PropTypes.bool,
+  searchProps: PropTypes.object
 };
 
 ProfileRenderer.childContextTypes = {
@@ -389,7 +619,8 @@ ProfileRenderer.childContextTypes = {
 };
 
 const mapStateToProps = state => ({
-  auth: state.auth
+  auth: state.auth,
+  comparisonsEnabled: state.env.PROFILE_COMPARISON
 });
 
 const mapDispatchToProps = dispatch => ({
