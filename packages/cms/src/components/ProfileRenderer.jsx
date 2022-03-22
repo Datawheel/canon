@@ -310,7 +310,7 @@ class ProfileRenderer extends Component {
           {...searchProps} />
       </div> : null }
       <Button icon={comparisonSearch ? "cross" : "comparison"} onClick={this.toggleComparisonSearch.bind(this)}>
-        {comparisonSearch ? null : "Add Comparison"}
+        {comparisonSearch ? null : t("CMS.Profile.Add Comparison")}
       </Button>
     </div> : null;
 
@@ -590,7 +590,7 @@ class ProfileRenderer extends Component {
             bottom: 0,
             position: "fixed",
             zIndex: 10
-          }}>Remove Comparison</Button> : null}
+          }}>{t("CMS.Profile.Remove Comparison")}</Button> : null}
 
         {/* hidden DOM element for rendering visualization/section to save as image */}
         <Mirror inUse="true" />

@@ -50,11 +50,13 @@ export default {
       "visualization only": "visualization only"
     },
     "Profile": {
+      "Add Comparison": "Add Comparison",
       "Data Appendix": "Data Appendix",
       "Data Appendix Description": "These data tables represent the underlying datasets used to power each visualization featured in this report.",
       "Download Page as PDF": "Download Page as PDF",
       "image credits": "image credits",
-      "Photograph by": "Photograph by"
+      "Photograph by": "Photograph by",
+      "Remove Comparison": "Remove Comparison"
     },
     "Search": {
       "All": "All",
