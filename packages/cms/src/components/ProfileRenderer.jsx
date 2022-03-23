@@ -227,7 +227,6 @@ class ProfileRenderer extends Component {
 
         if (Object.keys(selectors).length) {
           const compVars = comparison.variables;
-          console.log(selectors);
           const newComp = prepareProfile(compVars._rawProfile, compVars, formatterFunctions, locale, selectors);
           comparison = {...comparison, ...newComp};
         }
