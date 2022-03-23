@@ -270,6 +270,7 @@
     & .cms-profilesearch-list-item {
       & .cms-profilesearch-list-item-link {
         background-color: var(--white);
+        color: var(--dark);
         display: block;
         padding: 0.5rem;
         transition: background-color 0.15s ease-out;

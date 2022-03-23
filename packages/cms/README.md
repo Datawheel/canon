@@ -16,6 +16,7 @@ Content Management System for Canon sites.
 - [Hidden Profiles](#hidden-profiles)
 - [Search](#search)
 - [PDF Printing](#pdf-printing)
+- [Profile Comparisons](#profile-comparisons)
 - [Advanced Generator Techniques](#advanced-generator-techniques)
 - [Advanced Visualization Techniques](#advanced-visualization-techniques)
 - [Advanced Selector Techniques](#advanced-selector-techniques)
@@ -744,6 +745,16 @@ pdf: {
 #### Disabling PDF Routes
 
 If needed for security/environment reasons, the pdf generation endpoints can be disabled by setting `CANON_CMS_PDF_DISABLE` to `true`.
+
+---
+
+## Profile Comparisons
+
+To enable a button that appears in every Profile hero section, allowing users to add a side-by-side comparison profile of the same type, set the following environment variable to `true`:
+
+```sh
+export CANON_CONST_PROFILE_COMPARISON=true
+```
 
 ---
 
