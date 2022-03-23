@@ -366,26 +366,23 @@ class ProfileRenderer extends Component {
         // as in the case of the "SingleColumn" layout. this reducer pairs up every base
         // profile section with it's comparitor section (if available) so that they are
         // rendered side-by-side
-        groupedSections = [sections.reduce((arr, rawSection) => {
+        groupedSections = sections.reduce((arr, rawSection) => {
 
-          const section = comparifySection(rawSection, profile);
-
-          const comp = comparison.sections.find(s => s.id === section.id);
+          const comp = comparison.sections.find(s => s.id === rawSection.id);
           if (comp) {
 
+            const section = comparifySection(rawSection, profile);
             const newComp = comparifySection(comp, comparison);
             comparisonSections.push([[section, newComp]]);
 
-          }
-          else {
-            comparisonSections.push([[section]]);
-          }
+            if (arr.length === 0 || rawSection.type === "Grouping") arr.push([[rawSection]]);
+            else arr[arr.length - 1].push([rawSection]);
 
-          arr.push([rawSection]);
+          }
 
           return arr;
 
-        }, [])];
+        }, []);
 
       }
       else {
