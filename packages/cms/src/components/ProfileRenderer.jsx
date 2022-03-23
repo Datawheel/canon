@@ -299,12 +299,14 @@ class ProfileRenderer extends Component {
             display="list"
             position="absolute"
             renderListItem={(result, i, link, title, subtitle) =>
-              <li key={`r-${i}`} className="cms-profilesearch-list-item">
-                <span onClick={this.addComparison.bind(this, result[0].memberSlug)} className="cms-profilesearch-list-item-link">
-                  {title}
-                  <div className="cms-profilesearch-list-item-sub u-font-xs">{subtitle}</div>
-                </span>
-              </li>
+              result[0].id === profile.variables.id
+                ? null
+                : <li key={`r-${i}`} className="cms-profilesearch-list-item">
+                  <span onClick={this.addComparison.bind(this, result[0].memberSlug)} className="cms-profilesearch-list-item-link">
+                    {title}
+                    <div className="cms-profilesearch-list-item-sub u-font-xs">{subtitle}</div>
+                  </span>
+                </li>
             }
             showExamples={true}
             {...searchProps} />
