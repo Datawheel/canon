@@ -284,34 +284,36 @@ class ProfileRenderer extends Component {
     // The "Add Comparison" search button that gets added to the Hero section
     // if comparisons are enabled, the profile is not bi-lateral, and there
     // is currently no comparitor.
-    const comparisonButton = comparisonsEnabled && profile.dims.length === 1 && !comparison ? <div>
-      { comparisonSearch ? <div className="cp-comparison-search-container"
-        style={{
-          display: "inline-block",
-          marginRight: 10,
-          maxWidth: 300
-        }}>
-        <ProfileSearch
-          defaultProfiles={`${profile.id}`}
-          filters={false}
-          inputFontSize="md"
-          display="list"
-          position="absolute"
-          renderListItem={(result, i, link, title, subtitle) =>
-            <li key={`r-${i}`} className="cms-profilesearch-list-item">
-              <span onClick={this.addComparison.bind(this, result[0].memberSlug)} className="cms-profilesearch-list-item-link">
-                {title}
-                <div className="cms-profilesearch-list-item-sub u-font-xs">{subtitle}</div>
-              </span>
-            </li>
-          }
-          showExamples={true}
-          {...searchProps} />
-      </div> : null }
-      <Button icon={comparisonSearch ? "cross" : "comparison"} onClick={this.toggleComparisonSearch.bind(this)}>
-        {comparisonSearch ? null : t("CMS.Profile.Add Comparison")}
-      </Button>
-    </div> : null;
+    const comparisonButton = comparisonsEnabled && profile.dims.length === 1 && !comparison
+      ? <div className="cp-comparison-add">
+        { comparisonSearch ? <div className="cp-comparison-search-container"
+          style={{
+            display: "inline-block",
+            marginRight: 10,
+            maxWidth: 300
+          }}>
+          <ProfileSearch
+            defaultProfiles={`${profile.id}`}
+            filters={false}
+            inputFontSize="md"
+            display="list"
+            position="absolute"
+            renderListItem={(result, i, link, title, subtitle) =>
+              <li key={`r-${i}`} className="cms-profilesearch-list-item">
+                <span onClick={this.addComparison.bind(this, result[0].memberSlug)} className="cms-profilesearch-list-item-link">
+                  {title}
+                  <div className="cms-profilesearch-list-item-sub u-font-xs">{subtitle}</div>
+                </span>
+              </li>
+            }
+            showExamples={true}
+            {...searchProps} />
+        </div> : null }
+        <Button icon={comparisonSearch ? "cross" : "comparison"} onClick={this.toggleComparisonSearch.bind(this)}>
+          {comparisonSearch ? null : t("CMS.Profile.Add Comparison")}
+        </Button>
+      </div>
+      : null;
 
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
