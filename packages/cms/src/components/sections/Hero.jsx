@@ -162,6 +162,7 @@ class Hero extends Component {
         {title}
       </Parse>
       {subtitleContent}
+      {comparisonButton}
     </div>;
 
     // custom images can be uploaded with no flickr source. Only show the "image credits" section
@@ -175,7 +176,6 @@ class Hero extends Component {
           {/* caption */}
           <div className="cp-section-content cp-hero-caption">
             {heading}
-            {comparisonButton}
             {statContent}
             {paragraphs}
             {sourceContent}

@@ -284,34 +284,38 @@ class ProfileRenderer extends Component {
     // The "Add Comparison" search button that gets added to the Hero section
     // if comparisons are enabled, the profile is not bi-lateral, and there
     // is currently no comparitor.
-    const comparisonButton = comparisonsEnabled && profile.dims.length === 1 && !comparison ? <div>
-      { comparisonSearch ? <div className="cp-comparison-search-container"
-        style={{
-          display: "inline-block",
-          marginRight: 10,
-          maxWidth: 300
-        }}>
-        <ProfileSearch
-          defaultProfiles={`${profile.id}`}
-          filters={false}
-          inputFontSize="md"
-          display="list"
-          position="absolute"
-          renderListItem={(result, i, link, title, subtitle) =>
-            <li key={`r-${i}`} className="cms-profilesearch-list-item">
-              <span onClick={this.addComparison.bind(this, result[0].memberSlug)} className="cms-profilesearch-list-item-link">
-                {title}
-                <div className="cms-profilesearch-list-item-sub u-font-xs">{subtitle}</div>
-              </span>
-            </li>
-          }
-          showExamples={true}
-          {...searchProps} />
-      </div> : null }
-      <Button icon={comparisonSearch ? "cross" : "comparison"} onClick={this.toggleComparisonSearch.bind(this)}>
-        {comparisonSearch ? null : t("CMS.Profile.Add Comparison")}
-      </Button>
-    </div> : null;
+    const comparisonButton = comparisonsEnabled && profile.dims.length === 1 && !comparison
+      ? <div className="cp-comparison-add">
+        { comparisonSearch ? <div className="cp-comparison-search-container"
+          style={{
+            display: "inline-block",
+            marginRight: 10,
+            maxWidth: 300
+          }}>
+          <ProfileSearch
+            defaultProfiles={`${profile.id}`}
+            filters={false}
+            inputFontSize="md"
+            display="list"
+            position="absolute"
+            renderListItem={(result, i, link, title, subtitle) =>
+              result[0].id === profile.variables.id
+                ? null
+                : <li key={`r-${i}`} className="cms-profilesearch-list-item">
+                  <span onClick={this.addComparison.bind(this, result[0].memberSlug)} className="cms-profilesearch-list-item-link">
+                    {title}
+                    <div className="cms-profilesearch-list-item-sub u-font-xs">{subtitle}</div>
+                  </span>
+                </li>
+            }
+            showExamples={true}
+            {...searchProps} />
+        </div> : null }
+        <Button icon={comparisonSearch ? "cross" : "comparison"} onClick={this.toggleComparisonSearch.bind(this)}>
+          {comparisonSearch ? null : t("CMS.Profile.Add Comparison")}
+        </Button>
+      </div>
+      : null;
 
     let {sections} = profile;
     // Find the first instance of a Hero section (excludes all following instances)
@@ -353,7 +357,9 @@ class ProfileRenderer extends Component {
 
           // add member names to each section title to help
           // differentiate the two comparitors
-          title: rawSection.title.replace(/\<\/p\>$/g, ` - ${payload.variables.name}</p>`),
+          title: rawSection.title.includes(payload.variables.name)
+            ? rawSection.title
+            : rawSection.title.replace(/\<\/p\>$/g, ` - ${payload.variables.name}</p>`),
 
           // force all sections to use "SingleColumn" layout for split-screen
           type: "SingleColumn"
@@ -364,26 +370,25 @@ class ProfileRenderer extends Component {
         // as in the case of the "SingleColumn" layout. this reducer pairs up every base
         // profile section with it's comparitor section (if available) so that they are
         // rendered side-by-side
-        groupedSections = [sections.reduce((arr, rawSection) => {
+        groupedSections = sections
+          .reduce((arr, rawSection) => {
 
-          const section = comparifySection(rawSection, profile);
+            const comp = comparison.sections.find(s => s.id === rawSection.id);
+            if (comp) {
 
-          const comp = comparison.sections.find(s => s.id === section.id);
-          if (comp) {
+              const section = comparifySection(rawSection, profile);
+              const newComp = comparifySection(comp, comparison);
+              comparisonSections.push([[section, newComp]]);
 
-            const newComp = comparifySection(comp, comparison);
-            comparisonSections.push([[section, newComp]]);
+              if (arr.length === 0 || rawSection.type === "Grouping") arr.push([[rawSection]]);
+              else arr[arr.length - 1].push([rawSection]);
 
-          }
-          else {
-            comparisonSections.push([[section]]);
-          }
+            }
 
-          arr.push([rawSection]);
+            return arr;
 
-          return arr;
-
-        }, [])];
+          }, [])
+          .filter(arr => arr.length > 1 || arr[0][0].type !== "Grouping");
 
       }
       else {
