@@ -353,7 +353,9 @@ class ProfileRenderer extends Component {
 
           // add member names to each section title to help
           // differentiate the two comparitors
-          title: rawSection.title.replace(/\<\/p\>$/g, ` - ${payload.variables.name}</p>`),
+          title: rawSection.title.includes(payload.variables.name)
+            ? rawSection.title
+            : rawSection.title.replace(/\<\/p\>$/g, ` - ${payload.variables.name}</p>`),
 
           // force all sections to use "SingleColumn" layout for split-screen
           type: "SingleColumn"
