@@ -97,7 +97,7 @@ class ProfileRenderer extends Component {
 
     const {locale} = this.props;
     const {print, router} = this.context;
-    const {profile, initialVariables, formatterFunctions} = this.state;
+    const {comparison, profile, initialVariables, formatterFunctions} = this.state;
     const {variables} = profile;
 
     return {
@@ -107,6 +107,7 @@ class ProfileRenderer extends Component {
       onOpenModal: this.onOpenModal.bind(this),
       onTabSelect: this.onTabSelect.bind(this),
       variables,
+      compVariables: comparison ? comparison.variables : false,
       initialVariables,
       locale,
       print
@@ -350,6 +351,8 @@ class ProfileRenderer extends Component {
         const comparifySection = (rawSection, payload) => ({
 
           ...rawSection,
+
+          comparison: payload === comparison,
 
           // suffix "id" and "slug" keys with "-compare" so that anchor looks do not clash
           id: payload === profile ? rawSection.id : `${rawSection.id}-compare`,
@@ -613,6 +616,7 @@ ProfileRenderer.childContextTypes = {
   router: PropTypes.object,
   variables: PropTypes.object,
   initialVariables: PropTypes.object,
+  compVariables: PropTypes.object,
   onSelector: PropTypes.func,
   onOpenModal: PropTypes.func,
   onTabSelect: PropTypes.func,

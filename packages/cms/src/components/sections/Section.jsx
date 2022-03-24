@@ -100,9 +100,10 @@ class Section extends Component {
    * (This is similar to Viz.jsx which can also be expressed as a front-end component or a CMS preview)
    */
   getChildContext() {
+    const {comparison} = this.props.contents;
     return {
       formatters: this.props.formatters || this.context.formatters,
-      variables: this.props.variables || this.context.variables,
+      variables: this.props.variables || this.context[comparison ? "compVariables" : "variables"],
       onSetVariables: this.onSetVariables.bind(this),
       updateSource: this.updateSource.bind(this)
     };
@@ -310,7 +311,8 @@ Section.defaultProps = {
 Section.contextTypes = {
   formatters: PropTypes.object,
   variables: PropTypes.object,
-  initialVariables: PropTypes.object
+  initialVariables: PropTypes.object,
+  compVariables: PropTypes.object
 };
 
 Section.childContextTypes = {
