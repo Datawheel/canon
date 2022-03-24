@@ -214,3 +214,13 @@
 .cp-var-reset-button {
   transition-property: color, border, background-color, box-shadow, opacity;
 }
+
+/* comparison overrides */
+.cp-grouping.cp-grouping-comparison {
+  & .cp-section-inner {
+    flex-direction: column !important;
+    & > * {
+      width: 100% !important;
+    }
+  }
+}

@@ -359,10 +359,7 @@ class ProfileRenderer extends Component {
           // differentiate the two comparitors
           title: rawSection.title.includes(payload.variables.name)
             ? rawSection.title
-            : rawSection.title.replace(/\<\/p\>$/g, ` - ${payload.variables.name}</p>`),
-
-          // force all sections to use "SingleColumn" layout for split-screen
-          type: "SingleColumn"
+            : rawSection.title.replace(/\<\/p\>$/g, ` - ${payload.variables.name}</p>`)
 
         });
 
@@ -518,7 +515,7 @@ class ProfileRenderer extends Component {
           {/* main content sections */}
           <main className="cp-main" id="main">
             {(comparisonSections.length ? comparisonSections : groupedSections).map((groupings, i) =>
-              <div className="cp-grouping" key={i} style={isIE === true ? {
+              <div className={`cp-grouping${comparisonSections.length ? " cp-grouping-comparison" : ""}`} key={i} style={isIE === true ? {
                 position: "relative",
                 zIndex: i + 1 // in IE, hide sticky sections behind the next grouping
               } : null}>
