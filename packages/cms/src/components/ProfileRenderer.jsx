@@ -134,8 +134,9 @@ class ProfileRenderer extends Component {
     // Users should ONLY call setVariables in a callback - never in the main execution, as this
     // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
     // loop by checking if the vars are in there already, only updating if they are not yet set.
-    const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
-    if (!setVarsLoading && !alreadySet) {
+    // const alreadySet = Object.keys(newVariables).every(key => variables[key] === newVariables[key]);
+    // *** removed alreadySet due to a bug with clicking the same country twice. TODO: revisit loop protection
+    if (!setVarsLoading) {
       // If forceMats is true, this function has been called by the componentDidMount, and we must run materializers
       // so that variables like `isLoggedIn` can resolve to true.
       if (forceMats) {
