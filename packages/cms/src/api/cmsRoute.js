@@ -936,7 +936,7 @@ module.exports = function(app) {
     const variants = await db.profile_meta.findAll({where: {profile_id: row.profile_id, ordering: row.ordering}}).catch(catcher);
     // Only "slide down" others if we are deleting the last one at this ordering.
     if (variants.length === 1) {
-      await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
+      await db.profile_meta.update({ordering: sequelize.literal("ordering -1")}, {where: {profile_id: row.profile_id, ordering: {[Op.gt]: row.ordering}}}).catch(catcher);
     }
     await db.profile_meta.destroy({where: {id: req.query.id}}).catch(catcher);
     pruneSearch(row.cubeName, row.dimension, row.levels, db);
