@@ -167,7 +167,7 @@ class Hero extends Component {
 
     // custom images can be uploaded with no flickr source. Only show the "image credits" section
     // if at least one of the images has the flickr data to show
-    const hasFlickrSource = images.some(d => !d.permalink.includes("custom-image"));
+    const hasAuthor = images.some(d => d.author);
 
     return (
       <header className="cp-section cp-hero">
@@ -204,7 +204,7 @@ class Hero extends Component {
         {images.length
           ? <Fragment>
             {/* credits */}
-            { type !== "story" && hasFlickrSource &&
+            { type !== "story" && hasAuthor &&
               <div className={`cp-hero-credits ${creditsVisible ? "is-open" : "is-closed"}`}>
                 <Button
                   className="cp-hero-credits-button"
