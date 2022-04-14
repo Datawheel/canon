@@ -343,11 +343,11 @@ class ProfileSearch extends Component {
     const activeProfile = profileGroups.find(g => g[1].map(p => p.id).join(",") === filterProfiles);
     let activeDimensions;
     if (activeProfile) {
-      const groupedDimensions = group(merge(activeProfile[1].map(p => p.meta)), d => filterDimensionTitle(d.dimension));
+      const groupedDimensions = group(merge(activeProfile[1].map(p => p.meta)), d => filterDimensionTitle(d.dimension, activeProfile[0]));
       const dimensions = Array.from(groupedDimensions, ([key, value]) => {
 
         const dimensions = unique(value.map(d => d.dimension));
-        const sortedCubes = Array.from(group(value.map(d => d.cubeName), filterCubeTitle), d => unique(d[1]).join(",")).sort((a, b) => filterCubeTitle(a).localeCompare(filterCubeTitle(b)));
+        const sortedCubes = Array.from(group(value.map(d => d.cubeName), d => filterCubeTitle(d, activeProfile[0])), d => unique(d[1]).join(",")).sort((a, b) => filterCubeTitle(a, activeProfile[0]).localeCompare(filterCubeTitle(b, activeProfile[0])));
         const cubes = unique(value.map(d => d.cubeName));
         if (cubes.length > 1) return {dimensions, title: key, cubes, sortedCubes};
 
@@ -422,13 +422,13 @@ class ProfileSearch extends Component {
                 <li key={`filters-level-${l}`}
                   className={`cms-profilesearch-filters-level${ filterLevels && !filterLevels.includes(d.levels.join(",")) && filterLevels.includes(l) ? " active" : "" }`}
                   onClick={this.onFilterLevel.bind(this, l)}
-                  dangerouslySetInnerHTML={{__html: filterHierarchyTitle(l)}} />
+                  dangerouslySetInnerHTML={{__html: filterHierarchyTitle(l, activeProfile[0])}} />
               )
               : d.sortedCubes.map(l =>
                 <li key={`filters-level-${l}`}
                   className={`cms-profilesearch-filters-level${ filterCubes && !filterCubes.includes(d.cubes.join(",")) && filterCubes.includes(l) ? " active" : "" }`}
                   onClick={this.onFilterLevel.bind(this, l)}
-                  dangerouslySetInnerHTML={{__html: filterCubeTitle(l.split(",")[0])}} />
+                  dangerouslySetInnerHTML={{__html: filterCubeTitle(l.split(",")[0], activeProfile[0])}} />
               )}
           </ul>) }
         </div> : null }
