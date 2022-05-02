@@ -174,8 +174,12 @@ class Options extends Component {
         node = select(node).select(".d3plus-viz").node();
         saveElement(
           node,
-          {filename: filename(title), type: "svg"},
-          {background, callback: () => this.setState({imageProcessing: false})}
+          {
+            callback: () => this.setState({imageProcessing: false}),
+            filename: filename(title),
+            type: "svg"
+          },
+          {background}
         );
       }
 
@@ -241,16 +245,20 @@ class Options extends Component {
           // save!
           saveElement(
             mirror,
-            {filename: filename(title), type: imageFormat},
-            {background, callback: () => {
-              // make mirror invisible
-              mirror.classList.add("is-hidden");
-              mirror.classList.remove("is-visible", `${imageContext}-context`);
-              // remove mirrored content
-              mirror.querySelector(".mirror-content-inner").removeChild(node);
-              // reset state
-              this.setState({imageProcessing: false});
-            }}
+            {
+              callback: () => {
+                // make mirror invisible
+                mirror.classList.add("is-hidden");
+                mirror.classList.remove("is-visible", `${imageContext}-context`);
+                // remove mirrored content
+                mirror.querySelector(".mirror-content-inner").removeChild(node);
+                // reset state
+                this.setState({imageProcessing: false});
+              },
+              filename: filename(title),
+              type: imageFormat
+            },
+            {background}
           );
         });
       }
