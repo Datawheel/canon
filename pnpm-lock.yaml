@@ -59,7 +59,7 @@ importers:
       d3-time-format: ^3.0.0
       d3plus-axis: ^1.0.0
       d3plus-common: ^1.0.2
-      d3plus-export: ^1.0.0
+      d3plus-export: ^1.1.0
       d3plus-format: ^1.0.0
       d3plus-react: ^1.0.0
       d3plus-text: ^1.0.1
@@ -107,7 +107,7 @@ importers:
       d3-time-format: 3.0.0
       d3plus-axis: 1.0.0
       d3plus-common: 1.0.2
-      d3plus-export: 1.0.0
+      d3plus-export: 1.1.0
       d3plus-format: 1.0.0
       d3plus-react: 1.0.0
       d3plus-text: 1.0.1
@@ -127,7 +127,7 @@ importers:
       jszip: 3.5.0
       localforage: 1.9.0
       multer: 1.4.2
-      node-yaml: 3.2.0
+      node-yaml: 3.2.0_eslint@7.19.0
       promise-throttle: 1.1.2
       puppeteer: 8.0.0
       puppeteer-cluster: 0.22.0_puppeteer@8.0.0
@@ -302,7 +302,7 @@ importers:
       '@pmmmwh/react-refresh-webpack-plugin': 0.4.3_9ee2048269496b6d26a9cb97a289159b
       '@researchgate/react-intersection-observer': 1.3.5_react-dom@16.13.1+react@16.13.1
       axios: 0.21.1
-      babel-eslint: 10.1.0
+      babel-eslint: 10.1.0_eslint@7.19.0
       babel-loader: 8.2.2_c31febe7af0b4cc47a0ace1c9cf75f8a
       bcrypt-nodejs: 0.0.3
       body-parser: 1.19.0
@@ -2069,14 +2069,15 @@ packages:
       webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
 
-  /@octetstream/eslint-config/3.0.0:
+  /@octetstream/eslint-config/3.0.0_eslint@7.19.0:
     resolution: {integrity: sha512-VX8gZ6h9PNKrWb+N9AoWM2DA+eVBAqAL0OLHwLjh+iwLrICQRFYzJDxxHIpD7rN413PCppr2vp6cy8UGdZGd+A==}
     peerDependencies:
       eslint: ^5.4.0
     dependencies:
       babel-eslint: 9.0.0
-      eslint-config-airbnb-base: 13.2.0_eslint-plugin-import@2.22.1
-      eslint-plugin-import: 2.22.1
+      eslint: 7.19.0
+      eslint-config-airbnb-base: 13.2.0_846d62cfa210dc3f225625c64ae883be
+      eslint-plugin-import: 2.22.1_eslint@7.19.0
       eslint-plugin-promise: 4.2.1
     transitivePeerDependencies:
       - supports-color
@@ -2412,6 +2413,7 @@ packages:
 
   /@types/yauzl/2.9.1:
     resolution: {integrity: sha512-A1b8SU4D10uoPjwb0lnHmmu8wZhR9d+9o2PKBQT2jU5YPTKsxac6M2qGAdY7VcL+dHHhARVUDmeg0rOrcd9EjA==}
+    requiresBuild: true
     dependencies:
       '@types/node': 14.14.41
     dev: false
@@ -3108,23 +3110,6 @@ packages:
       follow-redirects: 1.13.2
     transitivePeerDependencies:
       - debug
-    dev: false
-
-  /babel-eslint/10.1.0:
-    resolution: {integrity: sha512-ifWaTHQ0ce+448CYop8AdrQiBsGrnC+bMgfyKFdi6EsPLTAWG+QfyDeM6OH+FmWnKvEq5NnBMLvlBUPKQZoDSg==}
-    engines: {node: '>=6'}
-    deprecated: babel-eslint is now @babel/eslint-parser. This package will no longer receive updates.
-    peerDependencies:
-      eslint: '>= 4.12.1'
-    dependencies:
-      '@babel/code-frame': 7.12.13
-      '@babel/parser': 7.12.14
-      '@babel/traverse': 7.12.13
-      '@babel/types': 7.12.13
-      eslint-visitor-keys: 1.3.0
-      resolve: 1.19.0
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /babel-eslint/10.1.0_eslint@7.19.0:
@@ -4776,8 +4761,8 @@ packages:
       windows-locale: 1.1.2
     dev: false
 
-  /d3plus-export/1.0.0:
-    resolution: {integrity: sha512-xr5G1jJwYQInFam9Gq474r0hOHP0NJJ+QXWgEhCzl6wWBvnKpYCwcpJHGZO2MRlPQtvNWJbr80v4FBkma/jlkA==}
+  /d3plus-export/1.1.0:
+    resolution: {integrity: sha512-aMfY/yeCAYvcKkj0NZNA88rPgjkRPHVPEmQ/WXxgBw+1kWE0DgAx749vMBNKWs6qeML1XITqxkOfc6CcvBRcIQ==}
     dependencies:
       canvas-toBlob: 1.0.0
       canvg-browser: 1.0.0
@@ -5003,7 +4988,7 @@ packages:
       d3plus-axis: 1.0.0
       d3plus-color: 1.0.0
       d3plus-common: 1.0.2
-      d3plus-export: 1.0.0
+      d3plus-export: 1.1.0
       d3plus-format: 1.0.0
       d3plus-legend: 1.0.0
       d3plus-text: 1.0.1
@@ -5679,7 +5664,7 @@ packages:
       source-map: 0.6.1
     dev: false
 
-  /eslint-config-airbnb-base/13.2.0_eslint-plugin-import@2.22.1:
+  /eslint-config-airbnb-base/13.2.0_846d62cfa210dc3f225625c64ae883be:
     resolution: {integrity: sha512-1mg/7eoB4AUeB0X1c/ho4vb2gYkNH8Trr/EgCT/aGmKhhG+F6vF5s8+iRBlWAzFIAphxIdp3YfEKgEl0f9Xg+w==}
     engines: {node: '>= 4'}
     peerDependencies:
@@ -5687,7 +5672,8 @@ packages:
       eslint-plugin-import: ^2.17.2
     dependencies:
       confusing-browser-globals: 1.0.10
-      eslint-plugin-import: 2.22.1
+      eslint: 7.19.0
+      eslint-plugin-import: 2.22.1_eslint@7.19.0
       object.assign: 4.1.2
       object.entries: 1.1.3
     dev: false
@@ -5707,7 +5693,7 @@ packages:
       pkg-dir: 2.0.0
     dev: false
 
-  /eslint-plugin-import/2.22.1:
+  /eslint-plugin-import/2.22.1_eslint@7.19.0:
     resolution: {integrity: sha512-8K7JjINHOpH64ozkAhpT3sd+FswIZTfMZTjdx052pnWrgRCVfp8op9tbjpAk3DdUeI/Ba4C8OjdC0r90erHEOw==}
     engines: {node: '>=4'}
     peerDependencies:
@@ -5718,6 +5704,7 @@ packages:
       contains-path: 0.1.0
       debug: 2.6.9
       doctrine: 1.5.0
+      eslint: 7.19.0
       eslint-import-resolver-node: 0.3.4
       eslint-module-utils: 2.6.0
       has: 1.0.3
@@ -6425,6 +6412,7 @@ packages:
     resolution: {integrity: sha512-YR47Eg4hChJGAB1O3yEAOkGO+rlzutoICGqGo9EZ4lKWokzZRSyIW1QmTzqjtw8MJdj9srP869CuWw/hyzSiBw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
+    requiresBuild: true
     optional: true
 
   /ftp/0.3.10:
@@ -8784,13 +8772,13 @@ packages:
     resolution: {integrity: sha512-Slf2s69+2/uAD79pVVQo8uSiC34+g8GWY8UH2Qtqv34ZfhYrxpYpfzs9Js9d6O0mbDmALuxaTlplnBTnSELcrw==}
     dev: false
 
-  /node-yaml/3.2.0:
+  /node-yaml/3.2.0_eslint@7.19.0:
     resolution: {integrity: sha512-5c7TNdFOLOaY/TN0fBDrfJg+N6Z1+Ch7O/QuN2wostfo9Q4qbpOTAjk1WZ3bxgSfRPrJF4rgWdL26N2Svdljhw==}
     dependencies:
       co: 4.6.0
       js-yaml: 3.14.1
       junk: 3.0.0
-      promise-fs: 2.1.0
+      promise-fs: 2.1.0_eslint@7.19.0
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -10490,11 +10478,11 @@ packages:
     engines: {node: '>=0.4.0'}
     dev: false
 
-  /promise-fs/2.1.0:
+  /promise-fs/2.1.0_eslint@7.19.0:
     resolution: {integrity: sha512-Wl6Y+dSQnw1cJjXdMbXABoH2fRXC3G3KjQHH32qPT6UYyDrh9Iouj/rvI+KKJiVFwQ1/3KiPe1dybp6cHYvUag==}
     engines: {node: '>= 6'}
     dependencies:
-      '@octetstream/eslint-config': 3.0.0
+      '@octetstream/eslint-config': 3.0.0_eslint@7.19.0
       '@octetstream/promisify': 2.0.2
     transitivePeerDependencies:
       - eslint
@@ -12999,6 +12987,7 @@ packages:
 
   /watchpack-chokidar2/2.0.1:
     resolution: {integrity: sha512-nCFfBIPKr5Sh61s4LPpy1Wtfi0HE8isJ3d2Yb5/Ppw2P2B/3eVSEBjKfN0fmHJSK14+31KwMKmcrzs2GM4P0Ww==}
+    requiresBuild: true
     dependencies:
       chokidar: 2.1.8
     dev: false
@@ -13339,6 +13328,7 @@ packages:
   /xmldom/0.1.31:
     resolution: {integrity: sha512-yS2uJflVQs6n+CyjHoaBmVSqIDevTAWrzMmjG1Gc7h1qQ7uVozNhEPJAwZXWyGQ/Gafo3fCwrcaokezLPupVyQ==}
     engines: {node: '>=0.1'}
+    deprecated: Deprecated due to CVE-2021-21366 resolved in 0.5.0
     dev: false
 
   /xmlhttprequest/1.8.0:
