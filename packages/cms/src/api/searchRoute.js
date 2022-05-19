@@ -576,11 +576,11 @@ module.exports = function(app) {
         const where = {};
 
         let contentIds = [];
+        const {searchIndexByLocale} = app.settings.cache;
 
-        if (CANON_CMS_LUNR) {
-          const {searchIndex} = app.settings.cache;
+        if (CANON_CMS_LUNR && searchIndexByLocale[locale]) {
           const terms = query.split(" ").map(d => `+${d}~1*`).join(" ");
-          const lunrResults = searchIndex.search(terms);
+          const lunrResults = searchIndexByLocale[locale].search(terms);
           contentIds = lunrResults.map(d => d.ref);
         }
         else {
