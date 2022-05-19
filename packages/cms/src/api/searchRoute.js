@@ -11,6 +11,7 @@ const {CANON_CMS_CUBES, CANON_CMS_MINIMUM_ROLE, OLAP_PROXY_SECRET, CANON_CMS_LUN
   process.env;
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
+const useLUNR = yn(CANON_CMS_LUNR);
 let Base58, flickr, sharp, storage;
 if (process.env.FLICKR_API_KEY) {
   const Flickr = require("flickr-sdk");
@@ -578,7 +579,7 @@ module.exports = function(app) {
         let contentIds = [];
         const {searchIndexByLocale} = app.settings.cache;
 
-        if (yn(CANON_CMS_LUNR) && searchIndexByLocale[locale]) {
+        if (useLUNR && searchIndexByLocale[locale]) {
           const terms = query.split(" ").map(d => `+${d}~1*`).join(" ");
           const lunrResults = searchIndexByLocale[locale].search(terms);
           contentIds = lunrResults.map(d => d.ref);

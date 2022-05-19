@@ -8,7 +8,9 @@ const {CANON_LANGUAGES, CANON_CMS_LUNR} = process.env;
 
 const locales = CANON_LANGUAGES ? CANON_LANGUAGES.split(",").filter(d => whitelist.includes(d)) : [];
 
-for (const locale of locales.filter(d => d !== "en")) {
+const nonEnLocales = locales.filter(d => d !== "en");
+
+for (const locale of nonEnLocales) {
   require(`lunr-languages/lunr.${locale}`)(lunr);
 }
 
