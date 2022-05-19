@@ -78,6 +78,8 @@ importers:
       jsonwebtoken: ^8.5.1
       jszip: ^3.2.2
       localforage: ^1.7.2
+      lunr: ^2.3.9
+      lunr-languages: ^1.9.0
       multer: ^1.4.2
       node-yaml: ^3.1.1
       promise-throttle: ^1.0.0
@@ -126,8 +128,10 @@ importers:
       jsonwebtoken: 8.5.1
       jszip: 3.5.0
       localforage: 1.9.0
+      lunr: 2.3.9
+      lunr-languages: 1.9.0
       multer: 1.4.2
-      node-yaml: 3.2.0_eslint@7.19.0
+      node-yaml: 3.2.0
       promise-throttle: 1.1.2
       puppeteer: 8.0.0
       puppeteer-cluster: 0.22.0_puppeteer@8.0.0
@@ -2069,15 +2073,14 @@ packages:
       webpack: 4.44.2_webpack-cli@3.3.12
     dev: false
 
-  /@octetstream/eslint-config/3.0.0_eslint@7.19.0:
+  /@octetstream/eslint-config/3.0.0:
     resolution: {integrity: sha512-VX8gZ6h9PNKrWb+N9AoWM2DA+eVBAqAL0OLHwLjh+iwLrICQRFYzJDxxHIpD7rN413PCppr2vp6cy8UGdZGd+A==}
     peerDependencies:
       eslint: ^5.4.0
     dependencies:
       babel-eslint: 9.0.0
-      eslint: 7.19.0
-      eslint-config-airbnb-base: 13.2.0_846d62cfa210dc3f225625c64ae883be
-      eslint-plugin-import: 2.22.1_eslint@7.19.0
+      eslint-config-airbnb-base: 13.2.0_eslint-plugin-import@2.22.1
+      eslint-plugin-import: 2.22.1
       eslint-plugin-promise: 4.2.1
     transitivePeerDependencies:
       - supports-color
@@ -5664,7 +5667,7 @@ packages:
       source-map: 0.6.1
     dev: false
 
-  /eslint-config-airbnb-base/13.2.0_846d62cfa210dc3f225625c64ae883be:
+  /eslint-config-airbnb-base/13.2.0_eslint-plugin-import@2.22.1:
     resolution: {integrity: sha512-1mg/7eoB4AUeB0X1c/ho4vb2gYkNH8Trr/EgCT/aGmKhhG+F6vF5s8+iRBlWAzFIAphxIdp3YfEKgEl0f9Xg+w==}
     engines: {node: '>= 4'}
     peerDependencies:
@@ -5672,8 +5675,7 @@ packages:
       eslint-plugin-import: ^2.17.2
     dependencies:
       confusing-browser-globals: 1.0.10
-      eslint: 7.19.0
-      eslint-plugin-import: 2.22.1_eslint@7.19.0
+      eslint-plugin-import: 2.22.1
       object.assign: 4.1.2
       object.entries: 1.1.3
     dev: false
@@ -5693,7 +5695,7 @@ packages:
       pkg-dir: 2.0.0
     dev: false
 
-  /eslint-plugin-import/2.22.1_eslint@7.19.0:
+  /eslint-plugin-import/2.22.1:
     resolution: {integrity: sha512-8K7JjINHOpH64ozkAhpT3sd+FswIZTfMZTjdx052pnWrgRCVfp8op9tbjpAk3DdUeI/Ba4C8OjdC0r90erHEOw==}
     engines: {node: '>=4'}
     peerDependencies:
@@ -5704,7 +5706,6 @@ packages:
       contains-path: 0.1.0
       debug: 2.6.9
       doctrine: 1.5.0
-      eslint: 7.19.0
       eslint-import-resolver-node: 0.3.4
       eslint-module-utils: 2.6.0
       has: 1.0.3
@@ -8294,6 +8295,14 @@ packages:
     resolution: {integrity: sha1-Ox3tDRuoLhiLm9q6nu5khvhkpDQ=}
     dev: false
 
+  /lunr-languages/1.9.0:
+    resolution: {integrity: sha512-Be5vFuc8NAheOIjviCRms3ZqFFBlzns3u9DXpPSZvALetgnydAN0poV71pVLFn0keYy/s4VblMMkqewTLe+KPg==}
+    dev: false
+
+  /lunr/2.3.9:
+    resolution: {integrity: sha512-zTU3DaZaF3Rt9rhN3uBMGQD3dD2/vFQqnvZCDv4dl5iOzq2IZQqTxu90r4E5J+nP70J3ilqVCrbho2eWaeW8Ow==}
+    dev: false
+
   /macos-release/2.4.1:
     resolution: {integrity: sha512-H/QHeBIN1fIGJX517pvK8IEK53yQOW7YcEI55oYtgjDdoCQQz7eJS94qt5kNrscReEyuD/JcdFCm2XBEcGOITg==}
     engines: {node: '>=6'}
@@ -8772,13 +8781,13 @@ packages:
     resolution: {integrity: sha512-Slf2s69+2/uAD79pVVQo8uSiC34+g8GWY8UH2Qtqv34ZfhYrxpYpfzs9Js9d6O0mbDmALuxaTlplnBTnSELcrw==}
     dev: false
 
-  /node-yaml/3.2.0_eslint@7.19.0:
+  /node-yaml/3.2.0:
     resolution: {integrity: sha512-5c7TNdFOLOaY/TN0fBDrfJg+N6Z1+Ch7O/QuN2wostfo9Q4qbpOTAjk1WZ3bxgSfRPrJF4rgWdL26N2Svdljhw==}
     dependencies:
       co: 4.6.0
       js-yaml: 3.14.1
       junk: 3.0.0
-      promise-fs: 2.1.0_eslint@7.19.0
+      promise-fs: 2.1.0
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -10478,11 +10487,11 @@ packages:
     engines: {node: '>=0.4.0'}
     dev: false
 
-  /promise-fs/2.1.0_eslint@7.19.0:
+  /promise-fs/2.1.0:
     resolution: {integrity: sha512-Wl6Y+dSQnw1cJjXdMbXABoH2fRXC3G3KjQHH32qPT6UYyDrh9Iouj/rvI+KKJiVFwQ1/3KiPe1dybp6cHYvUag==}
     engines: {node: '>= 6'}
     dependencies:
-      '@octetstream/eslint-config': 3.0.0_eslint@7.19.0
+      '@octetstream/eslint-config': 3.0.0
       '@octetstream/promisify': 2.0.2
     transitivePeerDependencies:
       - eslint
