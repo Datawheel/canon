@@ -1,5 +1,6 @@
 const lunr = require("lunr");
 require("lunr-languages/lunr.stemmer.support")(lunr);
+const yn = require("yn");
 
 const whitelist = ["ar", "da", "de", "du", "en", "es", "fi", "hi", "hu", "it", "ja", "jp", "nl", "no", "pt", "ro", "ru", "sv", "ta", "th", "tr", "vi", "zh"];
 
@@ -13,7 +14,7 @@ for (const locale of locales.filter(d => d !== "en")) {
 
 module.exports = async function(app) {
 
-  if (!CANON_CMS_LUNR) return {};
+  if (!yn(CANON_CMS_LUNR)) return {};
 
   const {db} = app;
 
