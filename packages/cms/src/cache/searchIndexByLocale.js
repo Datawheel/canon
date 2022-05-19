@@ -40,13 +40,15 @@ module.exports = async function(app) {
 
       results.forEach(result => {
         const content = result.content.find(d => d.locale === locale);
-        const payload = content ? {
-          id: content.id,
-          name: content.name,
-          keywords: content.keywords,
-          attr: content.attr
-        } : {};
-        this.add(payload, {boost: result.zvalue});
+        if (content) {
+          const payload = {
+            id: content.id,
+            name: content.name,
+            keywords: content.keywords,
+            attr: content.attr
+          };
+          this.add(payload, {boost: result.zvalue});
+        }
       }, this);
     });
   }
