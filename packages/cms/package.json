@@ -81,6 +81,8 @@
     "jsonwebtoken": "^8.5.1",
     "jszip": "^3.2.2",
     "localforage": "^1.7.2",
+    "lunr": "^2.3.9",
+    "lunr-languages": "^1.9.0",
     "multer": "^1.4.2",
     "node-yaml": "^3.1.1",
     "promise-throttle": "^1.0.0",
