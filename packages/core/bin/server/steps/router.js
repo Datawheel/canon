@@ -182,7 +182,7 @@ module.exports = function(config) {
   }
 
   // user overrides of router keys
-  if (canonConfig.express.set) {
+  if (canonConfig.express && canonConfig.express.set) {
     Object.keys(canonConfig.express.set).forEach(k => {
       router.set(k, canonConfig.express.set[k]);
     });
