@@ -12,23 +12,23 @@ const pdfHeader = `data:image/png;base64,${buffer}`;
 module.exports = {
   sitemap: {
     paths: {
-      profiles: '/:lang/profile/:profile/:page',
-      stories: '/:lang/story/:page'
+      profiles: "/:lang/profile/:profile/:page",
+      stories: "/:lang/story/:page"
     },
     rss: {
       blogName: "My Datawheel blog",
       blogDescription: "It is a fantastic blog based on data."
     },
-    getMainPaths: async (app) => {
-      //You can run queries in here and return an array of paths
-      return [
+    getMainPaths: asyncapp =>
+      // You can run queries in here and return an array of paths
+      [
         "/",
         "/about",
         "/about/data",
         "/blog/es/super-post",
         "/blog/en/super-posteo"
       ]
-    }
+
   },
   express: {
     bodyParser: {
@@ -41,6 +41,9 @@ module.exports = {
           }
         }
       }
+    },
+    set: {
+      "trust proxy": true
     }
   },
   db: [

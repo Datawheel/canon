@@ -181,6 +181,13 @@ module.exports = function(config) {
 
   }
 
+  // user overrides of router keys
+  if (canonConfig.express.set) {
+    Object.keys(canonConfig.express.set).forEach(k => {
+      router.set(k, canonConfig.express.set[k]);
+    });
+  }
+
   const reduxMiddleware = canonConfig.reduxMiddleware || false;
   const App = require(path.join(staticPath, "assets/server"));
   router.get("*", App.default(store, headerConfig, reduxMiddleware));
