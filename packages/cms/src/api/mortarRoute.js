@@ -14,11 +14,13 @@ const PromiseThrottle = require("promise-throttle"),
 
 const {
   CANON_CMS_MINIMUM_ROLE,
+  CANON_CMS_FORCE_HTTPS,
   OLAP_PROXY_SECRET
 } = process.env;
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
+const forceHTTPS = yn(CANON_CMS_FORCE_HTTPS);
 
 const catcher = e => {
   if (verbose) console.error("Error in mortarRoute: ", e);
@@ -321,7 +323,8 @@ module.exports = function(app) {
       // use it in their allowed section will be hidden in for PDF printing.
       smallAttr.showWhenPrinting = req.query.print !== "true";
       // Fetch Custom Magic Generator
-      const magicURL = `${ req.protocol }://${ req.headers.host }/api/cms/customAttributes/${pid}`;
+      const protocol = forceHTTPS ? "https" : req.protocol;
+      const magicURL = `${ protocol }://${ req.headers.host }/api/cms/customAttributes/${pid}`;
       const magicResp = await axios.post(magicURL, {variables: smallAttr, locale}).catch(() => ({data: {}}));
       if (typeof magicResp.data === "object") {
         smallAttr = {...smallAttr, ...magicResp.data};
