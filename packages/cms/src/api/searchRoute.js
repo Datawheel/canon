@@ -580,7 +580,14 @@ module.exports = function(app) {
         const {searchIndexByLocale} = app.settings.cache;
 
         if (useLUNR && searchIndexByLocale[locale]) {
-          const terms = query.split(" ").map(d => `+${d}~1*`).join(" ");
+          const terms = query
+            .replace(/[\+\-\~\*\:\^]/g, ' ') //Remove special characters that are reserved by Lunr https://lunrjs.com/guides/searching.html
+            .split(" ") //Split into individual terms
+            .filter(d => d.trim() !== '') //Remove empty trimmed terms
+            .map(d => `+${d}~1*`) //Add wildcard to each term
+            .join(" "); //Join back into a single string
+
+          // Perform the search using lunr index
           const lunrResults = searchIndexByLocale[locale].search(terms);
           contentIds = lunrResults.map(d => d.ref);
         }
