@@ -115,7 +115,7 @@ class Section extends Component {
    * the variables back to their original state. This local intermediary function, passed down via context,
    * is responsible for keeping track of that, then in turn calling the props version of the function.
    */
-  onSetVariables(newVariables) {
+  onSetVariables(newVariables, forceMats, isComparison) {
     const initialVariables = this.props.initialVariables || this.context.initialVariables || {};
     const changedVariables = {};
     Object.keys(newVariables).forEach(key => {
@@ -125,7 +125,7 @@ class Section extends Component {
       changedVariables,
       showReset: Object.keys(changedVariables).length > 0
     });
-    if (this.props.onSetVariables) this.props.onSetVariables(newVariables);
+    if (this.props.onSetVariables) this.props.onSetVariables(newVariables, forceMats, isComparison);
   }
 
   /**
@@ -134,7 +134,8 @@ class Section extends Component {
    */
   resetVariables() {
     const {changedVariables} = this.state;
-    if (this.props.onSetVariables) this.props.onSetVariables(changedVariables);
+    const {comparison} = this.props.contents;
+    if (this.props.onSetVariables) this.props.onSetVariables(changedVariables, false, comparison);
     this.setState({
       changedVariables: {},
       showReset: false

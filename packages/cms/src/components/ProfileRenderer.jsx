@@ -31,6 +31,20 @@ import "../css/layout.css";
 
 import "./Profile.css";
 
+const splitComparisonKeys = obj => {
+  const split = {
+    profile: {},
+    comparison: {}
+  };
+  Object.keys(obj).forEach(k => {
+    split
+      [k.startsWith("compare_") ? "comparison" : "profile"]
+      [k.replace("compare_", "")] =
+    obj[k];
+  });
+  return split;
+};
+
 class ProfileRenderer extends Component {
   constructor(props) {
     super(props);
@@ -126,11 +140,11 @@ class ProfileRenderer extends Component {
    * This requires re-running materializers, because the user may have changed a variable
    * that would affect the "allowed" status of a given section.
    */
-  onSetVariables(newVariables, forceMats) {
-    const {profile, selectors, setVarsLoading, formatterFunctions} = this.state;
-    const {id, variables} = profile;
-    const {locale, sectionID} = this.props;
-    const {params} = this.context.router;
+  onSetVariables(newVariables, forceMats, isComparison) {
+    const {profile, selectors, setVarsLoading, formatterFunctions, comparison} = this.state;
+    const {variables} = profile;
+    const compVars = comparison.variables;
+    const {locale} = this.props;
     // Users should ONLY call setVariables in a callback - never in the main execution, as this
     // would cause an infinite loop. However, should they do so anyway, try and prevent the infinite
     // loop by checking if the vars are in there already, only updating if they are not yet set.
@@ -152,8 +166,16 @@ class ProfileRenderer extends Component {
       // If forceMats is not true, no materializers required. Using the locally stored _rawProfile and the now-combined
       // old and new variables, you have all that you need to make the profile update.
       else {
-        const newProfile = prepareProfile(variables._rawProfile, Object.assign({}, variables, newVariables), formatterFunctions, locale, selectors);
-        this.setState({profile: {...profile, ...newProfile}});
+        const split = splitComparisonKeys(selectors);
+        if (isComparison) {
+          const newComparison = prepareProfile(compVars._rawProfile, Object.assign({}, compVars, newVariables), formatterFunctions, locale, split.comparison);
+          this.setState({comparison: {...comparison, ...newComparison}});
+        }
+        else {
+          const newProfile = prepareProfile(variables._rawProfile, Object.assign({}, variables, newVariables), formatterFunctions, locale, split.profile);
+          this.setState({profile: {...profile, ...newProfile}});
+        }
+
       }
     }
   }
@@ -176,20 +198,21 @@ class ProfileRenderer extends Component {
 
   }
 
-  onSelector(name, value) {
+  onSelector(name, value, isComparison) {
 
     const {comparison, profile, selectors, formatterFunctions} = this.state;
     const {locale} = this.props;
 
-    selectors[name] = value;
+    selectors[`${isComparison ? "compare_" : ""}${name}`] = value;
+    const split = splitComparisonKeys(selectors);
 
     const {variables} = profile;
-    const newProfile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, selectors);
+    const newProfile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, split.profile);
     const payload = {selectors, profile: {...profile, ...newProfile}};
 
     if (comparison) {
       const compVars = comparison.variables;
-      const newComp = prepareProfile(compVars._rawProfile, compVars, formatterFunctions, locale, selectors);
+      const newComp = prepareProfile(compVars._rawProfile, compVars, formatterFunctions, locale, split.comparison);
       payload.comparison = {...comparison, ...newComp};
     }
 
@@ -229,7 +252,8 @@ class ProfileRenderer extends Component {
 
         if (Object.keys(selectors).length) {
           const compVars = comparison.variables;
-          const newComp = prepareProfile(compVars._rawProfile, compVars, formatterFunctions, locale, selectors);
+          const split = splitComparisonKeys(selectors);
+          const newComp = prepareProfile(compVars._rawProfile, compVars, formatterFunctions, locale, split.comparison);
           comparison = {...comparison, ...newComp};
         }
 

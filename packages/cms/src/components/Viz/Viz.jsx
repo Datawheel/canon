@@ -55,9 +55,19 @@ class Viz extends Component {
 
     // Variables come from props in the CMS, and Context in the Front-end.
     const variables = this.props.variables || this.context.variables;
+    const compVariables = this.context.compVariables;
+    const isComparison = compVariables && compVariables.id === variables.id;
     // onSetVariables will either come from ProfileBuilder (CMS) or Profile (Front-end)
     // But either way, it is delivered via context. Have a backup no-op just in case.
-    const onSetVariables = this.context.onSetVariables ? this.context.onSetVariables : d => d;
+    let onSetVariables = d => d;
+    if (this.context.onSetVariables) {
+      if (isComparison) {
+        onSetVariables = (variables, forceMats) => this.context.onSetVariables(variables, forceMats, true);
+      }
+      else {
+        onSetVariables = this.context.onSetVariables;
+      }
+    }
     // Window opening is only supported on front-end profiles. If they didn't
     // come through context, then this Viz is in the CMS, so just replace it with a no-op.
     const onOpenModal = this.context.onOpenModal ? this.context.onOpenModal : d => d;
@@ -175,7 +185,8 @@ Viz.childContextTypes = {
   onOpenModal: PropTypes.func,
   print: PropTypes.bool,
   updateSource: PropTypes.func,
-  variables: PropTypes.object
+  variables: PropTypes.object,
+  compVariables: PropTypes.object
 };
 
 Viz.contextTypes = {
@@ -186,7 +197,8 @@ Viz.contextTypes = {
   onSetVariables: PropTypes.func,
   onOpenModal: PropTypes.func,
   updateSource: PropTypes.func,
-  variables: PropTypes.object
+  variables: PropTypes.object,
+  compVariables: PropTypes.object
 };
 
 Viz.defaultProps = {

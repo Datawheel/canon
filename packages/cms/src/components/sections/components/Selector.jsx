@@ -32,20 +32,24 @@ class Selector extends Component {
     }
   }
 
+  onSelectorWrapper(name, value) {
+    const {onSelector, variables, compVariables} = this.context;
+    const isComparison = compVariables && compVariables.id === variables.id;
+    onSelector(name, value, isComparison);
+  }
+
   addComparison(comparison) {
     const {comparisons} = this.state;
     const filteredComparison = comparisons.concat([comparison]);
-    const {onSelector} = this.context;
     const {name} = this.props;
-    onSelector(name, filteredComparison);
+    this.onSelectorWrapper(name, filteredComparison);
   }
 
   removeComparison(option) {
     const {comparisons} = this.state;
     const filteredComparison = comparisons.filter(d => d !== option);
-    const {onSelector} = this.context;
     const {name} = this.props;
-    onSelector(name, filteredComparison);
+    this.onSelectorWrapper(name, filteredComparison);
   }
 
   renderItem(item, {handleClick}) {
@@ -63,7 +67,7 @@ class Selector extends Component {
 
   render() {
     const {activeValue, comparisons} = this.state;
-    const {onSelector, print, variables} = this.context;
+    const {print, variables} = this.context;
     const {fontSize, id, loading, options, name, selectCutoff, title, type, t} = this.props;
     const slug = `${name}-${id}`;
     const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label}), {});
@@ -120,7 +124,7 @@ class Selector extends Component {
           {(print ? options.filter(b => b.option === activeValue) : options).map(b =>
             <Button
               className="cp-selector-button"
-              onClick={() => onSelector(name, b.option)}
+              onClick={() => this.onSelectorWrapper(name, b.option)}
               active={b.option === activeValue}
               fontSize={fontSize}
               key={b.option}
@@ -136,7 +140,7 @@ class Selector extends Component {
         inline
         fontSize={fontSize}
         id={slug}
-        onChange={d => onSelector(name, d.target.value)}
+        onChange={d => this.onSelectorWrapper(name, d.target.value)}
         disabled={loading}
         value={activeValue}
       >
@@ -153,7 +157,8 @@ class Selector extends Component {
 Selector.contextTypes = {
   onSelector: PropTypes.func,
   print: PropTypes.bool,
-  variables: PropTypes.object
+  variables: PropTypes.object,
+  compVariables: PropTypes.object
 };
 
 Selector.defaultProps = {
