@@ -26,7 +26,9 @@ class Selector extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.default !== this.props.default) {
       this.setState({
-        comparisons: this.props.default,
+        comparisons: typeof this.props.default === "string"
+          ? this.props.default.split(",").filter(d => d.length)
+          : this.props.default || [],
         activeValue: this.props.default
       });
     }
