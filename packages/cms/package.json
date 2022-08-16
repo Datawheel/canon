@@ -100,7 +100,7 @@
     "@datawheel/canon-logiclayer": "workspace:^"
   },
   "peerDependencies": {
-    "@datawheel/canon-core": "^0.24.0"
+    "@datawheel/canon-core": "^0.25.0"
   },
   "repository": {
     "type": "git",
