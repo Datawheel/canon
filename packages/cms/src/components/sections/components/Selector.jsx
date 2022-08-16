@@ -33,8 +33,8 @@ class Selector extends Component {
   }
 
   onSelectorWrapper(name, value) {
-    const {onSelector, variables, compVariables} = this.context;
-    const isComparison = compVariables && compVariables.id === variables.id;
+    const {onSelector, variables, compVariables, comparison} = this.context;
+    const isComparison = comparison && compVariables.id === variables.id;
     onSelector(name, value, isComparison);
   }
 
@@ -158,7 +158,8 @@ Selector.contextTypes = {
   onSelector: PropTypes.func,
   print: PropTypes.bool,
   variables: PropTypes.object,
-  compVariables: PropTypes.object
+  compVariables: PropTypes.object,
+  comparison: PropTypes.boolean
 };
 
 Selector.defaultProps = {

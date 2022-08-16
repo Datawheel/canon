@@ -56,7 +56,7 @@ class Viz extends Component {
     // Variables come from props in the CMS, and Context in the Front-end.
     const variables = this.props.variables || this.context.variables;
     const compVariables = this.context.compVariables;
-    const isComparison = compVariables && compVariables.id === variables.id;
+    const isComparison = this.context.comparison && compVariables.id === variables.id;
     // onSetVariables will either come from ProfileBuilder (CMS) or Profile (Front-end)
     // But either way, it is delivered via context. Have a backup no-op just in case.
     let onSetVariables = d => d;
@@ -198,7 +198,8 @@ Viz.contextTypes = {
   onOpenModal: PropTypes.func,
   updateSource: PropTypes.func,
   variables: PropTypes.object,
-  compVariables: PropTypes.object
+  compVariables: PropTypes.object,
+  comparison: PropTypes.boolean
 };
 
 Viz.defaultProps = {

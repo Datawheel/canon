@@ -121,7 +121,8 @@ class ProfileRenderer extends Component {
       onOpenModal: this.onOpenModal.bind(this),
       onTabSelect: this.onTabSelect.bind(this),
       variables,
-      compVariables: comparison ? comparison.variables : false,
+      comparison,
+      compVariables: comparison ? comparison.variables : {},
       initialVariables,
       locale,
       print
@@ -641,6 +642,7 @@ ProfileRenderer.childContextTypes = {
   router: PropTypes.object,
   variables: PropTypes.object,
   initialVariables: PropTypes.object,
+  comparison: PropTypes.boolean,
   compVariables: PropTypes.object,
   onSelector: PropTypes.func,
   onOpenModal: PropTypes.func,
