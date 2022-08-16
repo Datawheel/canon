@@ -186,7 +186,8 @@ Viz.childContextTypes = {
   print: PropTypes.bool,
   updateSource: PropTypes.func,
   variables: PropTypes.object,
-  compVariables: PropTypes.object
+  compVariables: PropTypes.object,
+  comparison: PropTypes.boolean
 };
 
 Viz.contextTypes = {
