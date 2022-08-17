@@ -161,7 +161,7 @@ Selector.contextTypes = {
   print: PropTypes.bool,
   variables: PropTypes.object,
   compVariables: PropTypes.object,
-  comparison: PropTypes.boolean
+  comparison: PropTypes.bool
 };
 
 Selector.defaultProps = {

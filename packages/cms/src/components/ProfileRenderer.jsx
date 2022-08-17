@@ -642,7 +642,7 @@ ProfileRenderer.childContextTypes = {
   router: PropTypes.object,
   variables: PropTypes.object,
   initialVariables: PropTypes.object,
-  comparison: PropTypes.boolean,
+  comparison: PropTypes.bool,
   compVariables: PropTypes.object,
   onSelector: PropTypes.func,
   onOpenModal: PropTypes.func,

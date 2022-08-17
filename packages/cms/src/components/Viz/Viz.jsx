@@ -187,7 +187,7 @@ Viz.childContextTypes = {
   updateSource: PropTypes.func,
   variables: PropTypes.object,
   compVariables: PropTypes.object,
-  comparison: PropTypes.boolean
+  comparison: PropTypes.bool
 };
 
 Viz.contextTypes = {
@@ -200,7 +200,7 @@ Viz.contextTypes = {
   updateSource: PropTypes.func,
   variables: PropTypes.object,
   compVariables: PropTypes.object,
-  comparison: PropTypes.boolean
+  comparison: PropTypes.bool
 };
 
 Viz.defaultProps = {
