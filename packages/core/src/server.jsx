@@ -13,6 +13,7 @@ import {initialState as appInitialState} from "$app/store";
 import preRenderMiddleware from "./middlewares/preRenderMiddleware";
 import pretty from "pretty";
 import maybeRedirect from "./helpers/maybeRedirect";
+import stripHTML from "./helpers/stripHTML";
 import {servicesAvailable, servicesBody, servicesScript, servicesHeadTags} from "./helpers/services";
 import yn from "yn";
 
@@ -32,6 +33,13 @@ const baseTag = process.env.CANON_BASE_URL === undefined ? ""
   : `
     <base href='${BASE_URL}'>`;
 
+
+const getCleanedParams = queryParams => {
+  return Object.keys(queryParams).reduce((params, paramKey) => {
+    params[stripHTML(paramKey)] = stripHTML(queryParams[paramKey]);
+    return params;
+  }, {})
+}
 /**
     Returns the default server logic for rendering a page.
 */
@@ -46,13 +54,13 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
       basename,
       host: req.headers.host,
       hostname: req.headers.host.split(":")[0],
-      href: `${req.protocol}://${req.headers.host}${req.url}`,
+      href: `${req.protocol}://${stripHTML(`${req.headers.host}${req.url}`)}`,
       origin: `${req.protocol}://${req.headers.host}`,
-      pathname: req.url.split("?")[0],
+      pathname: stripHTML(req.url.split("?")[0]),
       port: req.headers.host.includes(":") ? req.headers.host.split(":")[1] : "80",
       protocol: `${req.protocol}:`,
-      query: req.query,
-      search: req.url.includes("?") ? `?${req.url.split("?")[1]}` : ""
+      query: getCleanedParams(req.query),
+      search: req.url.includes("?") ? `?${stripHTML(req.url.split("?")[1])}` : ""
     };
 
     const location = req.url.replace(BASE_URL, "");
