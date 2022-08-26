@@ -299,7 +299,7 @@ class ProfileRenderer extends Component {
       hideSubnav    // strip out the subnav
     } = this.props;
     const {print, searchProps} = this.context;
-    const {comparisonsEnabled, t} = this.props;
+    const {comparisonsEnabled, comparisonExclude, t} = this.props;
 
     if (!profile) return null;
     if (profile.error) return <div>{profile.error}</div>;
@@ -311,7 +311,9 @@ class ProfileRenderer extends Component {
     // The "Add Comparison" search button that gets added to the Hero section
     // if comparisons are enabled, the profile is not bi-lateral, and there
     // is currently no comparitor.
-    const comparisonButton = comparisonsEnabled && profile.dims.length === 1 && !comparison
+    // const exclude = comparisonExclude
+    const exclude = comparisonExclude && typeof comparisonExclude === "string" && comparisonExclude.split(",").includes(this.props.profile.dims[0].slug);
+    const comparisonButton = comparisonsEnabled && !exclude && profile.dims.length === 1 && !comparison
       ? <div className="cp-comparison-add">
         { comparisonSearch ? <div className="cp-comparison-search-container"
           style={{
@@ -652,7 +654,8 @@ ProfileRenderer.childContextTypes = {
 
 const mapStateToProps = state => ({
   auth: state.auth,
-  comparisonsEnabled: state.env.PROFILE_COMPARISON
+  comparisonsEnabled: state.env.PROFILE_COMPARISON,
+  comparisonExclude: state.env.PROFILE_COMPARISON_EXCLUDE
 });
 
 const mapDispatchToProps = dispatch => ({
