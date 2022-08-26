@@ -447,6 +447,9 @@ class Options extends Component {
         </label>
       </div>;
 
+    // god forgive me
+    const isTable = this.props.component?.viz?.props?.config?.logic?.includes("Table");
+
     return <div
       className="Options"
       tabIndex={focusOptions ? 0 : null}
@@ -485,7 +488,7 @@ class Options extends Component {
               <div className="save-image-button-group-wrapper">
                 <h3 className="save-image-button-group-label label u-font-xs">{t("CMS.Options.Image area")}</h3>
                 <ButtonGroup className="save-image-button-group">
-                  <Button
+                  {!isTable && <Button
                     className="save-image-format-button"
                     fontSize="xs"
                     icon="timeline-line-chart"
@@ -494,7 +497,7 @@ class Options extends Component {
                     active={imageContext === "viz"}
                   >
                     {t("CMS.Options.visualization only")}
-                  </Button>
+                  </Button> }
                   <Button
                     className="save-image-format-button"
                     fontSize="xs"
