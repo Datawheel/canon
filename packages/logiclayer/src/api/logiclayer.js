@@ -6,6 +6,7 @@ const Sequelize = require("sequelize"),
       findYears = require("../utils/findYears"),
       multiSort = require("../utils/multiSort"),
       path = require("path"),
+      {sanitize} = require("perfect-express-sanitizer"),
       yn = require("yn");
 
 const {CANON_LOGICLAYER_CUBE} = process.env;
@@ -73,6 +74,9 @@ function findKey(query, key, fallback) {
       }
     }
   }
+
+  value = sanitize.prepareSanitize(value, {xss: true, noSql: true, sql: true, level: 5});
+
   if (fallback instanceof Array && !(value instanceof Array)) {
     value = value
       .split(/\,([^\s\d])/g)
@@ -273,7 +277,6 @@ module.exports = function(app) {
           const hierarchy = group.key;
           const dim = dimensions.find(dim => dim.dimension === group.values[0].dimension);
           const dimension = dim.alternate;
-          const ids = group.values.map(d => d.id);
           if (dim.relation) {
             cuts.push([{dimension, level: hierarchy, hierarchy: dim.relation}, group.values.map(d => d.id)]);
             renames.push({[dimension]: dim.relation});

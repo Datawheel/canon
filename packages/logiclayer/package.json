@@ -20,6 +20,7 @@
     "d3-collection": "^1.0.4",
     "d3plus-common": "^1.0.2",
     "mondrian-rest-client": "^1.1.4",
+    "perfect-express-sanitizer": "^1.0.9",
     "promise-throttle": "^1.0.0",
     "sequelize": "^4.13.10",
     "yn": "^4.0.0"
