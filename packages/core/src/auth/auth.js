@@ -51,8 +51,12 @@ module.exports = function (app) {
 
   app.get("/auth/logout", (req, res) => {
     req.logout();
-    //TBD: Force logout for openID? I don't think so. https://github.com/passport/todos-express-auth0/blob/main/routes/auth.js#L43-L50
-    return res.redirect("/");
+    if (req.query.openid === "true" && process.env.CANON_OPENID_LOGOUT) {
+      res.redirect(process.env.CANON_OPENID_LOGOUT)
+    }
+    else {
+      return res.redirect("/");
+    }
   });
 
   app.get("/auth/users", isRole(2), (req, res) => {

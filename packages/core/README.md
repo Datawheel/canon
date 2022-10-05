@@ -766,6 +766,10 @@ export CANON_OPENID_ID="###############"
 export CANON_OPENID_SECRET="##############################"
 export CANON_OPENID_ROLES="profile,email"
 ```
+3. (Optional) To fully log out of OpenId on Canon Logout, set this variable:
+```sh
+export CANON_OPENID_LOGOUT="https://login.microsoftonline.com/###/oauth2/v2.0/logout"
+```
 
 ---
 
