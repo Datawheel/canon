@@ -51,7 +51,7 @@ module.exports = function (app) {
 
   app.get("/auth/logout", (req, res) => {
     req.logout();
-    if (req.query.openid === "true" && process.env.CANON_OPENID_LOGOUT) {
+    if (process.env.CANON_OPENID_LOGOUT) {
       res.redirect(process.env.CANON_OPENID_LOGOUT)
     }
     else {
