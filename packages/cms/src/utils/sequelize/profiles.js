@@ -1,4 +1,3 @@
-const stylePropObject = require("eslint-plugin-react/lib/rules/style-prop-object");
 const Sequelize = require("sequelize");
 
 module.exports = {
@@ -19,7 +18,7 @@ async function hydrateModelsProfile(sequelize) {
   const Search = sequelize.search;
   const SearchContent = sequelize.search_content;
 
-  Profile.getAllVisible = function () {
+  Profile.getAllVisible = function() {
     return Profile
       .findAll({
         where: {
@@ -27,12 +26,10 @@ async function hydrateModelsProfile(sequelize) {
         },
         include: "meta"
       })
-      .then(profiles => {
-        return profiles;
-      });
-  }
+      .then(profiles => profiles);
+  };
 
-  ProfileMeta.findAllIn = function (profileId) {
+  ProfileMeta.findAllIn = function(profileId) {
     return ProfileMeta
       .findAll({
         where: {
@@ -50,12 +47,10 @@ async function hydrateModelsProfile(sequelize) {
         include: "profile",
         order: [["ordering", "ASC"]]
       })
-      .then(profilesMetas => {
-        return profilesMetas
-      });
+      .then(profilesMetas => profilesMetas);
   };
 
-  Search.findAllFromProfile = function (profile) {
+  Search.findAllFromProfile = function(profile) {
     return Search.findAll({
       include: "content",
       where: {
@@ -73,7 +68,7 @@ async function hydrateModelsProfile(sequelize) {
     }));
   };
 
-  Story.findAllPublicStories = function () {
+  Story.findAllPublicStories = function() {
     const now = Date.now();
     return Story
       .findAll({
