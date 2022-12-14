@@ -6,6 +6,7 @@ const bodyParser = require("body-parser"),
       helmet = require("helmet"),
       path = require("path"),
       shell = require("shelljs"),
+      {Server} = require("socket.io"),
       yn = require("yn");
 
 let everDetect = false;
@@ -193,6 +194,34 @@ module.exports = function(config) {
   router.get("*", App.default(store, headerConfig, reduxMiddleware));
 
   const server = router.listen(CANON_PORT);
+
+  // pass the Express HTTP server to socket.io to enable sockets
+  const io = new Server(server);
+  router.set("io", io);
+
+  // create an Object in memory to manage active socket connections
+  const sockets = {};
+  router.set("sockets", sockets);
+
+  // init and diconnect actions for socket connections
+  io.on("connection", socket => {
+
+    // client-emitted "init" event used to store a shared sessionId
+    // between the client and browser
+    socket.on("init", sessionId => {
+      sockets[sessionId] = socket.id;
+      socket.emit("init", sessionId);
+      if (NODE_ENV === "development") shell.echo(`[Socket] Connected (${socket.id})`);
+    });
+
+    // when client diconnects, remove their session from the socket lookup in memory
+    socket.on("disconnect", reason => {
+      const sessionID = Object.keys(sockets).find(d => sockets[d] === socket.id);
+      delete sockets[sessionID];
+      if (NODE_ENV === "development") shell.echo(`[Socket] Disconnected (${socket.id}): ${reason}`);
+    });
+
+  });
 
   if (NODE_ENV === "development") {
 
