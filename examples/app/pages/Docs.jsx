@@ -26,6 +26,7 @@ import FetchData from "./core/FetchData";
 import LazyLoadImage from "./core/LazyLoadImage";
 import LazyLoadImageDemo from "./core/LazyLoadImageDemo";
 import Links from "./core/Links";
+import Socket from "./core/Socket";
 
 // CMS
 import IntroCms from "./cms/Intro";
@@ -59,7 +60,8 @@ const PACKAGES = [
       {title: "FetchData", component: FetchData},
       {title: "Lazy Load Images", component: LazyLoadImage},
       {title: "Lazy Load Images DEMO", component: LazyLoadImageDemo},
-      {title: "Links", component: Links}
+      {title: "Links", component: Links},
+      {title: "Web Sockets", component: Socket}
     ]
   },
   {
