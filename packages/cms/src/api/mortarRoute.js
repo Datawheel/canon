@@ -232,6 +232,9 @@ module.exports = function(app) {
 
   const createGeneratorFetch = (req, locale, r, attr) => {
     // Generators use <id> as a placeholder. Replace instances of <id> with the provided id from the URL
+    console.log("protocol", req.protocol);
+    console.log("encrypted", req.connection.encrypted);
+    console.log("secure", req.secure);
     const origin = `${ req.protocol }://${ req.headers.host }`;
     let url = urlSwap(r, {...req.params, ...cache, ...attr, ...canonVars, locale});
     if (url.indexOf("http") !== 0) {
