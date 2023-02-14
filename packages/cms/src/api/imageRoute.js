@@ -104,7 +104,7 @@ module.exports = function(app) {
     else {
       let {imageId} = member;
       const bucket = process.env.CANON_CONST_STORAGE_BUCKET;
-      if (bucket && ["splash", "thumb"].includes(size)) {
+      if (["splash", "thumb"].includes(size)) {
         if (!imageId) {
           const parentMember = await getParentMemberWithImage(db, member, meta);
           if (parentMember) imageId = parentMember.imageId;
@@ -117,13 +117,17 @@ module.exports = function(app) {
             return res.end(imageRow[size], "binary");
           }
           // Otherwise, try the cloud storage location. A failure here will return a 1x1 transparent png
-          else {
+          else if (bucket) {
             let url = `https://storage.googleapis.com/${bucket}/${size}/${imageId}.jpg`;
             if (t) url += `?t=${t}`;
             const imgData = await axios.get(url, {responseType: "arraybuffer"}).then(resp => resp.data).catch(imgCatcher);
             if (!imgData) return imageError();
             res.writeHead(200,  {"Content-Type": "image/jpeg"});
             return res.end(imgData, "binary");
+          }
+          // If, for some reason, there is an imageId but not blob or bucket, return 1x1 transparent png
+          else {
+            return imageError();
           }
         }
         else {
