@@ -2,7 +2,7 @@ const Sequelize = require("sequelize"),
       axios = require("axios"),
       d3Array = require("d3-array"),
       d3Collection = require("d3-collection"),
-      d3plusCommon = require("d3plus-common"),
+      {isObject} = require("d3plus-common"),
       findYears = require("../utils/findYears"),
       multiSort = require("../utils/multiSort"),
       path = require("path"),
@@ -444,7 +444,7 @@ module.exports = function(app) {
                       .then(substitutions[dimension].callback ? substitutions[dimension].callback : d => d)
                       .catch(() => []);
 
-                    if (d3plusCommon.isObject(subIds) && subIds.id && subIds.level) {
+                    if (isObject(subIds) && subIds.id && subIds.level) {
                       subLevel = subIds.level;
                       subIds = subIds.id;
                     }
