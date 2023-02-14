@@ -1,7 +1,7 @@
 {
   "name": "@datawheel/canon-vizbuilder",
   "description": "A canon plugin to explore visualizations of data from OLAP cubes.",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "sideEffects": [
