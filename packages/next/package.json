@@ -1,0 +1,48 @@
+{
+  "name": "@datawheel/canon-next",
+  "version": "0.1.0",
+  "description": "Nextjs components for sites migrating away from canon-core.",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    },
+    "./server": {
+      "import": "./dist/server.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "style": "./dist/index.css",
+  "scripts": {
+    "prepublishOnly": "tsup",
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Datawheel/canon.git"
+  },
+  "keywords": [
+    "cms",
+    "data",
+    "datawheel"
+  ],
+  "author": "Sebastián Espinoza",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/Datawheel/canon/issues"
+  },
+  "homepage": "https://github.com/Datawheel/canon#readme",
+  "dependencies": {
+    "@mantine/core": "^5.6.3",
+    "react": "^18.0.2"
+  },
+  "devDependencies": {
+    "tsup": "^6.5.0"
+  },
+  "peerDependencies": {
+    "next": "^13.0.0"
+  }
+}
