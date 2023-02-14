@@ -125,6 +125,10 @@ module.exports = function(app) {
             res.writeHead(200,  {"Content-Type": "image/jpeg"});
             return res.end(imgData, "binary");
           }
+          // If, for some reason, there is an imageId but not blob or bucket, return 1x1 transparent png
+          else {
+            return imageError();
+          }
         }
         else {
           return imageError();
