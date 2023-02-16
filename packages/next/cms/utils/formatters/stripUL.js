@@ -4,5 +4,5 @@
 function stripUL(n) {
     return n.replace(/<ul>/g, "").replace(/<\/ul>/g, "");
   }
-  
-  module.exports = stripUL;
+
+  export default stripUL;

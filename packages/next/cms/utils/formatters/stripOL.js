@@ -4,5 +4,5 @@
 function stripOL(n) {
     return n.replace(/<ol>/g, "").replace(/<\/ol>/g, "");
   }
-  
-  module.exports = stripOL;
+
+  export default stripOL;

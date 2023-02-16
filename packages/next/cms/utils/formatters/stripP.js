@@ -4,5 +4,5 @@
 function stripP(n) {
     return n.replace(/<p>/g, "").replace(/<\/p>/g, "");
   }
-  
-  module.exports = stripP;
+
+  export default stripP;

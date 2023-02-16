@@ -8,11 +8,11 @@ const entities = {
     "&#x60;": "`",
     "&nbsp;": ""
   };
-  
+
   const source = `(?:${ Object.keys(entities).join("|")  })`;
   const testRegexp = RegExp(source);
   const replaceRegexp = RegExp(source, "g");
-  
+
   /**
   * Converts html tags to spaces, then removes redundant spaces
   */
@@ -20,5 +20,5 @@ const entities = {
     const s = String(n).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
     return testRegexp.test(s) ? s.replace(replaceRegexp, match => entities[match]) : s;
   }
-  
-  module.exports = stripHTML;
+
+  export default stripHTML;

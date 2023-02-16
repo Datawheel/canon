@@ -4,5 +4,5 @@
 function pxToInt(str) {
     return parseInt(str.replace(/\D+/g, ""), 10);
   }
-  
-  module.exports = pxToInt;
+
+  export default pxToInt;

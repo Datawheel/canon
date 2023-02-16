@@ -9,4 +9,4 @@ if (typeof window !== "undefined") {
   }
 }
 
-module.exports = isIE;
+export default isIE;

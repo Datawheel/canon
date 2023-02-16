@@ -10,9 +10,9 @@ function toKebabCase(str) {
       // grab uppercase characters, add a dash before them, and convert the whole thing to lowercase
       return str.replace(/([A-Z])/g, "-$1").toLowerCase();
     }
-  
+
     // error handling
     return "invalid string passed to toKebabCase()";
   }
-  
-  module.exports = toKebabCase;
+
+  export default toKebabCase;

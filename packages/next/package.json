@@ -59,5 +59,6 @@
   },
   "devDependencies": {
     "tsup": "^6.6.3"
-  }
+  },
+  "type": "module"
 }
