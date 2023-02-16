@@ -1,5 +1,5 @@
 import {
-  TypographyStylesProvider,
+  TypographyStylesProvider
 } from "@mantine/core";
 import {NonIdealState, ProfileRenderer} from "../..";
 
@@ -9,7 +9,7 @@ function Profile(props) {
   if (profile.error) {
     const {error, errorCode} = profile;
     const errorMessages = {
-      404: "Page Not Found",
+      404: "Page Not Found"
     };
     return (
       <NonIdealState

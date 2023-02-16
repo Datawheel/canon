@@ -19,6 +19,10 @@
     "url": "https://github.com/Datawheel/canon/issues"
   },
   "homepage": "https://github.com/Datawheel/canon#readme",
+  "workspaces": [
+    "example-next",
+    "packages"
+  ],
   "dependencies": {
     "@octokit/rest": "^17.11.2",
     "babel-eslint": "^10.1.0",

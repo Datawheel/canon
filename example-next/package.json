@@ -1,0 +1,23 @@
+{
+  "name": "example-next",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@datawheel/canon-next": "workspace:*",
+    "@emotion/react": "^11.10.5",
+    "@mantine/core": "^5.10.4",
+    "@mantine/hooks": "^5.10.4",
+    "@next/font": "13.1.6",
+    "eslint": "8.34.0",
+    "eslint-config-next": "13.1.6",
+    "next": "13.1.6",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}

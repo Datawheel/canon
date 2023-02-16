@@ -3,14 +3,14 @@ import {nest} from "d3-collection";
 import {useTranslation} from "next-i18next";
 import {
   Button, Group, Collapse, Paper, Text, BackgroundImage, List,
-  Stack, Overlay, Flex, Title, useMantineColorScheme, Modal,
+  Stack, Overlay, Flex, Title, useMantineColorScheme, Modal
 } from "@mantine/core";
 import {
-  IconChevronDown, IconChevronUp,
-} from "@tabler/icons";
+  IconChevronDown, IconChevronUp
+} from "@tabler/icons-react";
 // eslint-disable-next-line import/no-cycle
 import {
-  ProfileContext, SourceGroup, StatGroup, Viz,
+  ProfileContext, SourceGroup, StatGroup, Viz
 } from "../../../index";
 import stripP from "../../utils/formatters/stripP";
 
@@ -33,7 +33,7 @@ function Hero({
   loading,
   profile,
   sources,
-  type,
+  type
 }) {
   const {t} = useTranslation("profile");
 
@@ -42,16 +42,16 @@ function Hero({
   const [clickedIndex, setClickedIndex] = useState(undefined);
   const [creditsVisible, setCreditsVisible] = useState(false);
   const {formatters, searchProps, linkify} = useContext(ProfileContext);
-  const {stripHTML = (d) => d} = formatters || {};
+  const {stripHTML = d => d} = formatters || {};
 
-  const titleClick = (index) => {
+  const titleClick = index => {
     setClickedIndex(index);
     setTimeout(() => {
       document.querySelector(".cp-hero-search .cp-input input").focus();
     }, 300);
   };
 
-  const spanifyTitle = (title) => {
+  const spanifyTitle = title => {
     const {variables} = profile;
 
     // stories don't have variables
@@ -64,11 +64,11 @@ function Hero({
         .reduce((t, name) => t.replace(name, `{{name${names.indexOf(name) + 1}}}`), title);
 
       // some titles have <> signs in them. encode them, so the span doesn't break.
-      const fixHTML = (d) => (d ? d.replace(/</g, "&lt;").replace(/\\>/g, "&gt;") : d);
+      const fixHTML = d => d ? d.replace(/</g, "&lt;").replace(/\\>/g, "&gt;") : d;
 
       return swappedTitle.replace(/\{\{name([0-2])\}\}/g, (str, i) => {
         const name = names[i - 1];
-        return `<span class="cp-hero-heading-dimension" 
+        return `<span class="cp-hero-heading-dimension"
           title=${fixHTML(name)} >
             ${fixHTML(name)}
           </span>`;
@@ -85,21 +85,21 @@ function Hero({
     title = spanifyTitle(contents.title);
     // subtitles
     if (contents.subtitles.length) {
-      subtitleContent = contents.subtitles.map((subhead) => (
+      subtitleContent = contents.subtitles.map(subhead => 
         <Title
           order={2}
           align="center"
           key={`${subhead.subtitle}-subhead`}
           dangerouslySetInnerHTML={{__html: stripP(subhead.subtitle)}}
         />
-      ));
+      );
     }
 
     // stats
     if (contents.stats.length > 0) {
-      const statGroups = nest().key((d) => d.title).entries(contents.stats);
+      const statGroups = nest().key(d => d.title).entries(contents.stats);
 
-      statContent = (
+      statContent = 
         <Flex
           justify="space-between"
           align="flex-start"
@@ -107,22 +107,22 @@ function Hero({
           wrap="wrap"
           w="100%"
         >
-          {statGroups.map(({key, values}) => (
+          {statGroups.map(({key, values}) => 
             <StatGroup key={key} title={key} stats={values} />
-          ))}
+          )}
         </Flex>
-      );
+      ;
     }
 
     // descriptions
     if (contents.descriptions.length) {
       paragraphs = loading
         ? <Text>Loading...</Text>
-        : contents.descriptions.map((content) => (
+        : contents.descriptions.map(content => 
           <Text key={`hero-paragraph-${content.description}`}>
             {content.description}
           </Text>
-        ));
+        );
     }
 
     // sources
@@ -131,7 +131,7 @@ function Hero({
 
   // heading & subhead(s)
 
-  const heading = (
+  const heading = 
     <Stack>
       <Title
         align="center"
@@ -141,11 +141,11 @@ function Hero({
       />
       {subtitleContent}
     </Stack>
-  );
+  ;
 
   // custom images can be uploaded with no flickr source. Only show the "image credits" section
   // if at least one of the images has the flickr data to show
-  const hasAuthor = profile.images.some((d) => d.author);
+  const hasAuthor = profile.images.some(d => d.author);
 
   return (
     <Stack component="header" style={{overflow: "hidden", width: "100%"}} pos="relative" align="center">
@@ -160,7 +160,7 @@ function Hero({
         </Stack>
 
         {/* print JUST the first visualization */}
-        {contents && contents.visualizations && contents.visualizations.length && (
+        {contents && contents.visualizations && contents.visualizations.length && 
           <div key={contents.visualizations[0].id} className="cp-hero-figure">
             <Viz
               section={this}
@@ -171,18 +171,18 @@ function Hero({
               slug={contents.slug}
             />
           </div>
-        )}
+        }
       </Flex>
 
       {/* display image credits, and images */}
-      {profile.images.length && (
+      {profile.images.length && 
         <>
           {/* credits */}
-          {type !== "story" && hasAuthor && (
+          {type !== "story" && hasAuthor && 
             <Stack
               spacing={0}
               style={{
-                zIndex: 8, position: "absolute", right: 10, top: 10,
+                zIndex: 8, position: "absolute", right: 10, top: 10
               }}
             >
               <Button
@@ -196,12 +196,12 @@ function Hero({
                   {
                     action: creditsVisible
                       ? t("CMS.Options.hide")
-                      : t("CMS.Options.show"),
-                  },
+                      : t("CMS.Options.show")
+                  }
                 )}
               </Button>
               <Collapse in={creditsVisible}>
-                {profile.images.map((img, i) => (
+                {profile.images.map((img, i) => 
                   <Paper key={JSON.stringify(img)} shadow="xs" p="xs" mt={5} radius={0}>
                     <Text>
                       Image
@@ -209,17 +209,17 @@ function Hero({
                       {i + 1}
                     </Text>
                     <List size="xs">
-                      {img.author && (
+                      {img.author && 
                         <List.Item>
                           {t("CMS.Profile.photograph_by", {author: img.author})}
                         </List.Item>
-                      )}
-                      {img.meta && (
+                      }
+                      {img.meta && 
                         <List.Item>
                           {img.meta}
                         </List.Item>
-                      )}
-                      {img.permalink && (
+                      }
+                      {img.permalink && 
                         <List.Item>
                           {t("CMS.Options.direct_link")}
                           {": "}
@@ -227,33 +227,33 @@ function Hero({
                             {img.permalink}
                           </a>
                         </List.Item>
-                      )}
+                      }
                     </List>
                   </Paper>
-                ))}
+                )}
               </Collapse>
             </Stack>
-          )}
+          }
 
           {/* images */}
           <Group
             spacing={0}
             style={{
-              height: "100%", width: "100%", position: "absolute",
+              height: "100%", width: "100%", position: "absolute"
             }}
             noWrap
           >
-            {profile.images.map((img, i) => img.src && (
+            {profile.images.map((img, i) => img.src && 
               <BackgroundImage
                 style={{
                   height: "100%",
-                  width: `${(100 / profile.images.length)}%`,
+                  width: `${100 / profile.images.length}%`
                 }}
                 key={img.src}
                 radius={0}
                 src={img.src}
               />
-            ))}
+            )}
           </Group>
           <Overlay
             opacity={0.7}
@@ -262,7 +262,7 @@ function Hero({
             zIndex={1}
           />
         </>
-      )}
+      }
 
       <Modal
         size="80%"
@@ -279,7 +279,7 @@ function Hero({
           display="grid"
           showExamples
           linkify={linkify}
-        // eslint-disable-next-line react/jsx-props-no-spreading
+          // eslint-disable-next-line react/jsx-props-no-spreading
           {...searchProps}
         />
 
