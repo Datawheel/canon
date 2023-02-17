@@ -211,7 +211,7 @@ function ProfileSearch({
     (href, member) => `${href}/${member.slug}/${member.memberSlug || member.id}`,
     "/profile",
   ),
-  t = useTranslation("profile"),
+  t,
 }) {
   const {locale} = useRouter();
 

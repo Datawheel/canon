@@ -3,7 +3,7 @@ import {nest} from "d3-collection";
 import {useTranslation} from "next-i18next";
 import {
   Button, Group, Collapse, Paper, Text, BackgroundImage, List,
-  Stack, Overlay, Flex, Title, useMantineColorScheme, Modal
+  Stack, Overlay, Flex, Title, useMantineColorScheme, Modal, Box
 } from "@mantine/core";
 import {
   IconChevronDown, IconChevronUp
@@ -35,13 +35,12 @@ function Hero({
   sources,
   type
 }) {
-  const {t} = useTranslation("profile");
 
   // NOTE: using color scheme here asumes there is theme switch enabled
   // const {colorScheme} = useMantineColorScheme();
   const [clickedIndex, setClickedIndex] = useState(undefined);
   const [creditsVisible, setCreditsVisible] = useState(false);
-  const {formatters, searchProps, linkify} = useContext(ProfileContext);
+  const {formatters, searchProps, linkify, t} = useContext(ProfileContext);
   const {stripHTML = d => d} = formatters || {};
 
   const titleClick = index => {
@@ -85,7 +84,7 @@ function Hero({
     title = spanifyTitle(contents.title);
     // subtitles
     if (contents.subtitles.length) {
-      subtitleContent = contents.subtitles.map(subhead => 
+      subtitleContent = contents.subtitles.map(subhead =>
         <Title
           order={2}
           align="center"
@@ -99,15 +98,16 @@ function Hero({
     if (contents.stats.length > 0) {
       const statGroups = nest().key(d => d.title).entries(contents.stats);
 
-      statContent = 
+      statContent =
         <Flex
+          className="cp-stat-content"
           justify="space-between"
           align="flex-start"
           direction="row"
           wrap="wrap"
           w="100%"
         >
-          {statGroups.map(({key, values}) => 
+          {statGroups.map(({key, values}) =>
             <StatGroup key={key} title={key} stats={values} />
           )}
         </Flex>
@@ -118,7 +118,7 @@ function Hero({
     if (contents.descriptions.length) {
       paragraphs = loading
         ? <Text>Loading...</Text>
-        : contents.descriptions.map(content => 
+        : contents.descriptions.map(content =>
           <Text key={`hero-paragraph-${content.description}`}>
             {content.description}
           </Text>
@@ -131,12 +131,17 @@ function Hero({
 
   // heading & subhead(s)
 
-  const heading = 
+  const heading =
     <Stack>
       <Title
         align="center"
         order={1}
         onClick={() => titleClick(1)}
+        sx={{
+          "&:hover": {
+            cursor: "pointer",
+          }
+        }}
         dangerouslySetInnerHTML={{__html: stripP(title)}}
       />
       {subtitleContent}
@@ -160,8 +165,8 @@ function Hero({
         </Stack>
 
         {/* print JUST the first visualization */}
-        {contents && contents.visualizations && contents.visualizations.length && 
-          <div key={contents.visualizations[0].id} className="cp-hero-figure">
+        {contents && contents.visualizations && contents.visualizations.length &&
+          <Box key={contents.visualizations[0].id} className="cp-hero-figure" maw={400}>
             <Viz
               section={this}
               config={contents.visualizations[0]}
@@ -170,15 +175,15 @@ function Hero({
               hideOptions
               slug={contents.slug}
             />
-          </div>
+          </Box>
         }
       </Flex>
 
       {/* display image credits, and images */}
-      {profile.images.length && 
+      {profile.images.length &&
         <>
           {/* credits */}
-          {type !== "story" && hasAuthor && 
+          {type !== "story" && hasAuthor &&
             <Stack
               spacing={0}
               style={{
@@ -201,7 +206,7 @@ function Hero({
                 )}
               </Button>
               <Collapse in={creditsVisible}>
-                {profile.images.map((img, i) => 
+                {profile.images.map((img, i) =>
                   <Paper key={JSON.stringify(img)} shadow="xs" p="xs" mt={5} radius={0}>
                     <Text>
                       Image
@@ -209,17 +214,17 @@ function Hero({
                       {i + 1}
                     </Text>
                     <List size="xs">
-                      {img.author && 
+                      {img.author &&
                         <List.Item>
                           {t("CMS.Profile.photograph_by", {author: img.author})}
                         </List.Item>
                       }
-                      {img.meta && 
+                      {img.meta &&
                         <List.Item>
                           {img.meta}
                         </List.Item>
                       }
-                      {img.permalink && 
+                      {img.permalink &&
                         <List.Item>
                           {t("CMS.Options.direct_link")}
                           {": "}
@@ -243,7 +248,7 @@ function Hero({
             }}
             noWrap
           >
-            {profile.images.map((img, i) => img.src && 
+            {profile.images.map((img, i) => img.src &&
               <BackgroundImage
                 style={{
                   height: "100%",
@@ -279,6 +284,7 @@ function Hero({
           display="grid"
           showExamples
           linkify={linkify}
+          t={t}
           // eslint-disable-next-line react/jsx-props-no-spreading
           {...searchProps}
         />

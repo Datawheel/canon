@@ -224,8 +224,8 @@ export default function Subnav(props) {
       <Paper
         component="nav"
         pos="sticky"
-        top={50}
         bottom={0}
+        top={0}
         className={`cp-subnav ${fixed ? "is-fixed" : "is-static"}`}
         ref={subnav}
         key="s"

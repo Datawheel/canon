@@ -1,5 +1,5 @@
 import {
-  Text, Group,
+  Text, Group, Stack,
 } from "@mantine/core";
 import {Stat} from "../../../index";
 import stripHTML from "../../utils/formatters/stripHTML";
@@ -15,7 +15,7 @@ function StatGroup({className, stats = []}) {
   return stats.length > 1
     // grouped stats
     ? (
-      <div>
+      <Stack className="cp-stats-group">
         {stats.length > 1 && (
           <Text dangerouslySetInnerHTML={{__html: stripHTML(stats[0].title)}} />
         )}
@@ -30,7 +30,7 @@ function StatGroup({className, stats = []}) {
             />
           ))}
         </Group>
-      </div>
+      </Stack>
     )
     // single stat
     : (

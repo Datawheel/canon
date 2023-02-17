@@ -1,6 +1,13 @@
+/**
+
+  @name FUNC
+  @desc Similar to the JSON.parse and JSON.stringify methods, these functions
+  convert functions to and from object representations of themselves:
+  @example object representation: {vars: ["d", "i"], logic: "return d.x * i;"}
+
+*/
+
 import {isObject} from "d3plus-common";
-// import {trim} from "d3plus-text";
-// import buble from "buble";
 import libs from "./libs";
 
 /** */

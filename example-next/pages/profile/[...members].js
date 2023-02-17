@@ -19,8 +19,10 @@ import getProfile from "../helpers/getProfile";
 const {NEXT_PUBLIC_CMS} = process.env;
 
 function ProfilePage({formatters, profile}) {
+  console.log(formatters);
   const router = useRouter();
   const {t} = useTranslation("profile");
+
   if (router.isFallback) return <NonIdealState />;
   return (
     <>
@@ -52,8 +54,8 @@ export async function getStaticPaths() {
 export async function getStaticProps({locale, params}) {
   const profile = await getProfile(params.members, locale);
   if (profile.error) return {notFound: true};
-
   const formatterURL = new URL("/api/formatters", NEXT_PUBLIC_CMS);
+  console.log(formatterURL);
   const formatters = await axios.get(formatterURL.href)
     .then(resp => resp.data);
 

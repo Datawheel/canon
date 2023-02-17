@@ -179,6 +179,7 @@ function ProfileRenderer({
     router.replace(`${basename}${pathname}${queryString ? `?${queryString}` : ""}`);
   };
 
+  useEffect(() => console.log(selectors), [JSON.stringify(selectors)]);
   const onSelector = (name, value, isComparison) => {
     const newSelectors = {...selectors};
     newSelectors[`${isComparison ? "compare_" : ""}${name}`] = value;
@@ -194,14 +195,15 @@ function ProfileRenderer({
 
     setSelectors(newSelectors);
     // updateQuery as callback don't work. TODO: refactor
-    setProfile({...profile, ...newProfile}, updateQuery);
+    setProfile({...profile, ...newProfile});
+
   };
 
   const onTabSelect = (id, index) => {
     const newSelectors = {...selectors};
     newSelectors[`tabsection-${id}`] = index;
     // updateQuery as callback don't work. TODO: refactor
-    setSelectors(newSelectors, updateQuery);
+    setSelectors(newSelectors);
   };
 
   /**
@@ -475,7 +477,7 @@ function ProfileRenderer({
     variables,
     comparison,
     compVariables: comparison ? comparison.variables : {},
-    initialVariables,
+    variables: profile.variables,
     searchProps,
     print,
     linkify,
