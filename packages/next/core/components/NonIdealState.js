@@ -6,6 +6,7 @@ import SVG from "react-inlinesvg";
 function NonIdealState({
   image = null, message = "Loading...", graphic = <Loader />, height = "100vh",
 }) {
+  return null;
   return (
     <BackgroundImage src={image} h={height}>
       <LoadingOverlay

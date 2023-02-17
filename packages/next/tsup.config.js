@@ -1,12 +1,16 @@
 import {defineConfig} from "tsup";
 
-export default defineConfig(() => ({
-  entry: ["index.js"],
+export default defineConfig(options => ({
+  clean: !options.watch,
+  entry: ["index.ts"],
+  bundle: true,
   format: ["esm"],
-  target: "node14",
-  loader: {".js": "jsx"},
-  splitting: true,
   outExtension() {
-    return {js: ".js"};
+    return {js: `.js`}
   },
+  tsconfig: "./tsconfig.ts",
+  loader: {".js": "jsx"},
+  shims: true,
+  splitting: false,
+  treeshake: true,
 }));
