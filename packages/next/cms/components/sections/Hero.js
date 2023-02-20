@@ -1,9 +1,8 @@
 import {useContext, useState} from "react";
 import {nest} from "d3-collection";
-import {useTranslation} from "next-i18next";
 import {
   Button, Group, Collapse, Paper, Text, BackgroundImage, List,
-  Stack, Overlay, Flex, Title, useMantineColorScheme, Modal, Box
+  Stack, Overlay, Flex, Title, Modal, Box
 } from "@mantine/core";
 import {
   IconChevronDown, IconChevronUp
@@ -139,7 +138,7 @@ function Hero({
         onClick={() => titleClick(1)}
         sx={{
           "&:hover": {
-            cursor: "pointer",
+            cursor: "pointer"
           }
         }}
         dangerouslySetInnerHTML={{__html: stripP(title)}}
@@ -153,7 +152,7 @@ function Hero({
   const hasAuthor = profile.images.some(d => d.author);
 
   return (
-    <Stack component="header" style={{overflow: "hidden", width: "100%"}} pos="relative" align="center">
+    <Stack className="cp-hero" component="header" style={{overflow: "hidden", width: "100%"}} pos="relative" align="center">
       <Flex sx={{zIndex: 2}} w="100%" align="center" p="xl" gap={100}>
         {/* { hidePDF ? null : <PDFButton className="cp-hero-pdf" filename={filename(profile.title)} /> } */}
         {/* caption */}

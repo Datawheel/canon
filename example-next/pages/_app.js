@@ -1,6 +1,8 @@
 import Head from "next/head";
 import {MantineProvider} from "@mantine/core";
+import {Inter} from "@next/font/google";
 
+const inter = Inter({subsets: ["latin"]});
 // eslint-disable-next-line require-jsdoc
 export default function App(props) {
   const {Component, pageProps} = props;
@@ -18,7 +20,14 @@ export default function App(props) {
         theme={{
 
           /** Put your mantine theme override here */
-          colorScheme: "light"
+          colorScheme: "light",
+          globalStyles: {
+
+            /** Put your cms overrides here*/
+            ".cp-hero-heading-dimension": {
+              fontFamily: `${inter.style.fontFamily} !important`
+            }
+          }
         }}
       >
         <Component {...pageProps} />

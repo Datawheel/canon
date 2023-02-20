@@ -27,7 +27,8 @@ function ProfilePage({profile, formatters}) {
         formatters={formatters}
         profile={profile}
         linkify={profile => profile.reduce((href, member) => `${href}/${member.slug}/${member.memberSlug || member.id}`, "/profile")}
-        // searchProps={{...profileSearchConfig, placeholder}}
+        // you can also specify the configuration for ProfileSearch here:
+        // searchProps={{placeholder: "Seach profiles"}}
         t={t}
       />
     </>
@@ -40,8 +41,7 @@ export default ProfilePage;
 export async function getStaticPaths() {
   return {
     paths: [
-      // {params: {members: ["country", "usa"]}, locale:"en"},
-      // {params: {members: ["country", "chn"]}, locale:"en"}
+      // Place here the paths you want to cache on build
     ],
     fallback: true
   };
@@ -51,7 +51,6 @@ export async function getStaticProps({locale, params}) {
   const profile = await getProfile(params.members, locale);
   if (profile.error) return {notFound: true};
   const formatterURL = new URL("/api/formatters", NEXT_PUBLIC_CMS);
-  console.log(formatterURL);
   const formatters = await axios.get(formatterURL.href)
     .then(resp => resp.data);
 
