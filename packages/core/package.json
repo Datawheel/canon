@@ -3,7 +3,7 @@
   "sideEffects": [
     "*.css"
   ],
-  "version": "0.25.17",
+  "version": "0.26.1",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "./src/index.js",
   "types": "./types/index.d.ts",
@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/Datawheel/canon#readme",
   "engines": {
-    "node": "^12.0.1"
+    "node": ">=12.0.0 <16.0.0"
   },
   "dependencies": {
     "@babel/core": "^7.11.6",
@@ -112,7 +112,7 @@
     "passport-local": "^1.0.0",
     "passport-openidconnect": "^0.1.1",
     "passport-twitter": "^1.0.4",
-    "pg": "^6.4.2",
+    "pg": "^8.9.0",
     "pixrem": "^5.0.0",
     "postcss-combine-duplicated-selectors": "^9.4.0",
     "postcss-conditionals": "^2.1.0",
@@ -142,7 +142,7 @@
     "redux": "^4.0.4",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.0.1",
-    "sequelize": "^4.13.10",
+    "sequelize": "^5",
     "shelljs": "^0.8.3",
     "socket.io": "^4.5.4",
     "socket.io-client": "^4.5.4",

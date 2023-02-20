@@ -4,7 +4,7 @@
     "*.css"
   ],
   "description": "Content Management System for Canon sites.",
-  "version": "0.21.34",
+  "version": "0.22.0",
   "author": "James Mullen",
   "license": "MIT",
   "bin": {
@@ -100,7 +100,7 @@
     "@datawheel/canon-logiclayer": "workspace:^"
   },
   "peerDependencies": {
-    "@datawheel/canon-core": "^0.25.0"
+    "@datawheel/canon-core": "^0.26.0"
   },
   "repository": {
     "type": "git",
