@@ -24,7 +24,6 @@ function ProfileTile({
   return (
     <Link href={linkify(data)} style={{textDecoration: "none"}} passHref>
       <Card
-        component="a"
         className="cms-profilesearch-tile"
         pos="relative"
         h={150}

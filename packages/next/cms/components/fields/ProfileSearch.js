@@ -97,6 +97,7 @@ function useSearchResults({
   formatResults,
   showExamples
 }) {
+  console.log(query);
   const [results, setResults] = useState(false);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
@@ -111,19 +112,6 @@ function useSearchResults({
     if (ignoredTermsRegex && filteredQuery !== "") {
       filteredQuery = filteredQuery.replace(ignoredTermsRegex, "");
     }
-
-    // sets new query args on any filter change, before pinging the search API
-    // if (filterQueryArgs) {
-    //   const {router} = this.context;
-    //   const {basename, pathname} = router.location;
-    //   const newQuery = {};
-    //   newQuery.profiles = filterProfiles || "";
-    //   if (filterCubes) newQuery.cubes = filterCubes;
-    //   if (filterLevels) newQuery.levels = filterLevels;
-    //   const queryString = Object.entries(newQuery).map(([key, val]) => `${key}=${val}`).join("&");
-    //   const newPath = `${basename}${pathname}?${queryString}`;
-    //   router.replace(newPath);
-    // }
 
     // Remove multiples spaces with just one -caused by the ignore terms regex and trim it
     filteredQuery = filteredQuery.replace(/\s\s+/g, " ").trim();

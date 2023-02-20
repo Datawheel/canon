@@ -13,13 +13,9 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {Profile, NonIdealState} from "@datawheel/canon-next";
 import getProfile from "../../helpers/getProfile";
 // import {profileSearchConfig} from "../../helpers/search";
-// import stripP from "../../canon-next/cms/utils/formatters/stripP";
-// import stripHTML from "../../canon-next/cms/utils/formatters/stripHTML";
-import profile from "../../helpers/saProfile.json";
-import formatters from "../../helpers/formatters.json";
 const {NEXT_PUBLIC_CMS} = process.env;
 
-function ProfilePage() {
+function ProfilePage({profile, formatters}) {
   const router = useRouter();
   const {t} = useTranslation("profile");
 
@@ -52,12 +48,12 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({locale, params}) {
-  // const profile = await getProfile(params.members, locale);
-  // if (profile.error) return {notFound: true};
-  // const formatterURL = new URL("/api/formatters", NEXT_PUBLIC_CMS);
-  // console.log(formatterURL);
-  // const formatters = await axios.get(formatterURL.href)
-  //   .then(resp => resp.data);
+  const profile = await getProfile(params.members, locale);
+  if (profile.error) return {notFound: true};
+  const formatterURL = new URL("/api/formatters", NEXT_PUBLIC_CMS);
+  console.log(formatterURL);
+  const formatters = await axios.get(formatterURL.href)
+    .then(resp => resp.data);
 
   return {
     props: {
