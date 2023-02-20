@@ -34,25 +34,26 @@ function Viz(props) {
     sectionTitle,
     showTitle = true,
     slug,
-    updateSource,
+    updateSource
   } = props;
 
   const vizRef = useRef(null);
   const context = useContext(ProfileContext);
   const {
-    comparison, compVariables, formatters, onOpenModal = (d) => d, print, variables,
+    comparison, compVariables, formatters, onOpenModal = d => d, print, variables
   } = context;
-  const {toKebabCase = (d) => d} = formatters || {};
+  const {toKebabCase = d => d} = formatters || {};
 
   const {width} = useViewportSize();
   const {locale} = useRouter();
 
-  const analyzeData = (resp) => {
+  const analyzeData = resp => {
     if (updateSource) {
       if (resp.source) {
         updateSource(resp.source);
-      } else if (Array.isArray(resp)) {
-        updateSource(resp.reduce((acc, d) => (d.source && Array.isArray(d.source) ? acc.concat(d.source) : acc), []));
+      }
+      else if (Array.isArray(resp)) {
+        updateSource(resp.reduce((acc, d) => d.source && Array.isArray(d.source) ? acc.concat(d.source) : acc, []));
       }
     }
   };
@@ -60,11 +61,12 @@ function Viz(props) {
   const isComparison = comparison && compVariables.id === variables.id;
   // onSetVariables will either come from ProfileBuilder (CMS) or Profile (Front-end)
   // But either way, it is delivered via context. Have a backup no-op just in case.
-  let onSetVariables = (d) => d;
+  let onSetVariables = d => d;
   if (onSetVariables) {
     if (isComparison) {
       onSetVariables = (variables, forceMats) => onSetVariables(variables, forceMats, true);
-    } else {
+    }
+    else {
       onSetVariables = onSetVariables;
     }
   }
@@ -104,8 +106,7 @@ function Viz(props) {
   if (print) vizConfig.detectVisible = false;
 
   // whether to show the title and/or visualization options
-  const showHeader = ((title && showTitle) || (!hideOptions && !print)) && type !== "Graphic" && type !== "HTML";
-
+  const showHeader = (title && showTitle || !hideOptions && !print) && type !== "Graphic" && type !== "HTML";
   return (
     <div
       className={`${namespace}-viz-container${
@@ -115,35 +116,33 @@ function Viz(props) {
       }`}
       ref={vizRef}
     >
-      {showHeader
-        && (
+      {showHeader &&
+
         <div className={`${namespace}-viz-header`}>
           {title && showTitle
-            ? (
-              <Title
-                align="center"
-                order={parseInt(headingLevel.replace("h", ""), 10)}
-                size="h5"
-                className={`${namespace}-viz-title u-margin-top-off u-margin-bottom-off u-font-xs`}
-                dangerouslySetInnerHTML={{__html: title}}
-              />
-            )
+            ?               <Title
+              align="center"
+              order={parseInt(headingLevel.replace("h", ""), 10)}
+              size="h5"
+              className={`${namespace}-viz-title u-margin-top-off u-margin-bottom-off u-font-xs`}
+              dangerouslySetInnerHTML={{__html: title}}
+            />
+
             : null}
           {!hideOptions && !vizProps.error
-            ? (
-              <Options
-                key="option-key"
-                component={{section, viz: vizRef}}
-                dataAttachments={vizConfig.dataAttachments}
-                data={vizConfig.viewData || vizConfig.data}
-                dataFormat={vizConfig.viewDataFormat || vizProps.dataFormat}
-                slug={slug}
-                title={title || sectionTitle || slug}
-                iconOnly={width < 320}
-              />
-            ) : null}
+            ?               <Options
+              key="option-key"
+              component={{section, viz: vizRef}}
+              dataAttachments={vizConfig.dataAttachments}
+              data={vizConfig.viewData || vizConfig.data}
+              dataFormat={vizConfig.viewDataFormat || vizProps.dataFormat}
+              slug={slug}
+              title={title || sectionTitle || slug}
+              iconOnly={width < 320}
+            />
+            : null}
         </div>
-        )}
+      }
       <div
         className={`${namespace}-viz-figure${vizConfig.height || type === "Graphic"
           ? " with-explicit-height" : ""}`}
@@ -152,17 +151,17 @@ function Viz(props) {
         <Visualization
           key="viz-key"
           className={`d3plus ${namespace}-viz ${namespace}-${toKebabCase(type)}-viz`}
-          dataFormat={(resp) => {
-            const hasMultiples = vizProps.data
-              && Array.isArray(vizProps.data)
-              && vizProps.data.length > 1
-              && vizProps.data.some((d) => typeof d === "string");
+          dataFormat={resp => {
+            const hasMultiples = vizProps.data &&
+              Array.isArray(vizProps.data) &&
+              vizProps.data.length > 1 && vizProps.data.some(d => typeof d === "string");
             const sources = hasMultiples ? resp : [resp];
             sources.forEach(analyzeData);
             let data;
             try {
               data = vizProps.dataFormat(resp);
-            } catch (e) {
+            }
+            catch (e) {
               console.log("Error in dataFormat: ", e);
               data = [];
             }
@@ -171,7 +170,7 @@ function Viz(props) {
           linksFormat={vizProps.linksFormat}
           nodesFormat={vizProps.nodesFormat}
           topojsonFormat={vizProps.topojsonFormat}
-          config={{...vizConfig, variables}}
+          config={{...vizProps.config, variables}}
         />
       </div>
     </div>

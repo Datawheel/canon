@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 /* eslint-disable react/destructuring-assignment */
 import React, {useContext, useState} from "react";
 // import PropTypes from "prop-types";
@@ -7,7 +8,7 @@ import React, {useContext, useState} from "react";
 // import {MenuItem} from "@blueprintjs/core";
 
 import {
-  SegmentedControl, Select, Stack, Text,
+  SegmentedControl, Select, Stack, Text
 } from "@mantine/core";
 import stripHTML from "../../../utils/formatters/stripHTML";
 
@@ -18,20 +19,20 @@ import ProfileContext from "../../ProfileContext";
 
 export default function Selector(props) {
   const {
-    fontSize, id, loading, options, name, selectCutoff = 3, title, type, t,
+    fontSize, id, loading, options, name, selectCutoff = 3, title, type, t
   } = props;
   const ctx = useContext(ProfileContext);
   const {variables} = ctx;
   const comparisons = typeof props.default === "string"
-    ? props.default.split(",").filter((d) => d.length)
+    ? props.default.split(",").filter(d => d.length)
     : props.default || [];
-  const [activeValue, setActiveValue] = useState(props.default);
+  const activeValue = props.default;
   const slug = `${name}-${id}`;
   const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label}), {});
 
   const onSelectorWrapper = (name, value) => {
     const {
-      onSelector, variables, compVariables, comparison,
+      onSelector, variables, compVariables, comparison
     } = ctx;
     const isComparison = comparison && compVariables.id === variables.id;
     onSelector(name, value, isComparison);
@@ -96,14 +97,14 @@ export default function Selector(props) {
     // }
 
     // options under selectCutoff; button group
-    if (options.length <= selectCutoff && options.every((b) => stripHTML(b.label || variables[b.option]).length < 40)) {
+    if (options.length <= selectCutoff && options.every(b => stripHTML(b.label || variables[b.option]).length < 40)) {
       return (
         <Stack>
           <Text>{title}</Text>
           <SegmentedControl
             defaultValue={activeValue}
-            onChange={(value) => onSelectorWrapper(name, value)}
-            data={options.map((o) => ({value: o.option, label: stripHTML(o.label || variables[o.option])}))}
+            onChange={value => onSelectorWrapper(name, value)}
+            data={options.map(o => ({value: o.option, label: stripHTML(o.label || variables[o.option])}))}
           />
         </Stack>
       );
@@ -127,10 +128,10 @@ export default function Selector(props) {
         label={title}
         fontSize={fontSize}
         id={slug}
-        onChange={(value) => onSelectorWrapper(name, value)}
+        onChange={value => onSelectorWrapper(name, value)}
         disabled={loading}
         defaultValue={activeValue}
-        data={options.map((o) => ({value: o.option, label: stripHTML(o.label || variables[o.option])}))}
+        data={options.map(o => ({value: o.option, label: stripHTML(o.label || variables[o.option])}))}
       />
     );
   }

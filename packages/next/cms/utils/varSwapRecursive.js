@@ -1,6 +1,6 @@
 import selSwap from "./selSwap";
 import varSwap from "./varSwap";
-// const buble = require("buble");
+import * as buble from "buble";
 import validateDynamic from "./selectors/validateDynamic";
 import scaffoldDynamic from "./selectors/scaffoldDynamic";
 
@@ -17,9 +17,8 @@ const strSwap = (str, formatterFunctions, variables, selectors, combinedLabels, 
   // If the key is named logic, this is javascript. Transpile it for IE.
   if (isLogic) {
     try {
-      // let code = buble.transform(str, {objectAssign: "Object.assign"}).code;
+      let code = buble.transform(str, {objectAssign: "Object.assign"}).code;
 
-      let code = str;
       if (code.startsWith("!")) code = code.slice(1);
       str = code;
     }

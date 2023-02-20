@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
@@ -13,7 +14,7 @@
    - [ ] test/enable PDF printing
 */
 
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 // import axios from "axios";
 import {useRouter} from "next/router";
 import {assign} from "d3plus-common";
@@ -41,12 +42,12 @@ import funcifyFormatterByLocale from "../utils/funcifyFormatterByLocale";
 // const comparisonsEnabled = process.env.NEXT_PUBLIC_PROFILE_COMPARISON;
 // const comparisonExclude = process.env.NEXT_PUBLIC_PROFILE_COMPARISON_EXCLUDE;
 
-const splitComparisonKeys = (obj) => {
+const splitComparisonKeys = obj => {
   const split = {
     profile: {},
-    comparison: {},
+    comparison: {}
   };
-  Object.keys(obj).forEach((k) => {
+  Object.keys(obj).forEach(k => {
     split[k.startsWith("compare_") ? "comparison" : "profile"][k.replace("compare_", "")] = obj[k];
   });
   return split;
@@ -59,16 +60,16 @@ function ProfileRenderer({
   hideHero, // strip out the hero section
   hideSubnav, // strip out the subnav
   profile: rawProfile,
-  linkify = (profile) => profile.reduce(
+  linkify = profile => profile.reduce(
     (href, member) => `${href}/${member.slug}/${member.memberSlug || member.id}`,
-    "/profile",
+    "/profile"
   ),
   searchProps = {},
-  t,
+  t
 }) {
   const router = useRouter();
   const {
-    basename, locale, pathname, query,
+    basename, locale, pathname, query
   } = router;
 
   const defaultSelectors = {...router.query};
@@ -85,8 +86,8 @@ function ProfileRenderer({
   // const [comparisonSearch, setComparisonSearch] = useState(false);
 
   // Set initial state to fix propify error on first render
-  const [initialVariables, setInitialVariables] = useState(() => deepClone(profile.variables));
-  const [formatterFunctions, setFormatterFunctions] = useState(() => funcifyFormatterByLocale(formatters, locale));
+  const initialVariables = useMemo(() => deepClone(profile.variables), []);
+  const formatterFunctions = useMemo(() => funcifyFormatterByLocale(formatters, locale), [locale]);
 
   const print = query.print === "true";
 
@@ -99,14 +100,6 @@ function ProfileRenderer({
     setProfile(rawProfile);
   }, [JSON.stringify(rawProfile)]);
 
-  // setInitialVariables and setFormatterFunctions aren't passed down the component tree, so we might better be just using a useMemo without state variables?
-  useEffect(() => {
-    setInitialVariables(deepClone(profile.variables));
-  }, [profile]);
-
-  useEffect(() => {
-    setFormatterFunctions(funcifyFormatterByLocale(formatters, locale));
-  }, [formatters]);
 
   // TODO
   // useEffect(() => {
@@ -114,8 +107,6 @@ function ProfileRenderer({
   //   const userRole = user.role;
   //   onSetVariables({user, userRole}, true);
   // }, [user]);
-
-  const {variables} = profile;
 
   /**
    * Visualizations have the ability to "break out" and override a variable in the variables object.
@@ -142,7 +133,8 @@ function ProfileRenderer({
         }, combinedVariables);
         const newProfile = prepareProfile(variables._rawProfile, matVars, formatterFunctions, locale, selectors);
         setProfile({...profile, ...newProfile});
-      } else {
+      }
+      else {
         // If forceMats is not true, no materializers required. Using the locally stored _rawProfile and the now-combined
         // old and new variables, you have all that you need to make the profile update.
         const split = splitComparisonKeys(selectors);
@@ -152,16 +144,17 @@ function ProfileRenderer({
             {...compVars, ...newVariables},
             formatterFunctions,
             locale,
-            split.comparison,
+            split.comparison
           );
           setComparison({...comparison, ...newComparison});
-        } else {
+        }
+        else {
           const newProfile = prepareProfile(
             variables._rawProfile,
             {...variables, ...newVariables},
             formatterFunctions,
             locale,
-            split.profile,
+            split.profile
           );
           setProfile({...profile, ...newProfile});
         }
@@ -175,11 +168,11 @@ function ProfileRenderer({
     if (comparison) newQuery.compare = comparison.dims[0].memberSlug;
     else delete newQuery.compare;
 
-    const queryString = Object.entries(newQuery).map(([key, val]) => `${key}=${val}`).join("&");
-    router.replace(`${basename}${pathname}${queryString ? `?${queryString}` : ""}`);
+    router.replace({query: newQuery}, undefined, {shallow: true});
   };
 
-  useEffect(() => console.log(selectors), [JSON.stringify(selectors)]);
+  useEffect(() => updateQuery, [JSON.stringify(selectors)]);
+
   const onSelector = (name, value, isComparison) => {
     const newSelectors = {...selectors};
     newSelectors[`${isComparison ? "compare_" : ""}${name}`] = value;
@@ -304,15 +297,15 @@ function ProfileRenderer({
   //   </div>
   //   : null;
 
-  let sections = profile.sections.map((s) => assign({}, s));
+  let sections = profile.sections.map(s => assign({}, s));
   // Find the first instance of a Hero section (excludes all following instances)
-  const heroSection = sections.find((l) => l.type === "Hero");
+  const heroSection = sections.find(l => l.type === "Hero");
   // Remove all heros & modals from sections.
   sections = sections
-    .filter((l) => l.type !== "Hero" && l.position !== "modal");
+    .filter(l => l.type !== "Hero" && l.position !== "modal");
 
   // rename old section names
-  sections.forEach((l) => {
+  sections.forEach(l => {
     if (l.type === "TextViz" || l.position === "sticky") l.type = "Default";
     if (l.type === "Column") l.type = "SingleColumn";
     if (!l.slug) l.slug = `section-${l.id}`;
@@ -346,7 +339,7 @@ function ProfileRenderer({
         // differentiate the two comparitors
         title: rawSection.title.includes(payload.variables.name)
           ? rawSection.title
-          : rawSection.title.replace(/<\/p>$/g, ` - ${payload.variables.name}</p>`),
+          : rawSection.title.replace(/<\/p>$/g, ` - ${payload.variables.name}</p>`)
 
       });
 
@@ -356,7 +349,7 @@ function ProfileRenderer({
       // rendered side-by-side
       groupedSections = sections
         .reduce((arr, rawSection) => {
-          const comp = comparison.sections.find((s) => s.id === rawSection.id);
+          const comp = comparison.sections.find(s => s.id === rawSection.id);
           if (comp) {
             const section = comparifySection(rawSection, profile);
             const newComp = comparifySection(comp, comparison);
@@ -368,8 +361,9 @@ function ProfileRenderer({
 
           return arr;
         }, [])
-        .filter((arr) => arr.length > 1 || arr[0][0].type !== "Grouping");
-    } else {
+        .filter(arr => arr.length > 1 || arr[0][0].type !== "Grouping");
+    }
+    else {
       const groupableSections = ["SingleColumn"]; // sections to be grouped together
       // const groupableSections = ["SingleColumn"].concat(Object.keys(CustomSections)); // sections to be grouped together
 
@@ -383,7 +377,8 @@ function ProfileRenderer({
           // if the current and previous types are groupable and the same type, group them into an array
           if (groupableSections.includes(prevType) && groupableSections.includes(currType) && prevType === currType) {
             arr.push(section);
-          } else {
+          }
+          else {
             // otherwise, push the section as-is
             innerGroupedSections.push(arr);
             arr = [section];
@@ -462,11 +457,11 @@ function ProfileRenderer({
 
     // hides PDF buttons and clickable titles when in comparison mode
     hidePDF: comparison,
-    hideTitleSearch: comparison,
+    hideTitleSearch: comparison
   };
 
   const relatedProfiles = profile.neighbors;
-
+  const {variables} = profile;
   // Don't wrap into useMemo yet!
   // eslint-disable-next-line react/jsx-no-constructed-context-values
   const context = {
@@ -474,33 +469,34 @@ function ProfileRenderer({
     onSelector,
     onOpenModal: setModalSlug,
     onTabSelect,
-    variables,
     comparison,
+    selectors,
     compVariables: comparison ? comparison.variables : {},
-    variables: profile.variables,
+    variables,
+    initialVariables,
     searchProps,
     print,
     linkify,
-    t,
+    t
   };
 
   return (
     <ProfileContext.Provider value={context}>
       <div className={`cp${print ? " cp-print" : ""}`}>
 
-        { !hideHero ? (
-          <div
+        { !hideHero
+          ? <div
             className={`cp-hero-group ${comparison ? "comparison" : ""}`}
             style={{
               display: "flex",
-              flexWrap: "nowrap",
+              flexWrap: "nowrap"
             }}
           >
             <Hero
               key="cp-hero"
               profile={profile}
               contents={heroSection || null}
-            // comparisonButton={comparisonButton}
+              // comparisonButton={comparisonButton}
               {...hideElements}
             />
             {/* { comparison ? <Hero
@@ -510,53 +506,51 @@ function ProfileRenderer({
             {...hideElements}
           /> : null } */}
           </div>
-        ) : null }
+          : null }
 
         {!hideSubnav && <Subnav sections={groupedSections} />}
 
         <Container className="cp-main" id="main" fluid px="xl">
-          {(comparisonSections.length ? comparisonSections : groupedSections).map((groupings, i) => (
+          {(comparisonSections.length ? comparisonSections : groupedSections).map((groupings, i) =>
             <div className={`cp-grouping${comparisonSections.length ? " cp-grouping-comparison" : ""}`} key={i}>
-              {groupings.map((innerGrouping, ii) => (innerGrouping.length === 1
+              {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
                 // ungrouped section
-                ? (
-                  <Section
-                    contents={innerGrouping[0]}
-                    onSetVariables={onSetVariables}
-                    headingLevel={groupedSections.length === 1 || ii === 0
-                      ? "h2"
-                      : groupings.find((g) => g[0].type.toLowerCase() === "subgrouping")
-                      && innerGrouping[0].type.toLowerCase() !== "subgrouping" ? "h4"
-                        : "h3"}
-                    loading={loading}
-                    // eslint-disable-next-line react/no-array-index-key
-                    key={`${innerGrouping[0].slug}-${innerGrouping[0].id}`}
-                    {...hideElements}
-                  />
-                )
-                : (
-                  <SectionGrouping key={innerGrouping[0].slug} layout={innerGrouping[0].type}>
-                    {innerGrouping.map((section, iii) => (
-                      <Section
-                        contents={section}
-                        onSetVariables={onSetVariables}
-                        headingLevel={groupedSections.length === 1 || ii === 0
-                          ? "h2"
-                          : groupings.find((g) => g[0].type.toLowerCase() === "subgrouping")
-                            && innerGrouping[0].type.toLowerCase() !== "subgrouping" ? "h4"
-                            : "h3"}
-                        loading={loading}
-                        // eslint-disable-next-line react/no-array-index-key
-                        key={`${section.slug}`}
-                        {...hideElements}
-                      />
-                    ))}
-                  </SectionGrouping>
-                )))}
+                ? <Section
+                  contents={innerGrouping[0]}
+                  onSetVariables={onSetVariables}
+                  headingLevel={groupedSections.length === 1 || ii === 0
+                    ? "h2"
+                    : groupings.find(g => g[0].type.toLowerCase() === "subgrouping") &&
+                      innerGrouping[0].type.toLowerCase() !== "subgrouping" ? "h4"
+                      : "h3"}
+                  loading={loading}
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={`${innerGrouping[0].slug}-${innerGrouping[0].id}`}
+                  {...hideElements}
+                />
+
+                : <SectionGrouping key={innerGrouping[0].slug} layout={innerGrouping[0].type}>
+                  {innerGrouping.map((section, iii) =>
+                    <Section
+                      contents={section}
+                      onSetVariables={onSetVariables}
+                      headingLevel={groupedSections.length === 1 || ii === 0
+                        ? "h2"
+                        : groupings.find(g => g[0].type.toLowerCase() === "subgrouping") &&
+                            innerGrouping[0].type.toLowerCase() !== "subgrouping" ? "h4"
+                          : "h3"}
+                      loading={loading}
+                      // eslint-disable-next-line react/no-array-index-key
+                      key={`${section.slug}`}
+                      {...hideElements}
+                    />
+                  )}
+                </SectionGrouping>
+              )}
             </div>
-          ))}
-          {!hideHero && !print && relatedProfiles && relatedProfiles.length > 0
-            && <Related profiles={relatedProfiles} />}
+          )}
+          {!hideHero && !print && relatedProfiles && relatedProfiles.length > 0 &&
+            <Related profiles={relatedProfiles} />}
         </Container>
 
         {/* TODO: modal sections */}
