@@ -1,10 +1,12 @@
 import Head from "next/head";
 import {MantineProvider} from "@mantine/core";
 import {Inter} from "@next/font/google";
+import {appWithTranslation} from "next-i18next";
 
+// eslint-disable-next-line new-cap
 const inter = Inter({subsets: ["latin"]});
 // eslint-disable-next-line require-jsdoc
-export default function App(props) {
+function App(props) {
   const {Component, pageProps} = props;
 
   return (
@@ -35,3 +37,5 @@ export default function App(props) {
     </>
   );
 }
+
+export default appWithTranslation(App);
