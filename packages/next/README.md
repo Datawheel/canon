@@ -12,7 +12,11 @@ You'll need to wrap your entire app into a `MantineProvider`, in order to allow 
 
 ## Connecting to your canon API
 
-`canon-next` components expect the `/api/` endpoint of your NextJS app to point to the API endpoint of your standalone `canon-cms` instance. You can find an example on how to make this work on the [canon-next example](https://github.com/Datawheel/canon/blob/canon-next/example-next/pages/api/%5B...cmsRoute%5D.js)
+You'll need to provide `canon-next` components access to your `canon-cms` API end point setting the ´NEXT_PUBLIC_CMS´ enviroment variable on your NextJS app.
+
+```
+NEXT_PUBLIC_CMS=your_canon_cms/api
+```
 
 ## Rendering a profile
 

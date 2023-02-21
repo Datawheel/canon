@@ -78,7 +78,7 @@ function ProfileTile({
                   height: "100%",
                   width: `${100 / data.length}%`
                 }}
-                src={`/api/image?slug=${r.slug}&id=${r.id}&size=thumb`}
+                src={`${process.env.NEXT_PUBLIC_CMS}/image?slug=${r.slug}&id=${r.id}&size=thumb`}
               />
               <Overlay className="profile-tile-overlay" color="#000" opacity={0.5} zIndex={1} />
             </div>

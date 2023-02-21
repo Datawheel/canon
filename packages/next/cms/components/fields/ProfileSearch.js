@@ -76,7 +76,7 @@ function findNeighbor(elem, dir = "next") {
 function useCMSProfiles() {
   const [profiles, setProfiles] = useState(false);
   useEffect(() => {
-    axios.get("/api/cms/profiles")
+    axios.get(`${process.env.NEXT_PUBLIC_CMS}/cms/profiles`)
       .then(resp => resp.data.filter(p => p.visible))
       .then(profiles => setProfiles(profiles))
       .catch(() => setProfiles([]));
@@ -116,7 +116,7 @@ function useSearchResults({
     // Remove multiples spaces with just one -caused by the ignore terms regex and trim it
     filteredQuery = filteredQuery.replace(/\s\s+/g, " ").trim();
 
-    let url = `/api/profilesearch?query=${filteredQuery}&limit=${limit}&locale=${locale}`;
+    let url = `${process.env.NEXT_PUBLIC_CMS}/profilesearch?query=${filteredQuery}&limit=${limit}&locale=${locale}`;
     if (filterProfiles) url += `&profile=${filterProfiles}`;
     if (filterLevels) url += `&hierarchy=${filterLevels}`;
     if (filterCubes) url += `&cubeName=${filterCubes}`;

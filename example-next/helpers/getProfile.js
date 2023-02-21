@@ -5,7 +5,7 @@ const {NEXT_PUBLIC_CMS} = process.env;
 const getProfile = async(members, locale) => {
   const params = members
     .map((m, i) => `${i % 2 ? "id" : "slug"}${2 % (i + 1) ? "2" : ""}=${m}`);
-  const profileUrl = new URL(`/api/profile/?${params.join("&")}&locale=${locale}`, NEXT_PUBLIC_CMS).href;
+  const profileUrl = new URL(`/profile/?${params.join("&")}&locale=${locale}`, NEXT_PUBLIC_CMS).href;
   console.log(profileUrl);
   const res = await axios.get(profileUrl)
     .then(resp => {
