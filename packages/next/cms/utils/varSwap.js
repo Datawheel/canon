@@ -28,7 +28,6 @@ export default (sourceString, formatterFunctions, variables, passive) => {
     // formatter doesn't cause the CMS to crash.
     else {
       try {
-        console.log(value, formatterFunctions);
         return formatter(value, libs, formatterFunctions);
       }
       catch (e) {
