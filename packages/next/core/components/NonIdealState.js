@@ -4,9 +4,8 @@ import {
 import SVG from "react-inlinesvg";
 
 function NonIdealState({
-  image = null, message = "Loading...", graphic = <Loader />, height = "100vh",
+  image = null, message = "Loading...", graphic = <Loader />, height = "100vh", logo = null,
 }) {
-  return null;
   return (
     <BackgroundImage src={image} h={height}>
       <LoadingOverlay
@@ -14,15 +13,8 @@ function NonIdealState({
           <Flex align="center" justify="center">
             <Stack
               align="center"
-              sx={(theme) => ({
-                "& > .oec-logo": {
-                  "path, polygon": {
-                    fill: theme.colorScheme === "dark" ? "white" : theme.colors["oec-dark-grey"],
-                  },
-                },
-              })}
             >
-              <SVG className="oec-logo" height={100} src="/images/oec-logo.svg" />
+              {logo && <SVG className="oec-logo" height={100} src={logo} />}
               <Center>
                 {graphic}
               </Center>
