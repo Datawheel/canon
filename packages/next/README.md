@@ -57,7 +57,29 @@ The `Profile` component is used to render a canon profile. It needs to recieve t
 
 ## Set up with SSG:
 
-For rendering a profile with SSG on NextJS, you'll need to get your `profile` and `formatters` objects inside of `getStaticProps` you can follow the [example app](https://github.com/Datawheel/canon/blob/canon-next/example-next/pages/profile/%5B...members%5D.js) for setting this up for a classic `canon-cms` instance.
+For rendering a profile with SSG on NextJS, you'll need to get your `profile` and `formatters` objects inside of `getStaticProps`. We provide a set of helper functions `cmsStaticProps` and `cmsStaticPaths` for easy set-up. Place them in your `getStaticProps` and `getStaticPaths` respectively as follows:
+
+```jsx
+export async function getStaticPaths() {
+  return {
+    ...await cmsDefaultPaths()
+  };
+}
+
+export async function getStaticProps({locale, params}) {
+  return {
+    props: {
+      ...await serverSideTranslations(locale, ["common", "profile"]),
+      ...await cmsDefaultProps(params.members, locale)
+    }
+  };
+}
+
+```
+
+*Note:* `members` refers to the name on your NextJS dynamic route, in this case `[...members].js`. If you chose to render the profiles on another route, change the parameter accessor accordingly.
+
+You can also follow the [example app](https://github.com/Datawheel/canon/blob/canon-next/example-next/pages/profile/%5B...members%5D.js) for setting this up for a classic `canon-cms` instance.
 
 If you chose to serve the profile pages from a path other than `/profile`, you'll need to provide an appropiate `linkify` function. The `linkify` function should take an array of slug/id pairs and convert it to a valid url path in your app.
 
