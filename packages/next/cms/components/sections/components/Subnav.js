@@ -95,10 +95,10 @@ export default function Subnav(props) {
   const [openSlug, setOpenSlug] = useState(false);
   const [currSection, setCurrSection] = useState(false);
   const [currSubSection, setCurrSubsection] = useState({});
-  const [hasSubgroups, setHasSubgroups] = useState(false);
   const [scroll] = useWindowScroll();
   const subnav = useRef(null);
   const sections = useMemo(flattenSections, [props.sections]);
+  const hasSubgroups = useMemo(() => sections.some(s => s.children && s.children.some(c => c.children)), [JSON.stringify(sections)]);
 
   const onBlur = (e) => {
     const {currentTarget} = e;
@@ -232,8 +232,7 @@ export default function Subnav(props) {
         sx={(theme) => ({
           zIndex: 20,
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          flexDirection: "column",
           borderRadius: 0,
           boxShadow: theme.shadows.sm,
         })}
@@ -247,7 +246,7 @@ export default function Subnav(props) {
               key="l"
               sx={(theme) => ({gap: theme.spacing.md, alignItems: "center"})}
               my="0px !important"
-              h="100%"
+              w="100%"
               listStyleType="none"
             >
               {sections.map((section) => (
@@ -312,7 +311,7 @@ export default function Subnav(props) {
           ) : null}
         {hasSubgroups && currSection
           ? (
-            <List sx={(theme) => ({gap: theme.spacing.md, alignItems: "flex-start"})} display="flex" className="cp-subnav-list cp-subnav-secondary" key="s" listStyleType="none">
+            <List w="100%" sx={(theme) => ({gap: theme.spacing.md, alignItems: "flex-start"})} display="flex" className="cp-subnav-list cp-subnav-secondary" key="s" listStyleType="none">
               {(currSection ? currSection.children : []).map((section) => (
                 <List.Item
                   mt="0px !important"

@@ -68,9 +68,7 @@ function ProfileRenderer({
   t
 }) {
   const router = useRouter();
-  const {
-    basename, locale, pathname, query
-  } = router;
+  const {locale, query} = router;
 
   const defaultSelectors = {...router.query};
   delete defaultSelectors.compare;
@@ -97,8 +95,10 @@ function ProfileRenderer({
   // }, []);
 
   useEffect(() => {
-    setProfile(rawProfile);
-  }, [JSON.stringify(rawProfile)]);
+    const {variables} = profile;
+    const newProfile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, selectors);
+    setProfile(profile => ({...profile, ...newProfile}));
+  }, [router.path]);
 
 
   // TODO
@@ -131,7 +131,7 @@ function ProfileRenderer({
           if (typeof evalResults.vars !== "object") evalResults.vars = {};
           return {...acc, ...evalResults.vars};
         }, combinedVariables);
-        const newProfile = prepareProfile(variables._rawProfile, matVars, formatterFunctions, locale, selectors);
+        const newProfile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, selectors);
         setProfile({...profile, ...newProfile});
       }
       else {
@@ -163,21 +163,18 @@ function ProfileRenderer({
   };
 
   const updateQuery = () => {
-    const newQuery = {...query, ...selectors};
 
-    if (comparison) newQuery.compare = comparison.dims[0].memberSlug;
-    else delete newQuery.compare;
-
-    router.replace({query: newQuery}, undefined, {shallow: true});
   };
 
-  // useEffect(() => updateQuery, [JSON.stringify(selectors)]);
+  useEffect(() => updateQuery, [JSON.stringify(selectors)]);
 
   const onSelector = (name, value, isComparison) => {
     const newSelectors = {...selectors};
+
     newSelectors[`${isComparison ? "compare_" : ""}${name}`] = value;
     const split = splitComparisonKeys(newSelectors);
 
+    const {variables} = profile;
     const newProfile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, split.profile);
 
     if (comparison) {
@@ -187,8 +184,15 @@ function ProfileRenderer({
     }
 
     setSelectors(newSelectors);
-    // updateQuery as callback don't work. TODO: refactor
     setProfile({...profile, ...newProfile});
+
+    // // updateQuery:
+    // const newQuery = {...query, ...newSelectors};
+
+    // if (comparison) newQuery.compare = comparison.dims[0].memberSlug;
+    // else delete newQuery.compare;
+
+    // router.replace({query: newQuery}, undefined, {shallow: true});
 
   };
 
