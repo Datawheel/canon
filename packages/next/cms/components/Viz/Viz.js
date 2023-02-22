@@ -5,7 +5,7 @@
 */
 
 import {useContext, useRef} from "react";
-import {useRouter} from "next/router";
+import {useRouter} from "next/router.js";
 
 import {Title} from "@mantine/core";
 import {useViewportSize} from "@mantine/hooks";

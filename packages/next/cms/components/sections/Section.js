@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import Link from "next/link";
+import Link from "next/link.js";
 import React, {useState, useRef, useContext} from "react";
 import {nest} from "d3-collection";
 
