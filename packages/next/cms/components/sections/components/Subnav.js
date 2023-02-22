@@ -244,7 +244,7 @@ export default function Subnav(props) {
               display="flex"
               className="cp-subnav-list"
               key="l"
-              sx={(theme) => ({gap: theme.spacing.md, alignItems: "center"})}
+              sx={(theme) => ({gap: theme.spacing.md, alignItems: "center", justifyContent: "center"})}
               my="0px !important"
               w="100%"
               listStyleType="none"
@@ -311,7 +311,7 @@ export default function Subnav(props) {
           ) : null}
         {hasSubgroups && currSection
           ? (
-            <List w="100%" sx={(theme) => ({gap: theme.spacing.md, alignItems: "flex-start"})} display="flex" className="cp-subnav-list cp-subnav-secondary" key="s" listStyleType="none">
+            <List w="100%" sx={(theme) => ({gap: theme.spacing.md, alignItems: "center", justifyContent: "center"})} display="flex" className="cp-subnav-list cp-subnav-secondary" key="s" listStyleType="none">
               {(currSection ? currSection.children : []).map((section) => (
                 <List.Item
                   mt="0px !important"
