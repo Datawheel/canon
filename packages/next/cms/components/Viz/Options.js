@@ -18,12 +18,16 @@ import {saveAs} from "file-saver";
 import {saveElement} from "d3plus-export";
 import {strip} from "d3plus-text";
 
-import {DataTable} from "mantine-datatable";
+import * as MantineDataTable from "mantine-datatable";
 import ProfileContext from "../ProfileContext";
 import NonIdealState from "../../../core/components/NonIdealState";
 import ShareDirectLink from "./ShareDirectLink";
 import ShareTwitterLink from "./ShareTwitterLink";
 import ShareFacebookLink from "./ShareFacebookLink";
+
+
+const {DataTable} = MantineDataTable;
+
 
 const DOWNLOAD_TYPES = {
   CSV: "CSV",
