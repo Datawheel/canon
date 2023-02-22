@@ -1,7 +1,9 @@
 packages:
   - 'examples'
+  - 'example-next'
   - 'packages/cms'
   - 'packages/core'
   - 'packages/logiclayer'
   - 'packages/vizbuilder'
   - 'packages/test'
+  - 'packages/next'

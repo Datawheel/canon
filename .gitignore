@@ -21,3 +21,6 @@ dockerfiles/nginx/conf.d/default.conf
 ecosystem.config.js
 
 examples/.pnpm-debug.log
+
+# tsup bundler
+dist

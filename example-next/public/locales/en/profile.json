@@ -1,0 +1,70 @@
+{
+  "CMS": {
+    "Options": {
+      "show": "Show",
+      "hide": "Hide",
+      "Close": "Close",
+      "Copied": "Copied",
+      "Copy": "Copy",
+      "direct_link": "Direct link",
+      "Download": "Download",
+      "Download as CSV": "Download as CSV",
+      "Download as JSON": "Download as JSON",
+      "Download as XLS": "Download as XLS",
+      "Endpoint": "Endpoint",
+      "Image Format": "Image Format",
+      "Image area": "Image area",
+      "Loading Data": "Loading Data",
+      "Processing image": "Processing image",
+      "Save Image": "Save Image",
+      "Save visualization as": "Save visualization as",
+      "Scroll to section": "Scroll to section",
+      "Share": "Share",
+      "Share on Facebook": "Share on Facebook",
+      "Share on Twitter": "Share on Twitter",
+      "Social": "Social",
+      "Transparent Background": "Transparent Background",
+      "View Data": "View Data",
+      "Visualization options": "Visualization options",
+      "entire section": "entire section",
+      "visualization only": "visualization only"
+    },
+    "Profile": {
+      "Add Comparison": "Add Comparison",
+      "Data Appendix": "Data Appendix",
+      "Data Appendix Description": "These data tables represent the underlying datasets used to power each visualization featured in this report.",
+      "Download Page as PDF": "Download Page as PDF",
+      "image_credits": "{{action}} image credits",
+      "photograph_by": "Photograph by {{author}}",
+      "Remove Comparison": "Remove Comparison"
+    },
+    "Search": {
+      "All": "All",
+      "Empty": "Please enter a search term",
+      "Loading": "Loading results...",
+      "No results": "No results matching \"{{query}}\"",
+      "reset": "reset",
+      "Related Profiles": "Related Profiles",
+      "Search profiles": "Search profiles"
+    },
+    "Selector": {
+      "Add a Comparison": "Add a Comparison"
+    },
+    "Section": {
+      "Reset visualizations": "Reset visualizations"
+    },
+    "SourceGroup": {
+      "and": "and",
+      "Data provided by": "Data provided by"
+    },
+    "Table": {
+      "Loading": "Loading...",
+      "Next": "Next",
+      "No rows found": "No rows found",
+      "Page": "Page",
+      "Previous": "Previous",
+      "of": "of",
+      "rows": "rows"
+    }
+  }
+}
