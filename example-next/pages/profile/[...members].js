@@ -5,15 +5,11 @@
    - [ ] determine dev/prod "paths" configuration for getStaticPaths (env var to set top z-index percentile on prod?)
 
 */
-import axios from "axios";
 import {Title} from "@mantine/core";
 import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {Profile, NonIdealState} from "@datawheel/canon-next";
-import getProfile from "../../helpers/getProfile";
-// import {profileSearchConfig} from "../../helpers/search";
-const {NEXT_PUBLIC_CMS} = process.env;
+import {Profile, NonIdealState, cmsDefaultPaths, cmsDefaultProps} from "@datawheel/canon-next";
 
 function ProfilePage({profile, formatters}) {
   const router = useRouter();
@@ -40,25 +36,15 @@ export default ProfilePage;
 
 export async function getStaticPaths() {
   return {
-    paths: [
-      // Place here the paths you want to cache on build
-    ],
-    fallback: true
+    ...await cmsDefaultPaths()
   };
 }
 
 export async function getStaticProps({locale, params}) {
-  const profile = await getProfile(params.members, locale);
-  if (profile.error) return {notFound: true};
-  const formatterURL = new URL("/api/formatters", NEXT_PUBLIC_CMS);
-  const formatters = await axios.get(formatterURL.href)
-    .then(resp => resp.data);
-
   return {
     props: {
       ...await serverSideTranslations(locale, ["common", "profile"]),
-      formatters,
-      profile
+      ...await cmsDefaultProps(params.members, locale)
     }
   };
 }

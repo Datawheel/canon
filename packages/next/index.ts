@@ -14,3 +14,6 @@ export {default as Viz} from "./cms/components/Viz/Viz";
 export {default as Options} from "./cms/components/Viz/Options";
 export {default as SourceGroup} from "./cms/components/Viz/SourceGroup";
 export {default as StatGroup} from "./cms/components/Viz/StatGroup";
+
+export {default as cmsDefaultProps} from "./ssg/cmsDefaultProps";
+export {default as cmsDefaultPaths} from "./ssg/cmsDefaultPaths";
