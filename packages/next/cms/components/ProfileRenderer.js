@@ -171,7 +171,7 @@ function ProfileRenderer({
     router.replace({query: newQuery}, undefined, {shallow: true});
   };
 
-  useEffect(() => updateQuery, [JSON.stringify(selectors)]);
+  // useEffect(() => updateQuery, [JSON.stringify(selectors)]);
 
   const onSelector = (name, value, isComparison) => {
     const newSelectors = {...selectors};
