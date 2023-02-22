@@ -8,8 +8,38 @@ You'll need to create a NextJS (v13) app. Install the package using npm:
 
 ```npm i @datawheel/canon-next```
 
-You'll need to wrap your entire app into a `MantineProvider`, in order to allow Mantine components to render properly. For detailed instructions follow the official [Mantine Documentation for NextJS](https://mantine.dev/guides/next/). In adition, you'll need to set up `next-i18next` on your app, with the appropiate locales.
+You'll need to wrap your entire app into a `MantineProvider`, in order to allow Mantine components to render properly. For detailed instructions follow the official [Mantine Documentation for NextJS](https://mantine.dev/guides/next/). In addition, you'll need to set up `next-i18next` on your app, with the appropiate locales. Your `_app.js` file should look
+like this:
 
+```jsx
+import Head from "next/head";
+import {MantineProvider} from "@mantine/core";
+import {appWithTranslation} from "next-i18next";
+
+function App(props) {
+  const {Component, pageProps} = props;
+
+  return (
+    <>
+      <Head>
+        <title>Page title</title>
+        <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
+      </Head>
+      // Mantine Provider
+      <MantineProvider
+        withGlobalStyles
+        withNormalizeCSS
+      >
+        <Component {...pageProps} />
+      </MantineProvider>
+    </>
+  );
+}
+
+// next-i18next wrapper
+export default appWithTranslation(App);
+```
+For an easier set up, you can follow this [nextjs template](https://github.com/Datawheel/template-site-nextjs/tree/nextjs-13-no-typescript-dependencies-translations).
 ## Connecting to your canon API
 
 You'll need to provide `canon-next` components access to your `canon-cms` API end point setting the ´NEXT_PUBLIC_CMS´ enviroment variable on your NextJS app.
@@ -37,7 +67,7 @@ We recommend using Mantine components overrides into the `theme` object of the `
 
 
 
-```
+```jsx
 import {MantineProvider} from "@mantine/core";
 import {Inter} from "@next/font/google";
 
