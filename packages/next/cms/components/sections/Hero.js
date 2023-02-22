@@ -103,6 +103,7 @@ function Hero({
           justify="space-between"
           align="flex-start"
           direction="row"
+          gap="md"
           wrap="wrap"
           w="100%"
         >
@@ -164,7 +165,7 @@ function Hero({
         </Stack>
 
         {/* print JUST the first visualization */}
-        {contents && contents.visualizations && contents.visualizations.length &&
+        {contents && contents.visualizations && contents.visualizations.length ?
           <Box key={contents.visualizations[0].id} className="cp-hero-figure" maw={400}>
             <Viz
               section={this}
@@ -175,6 +176,7 @@ function Hero({
               slug={contents.slug}
             />
           </Box>
+          : null
         }
       </Flex>
 
