@@ -3,7 +3,7 @@
 
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-nested-ternary */
-import Link from "next/link";
+import Link from "next/link.js";
 import axios from "axios";
 
 import {unique} from "d3plus-common";
@@ -20,7 +20,7 @@ import {
   Box, Text, TextInput, Flex, Group, ScrollArea, Anchor, SimpleGrid, FocusTrap
 } from "@mantine/core";
 import {useDebouncedValue, useHotkeys} from "@mantine/hooks";
-import {useRouter} from "next/router";
+import {useRouter} from "next/router.js";
 import ProfileTile from "./ProfileTile";
 import groupMeta from "../../utils/groupMeta";
 import stripHTML from "../../utils/formatters/stripHTML";

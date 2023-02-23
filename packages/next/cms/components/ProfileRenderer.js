@@ -16,7 +16,7 @@
 
 import {useEffect, useMemo, useState} from "react";
 // import axios from "axios";
-import {useRouter} from "next/router";
+import {useRouter} from "next/router.js";
 import {assign} from "d3plus-common";
 import {Container} from "@mantine/core";
 // eslint-disable-next-line import/no-cycle
