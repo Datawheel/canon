@@ -3,7 +3,7 @@ import Link from "next/link.js";
 import React, {useState, useRef, useContext} from "react";
 import {nest} from "d3-collection";
 
-import CustomSections from "CustomSections";
+// import CustomSections from "CustomSections";
 import {
   Text, Flex, Anchor, Button
 } from "@mantine/core";
@@ -39,7 +39,7 @@ import ProfileContext from "../ProfileContext";
 
 
 const sectionTypes = {
-  Default, Grouping, SubGrouping, MultiColumn, SingleColumn, Tabs, ...CustomSections
+  Default, Grouping, SubGrouping, MultiColumn, SingleColumn, Tabs // ...CustomSections
 };
 
 function Section({
