@@ -37,9 +37,7 @@ import ProfileContext from "../ProfileContext";
 // TODO:
 // - On set variables and reset variables
 
-// TODO: Custom Sections
 
-console.log(CustomSections);
 const sectionTypes = {
   Default, Grouping, SubGrouping, MultiColumn, SingleColumn, Tabs, ...CustomSections
 };
@@ -113,14 +111,14 @@ function Section({
 
   const updateSource = newSources => {
     if (!newSources) {
-      setSources([]); 
+      setSources([]);
     }
     else {
       setSources(oldSources => {
         const addSources = newSources
           .map(s => s.annotations)
         // filter out new sources that already are on the sources state variable.
-          .filter(source => 
+          .filter(source =>
             source && source.source_name && !oldSources.find(s => s.source_name === source.source_name)
           );
         return [...oldSources, ...addSources];
@@ -140,7 +138,7 @@ function Section({
   } = contents;
   const selectors = contents.selectors || [];
 
-  const filters = selectors.map(selector => 
+  const filters = selectors.map(selector =>
     <Selector
       key={selector.id}
       // eslint-disable-next-line react/jsx-props-no-spreading
@@ -150,9 +148,9 @@ function Section({
     />
   );
 
-  const mainTitle = 
+  const mainTitle =
     title &&
-            
+
               <Flex
                 className={`cp-section-heading-wrapper ${layoutClass}-heading-wrapper`}
                 wrap="nowrap"
@@ -172,7 +170,7 @@ function Section({
                   {title}
                 </Parse>
                 {showAnchor &&
-                
+
                   <Link href={`#${slug}`} className={`cp-section-heading-anchor ${layoutClass}-heading-anchor`} passHref legacyBehavior>
                     <Anchor>
                     #
@@ -181,12 +179,12 @@ function Section({
                   </Link>
                 }
               </Flex>
-            
+
 
   ;
 
-  const subTitle = 
-    contents.position !== "sticky" && subtitles.map((content, i) => 
+  const subTitle =
+    contents.position !== "sticky" && subtitles.map((content, i) =>
       <Parse
         className={`cp-section-subhead display ${layoutClass}-subhead`}
         // eslint-disable-next-line react/no-array-index-key
@@ -196,7 +194,7 @@ function Section({
       </Parse>
     )
   ;
-  const heading = 
+  const heading =
     <>
       {mainTitle}
       {subTitle}
@@ -210,7 +208,7 @@ function Section({
     const statGroups = nest().key(d => d.title).entries(stats);
 
     if (stats.length > 0) {
-      statContent = 
+      statContent =
         <Flex
           sx={{
             "& > *": {
@@ -228,7 +226,7 @@ function Section({
   let paragraphs;
 
   if (descriptions.length && contents.position !== "sticky") {
-    paragraphs = descriptions.map((content, i) => 
+    paragraphs = descriptions.map((content, i) =>
       <Parse
         className={`cp-section-paragraph ${layoutClass}-paragraph`}
         key={`${content.description}-paragraph-${i}`}
@@ -241,7 +239,7 @@ function Section({
   const sourceContent = <SourceGroup sources={sources} />;
 
   const resetButton = showReset &&
-      
+
       <Button
         onClick={resetVariables}
         className={`cp-var-reset-button ${layoutClass}-var-reset-button`}
@@ -292,7 +290,7 @@ function Section({
       <Layout {...componentProps} />
 
       {/* in IE, create empty div set to the height of the stuck element */}
-      {isStickyIE && 
+      {isStickyIE &&
         <>
           <div className="ie-sticky-spacer" style={{height}} />
           <div className="ie-sticky-section-color-fixer" />
