@@ -3,9 +3,9 @@ import Link from "next/link.js";
 import React, {useState, useRef, useContext} from "react";
 import {nest} from "d3-collection";
 
-// import * as CustomSections from "CustomSections";
+import CustomSections from "CustomSections";
 import {
-  Text, Flex, Anchor, Button,
+  Text, Flex, Anchor, Button
 } from "@mantine/core";
 import {useWindowEvent} from "@mantine/hooks";
 // eslint-disable-next-line import/extensions
@@ -38,8 +38,10 @@ import ProfileContext from "../ProfileContext";
 // - On set variables and reset variables
 
 // TODO: Custom Sections
+
+console.log(CustomSections);
 const sectionTypes = {
-  Default, Grouping, SubGrouping, MultiColumn, SingleColumn, Tabs,
+  Default, Grouping, SubGrouping, MultiColumn, SingleColumn, Tabs, ...CustomSections
 };
 
 function Section({
@@ -73,7 +75,7 @@ function Section({
     // eslint-disable-next-line react/destructuring-assignment
     const initialVariables = rest.initialVariables || ctx.initialVariables || {};
     const changedVariables = {};
-    Object.keys(newVariables).forEach((key) => {
+    Object.keys(newVariables).forEach(key => {
       changedVariables[key] = initialVariables[key];
     });
     setChangedVariables(changedVariables);
@@ -99,7 +101,8 @@ function Section({
       if (screenTop !== containerTop) {
         if (containerTop < screenTop && !isStickyIE) {
           setIsStickyIE(true);
-        } else if (containerTop > screenTop && isStickyIE) {
+        }
+        else if (containerTop > screenTop && isStickyIE) {
           setIsStickyIE(false);
         }
       }
@@ -108,15 +111,18 @@ function Section({
 
   useWindowEvent("scroll", scrollHandler);
 
-  const updateSource = (newSources) => {
-    if (!newSources) { setSources([]); } else {
-      setSources((oldSources) => {
+  const updateSource = newSources => {
+    if (!newSources) {
+      setSources([]); 
+    }
+    else {
+      setSources(oldSources => {
         const addSources = newSources
-          .map((s) => s.annotations)
+          .map(s => s.annotations)
         // filter out new sources that already are on the sources state variable.
-          .filter((source) => (
-            source && source.source_name && !oldSources.find((s) => s.source_name === source.source_name)
-          ));
+          .filter(source => 
+            source && source.source_name && !oldSources.find(s => s.source_name === source.source_name)
+          );
         return [...oldSources, ...addSources];
       });
     }
@@ -124,16 +130,17 @@ function Section({
   const layout = contents.type;
   const layoutClass = `cp-${toKebabCase(layout)}-section`;
 
+
   const Layout = contents.position === "sticky" ? Default : sectionTypes[layout] || Default;
 
   const showAnchor = !(isModal || hideAnchor);
 
   const {
-    slug, title, descriptions, subtitles, visualizations,
+    slug, title, descriptions, subtitles, visualizations
   } = contents;
   const selectors = contents.selectors || [];
 
-  const filters = selectors.map((selector) => (
+  const filters = selectors.map(selector => 
     <Selector
       key={selector.id}
       // eslint-disable-next-line react/jsx-props-no-spreading
@@ -141,45 +148,45 @@ function Section({
       loading={loading}
       fontSize="xxs"
     />
-  ));
-
-  const mainTitle = (
-    title
-            && (
-            <Flex
-              className={`cp-section-heading-wrapper ${layoutClass}-heading-wrapper`}
-              wrap="nowrap"
-              justify="center"
-              direction="row-reverse"
-              align="center"
-              gap="xs"
-            >
-              <Parse
-                El={headingLevel}
-                id={slug}
-                className={`cp-section-heading ${layoutClass}-heading${
-                  layout !== "Hero" && showAnchor
-                    ? " cp-section-anchored-heading" : ""}`}
-                tabIndex="0"
-              >
-                {title}
-              </Parse>
-              {showAnchor
-                && (
-                <Link href={`#${slug}`} className={`cp-section-heading-anchor ${layoutClass}-heading-anchor`} passHref legacyBehavior>
-                  <Anchor>
-                    #
-                    <Text display="none" className="u-visually-hidden" span>permalink to section</Text>
-                  </Anchor>
-                </Link>
-                )}
-            </Flex>
-            )
-
   );
 
-  const subTitle = (
-    contents.position !== "sticky" && subtitles.map((content, i) => (
+  const mainTitle = 
+    title &&
+            
+              <Flex
+                className={`cp-section-heading-wrapper ${layoutClass}-heading-wrapper`}
+                wrap="nowrap"
+                justify="center"
+                direction="row-reverse"
+                align="center"
+                gap="xs"
+              >
+                <Parse
+                  El={headingLevel}
+                  id={slug}
+                  className={`cp-section-heading ${layoutClass}-heading${
+                    layout !== "Hero" && showAnchor
+                      ? " cp-section-anchored-heading" : ""}`}
+                  tabIndex="0"
+                >
+                  {title}
+                </Parse>
+                {showAnchor &&
+                
+                  <Link href={`#${slug}`} className={`cp-section-heading-anchor ${layoutClass}-heading-anchor`} passHref legacyBehavior>
+                    <Anchor>
+                    #
+                      <Text display="none" className="u-visually-hidden" span>permalink to section</Text>
+                    </Anchor>
+                  </Link>
+                }
+              </Flex>
+            
+
+  ;
+
+  const subTitle = 
+    contents.position !== "sticky" && subtitles.map((content, i) => 
       <Parse
         className={`cp-section-subhead display ${layoutClass}-subhead`}
         // eslint-disable-next-line react/no-array-index-key
@@ -187,54 +194,54 @@ function Section({
       >
         {content.subtitle}
       </Parse>
-    ))
-  );
-  const heading = (
+    )
+  ;
+  const heading = 
     <>
       {mainTitle}
       {subTitle}
     </>
-  );
+  ;
 
   let statContent;
 
   const {stats} = contents;
   if (contents.position !== "sticky") {
-    const statGroups = nest().key((d) => d.title).entries(stats);
+    const statGroups = nest().key(d => d.title).entries(stats);
 
     if (stats.length > 0) {
-      statContent = (
+      statContent = 
         <Flex
           sx={{
             "& > *": {
-              flex: "1 0 50%",
-            },
+              flex: "1 0 50%"
+            }
           }}
           className={`cp-stat-group-wrapper${stats.length === 1 ? " single-stat" : ""}`}
           wrap="wrap"
         >
           {statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />)}
         </Flex>
-      );
+      ;
     }
   }
   let paragraphs;
 
   if (descriptions.length && contents.position !== "sticky") {
-    paragraphs = descriptions.map((content, i) => (
+    paragraphs = descriptions.map((content, i) => 
       <Parse
         className={`cp-section-paragraph ${layoutClass}-paragraph`}
         key={`${content.description}-paragraph-${i}`}
       >
         {content.description}
       </Parse>
-    ));
+    );
   }
 
   const sourceContent = <SourceGroup sources={sources} />;
 
-  const resetButton = showReset
-      && (
+  const resetButton = showReset &&
+      
       <Button
         onClick={resetVariables}
         className={`cp-var-reset-button ${layoutClass}-var-reset-button`}
@@ -245,7 +252,7 @@ function Section({
       >
         {t("CMS.Section.Reset visualizations")}
       </Button>
-      );
+      ;
 
   const componentProps = {
     slug,
@@ -265,7 +272,7 @@ function Section({
     contents,
     // these were set as context child props. Not possible with new Context API
     updateSource,
-    onSetVariables,
+    onSetVariables
   };
 
   return (
@@ -285,12 +292,12 @@ function Section({
       <Layout {...componentProps} />
 
       {/* in IE, create empty div set to the height of the stuck element */}
-      {isStickyIE && (
+      {isStickyIE && 
         <>
           <div className="ie-sticky-spacer" style={{height}} />
           <div className="ie-sticky-section-color-fixer" />
         </>
-      )}
+      }
     </section>
   );
 }

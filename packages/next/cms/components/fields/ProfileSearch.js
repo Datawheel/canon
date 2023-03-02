@@ -352,6 +352,7 @@ function ProfileSearch({
             sx={{listStyle: "none"}}
           >
             <Text
+              component="li"
               key="filters-all"
               fw={!filterProfiles ? 700 : 400}
               sx={{"cursor": "pointer", "&:hover": {textDecoration: "underline"}}}
@@ -363,7 +364,9 @@ function ProfileSearch({
               return (
                 <Text
                   component="li"
+                  id={`filters-${profileIds.join("-")}`}
                   sx={{"cursor": "pointer", "&:hover": {textDecoration: "underline"}}}
+                  className={`cms-profilesearch-filters-profile ${profileIds.join(",") === filterProfiles ? "active" : ""}`}
                   key={`filters-${profileIds.join("-")}`}
                   fw={profileIds.join(",") === filterProfiles ? 700 : 400}
                   onClick={() => setFilterProfiles(profileIds.join(","))}
@@ -385,13 +388,13 @@ function ProfileSearch({
                 >
                   { d.levels
                     ?                       <Anchor
-                      // className={`cms-profilesearch-filters-dimension${filterLevels && filterLevels.includes(d.levels.join(",")) ? " active" : ""}`}
+                      className={`cms-profilesearch-filters-dimension${filterLevels && filterLevels.includes(d.levels.join(",")) ? " active" : ""}`}
                       onClick={() => onFilterLevels(false)}
                       dangerouslySetInnerHTML={{__html: d.title}}
                     />
 
                     :                       <Anchor
-                      // className={`cms-profilesearch-filters-dimension${filterCubes && filterCubes.includes(d.cubes.join(",")) ? " active" : ""}`}
+                      className={`cms-profilesearch-filters-dimension${filterCubes && filterCubes.includes(d.cubes.join(",")) ? " active" : ""}`}
                       onClick={() => onFilterLevels(false)}
                       dangerouslySetInnerHTML={{__html: d.title}}
                     />
@@ -400,7 +403,7 @@ function ProfileSearch({
                     ? d.sortedLevels.map(l =>
                       <Anchor
                         key={`filters-level-${l}`}
-                        // className={`cms-profilesearch-filters-level${filterLevels && !filterLevels.includes(d.levels.join(",")) && filterLevels.includes(l) ? " active" : ""}`}
+                        className={`cms-profilesearch-filters-level${filterLevels && !filterLevels.includes(d.levels.join(",")) && filterLevels.includes(l) ? " active" : ""}`}
                         onClick={() => onFilterLevels(l)}
                         dangerouslySetInnerHTML={{__html: filterHierarchyTitle(l, activeProfile[0])}}
                       />

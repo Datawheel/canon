@@ -10,7 +10,8 @@ import {useRouter} from "next/router.js";
 import {Title} from "@mantine/core";
 import {useViewportSize} from "@mantine/hooks";
 import * as d3plus from "d3plus-react";
-import {Options, ProfileContext} from "../../../index";
+import Options from "./Options"
+import ProfileContext from "../ProfileContext";
 import propify from "../../utils/d3plusPropify";
 import HTML from "./HTML";
 // User must define custom sections in app/cms/sections, and export them from an index.js in that folder.
@@ -120,7 +121,7 @@ function Viz(props) {
 
         <div className={`${namespace}-viz-header`}>
           {title && showTitle
-            ?               <Title
+            ? <Title
               align="center"
               order={parseInt(headingLevel.replace("h", ""), 10)}
               size="h5"

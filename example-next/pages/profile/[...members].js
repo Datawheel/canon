@@ -11,6 +11,7 @@ import {useRouter} from "next/router";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {Profile, NonIdealState, cmsDefaultPaths, cmsDefaultProps} from "@datawheel/canon-next";
 
+
 function ProfilePage({profile, formatters}) {
   const router = useRouter();
   const {t} = useTranslation("profile");
