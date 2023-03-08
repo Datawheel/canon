@@ -76,6 +76,7 @@ class RichTextEditor extends Component {
             </label>
             <DraftWrapper
               id={f}
+              dir={["ar", "he"].includes(locale) ? "rtl" : "ltr"}
               key="dw"
               selectors={selectors}
               formatters={formatters}

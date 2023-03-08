@@ -158,9 +158,9 @@ class DraftWrapper extends Component {
     const MentionSuggestionsFormatter = this.mentionPluginFormatter.MentionSuggestions;
     const MentionSuggestionsSelector = this.mentionPluginSelector.MentionSuggestions;
     const plugins = [
-      this.mentionPlugin, 
-      this.mentionPluginFormatter, 
-      this.mentionPluginSelector, 
+      this.mentionPlugin,
+      this.mentionPluginFormatter,
+      this.mentionPluginSelector,
       this.staticToolbarPlugin,
       this.customLinkifyPlugin
     ];
@@ -169,7 +169,7 @@ class DraftWrapper extends Component {
     const {showToolbar} = this.props;
 
     return (
-      <div className="cms-draft-wrapper" onClick={this.focus}>
+      <div className="cms-draft-wrapper" onClick={this.focus} dir={this.props.dir || "ltr"}>
         {/* main editor */}
         {showToolbar && <Toolbar>
           {
@@ -194,7 +194,7 @@ class DraftWrapper extends Component {
           ref={c => this.editor = c}
           key="draft-editor"
         />
-        
+
 
         {/* variables dropdown (generators, materializers) */}
         <span className="cms-draft-entry cms-variable-draft-entry">
