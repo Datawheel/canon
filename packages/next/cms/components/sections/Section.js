@@ -8,7 +8,6 @@ import {
   Text, Flex, Anchor, Button
 } from "@mantine/core";
 import {useWindowEvent} from "@mantine/hooks";
-// eslint-disable-next-line import/extensions
 import isIE from "../../utils/isIE.js";
 // import throttle from "../../utils/throttle";
 import pxToInt from "../../utils/formatters/pxToInt";
@@ -18,7 +17,6 @@ import Parse from "./components/Parse";
 import Selector from "./components/Selector";
 
 import SourceGroup from "../Viz/SourceGroup";
-// eslint-disable-next-line import/no-cycle
 import StatGroup from "../Viz/StatGroup";
 
 import Default from "./Default";
@@ -42,11 +40,12 @@ const sectionTypes = {
   Default, Grouping, SubGrouping, MultiColumn, SingleColumn, Tabs // ...CustomSections
 };
 
+/** */
 function Section({
   headingLevel, hideAnchor, hideOptions, isModal, contents, ...rest
 }) {
   const ctx = useContext(ProfileContext);
-  const {t} = ctx;
+  const {t, customSections} = ctx;
   const [loading, setLoading] = useState(false);
   const [isStickyIE, setIsStickyIE] = useState(false);
   // const [selectors, setSelectors] = useState({});
@@ -129,7 +128,8 @@ function Section({
   const layoutClass = `cp-${toKebabCase(layout)}-section`;
 
 
-  const Layout = contents.position === "sticky" ? Default : sectionTypes[layout] || Default;
+  const allSectionTypes = {...sectionTypes, ...customSections};
+  const Layout = contents.position === "sticky" ? Default : allSectionTypes[layout] || Default;
 
   const showAnchor = !(isModal || hideAnchor);
 

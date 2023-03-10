@@ -1,4 +1,4 @@
-import {Grid, SimpleGrid, Stack, Title} from "@mantine/core";
+import {Grid, SimpleGrid, Stack, Title, Box} from "@mantine/core";
 import React, {useRef} from "react";
 import {Viz} from "@datawheel/canon-next";
 
@@ -25,63 +25,67 @@ export default function Default({
   const section = useRef(null);
 
   return (
-    <Grid
-      className={`cp-section-inner cp-default-section-inner cp-${slug}-section-inner ${loading ? "is-loading" : ""}`}
-      ref={section}
-      my="md"
-    >
-      {/* sidebar */}
-      <Grid.Col
-        md={3}
-        span={12}
-        className="cp-section-content cp-default-section-caption"
+    <Box pos="relative">
+      <Title pos="absolute" fs={64} ta="center" sx={{zIndex: -1, opacity: 0.1, top: "50%", left: "50%", transform: "translate(-50%, -50%)"}}>This is a custom section</Title>
+      <Grid
+        className={`cp-section-inner cp-default-section-inner cp-${slug}-section-inner ${loading ? "is-loading" : ""}`}
+        ref={section}
+        my="md"
       >
-        <Stack spacing="sm">
-          {heading}
-          {filters}
-          {stats}
-          {paragraphs}
-          {sources}
-          {resetButton}
-        </Stack>
-      </Grid.Col>
 
-      {/* caption */}
-      {visualizations.length
-        ? <Grid.Col
-          md={9}
+        {/* sidebar */}
+        <Grid.Col
+          md={3}
           span={12}
-          className={`cp-default-section-figure${
-            visualizations.length > 1 ? " cp-multicolumn-default-section-figure" : ""
-          }${
-            visualizations.filter(
-              viz => viz.logic_simple && viz.logic_simple.type === "Graphic"
-            ).length ? " cp-graphic-viz-grid" : ""
-          }`}
+          className="cp-section-content cp-default-section-caption"
         >
-          <SimpleGrid
-            breakpoints={[
-              {minWidth: "sm", cols: 1},
-              {minWidth: "md", cols: visualizations.length >= 2 ? 2 : 1}
-            ]}
-          >
-            {visualizations.map(visualization =>
-              <Viz
-                section={section}
-                config={visualization}
-                headingLevel={vizHeadingLevel}
-                sectionTitle={title}
-                slug={slug}
-                hideOptions={hideOptions}
-                configOverride={configOverride}
-                updateSource={updateSource}
-                onSetVariables={onSetVariables}
-                key={visualization.id}
-              />
-            )}
-          </SimpleGrid>
+          <Stack spacing="sm">
+            {heading}
+            {filters}
+            {stats}
+            {paragraphs}
+            {sources}
+            {resetButton}
+          </Stack>
         </Grid.Col>
-        : ""}
-    </Grid>
+
+        {/* caption */}
+        {visualizations.length
+          ? <Grid.Col
+            md={9}
+            span={12}
+            className={`cp-default-section-figure${
+              visualizations.length > 1 ? " cp-multicolumn-default-section-figure" : ""
+            }${
+              visualizations.filter(
+                viz => viz.logic_simple && viz.logic_simple.type === "Graphic"
+              ).length ? " cp-graphic-viz-grid" : ""
+            }`}
+          >
+            <SimpleGrid
+              breakpoints={[
+                {minWidth: "sm", cols: 1},
+                {minWidth: "md", cols: visualizations.length >= 2 ? 2 : 1}
+              ]}
+            >
+              {visualizations.map(visualization =>
+                <Viz
+                  section={section}
+                  config={visualization}
+                  headingLevel={vizHeadingLevel}
+                  sectionTitle={title}
+                  slug={slug}
+                  hideOptions={hideOptions}
+                  configOverride={configOverride}
+                  updateSource={updateSource}
+                  onSetVariables={onSetVariables}
+                  key={visualization.id}
+                />
+              )}
+            </SimpleGrid>
+          </Grid.Col>
+          : ""}
+      </Grid>
+    </Box>
   );
 }

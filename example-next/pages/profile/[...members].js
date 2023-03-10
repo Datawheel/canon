@@ -10,6 +10,7 @@ import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {Profile, NonIdealState, cmsDefaultPaths, cmsDefaultProps} from "@datawheel/canon-next";
+import customSections from "../../cms/sections";
 
 
 function ProfilePage({profile, formatters}) {
@@ -26,6 +27,7 @@ function ProfilePage({profile, formatters}) {
         linkify={profile => profile.reduce((href, member) => `${href}/${member.slug}/${member.memberSlug || member.id}`, "/profile")}
         // you can also specify the configuration for ProfileSearch here:
         // searchProps={{placeholder: "Seach profiles"}}
+        customSections={customSections}
         t={t}
       />
     </>

@@ -10,7 +10,7 @@ import {useRouter} from "next/router.js";
 import {Title} from "@mantine/core";
 import {useViewportSize} from "@mantine/hooks";
 import * as d3plus from "d3plus-react";
-import Options from "./Options"
+import Options from "./Options";
 import ProfileContext from "../ProfileContext";
 import propify from "../../utils/d3plusPropify";
 import HTML from "./HTML";
@@ -18,9 +18,9 @@ import HTML from "./HTML";
 // import * as CustomVizzes from "CustomVizzes";
 // import Graphic from "./Graphic";
 // import HTML from "./HTML";
-// import Table from "./Table";
+import Table from "./Table";
 // const vizTypes = {Table, Graphic, HTML, ...d3plus, ...CustomVizzes};
-const vizTypes = {HTML, ...d3plus};
+const vizTypes = {HTML, Table, ...d3plus};
 
 function Viz(props) {
   const {

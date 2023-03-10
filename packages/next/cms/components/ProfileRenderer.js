@@ -65,6 +65,7 @@ function ProfileRenderer({
     "/profile"
   ),
   searchProps = {},
+  customSections = {},
   t
 }) {
   const router = useRouter();
@@ -481,6 +482,7 @@ function ProfileRenderer({
     searchProps,
     print,
     linkify,
+    customSections,
     t
   };
 
