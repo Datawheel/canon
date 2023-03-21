@@ -30,7 +30,7 @@ importers:
     dependencies:
       '@datawheel/canon-cms': link:../packages/cms
       '@datawheel/canon-core': link:../packages/core
-      '@datawheel/canon-logiclayer': link:../packages/logiclayer
+      '@datawheel/canon-logiclayer': 0.6.1_4d3005fda570338e3f76171963e2997e
       axios: 0.21.1
       d3plus-react: 1.1.3_prop-types@15.7.2+react@16.14.0
       d3plus-text: 1.0.4
@@ -1811,6 +1811,28 @@ packages:
       tslib: 1.13.0
     dev: false
 
+  /@blueprintjs/core/3.51.3_react@16.14.0:
+    resolution: {integrity: sha512-Z3xGWBMBuboKFx19uxWNAUjITsCmpm+594R/KEAM578uT6yoydT6s5S7N12APAsFe8w3H1Yu2hbWHlHTvRfOhA==}
+    hasBin: true
+    peerDependencies:
+      react: ^15.3.0 || 16 || 17
+      react-dom: ^15.3.0 || 16 || 17
+    dependencies:
+      '@blueprintjs/colors': 4.0.0-alpha.1
+      '@blueprintjs/icons': 3.31.0
+      '@types/dom4': 2.0.2
+      classnames: 2.3.1
+      dom4: 2.1.6
+      normalize.css: 8.0.1
+      popper.js: 1.16.1
+      react: 16.14.0
+      react-lifecycles-compat: 3.0.4
+      react-popper: 1.3.11_react@16.14.0
+      react-transition-group: 2.9.0_react@16.14.0
+      resize-observer-polyfill: 1.5.1
+      tslib: 1.13.0
+    dev: false
+
   /@blueprintjs/datetime/3.23.4:
     resolution: {integrity: sha512-tC0DH6jKMLdZjXlAH7UoP3gzTjCm8iYKGY9jMyqPqTj869AJHnqW5NlCZKp+xMiy6FJ53oJjjKdhw6l5p46BZA==}
     peerDependencies:
@@ -1872,6 +1894,29 @@ packages:
   /@csstools/convert-colors/1.4.0:
     resolution: {integrity: sha512-5a6wqoJV/xEdbRNKVo6I4hO3VjyDq//8q2f9I6PBAvMesJHFauXDorcNCsr9RzvsZnaWi5NYCcfyqP1QeFHFbw==}
     engines: {node: '>=4.0.0'}
+    dev: false
+
+  /@datawheel/canon-logiclayer/0.6.1_4d3005fda570338e3f76171963e2997e:
+    resolution: {integrity: sha512-766djwaj0+kF8WrFmRNPa1rhAVA88JWzzWtme1cQubZG5uJ6cX9/Lf4EXJvkLERXQKSWFbp+KX1khdyBXDOUbQ==}
+    peerDependencies:
+      '@datawheel/canon-core': ^0.26.0
+    dependencies:
+      '@blueprintjs/core': 3.51.3_react@16.14.0
+      '@datawheel/canon-core': link:packages/core
+      axios: 0.21.1
+      d3-array: 2.12.1
+      d3-collection: 1.0.7
+      d3plus-common: 1.1.2
+      mondrian-rest-client: 1.1.4
+      perfect-express-sanitizer: 1.0.9
+      promise-throttle: 1.1.2
+      sequelize: 5.22.5
+      yn: 4.0.0
+    transitivePeerDependencies:
+      - debug
+      - react
+      - react-dom
+      - supports-color
     dev: false
 
   /@datawheel/olap-client/2.0.0-beta.2:
@@ -2034,6 +2079,18 @@ packages:
       gud: 1.0.0
       prop-types: 15.7.2
       react: 16.13.1
+      warning: 4.0.3
+    dev: false
+
+  /@hypnosphi/create-react-context/0.3.1_prop-types@15.7.2+react@16.14.0:
+    resolution: {integrity: sha512-V1klUed202XahrWJLLOT3EXNeCpFHCcJntdFGI15ntCwau+jfT386w7OFTMaCqOgXUH1fa0w/I1oZs+i/Rfr0A==}
+    peerDependencies:
+      prop-types: ^15.0.0
+      react: '>=0.14.0'
+    dependencies:
+      gud: 1.0.0
+      prop-types: 15.7.2
+      react: 16.14.0
       warning: 4.0.3
     dev: false
 
@@ -2997,6 +3054,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       color-convert: 2.0.1
+
+  /any-promise/1.3.0:
+    resolution: {integrity: sha512-7UvmKalWRt1wgjL1RrGxoSJW/0QZFIegpeGvZG9kjp8vrRu55XTHbwnqq2GpXm9uLbcuhxm3IqX9OB4MZR1b2A==}
+    dev: false
 
   /anymatch/2.0.0:
     resolution: {integrity: sha512-5teOsQWABXHHBFP9y3skS5P3d/WfWXpv3FUpy+LorMrNYaT9pI4oLMQX7jzQ2KklNpGpWHzdCXTDT2Y3XGlZBw==}
@@ -11979,6 +12040,21 @@ packages:
       warning: 4.0.3
     dev: false
 
+  /react-popper/1.3.11_react@16.14.0:
+    resolution: {integrity: sha512-VSA/bS+pSndSF2fiasHK/PTEEAyOpX60+H5EPAjoArr8JGm+oihu4UbrqcEBpQibJxBVCpYyjAX7abJ+7DoYVg==}
+    peerDependencies:
+      react: 0.14.x || ^15.0.0 || ^16.0.0 || ^17.0.0
+    dependencies:
+      '@babel/runtime': 7.14.6
+      '@hypnosphi/create-react-context': 0.3.1_prop-types@15.7.2+react@16.14.0
+      deep-equal: 1.1.1
+      popper.js: 1.16.1
+      prop-types: 15.7.2
+      react: 16.14.0
+      typed-styles: 0.0.7
+      warning: 4.0.3
+    dev: false
+
   /react-popper/1.3.7_react@16.14.0:
     resolution: {integrity: sha512-nmqYTx7QVjCm3WUZLeuOomna138R1luC4EqkW3hxJUrAe+3eNz3oFCLYdnPwILfn0mX1Ew2c3wctrjlUMYYUww==}
     peerDependencies:
@@ -12114,6 +12190,19 @@ packages:
       react-dom: 16.14.0_react@16.14.0
       react-lifecycles-compat: 3.0.4
     dev: true
+
+  /react-transition-group/2.9.0_react@16.14.0:
+    resolution: {integrity: sha512-+HzNTCHpeQyl4MJ/bdE0u6XRMe9+XG/+aL4mCxVN4DnPBQ0/5bfHWPDuOZUzYdMj94daZaZdCCc1Dzt9R/xSSg==}
+    peerDependencies:
+      react: '>=15.0.0'
+      react-dom: '>=15.0.0'
+    dependencies:
+      dom-helpers: 3.4.0
+      loose-envify: 1.4.0
+      prop-types: 15.7.2
+      react: 16.14.0
+      react-lifecycles-compat: 3.0.4
+    dev: false
 
   /react-viewport-list/1.3.3_react@16.14.0:
     resolution: {integrity: sha512-AYe9jnCduMqkv5LiG5z4kF3QiIxQitBqtyBd2ZeOBPVwtBdxKHBF+ivmW2inlF8bEBCXb32z6pvnBkR1aGPkfw==}
@@ -12513,6 +12602,12 @@ packages:
       - supports-color
     dev: false
 
+  /retry-as-promised/3.2.0:
+    resolution: {integrity: sha512-CybGs60B7oYU/qSQ6kuaFmRd9sTZ6oXSc0toqePvV74Ac6/IFZSI1ReFQmtCN+uvW1Mtqdwpvt/LGOiCBAY2Mg==}
+    dependencies:
+      any-promise: 1.3.0
+    dev: false
+
   /retry-request/4.1.3:
     resolution: {integrity: sha512-QnRZUpuPNgX0+D1xVxul6DbJ9slvo4Rm6iV/dn63e048MvGbUZiKySVt6Tenp04JqmchxjiLltGerOJys7kJYQ==}
     engines: {node: '>=8.10.0'}
@@ -12751,6 +12846,11 @@ packages:
       - supports-color
     dev: false
 
+  /sequelize-pool/2.3.0:
+    resolution: {integrity: sha512-Ibz08vnXvkZ8LJTiUOxRcj1Ckdn7qafNZ2t59jYHMX1VIebTAOYefWdRYFt6z6+hy52WGthAHAoLc9hvk3onqA==}
+    engines: {node: '>= 6.0.0'}
+    dev: false
+
   /sequelize/4.44.4:
     resolution: {integrity: sha512-nkHmYkbwQK7uwpgW9VBalCBnQqQ8mslTdgcBthtJLORuPvAYRPlfkXZMVUU9TLLJt9CX+/y0MYg0DpcP6ywsEQ==}
     engines: {node: '>=4.0.0'}
@@ -12772,6 +12872,30 @@ packages:
       toposort-class: 1.0.1
       uuid: 3.4.0
       validator: 10.11.0
+      wkx: 0.4.8
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /sequelize/5.22.5:
+    resolution: {integrity: sha512-ySIHof18sJbeVG4zjEvsDL490cd9S14/IhkCrZR/g0C/FPlZq1AzEJVeSAo++9/sgJH2eERltAIGqYQNgVqX/A==}
+    engines: {node: '>=6.0.0'}
+    deprecated: 'Please update to v6 or higher! A migration guide can be found here: https://sequelize.org/v6/manual/upgrade-to-v6.html'
+    dependencies:
+      bluebird: 3.7.2
+      cls-bluebird: 2.1.0
+      debug: 4.3.4
+      dottie: 2.0.2
+      inflection: 1.12.0
+      lodash: 4.17.21
+      moment: 2.29.4
+      moment-timezone: 0.5.40
+      retry-as-promised: 3.2.0
+      semver: 6.3.0
+      sequelize-pool: 2.3.0
+      toposort-class: 1.0.1
+      uuid: 8.3.2
+      validator: 13.9.0
       wkx: 0.4.8
     transitivePeerDependencies:
       - supports-color
@@ -14317,6 +14441,11 @@ packages:
 
   /validator/10.11.0:
     resolution: {integrity: sha512-X/p3UZerAIsbBfN/IwahhYaBbY68EN/UQBWHtsbXGT5bfrH/p4NQzUCG1kF/rtKaNpnJ7jAu6NGTdSNtyNIXMw==}
+    engines: {node: '>= 0.10'}
+    dev: false
+
+  /validator/13.9.0:
+    resolution: {integrity: sha512-B+dGG8U3fdtM0/aNK4/X8CXq/EcxU2WPrPEkJGslb47qyHsxmbggTWK0yEA4qnYVNF+nxNlN88o14hIcPmSIEA==}
     engines: {node: '>= 0.10'}
     dev: false
 

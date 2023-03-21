@@ -185,7 +185,7 @@ class ProfileRenderer extends Component {
 
     const {router} = this.context;
     const {location} = router;
-    const {basename, pathname, query} = location;
+    const {pathname, query} = location;
 
     const {comparison, selectors} = this.state;
 
@@ -195,7 +195,7 @@ class ProfileRenderer extends Component {
     else delete newQuery.compare;
 
     const queryString = Object.entries(newQuery).map(([key, val]) => `${key}=${val}`).join("&");
-    router.replace(`${basename}${pathname}${queryString ? `?${queryString}` : ""}`);
+    router.replace(`${pathname}${queryString ? `?${queryString}` : ""}`);
 
   }
 
