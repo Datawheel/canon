@@ -26,7 +26,6 @@ function ProfilePage({profile, formatters}) {
         profile={profile}
         linkify={profile => profile.reduce((href, member) => `${href}/${member.slug}/${member.memberSlug || member.id}`, "/profile")}
         // you can also specify the configuration for ProfileSearch here:
-        searchProps={{placeholder: "Seach profiles", filterDimensionTitle: d => "All Sectors", filterProfileTitle: (content, meta) => console.log("profile",  meta), limit: 80}}
         customSections={customSections}
         t={t}
       />
