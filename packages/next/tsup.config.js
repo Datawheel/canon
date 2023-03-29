@@ -13,4 +13,5 @@ export default defineConfig(options => ({
   shims: true,
   splitting: false,
   treeshake: true,
+  external: ["CustomSections"],
 }));

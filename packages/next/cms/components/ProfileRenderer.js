@@ -14,7 +14,7 @@
    - [ ] test/enable PDF printing
 */
 
-import {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 // import axios from "axios";
 import {useRouter} from "next/router.js";
 import {assign} from "d3plus-common";
@@ -65,6 +65,7 @@ function ProfileRenderer({
     "/profile"
   ),
   searchProps = {},
+  customSections = {},
   t
 }) {
   const router = useRouter();
@@ -481,6 +482,7 @@ function ProfileRenderer({
     searchProps,
     print,
     linkify,
+    customSections,
     t
   };
 

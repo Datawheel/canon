@@ -22,7 +22,7 @@ export default function Home() {
           <Button mt="md" onClick={() => handlers.open()}>Search Profiles</Button>
         </Container>
         <Modal opened={opened} onClose={() => handlers.close()} fullScreen>
-          <ProfileSearch t={t} display="grid"/>
+          <ProfileSearch t={t} display="grid" filters limit={20} showExamples/>
         </Modal>
       </main>
     </>

@@ -7,10 +7,10 @@ import {
 import {
   IconChevronDown, IconChevronUp
 } from "@tabler/icons-react";
-// eslint-disable-next-line import/no-cycle
-import {
-  ProfileContext, SourceGroup, StatGroup, Viz
-} from "../../../index";
+import ProfileContext  from "../ProfileContext";
+import SourceGroup from "../Viz/SourceGroup";
+import StatGroup from "../Viz/StatGroup";
+import Viz from "../Viz/Viz";
 import stripP from "../../utils/formatters/stripP";
 
 // import {strip} from "d3plus-text";
@@ -165,8 +165,8 @@ function Hero({
         </Stack>
 
         {/* print JUST the first visualization */}
-        {contents && contents.visualizations && contents.visualizations.length ?
-          <Box key={contents.visualizations[0].id} className="cp-hero-figure" maw={400}>
+        {contents && contents.visualizations && contents.visualizations.length
+          ? <Box key={contents.visualizations[0].id} className="cp-hero-figure" maw={400}>
             <Viz
               section={this}
               config={contents.visualizations[0]}
@@ -181,8 +181,8 @@ function Hero({
       </Flex>
 
       {/* display image credits, and images */}
-      {profile.images.length &&
-        <>
+      {profile.images.length
+        ? <>
           {/* credits */}
           {type !== "story" && hasAuthor &&
             <Stack
@@ -268,6 +268,12 @@ function Hero({
             zIndex={1}
           />
         </>
+        :          <Overlay
+          opacity={0.7}
+          blur={2}
+          zIndex={1}
+        />
+
       }
 
       <Modal
