@@ -245,7 +245,7 @@ class Hero extends Component {
                         {/* flickr link */}
                         {img.permalink && !img.permalink.includes("custom-image") ? <p className="cp-hero-credits-text u-font-xs">
                           <span className="u-visually-hidden">Direct link: </span>
-                          <a className="cp-hero-credits-link" href={img.permalink}>
+                          <a className="cp-hero-credits-link" href={img.permalink} target="_blank" rel="noreferrer">
                             {img.permalink.replace("https://", "")}
                           </a>
                         </p> : ""}
