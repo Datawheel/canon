@@ -121,3 +121,30 @@ export default function App(props) {
 }
 
 ```
+
+## Custom Sections
+
+If your CMS instance implements Custom Section, you can add custom JSX renderers to your profiles by passing a mapping object to the `Profile` component. For more information on the usage of Custom Sections see the `canon-cms` [documentation](https://github.com/Datawheel/canon/tree/master/packages/cms#custom-sections).
+
+Example:
+
+```jsx
+
+...
+
+const customSections = {
+  CustomSectionName: CustomSectionComponent
+}
+
+export default function ProfilePage(props) {
+  (...)
+  return (
+    <Profile
+      (...)
+      customSections={customSections}
+    />
+    );
+  }
+...
+
+```
