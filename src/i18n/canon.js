@@ -48,6 +48,7 @@ export default {
     "accept": "Accept",
     "desc": "By continuing to visit this site, you accept to the use of cookies by {{services}} for statistical purposes.",
     "more": "Read More",
+    "moreLink": "https://gdpr-info.eu/",
     "reject": "Reject",
     "title": "Cookie usage"
   },

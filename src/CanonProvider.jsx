@@ -190,7 +190,7 @@ class CanonProvider extends Component {
 
   render() {
 
-    const {children, gdpr, helmet, loading, locale, privacy, services, t} = this.props;
+    const {children, gdpr, helmet, loading, locale, services, t} = this.props;
 
     return <div id="Canon" onClick={this.onClick.bind(this)}>
       <Helmet
@@ -207,7 +207,7 @@ class CanonProvider extends Component {
       { gdpr ? <div id="cookies-eu-banner" style={{display: "none"}}>
         <h2 id="cookies-eu-title">{t("GDPR.title")}</h2>
         <p id="cookies-eu-desc">{t("GDPR.desc", {services})}</p>
-        { privacy ? <a href={privacy} id="cookies-eu-more">{t("GDPR.more")}</a> : null }
+        <a href={t("GDPR.moreLink")} id="cookies-eu-more">{t("GDPR.more")}</a>
         <div id="cookies-eu-buttons">
           <button id="cookies-eu-reject" className="bp3-button">{t("GDPR.reject")}</button>
           <button id="cookies-eu-accept" className="bp3-button">{t("GDPR.accept")}</button>
@@ -238,7 +238,6 @@ export default withNamespaces()(
       data: state.data,
       gdpr: state.env.CANON_GDPR,
       loading: state.loading,
-      privacy: state.legal.privacy,
       services: servicesNames
     };
   })(CanonProvider)
