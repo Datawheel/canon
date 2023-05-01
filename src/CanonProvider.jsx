@@ -2,11 +2,14 @@ import React, {Component} from "react";
 import {match} from "react-router";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
+import {withNamespaces} from "react-i18next";
 import Loading from "components/Loading";
 import d3plus from "d3plus.js";
 import Helmet from "react-helmet";
 import urllite from "urllite";
 import {Portal, Toaster} from "@blueprintjs/core";
+import {titleCase} from "d3plus-text";
+import "./CanonProvider.css";
 
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
@@ -187,7 +190,7 @@ class CanonProvider extends Component {
 
   render() {
 
-    const {children, helmet, loading, locale} = this.props;
+    const {children, gdpr, helmet, loading, locale, privacy, services, t} = this.props;
 
     return <div id="Canon" onClick={this.onClick.bind(this)}>
       <Helmet
@@ -201,6 +204,15 @@ class CanonProvider extends Component {
       <Portal>
         <Toaster ref={this.toastRef} />
       </Portal>
+      { gdpr ? <div id="cookies-eu-banner" style={{display: "none"}}>
+        <h2 id="cookies-eu-title">{t("GDPR.title")}</h2>
+        <p id="cookies-eu-desc">{t("GDPR.desc", {services})}</p>
+        { privacy ? <a href={privacy} id="cookies-eu-more">{t("GDPR.more")}</a> : null }
+        <div id="cookies-eu-buttons">
+          <button id="cookies-eu-reject" className="bp3-button">{t("GDPR.reject")}</button>
+          <button id="cookies-eu-accept" className="bp3-button">{t("GDPR.accept")}</button>
+        </div>
+      </div> : null }
     </div>;
   }
 }
@@ -219,9 +231,15 @@ CanonProvider.defaultProps = {
   data: {}
 };
 
-CanonProvider = connect(state => ({
-  data: state.data,
-  loading: state.loading
-}))(CanonProvider);
-
-export default CanonProvider;
+export default withNamespaces()(
+  connect(state => {
+    const servicesNames = state.services.map(s => titleCase(s.replace(/\_/g, " ")));
+    return {
+      data: state.data,
+      gdpr: state.env.CANON_GDPR,
+      loading: state.loading,
+      privacy: state.legal.privacy,
+      services: servicesNames
+    };
+  })(CanonProvider)
+);

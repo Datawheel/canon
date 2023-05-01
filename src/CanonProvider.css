@@ -1,0 +1,12 @@
+#cookies-eu-banner {
+  background-color: var(--dark-2);
+  bottom: 0;
+  color: var(--light-1);
+  padding: var(--gutter-sm) var(--gutter-md) calc(var(--gutter-sm) + 1px);
+  position: fixed;
+  text-align: center;
+  width: 100%;
+  & > * {
+    margin: var(--gutter-xs);
+  }
+}

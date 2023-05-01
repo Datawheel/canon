@@ -44,6 +44,13 @@ export default {
       "Data provided by": "Data provided by"
     }
   },
+  "GDPR": {
+    "accept": "Accept",
+    "desc": "By continuing to visit this site, you accept to the use of cookies by {{services}} for statistical purposes.",
+    "more": "Read More",
+    "reject": "Reject",
+    "title": "Cookie usage"
+  },
   "Loading": {
     "description": "Loading {{progress}} of {{total}} datasets",
     "title": "Please Wait"
