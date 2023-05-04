@@ -558,7 +558,7 @@ class Options extends Component {
                 fontSize="md"
                 fill
               >
-                {imageProcessing ? t("CMS.Options.Processing image") : `${t("CMS.Options.Download")} ${imageFormat}`}
+                {imageProcessing ? t("CMS.Options.Processing image") : `${t("CMS.Options.Download")} ${imageFormat.toUpperCase()}`}
               </Button>
             </div>
           } />
