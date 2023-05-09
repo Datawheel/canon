@@ -1,10 +1,10 @@
 import {Stack} from "@mantine/core";
-import {useRef} from "react";
+import React, {useRef} from "react";
 import Viz from "../Viz/Viz";
 
 export default function SingleColumn(props) {
   const {
-    configOverride, slug, title, heading, hideOptions, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel, updateSource, onSetVariables,
+    configOverride, slug, title, heading, hideOptions, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel, updateSource, onSetVariables
   } = props;
   const section = useRef(null);
   return (
@@ -25,7 +25,7 @@ export default function SingleColumn(props) {
         {paragraphs}
         {sources}
         {resetButton}
-        {visualizations.map((visualization, ii) => (
+        {visualizations.map((visualization, ii) => 
           <Viz
             section={section}
             config={visualization}
@@ -38,7 +38,7 @@ export default function SingleColumn(props) {
             updateSource={updateSource}
             onSetVariables={onSetVariables}
           />
-        ))}
+        )}
       </Stack>
     </Stack>
   );

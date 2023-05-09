@@ -1,5 +1,5 @@
 import {
-  Anchor, Box, Flex, Popover, List, Paper, Menu
+  Anchor, Box, Flex, Popover, List, Paper
 } from "@mantine/core";
 import React, {
   forwardRef, useMemo, useRef, useState

@@ -1,10 +1,12 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable no-nested-ternary */
+import React from "react";
 import {Text} from "@mantine/core";
 import stripP from "../../../utils/formatters/stripP";
 import stripUL from "../../../utils/formatters/stripUL";
 import stripOL from "../../../utils/formatters/stripOL";
+
 /** Quill editor likes to generate <p> and <br> tags, boy is that fun. */
 
 export default function Parse({
@@ -13,22 +15,23 @@ export default function Parse({
   className, // class given to each generated element
   id, // mostly for section anchors
   children = "missing `children` prop in Parse.jsx; single blob of DraftJS content expected", // content to parse; one blob of content expected
-  tabIndex, // when you need to make the element focusable
+  tabIndex // when you need to make the element focusable
 }) {
   let blob = children.toString().replace(/<p><br><\/p>/g, "<br/>");
 
   // By default, split into separate elements at br tags. If there is a br tag. Unless it's a heading tag.
-  if (split === true
-      && blob.indexOf("<br/>") !== -1
-      && El !== "h1"
-      && El !== "h2"
-      && El !== "h3"
-      && El !== "h4"
-      && El !== "h5"
-      && El !== "h6"
+  if (split === true &&
+      blob.indexOf("<br/>") !== -1 &&
+      El !== "h1" &&
+      El !== "h2" &&
+      El !== "h3" &&
+      El !== "h4" &&
+      El !== "h5" &&
+      El !== "h6"
   ) {
     blob = blob.split("<br/>");
-  } else {
+  }
+  else {
     // Otherwise, just remove the br tag, and convert the blob to an array with one entry
     blob = Array.of(blob.replace(/<br>/g, " "));
   }
@@ -36,11 +39,11 @@ export default function Parse({
   // props to spread
   const commonProps = {
     className,
-    tabIndex,
+    tabIndex
   };
 
   // loop through all elements in the blob
-  return blob.map((el, i) => (
+  return blob.map((el, i) => 
     // ordered list
     el.indexOf("<ol>") !== -1
       ? <ol dangerouslySetInnerHTML={{__html: stripOL(el)}} key={`${el}-${El}-${i}`} {...commonProps} />
@@ -58,12 +61,11 @@ export default function Parse({
             ? <blockquote dangerouslySetInnerHTML={{__html: el}} key={`${el}-${El}-${i}`} {...commonProps} />
 
             // anything else
-            : (
-              <El
-                dangerouslySetInnerHTML={{__html: stripP(el)}}
-                id={id && i === 0 ? id : null}
-                key={`${el}-${El}-${i}`}
-                {...commonProps}
-              />
-            )));
+            :               <El
+              dangerouslySetInnerHTML={{__html: stripP(el)}}
+              id={id && i === 0 ? id : null}
+              key={`${el}-${El}-${i}`}
+              {...commonProps}
+            />
+  );
 }

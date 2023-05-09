@@ -1,4 +1,4 @@
-import {useRef} from "react";
+import React, {useRef} from "react";
 import {Box, Stack} from "@mantine/core";
 // eslint-disable-next-line import/no-cycle
 import {Viz} from "../../..";
@@ -17,7 +17,7 @@ export default function Grouping({
   visualizations,
   vizHeadingLevel,
   updateSource,
-  onSetVariables,
+  onSetVariables
 }) {
   const section = useRef(null);
   return (
@@ -40,13 +40,13 @@ export default function Grouping({
         visualizations.length > 1 ? " cp-multicolumn-grouping-section-figure" : ""
       }${
         visualizations.filter(
-          (viz) => viz.logic_simple && viz.logic_simple.type === "Graphic",
+          viz => viz.logic_simple && viz.logic_simple.type === "Graphic"
         ).length
           ? " cp-graphic-viz-grid"
           : ""
       }`}
       >
-        {visualizations.map((visualization) => (
+        {visualizations.map(visualization =>
           <Viz
             section={section}
             config={visualization}
@@ -58,7 +58,7 @@ export default function Grouping({
             updateSource={updateSource}
             onSetVariables={onSetVariables}
           />
-        ))}
+        )}
       </Box>
     </Box>
   );

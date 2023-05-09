@@ -1,3 +1,4 @@
+import React from "react";
 import {SimpleGrid} from "@mantine/core";
 import toKebabCase from "../../../utils/formatters/toKebabCase";
 
@@ -9,7 +10,7 @@ export default function SectionGrouping({children, layout}) {
       <SimpleGrid
         breakpoints={[
           {minWidth: "xs", cols: 1},
-          {minWidth: "md", cols: 3},
+          {minWidth: "md", cols: 3}
         ]}
         className={`cp-section-grouping-inner ${layoutClass}-inner`}
       >

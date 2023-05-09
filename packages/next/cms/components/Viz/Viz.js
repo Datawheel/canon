@@ -4,7 +4,7 @@
    - [ ] allow CustomVizzes
 */
 
-import {useContext, useRef} from "react";
+import React, {useContext, useRef} from "react";
 import {useRouter} from "next/router.js";
 
 import {Title} from "@mantine/core";

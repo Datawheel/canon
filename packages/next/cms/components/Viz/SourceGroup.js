@@ -1,5 +1,5 @@
-import { Anchor, Tooltip } from "@mantine/core";
-import { useContext } from "react";
+import {Anchor, Tooltip} from "@mantine/core";
+import React, {useContext} from "react";
 import ProfileContext from "../ProfileContext";
 const SourceGroup = ({sources}) => {
   const {t} = useContext(ProfileContext);
@@ -36,7 +36,7 @@ const SourceGroup = ({sources}) => {
     })}
   </div>;
 
-  
-}
+
+};
 
 export default SourceGroup;

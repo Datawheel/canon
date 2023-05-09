@@ -1,3 +1,4 @@
+import React from "react";
 import Link from "next/link.js";
 import {
   Stack, Text, Card, BackgroundImage, Group, Overlay
