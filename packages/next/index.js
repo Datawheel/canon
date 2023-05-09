@@ -1,4 +1,4 @@
-export {default as NonIdealState} from "./core/components/NonIdealState.js";
+export {default as NonIdealState} from "./core/components/NonIdealState";
 
 export {default as Profile} from "./cms/components/Profile.js";
 export {default as ProfileContext} from "./cms/components/ProfileContext.js";

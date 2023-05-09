@@ -6,7 +6,6 @@
       "outputs": ["dist/**", ".next/**"]
     },
     "dev": {
-      "dependsOn": ["^dev"],
       "cache": false
     }
   }
