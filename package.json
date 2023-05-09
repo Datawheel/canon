@@ -7,7 +7,9 @@
     "examples": "./example"
   },
   "scripts": {
-    "release": "node ./scripts/release.js"
+    "release": "node ./scripts/release.js",
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build"
   },
   "repository": {
     "type": "git",
@@ -24,7 +26,8 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^7.32.0",
     "eslint-plugin-react": "^7.32.2",
-    "shelljs": "^0.8.5"
+    "shelljs": "^0.8.5",
+    "turbo": "^1.9.3"
   },
   "workspaces": [
     "packages/next",
