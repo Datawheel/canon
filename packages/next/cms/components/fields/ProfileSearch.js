@@ -25,6 +25,7 @@ import {useRouter} from "next/router.js";
 import ProfileTile from "./ProfileTile";
 import groupMeta from "../../utils/groupMeta";
 import stripHTML from "../../utils/formatters/stripHTML";
+import {IconSearch} from "@tabler/icons-react";
 import NonIdealState from "../../../core/components/NonIdealState";
 
 /** used for up/down arrow movement */
@@ -117,7 +118,7 @@ function useSearchResults({
     // Remove multiples spaces with just one -caused by the ignore terms regex and trim it
     filteredQuery = filteredQuery.replace(/\s\s+/g, " ").trim();
 
-    let url = `${process.env.NEXT_PUBLIC_CMS}/profilesearch?query=${filteredQuery}&limit=${limit}&locale=${locale}`;
+    let url = `${process.env.NEXT_PUBLIC_CMS}profilesearch?query=${filteredQuery}&limit=${limit}&locale=${locale}`;
     if (filterProfiles) url += `&profile=${filterProfiles}`;
     if (filterLevels) url += `&hierarchy=${filterLevels}`;
     if (filterCubes) url += `&cubeName=${filterCubes}`;
@@ -329,7 +330,7 @@ function ProfileSearch({
   ]);
   return (
     <FocusTrap active>
-      <Box className="cms-profilesearch">
+      <Box className="cms-profilesearch" pos="relative">
         <Box>
           <Text component="label">
             <Text className="u-visually-hidden" key="slt" span>
@@ -425,11 +426,16 @@ function ProfileSearch({
             </div>
             : null }
         </Box>
-
-        <div
+        <Box
           className={`cms-profilesearch-container cms-profilesearch-container-${position}`}
+          pos="absolute"
           key="container"
           ref={resultContainer}
+          top="100%"
+          left={0}
+          right={0}
+          bg="white"
+          sx={{zIndex: 10}}
         >
           {
             (position !== "absolute" || active) && results
@@ -496,7 +502,7 @@ function ProfileSearch({
                     const listProfiles = (results.grouped || [])
                       .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
                     return (
-                      <ul key="list" className="cms-profilesearch-list">
+                      <ul key="list" className="cms-profilesearch-list" pos="absolute">
                         {listProfiles.map((result, j) => renderListItem(
                           result,
                           j,
@@ -510,9 +516,9 @@ function ProfileSearch({
               })()
               : loading && (position !== "absolute" || active)
                 ? <NonIdealState key="loading" message={t("CMS.Search.Loading")} />
-                : position !== "absolute" ? <NonIdealState message={t("CMS.Search.Empty")} /> : null
+                : position !== "absolute" ? <NonIdealState graphic={<IconSearch />} message={t("CMS.Search.Empty")} /> : null
           }
-        </div>
+        </Box>
       </Box>
     </FocusTrap>
   );

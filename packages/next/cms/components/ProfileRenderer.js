@@ -5,9 +5,9 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-nested-ternary */
 
-import React, {useMemo, useState} from "react";
+import React, {useContext, useMemo, useState} from "react";
 import {useRouter} from "next/router.js";
-import {Container} from "@mantine/core";
+import {Text, Button, Container, UnstyledButton} from "@mantine/core";
 import {Hero, ProfileContext} from "../..";
 import {useProfileSections} from "../hooks";
 
@@ -20,12 +20,57 @@ import mortarEval from "../utils/mortarEval";
 import deepClone from "../utils/deepClone";
 import prepareProfile from "../utils/prepareProfile";
 import funcifyFormatterByLocale from "../utils/funcifyFormatterByLocale";
+import ProfileSearch from "./fields/ProfileSearch";
+import {useDisclosure} from "@mantine/hooks";
 
 
 // TODO
 // const comparisonsEnabled = process.env.NEXT_PUBLIC_PROFILE_COMPARISON;
 // const comparisonExclude = process.env.NEXT_PUBLIC_PROFILE_COMPARISON_EXCLUDE;
 
+const ComparisonButton = () => {
+  const [comparisonSearch, comparisonSearchHandlers] = useDisclosure(false);
+  const router = useRouter();
+  const {pathname, query} = router;
+  const {t, variables} = useContext(ProfileContext);
+
+  const addComparison = slug => router.push({
+    pathname,
+    query: {
+      ...query,
+      comparison: slug
+    }
+  },
+  undefined,
+  {
+    shallow: true
+  });
+
+  return <div className="cp-comparison-add">
+    {
+      comparisonSearch &&
+    <div>
+      <ProfileSearch
+        t={t}
+        display="list"
+        renderListItem={(result, i, link, title, subtitle) =>
+          result[0].id === variables.id
+            ? null
+            : <li key={`r-${i}`} className="cms-profilesearch-list-item">
+              <UnstyledButton
+                onClick={() => addComparison(result[0].memberSlug)}
+                className="cms-profilesearch-list-item-link">
+                {title}
+                <Text size="xs" className="cms-profilesearch-list-item-sub">{subtitle}</Text>
+              </UnstyledButton>
+            </li>
+        }
+      />
+    </div>
+    }
+    <Button onClick={comparisonSearchHandlers.toggle}>{t("CMS.Profile.Add Comparison")}</Button>
+  </div>;
+};
 const splitComparisonKeys = obj => {
   const split = {
     profile: {},
@@ -226,6 +271,7 @@ function ProfileRenderer({
               key="cp-hero"
               profile={profile}
               contents={heroSection || null}
+              comparisonButton={<ComparisonButton />}
               {...hideElements}
             />
           </div>

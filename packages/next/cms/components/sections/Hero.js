@@ -145,6 +145,7 @@ function Hero({
         dangerouslySetInnerHTML={{__html: stripP(title)}}
       />
       {subtitleContent}
+      {comparisonButton}
     </Stack>
   ;
 
@@ -157,7 +158,7 @@ function Hero({
       <Flex sx={{zIndex: 2}} w="100%" align="center" p="xl" gap={100}>
         {/* { hidePDF ? null : <PDFButton className="cp-hero-pdf" filename={filename(profile.title)} /> } */}
         {/* caption */}
-        <Stack className="cp-hero-caption" align="flex-start" px="xl">
+        <Stack className="cp-hero-caption" align="flex-start" px="xl" sx={{flexGrow: 1}}>
           {heading}
           {statContent}
           {paragraphs}
@@ -247,6 +248,7 @@ function Hero({
             style={{
               height: "100%", width: "100%", position: "absolute"
             }}
+            grow
             noWrap
           >
             {profile.images.map((img, i) => img.src &&
