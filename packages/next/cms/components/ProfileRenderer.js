@@ -8,8 +8,9 @@
 import React, {useContext, useMemo, useState} from "react";
 import {useRouter} from "next/router.js";
 import {Text, Button, Container, UnstyledButton} from "@mantine/core";
-import {Hero, ProfileContext} from "../..";
-import {useProfileSections} from "../hooks";
+import {Hero, NonIdealState, ProfileContext} from "../..";
+import {IconSquarePlus, IconSquareMinus} from "@tabler/icons-react";
+import {useProfileSections, useComparison} from "../hooks";
 
 import Section from "./sections/Section";
 import Related from "./sections/Related";
@@ -32,19 +33,33 @@ const ComparisonButton = () => {
   const [comparisonSearch, comparisonSearchHandlers] = useDisclosure(false);
   const router = useRouter();
   const {pathname, query} = router;
-  const {t, variables} = useContext(ProfileContext);
+  const {t, variables, compareSlug} = useContext(ProfileContext);
 
-  const addComparison = slug => router.push({
-    pathname,
-    query: {
-      ...query,
-      comparison: slug
-    }
-  },
-  undefined,
-  {
-    shallow: true
-  });
+  const addComparison = slug => router.replace(
+    {pathname,
+      query: {
+        ...query,
+        compare: slug
+      }
+    },
+    undefined,
+    {shallow: true});
+
+  const removeComparison = () => {
+    const params = new URLSearchParams(query);
+    params.delete("compare");
+    router.replace(
+      {pathname, query: Object.fromEntries(params.entries())},
+      undefined,
+      {shallow: true}
+    );
+  };
+
+
+  console.log("isComparison", compareSlug);
+  const handleClick = compareSlug
+    ? removeComparison
+    : comparisonSearchHandlers.toggle;
 
   return <div className="cp-comparison-add">
     {
@@ -68,7 +83,12 @@ const ComparisonButton = () => {
       />
     </div>
     }
-    <Button onClick={comparisonSearchHandlers.toggle}>{t("CMS.Profile.Add Comparison")}</Button>
+    <Button
+      onClick={handleClick}
+      leftIcon={!compareSlug ? <IconSquarePlus size="0.8rem" /> : <IconSquareMinus size="0.8rem" />}
+      size="xs"
+      variant="light"
+      compact>{t("CMS.Profile.Add Comparison")}</Button>
   </div>;
 };
 const splitComparisonKeys = obj => {
@@ -97,17 +117,23 @@ function ProfileRenderer({
   customSections = {},
   t
 }) {
+
   console.log("Profile Renderer");
+
   const router = useRouter();
   const {locale, query} = router;
-
   const defaultSelectors = {...router.query};
+
+
 
   const [profile, setProfile] = useState(rawProfile);
   const [selectors, setSelectors] = useState(defaultSelectors);
   const [loading] = useState(false);
   const [setVarsLoading] = useState(false);
-  const [comparison, setComparison] = useState(false);
+
+  const slug = profile.meta[0].slug;
+
+  const {compareSlug, comparisonLoading, comparison, setComparison} = useComparison(slug);
   // const [comparisonLoading, setComparisonLoading] = useState(false);
   // const [comparisonSearch, setComparisonSearch] = useState(false);
 
@@ -117,7 +143,9 @@ function ProfileRenderer({
 
   const print = query.print === "true";
 
-  const {heroSection, groupedSections} =  useProfileSections(profile.sections);
+  const {heroSection, groupedSections, comparisonSections} =  useProfileSections(profile, comparison);
+
+  if (comparisonLoading) return <NonIdealState />;
 
   /**
    * Visualizations have the ability to "break out" and override a variable in the variables object.
@@ -213,7 +241,6 @@ function ProfileRenderer({
   // "groupedSections" is used in places other than rendering, and
   // modifying its contents directly would cause things like the
   // SubNav to have incorrect titles and sections
-  const comparisonSections = [];
 
   // make sure there are sections to loop through (issue #700)
 
@@ -240,9 +267,11 @@ function ProfileRenderer({
   // Don't wrap into useMemo yet!
   // eslint-disable-next-line react/jsx-no-constructed-context-values
   const context = {
+    meta: profile.meta,
     formatters: formatterFunctions,
     onSelector,
     onTabSelect,
+    compareSlug,
     comparison,
     selectors,
     compVariables: comparison ? comparison.variables : {},
@@ -274,13 +303,22 @@ function ProfileRenderer({
               comparisonButton={<ComparisonButton />}
               {...hideElements}
             />
+            {
+              comparison &&
+              <Hero
+                key="cp-hero-comparison"
+                profile={comparison}
+                contents={comparison.sections.find(l => l.type === "Hero") || null}
+                {...hideElements}
+              />
+            }
           </div>
           : null }
 
         {!hideSubnav && <Subnav sections={groupedSections} />}
 
         <Container className="cp-main" id="main" fluid px="xl">
-          {groupedSections.map((groupings, i) =>
+          {(comparisonSections.length ? comparisonSections : groupedSections).map((groupings, i) =>
             <div className={`cp-grouping${comparisonSections.length ? " cp-grouping-comparison" : ""}`} key={i}>
               {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
                 // ungrouped section

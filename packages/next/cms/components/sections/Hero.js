@@ -86,7 +86,6 @@ function Hero({
       subtitleContent = contents.subtitles.map(subhead =>
         <Title
           order={2}
-          align="center"
           key={`${subhead.subtitle}-subhead`}
           dangerouslySetInnerHTML={{__html: stripP(subhead.subtitle)}}
         />
@@ -134,7 +133,6 @@ function Hero({
   const heading =
     <Stack>
       <Title
-        align="center"
         order={1}
         onClick={() => titleClick(1)}
         sx={{
@@ -154,16 +152,16 @@ function Hero({
   const hasAuthor = profile.images.some(d => d.author);
 
   return (
-    <Stack className="cp-hero" component="header" style={{overflow: "hidden", width: "100%"}} pos="relative" align="center">
-      <Flex sx={{zIndex: 2}} w="100%" align="center" p="xl" gap={100}>
+    <Stack className="cp-hero" component="header" style={{overflow: "show", width: "100%"}} pos="relative" align="center">
+      <Group sx={{zIndex: 4}} w="100%" p="xl">
         {/* { hidePDF ? null : <PDFButton className="cp-hero-pdf" filename={filename(profile.title)} /> } */}
         {/* caption */}
-        <Stack className="cp-hero-caption" align="flex-start" px="xl" sx={{flexGrow: 1}}>
+        <div className="cp-hero-caption" align="flex-start">
           {heading}
           {statContent}
           {paragraphs}
           {sourceContent}
-        </Stack>
+        </div>
 
         {/* print JUST the first visualization */}
         {contents && contents.visualizations && contents.visualizations.length
@@ -179,7 +177,7 @@ function Hero({
           </Box>
           : null
         }
-      </Flex>
+      </Group>
 
       {/* display image credits, and images */}
       {profile.images.length

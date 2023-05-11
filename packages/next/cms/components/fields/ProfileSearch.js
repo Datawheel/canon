@@ -516,7 +516,7 @@ function ProfileSearch({
               })()
               : loading && (position !== "absolute" || active)
                 ? <NonIdealState key="loading" message={t("CMS.Search.Loading")} />
-                : position !== "absolute" ? <NonIdealState graphic={<IconSearch />} message={t("CMS.Search.Empty")} /> : null
+                : position !== "absolute" ? <NonIdealState height={"auto"} graphic={<IconSearch />} message={t("CMS.Search.Empty")} /> : null
           }
         </Box>
       </Box>

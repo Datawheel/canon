@@ -4,6 +4,12 @@ import React, {useRef} from "react";
 import Viz from "../Viz/Viz";
 
 const VizMemo = React.memo(Viz);
+
+/**
+ *
+ * @param {*} param0
+ * @returns
+ */
 export default function Default({
   slug,
   heading,
@@ -19,7 +25,7 @@ export default function Default({
   visualizations,
   vizHeadingLevel,
   updateSource,
-  onSetVariables,
+  onSetVariables
 }) {
   const section = useRef(null);
   return (
@@ -30,7 +36,7 @@ export default function Default({
     >
       {/* sidebar */}
       <Grid.Col
-        md={3}
+        md={4}
         span={12}
         className="cp-section-content cp-default-section-caption"
       >
@@ -46,41 +52,40 @@ export default function Default({
 
       {/* caption */}
       {visualizations.length
-        ? (
-          <Grid.Col
-            md={9}
-            span={12}
-            className={`cp-default-section-figure${
-              visualizations.length > 1 ? " cp-multicolumn-default-section-figure" : ""
-            }${
-              visualizations.filter(
-                (viz) => viz.logic_simple && viz.logic_simple.type === "Graphic",
-              ).length ? " cp-graphic-viz-grid" : ""
-            }`}
+        ?        <Grid.Col
+          md={8}
+          span={12}
+          className={`cp-default-section-figure${
+            visualizations.length > 1 ? " cp-multicolumn-default-section-figure" : ""
+          }${
+            visualizations.filter(
+              viz => viz.logic_simple && viz.logic_simple.type === "Graphic"
+            ).length ? " cp-graphic-viz-grid" : ""
+          }`}
+        >
+          <SimpleGrid
+            breakpoints={[
+              {minWidth: "sm", cols: 1},
+              {minWidth: "md", cols: visualizations.length >= 2 ? 2 : 1}
+            ]}
           >
-            <SimpleGrid
-              breakpoints={[
-                {minWidth: "sm", cols: 1},
-                {minWidth: "md", cols: visualizations.length >= 2 ? 2 : 1},
-              ]}
-            >
-              {visualizations.map((visualization) => (
-                <VizMemo
-                  section={section}
-                  config={visualization}
-                  headingLevel={vizHeadingLevel}
-                  sectionTitle={title}
-                  slug={slug}
-                  hideOptions={hideOptions}
-                  configOverride={configOverride}
-                  updateSource={updateSource}
-                  onSetVariables={onSetVariables}
-                  key={visualization.id}
-                />
-              ))}
-            </SimpleGrid>
-          </Grid.Col>
-        ) : ""}
+            {visualizations.map(visualization =>
+              <VizMemo
+                section={section}
+                config={visualization}
+                headingLevel={vizHeadingLevel}
+                sectionTitle={title}
+                slug={slug}
+                hideOptions={hideOptions}
+                configOverride={configOverride}
+                updateSource={updateSource}
+                onSetVariables={onSetVariables}
+                key={visualization.id}
+              />
+            )}
+          </SimpleGrid>
+        </Grid.Col>
+        : ""}
     </Grid>
   );
 }

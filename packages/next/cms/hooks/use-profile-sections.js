@@ -3,6 +3,7 @@
 const groupableSections = ["SingleColumn"];
 // const groupableSections = ["SingleColumn"].concat(Object.keys(CustomSections)); // sections to be grouped together
 
+
 /**
  * Groups consecutive groupable sections into same-type arrays
 */
@@ -51,9 +52,56 @@ function groupOuterSections(groupedSections, innerGroup) {
 }
 
 /** */
-export default function useProfileSections(sections) {
+export default function useProfileSections(profile, comparison) {
+  const {sections} = profile;
   // find Hero section
   const heroSection = sections.find(l => l.type === "Hero");
+
+  const comparisonSections = [];
+
+  if (comparison) {
+
+    const comparifySection = (rawSection, payload) => ({
+
+      ...rawSection,
+
+      comparison: payload === comparison,
+
+      // suffix "id" and "slug" keys with "-compare" so that anchor looks do not clash
+      id: payload === profile ? rawSection.id : `${rawSection.id}-compare`,
+      slug: `${rawSection.slug || `section-${rawSection.id}`}${payload === comparison ? "-compare" : ""}`,
+
+      // add member names to each section title to help
+      // differentiate the two comparitors
+      title: rawSection.title.includes(payload.variables.name)
+        ? rawSection.title
+        : rawSection.title.replace(/\<\/p\>$/g, ` - ${payload.variables.name}</p>`)
+
+    });
+
+    sections
+      .reduce((arr, rawSection) => {
+
+        const comp = comparison.sections.find(s => s.id === rawSection.id);
+        if (comp) {
+
+          const section = comparifySection(rawSection, profile);
+          const newComp = comparifySection(comp, comparison);
+          comparisonSections.push([[section, newComp]]);
+
+          if (arr.length === 0 || rawSection.type === "Grouping") arr.push([[rawSection]]);
+          else arr[arr.length - 1].push([rawSection]);
+
+        }
+
+        return arr;
+
+      }, []);
+
+  }
+  // function used to clone and modify a raw "section" in order
+  // to prep it to be viewed side-by-side with a comparitor section
+  // with similar content
 
   // filter modal and hero sections from the rest of the report
   const renderSections = sections
@@ -71,5 +119,5 @@ export default function useProfileSections(sections) {
     .reduce(groupInnerSections, []);
   const groupedSections = innerGroups.reduce(groupOuterSections, []);
 
-  return {heroSection, renderSections, groupedSections};
+  return {heroSection, groupedSections, comparisonSections};
 }

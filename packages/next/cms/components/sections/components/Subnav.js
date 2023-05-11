@@ -234,7 +234,7 @@ export default function Subnav(props) {
         ref={subnav}
         key="s"
         sx={theme => ({
-          zIndex: 9,
+          zIndex: 3,
           display: "flex",
           flexDirection: "column",
           borderRadius: 0,
