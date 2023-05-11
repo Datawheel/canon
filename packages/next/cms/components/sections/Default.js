@@ -52,7 +52,7 @@ export default function Default({
 
       {/* caption */}
       {visualizations.length
-        ?        <Grid.Col
+        ? <Grid.Col
           md={8}
           span={12}
           className={`cp-default-section-figure${

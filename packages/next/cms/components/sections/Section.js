@@ -150,35 +150,34 @@ function Section({
 
   const mainTitle =
     title &&
+    <Flex
+      className={`cp-section-heading-wrapper ${layoutClass}-heading-wrapper`}
+      wrap="nowrap"
+      justify="center"
+      direction="row-reverse"
+      align="flex-start"
+      gap="xs"
+    >
+      <Parse
+        El={headingLevel}
+        id={slug}
+        className={`cp-section-heading ${layoutClass}-heading${
+          layout !== "Hero" && showAnchor
+            ? " cp-section-anchored-heading" : ""}`}
+        tabIndex="0"
+      >
+        {title}
+      </Parse>
+      {showAnchor &&
 
-              <Flex
-                className={`cp-section-heading-wrapper ${layoutClass}-heading-wrapper`}
-                wrap="nowrap"
-                justify="center"
-                direction="row-reverse"
-                align="center"
-                gap="xs"
-              >
-                <Parse
-                  El={headingLevel}
-                  id={slug}
-                  className={`cp-section-heading ${layoutClass}-heading${
-                    layout !== "Hero" && showAnchor
-                      ? " cp-section-anchored-heading" : ""}`}
-                  tabIndex="0"
-                >
-                  {title}
-                </Parse>
-                {showAnchor &&
-
-                  <Link href={`#${slug}`} className={`cp-section-heading-anchor ${layoutClass}-heading-anchor`} passHref legacyBehavior>
-                    <Anchor>
-                    #
-                      <Text display="none" className="u-visually-hidden" span>permalink to section</Text>
-                    </Anchor>
-                  </Link>
-                }
-              </Flex>
+        <Link href={`#${slug}`} className={`cp-section-heading-anchor ${layoutClass}-heading-anchor`} passHref legacyBehavior>
+          <Anchor>
+          #
+            <Text display="none" className="u-visually-hidden" span>permalink to section</Text>
+          </Anchor>
+        </Link>
+      }
+    </Flex>
 
 
   ;

@@ -3,6 +3,11 @@ import {Box, Stack} from "@mantine/core";
 // eslint-disable-next-line import/no-cycle
 import {Viz} from "../../..";
 
+/**
+ *
+ * @param {*} param0
+ * @returns
+ */
 export default function Grouping({
   slug,
   title,

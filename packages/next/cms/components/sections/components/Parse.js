@@ -2,13 +2,11 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable no-nested-ternary */
 import React from "react";
-import {Text} from "@mantine/core";
 import stripP from "../../../utils/formatters/stripP";
 import stripUL from "../../../utils/formatters/stripUL";
 import stripOL from "../../../utils/formatters/stripOL";
 
 /** Quill editor likes to generate <p> and <br> tags, boy is that fun. */
-
 export default function Parse({
   El = "p", // the element to render
   split = true, // if there's a <br> tag, create another element (default) or replace it with a space
@@ -43,7 +41,7 @@ export default function Parse({
   };
 
   // loop through all elements in the blob
-  return blob.map((el, i) => 
+  return blob.map((el, i) =>
     // ordered list
     el.indexOf("<ol>") !== -1
       ? <ol dangerouslySetInnerHTML={{__html: stripOL(el)}} key={`${el}-${El}-${i}`} {...commonProps} />
@@ -61,7 +59,7 @@ export default function Parse({
             ? <blockquote dangerouslySetInnerHTML={{__html: el}} key={`${el}-${El}-${i}`} {...commonProps} />
 
             // anything else
-            :               <El
+            : <El
               dangerouslySetInnerHTML={{__html: stripP(el)}}
               id={id && i === 0 ? id : null}
               key={`${el}-${El}-${i}`}

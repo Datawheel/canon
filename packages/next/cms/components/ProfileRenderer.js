@@ -46,17 +46,14 @@ const ComparisonButton = () => {
     {shallow: true});
 
   const removeComparison = () => {
-    const params = new URLSearchParams(query);
-    params.delete("compare");
+    const newQuery = {...query};
+    delete newQuery.compare;
     router.replace(
-      {pathname, query: Object.fromEntries(params.entries())},
+      {pathname, query: newQuery},
       undefined,
       {shallow: true}
     );
   };
-
-
-  console.log("isComparison", compareSlug);
   const handleClick = compareSlug
     ? removeComparison
     : comparisonSearchHandlers.toggle;

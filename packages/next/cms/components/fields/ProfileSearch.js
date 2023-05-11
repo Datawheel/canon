@@ -99,7 +99,6 @@ function useSearchResults({
   formatResults,
   showExamples
 }) {
-  console.log(query);
   const [results, setResults] = useState(false);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
