@@ -1,5 +1,5 @@
 import React from "react";
-import {SimpleGrid} from "@mantine/core";
+import {Group, SimpleGrid} from "@mantine/core";
 import toKebabCase from "../../../utils/formatters/toKebabCase";
 
 /**
@@ -12,15 +12,11 @@ export default function SectionGrouping({children, layout}) {
 
   return (
     <div className={`cp-section-grouping ${layoutClass}`}>
-      <SimpleGrid
-        breakpoints={[
-          {minWidth: "xs", cols: 1},
-          {minWidth: "md", cols: 2}
-        ]}
+      <Group
         className={`cp-section-grouping-inner ${layoutClass}-inner`}
       >
         {children}
-      </SimpleGrid>
+      </Group>
     </div>
   );
 }

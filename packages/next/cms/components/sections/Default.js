@@ -37,6 +37,7 @@ export default function Default({
       {/* sidebar */}
       <Grid.Col
         md={4}
+        sm={12}
         span={12}
         className="cp-section-content cp-default-section-caption"
       >
@@ -54,6 +55,7 @@ export default function Default({
       {visualizations.length
         ? <Grid.Col
           md={8}
+          sm={12}
           span={12}
           className={`cp-default-section-figure${
             visualizations.length > 1 ? " cp-multicolumn-default-section-figure" : ""

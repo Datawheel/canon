@@ -4,6 +4,11 @@ import {
 } from "@mantine/core";
 import stripP from "../../../utils/formatters/stripP";
 
+/**
+ *
+ * @param {*} param0
+ * @returns
+ */
 function Stat({
   label, value, subtitle
 }) {
