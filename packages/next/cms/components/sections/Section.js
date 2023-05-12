@@ -142,6 +142,7 @@ function Section({
     <Selector
       key={selector.id}
       // eslint-disable-next-line react/jsx-props-no-spreading
+      isComparison={contents.comparison}
       {...selector}
       loading={loading}
       fontSize="xxs"

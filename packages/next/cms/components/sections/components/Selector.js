@@ -14,24 +14,16 @@ import ProfileContext from "../../ProfileContext";
 
 export default function Selector(props) {
   const {
-    fontSize, id, loading, options, name, selectCutoff = 3, title, type, t
+    fontSize, id, loading, options, name, selectCutoff = 3, title, type, isComparison, t
   } = props;
   const ctx = useContext(ProfileContext);
-  const {variables} = ctx;
+  const {variables, onSelector} = ctx;
   const comparisons = typeof props.default === "string"
     ? props.default.split(",").filter(d => d.length)
     : props.default || [];
   const activeValue = props.default;
   const slug = `${name}-${id}`;
   const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label}), {});
-
-  const onSelectorWrapper = (name, value) => {
-    const {
-      onSelector, variables, compVariables, comparison
-    } = ctx;
-    const isComparison = comparison && compVariables.id === variables.id;
-    onSelector(name, value, isComparison);
-  };
 
   // const addComparison = (comparison) => {
   //   const filteredComparison = comparisons.concat([comparison]);
@@ -98,7 +90,7 @@ export default function Selector(props) {
           <Text>{title}</Text>
           <SegmentedControl
             defaultValue={activeValue}
-            onChange={value => onSelectorWrapper(name, value)}
+            onChange={value => onSelector(name, value, isComparison)}
             data={options.map(o => ({value: o.option, label: stripHTML(o.label || variables[o.option])}))}
             fullWidth
           />
@@ -111,7 +103,7 @@ export default function Selector(props) {
         label={title}
         fontSize={fontSize}
         id={slug}
-        onChange={value => onSelectorWrapper(name, value)}
+        onChange={value => onSelector(name, value, isComparison)}
         disabled={loading}
         defaultValue={activeValue}
         data={options.map(o => ({value: o.option, label: stripHTML(o.label || variables[o.option])}))}

@@ -5,11 +5,15 @@ import axios from "axios";
 
 
 /** */
-export default function useComparison(slug) {
+export default function useComparison(profile) {
+
   const [comparison, setComparison] = useState(null);
   const [comparisonLoading, setComparisonLoading] = useState(false);
   const {query, locale} = useRouter();
   const compareSlug = query?.compare;
+
+  const slug = profile.meta[0].slug;
+
   useEffect(() => {
     if (compareSlug) {
       setComparisonLoading(true);

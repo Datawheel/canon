@@ -5,12 +5,12 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-nested-ternary */
 
-import React, {useContext, useMemo, useState} from "react";
+import React, {useContext, useState} from "react";
 import {useRouter} from "next/router.js";
 import {Text, Button, Container, UnstyledButton} from "@mantine/core";
 import {Hero, NonIdealState, ProfileContext} from "../..";
 import {IconSquarePlus, IconSquareMinus} from "@tabler/icons-react";
-import {useProfileSections, useComparison} from "../hooks";
+import {useProfileSections, useReportState} from "../hooks";
 
 import Section from "./sections/Section";
 import Related from "./sections/Related";
@@ -20,7 +20,7 @@ import Mirror from "./Viz/Mirror";
 import mortarEval from "../utils/mortarEval";
 import deepClone from "../utils/deepClone";
 import prepareProfile from "../utils/prepareProfile";
-import funcifyFormatterByLocale from "../utils/funcifyFormatterByLocale";
+
 import ProfileSearch from "./fields/ProfileSearch";
 import {useDisclosure} from "@mantine/hooks";
 
@@ -105,7 +105,7 @@ function ProfileRenderer({
   hideOptions, // strip out visualization options buttons
   hideHero, // strip out the hero section
   hideSubnav, // strip out the subnav
-  profile: rawProfile,
+  profile: initialProfile,
   linkify = profile => profile.reduce(
     (href, member) => `${href}/${member.slug}/${member.memberSlug || member.id}`,
     "/profile"
@@ -114,29 +114,17 @@ function ProfileRenderer({
   customSections = {},
   t
 }) {
-
-  console.log("Profile Renderer");
-
   const router = useRouter();
   const {locale, query} = router;
-  const defaultSelectors = {...router.query};
-
-
-
-  const [profile, setProfile] = useState(rawProfile);
-  const [selectors, setSelectors] = useState(defaultSelectors);
+  // const [profile, setProfile] = useState(initialProfile);
+  const selectors = {...router.query};
   const [loading] = useState(false);
   const [setVarsLoading] = useState(false);
-
-  const slug = profile.meta[0].slug;
-
-  const {compareSlug, comparisonLoading, comparison, setComparison} = useComparison(slug);
-  // const [comparisonLoading, setComparisonLoading] = useState(false);
-  // const [comparisonSearch, setComparisonSearch] = useState(false);
-
+  const initialVariables = initialProfile.variables;
+  const {profile, comparison, formatterFunctions, comparisonLoading, compareSlug, setProfile, setComparison} = useReportState(initialProfile, formatters);
   // Set initial state to fix propify error on first render
-  const initialVariables = useMemo(() => deepClone(profile.variables), [profile.variables]);
-  const formatterFunctions = useMemo(() => funcifyFormatterByLocale(formatters, locale), [formatters, locale]);
+
+  // const formatterFunctions = useMemo(() => funcifyFormatterByLocale(formatters, locale), [formatters, locale]);
 
   const print = query.print === "true";
 
@@ -200,30 +188,15 @@ function ProfileRenderer({
 
 
   const onSelector = (name, value, isComparison) => {
+
     const newSelectors = {...selectors};
-
     newSelectors[`${isComparison ? "compare_" : ""}${name}`] = value;
-    const split = splitComparisonKeys(newSelectors);
-
-    const {variables} = profile;
-    const newProfile = prepareProfile(variables._rawProfile, variables, formatterFunctions, locale, split.profile);
-
-    if (comparison) {
-      const compVars = comparison.variables;
-      const newComp = prepareProfile(compVars._rawProfile, compVars, formatterFunctions, locale, split.comparison);
-      setComparison({...comparison, ...newComp});
-    }
-
-    setSelectors(newSelectors);
-    setProfile({...profile, ...newProfile});
-
-    // // updateQuery:
-    // const newQuery = {...query, ...newSelectors};
+    // updateQuery:
+    const newQuery = {...query, ...newSelectors};
 
     // if (comparison) newQuery.compare = comparison.dims[0].memberSlug;
     // else delete newQuery.compare;
-
-    // router.replace({query: newQuery}, undefined, {shallow: true});
+    router.replace({query: newQuery}, undefined, {shallow: true});
 
   };
 
@@ -231,7 +204,7 @@ function ProfileRenderer({
     const newSelectors = {...selectors};
     newSelectors[`tabsection-${id}`] = index;
     // updateQuery as callback don't work. TODO: refactor
-    setSelectors(newSelectors);
+    router.replace({query: newSelectors}, undefined, {shallow: true});
   };
 
   // create a separate "section" Array for comparison mode, because
