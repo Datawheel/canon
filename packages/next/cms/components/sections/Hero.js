@@ -146,8 +146,6 @@ function Hero({
       {comparisonButton}
     </Stack>
   ;
-
-  console.log(profile.images);
   // custom images can be uploaded with no flickr source. Only show the "image credits" section
   // if at least one of the images has the flickr data to show
   const hasAuthor = profile.images.some(d => d.author);

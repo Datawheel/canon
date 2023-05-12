@@ -156,7 +156,7 @@ function Section({
       wrap="nowrap"
       justify="center"
       direction="row-reverse"
-      align="flex-start"
+      align="flex-end"
       gap="xs"
     >
       <Parse
