@@ -28,7 +28,6 @@ export default function useReportState(initialProfile, formatters) {
   const {compareSlug, comparisonLoading, comparison, setComparison} = useComparison(profile);
 
   useEffect(() => {
-    console.log("rendering");
     // if length is 1, then we only have the member slug, render profile as comes from the server
     if (Object.keys(query).length <= 1) return;
 
