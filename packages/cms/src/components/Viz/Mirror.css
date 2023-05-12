@@ -9,7 +9,8 @@
 .mirror.is-visible {
   position: fixed;
   top: 0;
-  left: 100%;
+  left: 0;
+  z-index: -1000;
 }
 
 /* layout */
@@ -69,6 +70,7 @@
 .mirror-content .options-dialog,
 .mirror-content .cp-var-reset-button,
 .mirror-content .cp-section-heading-anchor,
+.mirror-content .cp-select-icon,
 .mirror-content .show-more {
   display: none !important;
 }
