@@ -7,8 +7,6 @@ const VizMemo = React.memo(Viz);
 
 /**
  *
- * @param {*} param0
- * @returns
  */
 export default function Default({
   slug,

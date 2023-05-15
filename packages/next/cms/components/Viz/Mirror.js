@@ -1,5 +1,6 @@
 import React from "react";
 
+/** */
 export default function Mirror({inUse}) {
   return (
     <div className={`mirror ${inUse ? "is-visible" : "is-hidden"}`} aria-hidden="true">

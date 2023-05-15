@@ -1,6 +1,7 @@
 import React from "react";
 import {Button} from "@mantine/core";
 
+/** */
 export default function ShareFacebookLink({link, slug, t}) {
   return (
     <Button component="a" className="share-fb cp-button u-font-xs"

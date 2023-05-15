@@ -2,6 +2,7 @@ import {Box} from "@mantine/core";
 import React, {useRef} from "react";
 import Viz from "../Viz/Viz";
 
+/** */
 export default function MultiColumn(
   {
     configOverride, slug, title, heading, hideOptions, paragraphs, loading, filters, resetButton, stats, sources, visualizations = [], vizHeadingLevel, updateSource, onSetVariables

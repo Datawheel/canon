@@ -27,7 +27,11 @@ export default function Grouping({
   const section = useRef(null);
   return (
     <Box
-      className={`cp-section-inner cp-grouping-section-inner cp-${slug}-section-inner ${loading ? "is-loading" : ""}`}
+      className={`
+        cp-section-inner
+        cp-grouping-section-inner
+        cp-${slug}-section-inner
+        ${loading ? "is-loading" : ""}`}
       ref={section}
     >
       {/* sidebar */}

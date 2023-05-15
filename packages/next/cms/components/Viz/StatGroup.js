@@ -10,17 +10,19 @@ const sanitize = html => html
   .replace(/&lt;/g, "<")
   .replace(/&gt;/g, ">");
 
+
+/** */
 function StatGroup({className, stats = []}) {
   if (!stats.length) return console.log("`stats` array is empty in StatGroup.jsx");
 
   return stats.length > 1
     // grouped stats
     ?       <Stack className="cp-stats-group">
-      {stats.length > 1 && 
+      {stats.length > 1 &&
           <Text dangerouslySetInnerHTML={{__html: stripHTML(stats[0].title)}} />
       }
       <Group>
-        {stats.map(stat => 
+        {stats.map(stat =>
           <Stat
             className={className}
             label={null}
@@ -31,9 +33,9 @@ function StatGroup({className, stats = []}) {
         )}
       </Group>
     </Stack>
-    
+
     // single stat
-    :       <Stat
+    : <Stat
       className={className}
       label={sanitize(stats[0].title)}
       value={sanitize(stats[0].value)}

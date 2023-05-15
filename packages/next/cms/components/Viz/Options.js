@@ -51,6 +51,7 @@ const getBackground = elem => {
   return getBackground(elem.parentNode);
 };
 
+/** */
 function DataPanel({
   data, dataFormat, dataAttachments, title, origin, t
 }) {
@@ -152,8 +153,9 @@ function DataPanel({
   return (
     <Stack spacing="lg">
       {
-        dataURLs.map((link, i) => 
+        dataURLs.map((link, i) =>
           <ShareDirectLink
+            key={link}
             link={link.indexOf("http") === 0 ? link : `${origin}${link}`}
             label={`${t("CMS.Options.Endpoint")}${dataURLs.length > 1 ? ` ${i + 1}` : ""}`}
           />
@@ -203,6 +205,7 @@ function DataPanel({
   );
 }
 
+/** */
 function ImagePanel({
   mirrorSelector, title, component, t
 }) {
@@ -355,24 +358,24 @@ function ImagePanel({
             {t("CMS.Options.Image area")}
           </Text>
           {!isTable &&
-                
+
                 <SegmentedControl
                   onChange={setImageContext}
                   data={[
                     {
-                      label: 
+                      label:
                         <Center>
                           <IconChartLine />
                           <Text ml="sm" tt="uppercase" size="xs" inherit>{t("CMS.Options.visualization only")}</Text>
-                        </Center>,                      
+                        </Center>,
                       value: "viz"
                     },
                     {
-                      label: 
+                      label:
                         <Center>
                           <IconLayoutDistributeHorizontal />
                           <Text ml="sm" tt="uppercase" size="xs" inherit>{t("CMS.Options.entire section")}</Text>
-                        </Center>,                      
+                        </Center>,
                       value: "section"
                     }]}
                 />
@@ -380,7 +383,7 @@ function ImagePanel({
         </Group>
         {
           svgAvailable && imageContext !== "section" &&
-                
+
                 <Group position="apart" noWrap>
                   <Text
                     className="save-image-button-group-label label u-font-xs"
@@ -392,7 +395,7 @@ function ImagePanel({
                     onChange={setImageFormat}
                     data={[
                       {
-                        label: 
+                        label:
                           <Center>
                             <IconChartLine />
                             <Text ml="sm" tt="uppercase" size="xs" inherit>
@@ -400,11 +403,11 @@ function ImagePanel({
                               {" "}
                               PNG
                             </Text>
-                          </Center>,                        
+                          </Center>,
                         value: "png"
                       },
                       {
-                        label: 
+                        label:
                           <Center>
                             <IconLayoutDistributeHorizontal />
                             <Text ml="sm" tt="uppercase" size="xs" inherit>
@@ -412,12 +415,12 @@ function ImagePanel({
                               {" "}
                               SVG
                             </Text>
-                          </Center>,                        
+                          </Center>,
                         value: "svg"
                       }]}
                   />
                 </Group>
-                
+
         }
         <Group />
 
@@ -445,8 +448,9 @@ function ImagePanel({
   );
 }
 
+/** */
 function SharePanel({
-  origin, mirrorSelector, slug, t
+  origin, slug, t
 }) {
   const [includeSlug, setIncludeSlug] = useState(true);
   const router = useRouter();
@@ -472,6 +476,7 @@ function SharePanel({
   );
 }
 
+/** */
 export default function Options({
   data, title, slug, dataFormat, dataAttachments, component, mirrorSelector = ".mirror"
 }) {
@@ -483,7 +488,7 @@ export default function Options({
     if (typeof window === "undefined") return;
     setOrigin(window.location.origin);
   }, []);
-  const hasMultiples = Array.isArray(data) && data.length > 1 && data.some(d => typeof d === "string");
+  // const hasMultiples = Array.isArray(data) && data.length > 1 && data.some(d => typeof d === "string");
   return (
     <>
       <Flex>

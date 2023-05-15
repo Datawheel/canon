@@ -46,7 +46,7 @@ function Section({
 }) {
   const ctx = useContext(ProfileContext);
   const {t, customSections} = ctx;
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [isStickyIE, setIsStickyIE] = useState(false);
   // const [selectors, setSelectors] = useState({});
   const [sources, setSources] = useState([]);

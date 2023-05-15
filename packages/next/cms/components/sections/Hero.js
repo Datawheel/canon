@@ -1,11 +1,23 @@
 import React, {useContext, useState} from "react";
 import {nest} from "d3-collection";
 import {
-  Button, Group, Collapse, Paper, Text, BackgroundImage, List,
-  Stack, Overlay, Flex, Title, Modal, Box
+  BackgroundImage,
+  Box,
+  Button,
+  Collapse,
+  Flex,
+  Group,
+  List,
+  Modal,
+  Overlay,
+  Paper,
+  Stack,
+  Text,
+  Title
 } from "@mantine/core";
 import {
-  IconChevronDown, IconChevronUp
+  IconChevronDown,
+  IconChevronUp
 } from "@tabler/icons-react";
 import ProfileContext  from "../ProfileContext";
 import SourceGroup from "../Viz/SourceGroup";
@@ -19,15 +31,13 @@ import stripP from "../../utils/formatters/stripP";
 //   .replace(/\-$/g, "");
 // import PDFButton from "./components/PDFButton";
 
-// import {Dialog} from "@blueprintjs/core";
-
 import ProfileSearch from "../fields/ProfileSearch";
 
 /** the profile hero, AKA header, AKA splash */
 function Hero({
   comparisonButton,
   contents,
-  hidePDF = false,
+  // hidePDF = false,
   hideTitleSearch = false,
   loading,
   profile,
@@ -153,7 +163,6 @@ function Hero({
   return (
     <Stack className="cp-hero" component="header" style={{overflow: "show", width: "100%"}} pos="relative" align="center">
       <Group sx={{zIndex: 4}} w="100%" p="xl">
-        {/* { hidePDF ? null : <PDFButton className="cp-hero-pdf" filename={filename(profile.title)} /> } */}
         {/* caption */}
         <div className="cp-hero-caption" align="flex-start">
           {heading}
@@ -248,7 +257,7 @@ function Hero({
             grow
             noWrap
           >
-            {profile.images.map((img, i) => img.src &&
+            {profile.images.map(img => img.src &&
               <BackgroundImage
                 style={{
                   height: "100%",
@@ -262,12 +271,11 @@ function Hero({
           </Group>
           <Overlay
             opacity={0.7}
-            // color={colorScheme === "dark" ? "#000" : "#fff"}
             blur={2}
             zIndex={1}
           />
         </>
-        :          <Overlay
+        : <Overlay
           opacity={0.7}
           blur={2}
           zIndex={1}

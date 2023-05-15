@@ -1,5 +1,5 @@
 import React from "react";
-import {Group, SimpleGrid} from "@mantine/core";
+import {Group} from "@mantine/core";
 import toKebabCase from "../../../utils/formatters/toKebabCase";
 
 /**

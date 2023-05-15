@@ -4,6 +4,7 @@ import {
 } from "@mantine/core";
 import {NonIdealState, ProfileRenderer} from "../..";
 
+/** */
 function Profile(props) {
   const {profile} = props;
 

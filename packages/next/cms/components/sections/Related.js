@@ -3,6 +3,7 @@ import {Group, Title} from "@mantine/core";
 import ProfileContext from "../ProfileContext";
 import Tile from "../fields/ProfileTile";
 
+/** */
 export default function Related({profiles}) {
   const {t, linkify} = useContext(ProfileContext);
   return (
@@ -29,7 +30,7 @@ export default function Related({profiles}) {
         key="tl"
         grow
       >
-        {profiles.map(data => 
+        {profiles.map(data =>
           <li key={data[0].id}>
             <Tile data={data} linkify={linkify} />
           </li>
