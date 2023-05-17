@@ -11,7 +11,6 @@ import {unique} from "d3plus-common";
 import {
   group, max, merge, min
 } from "d3-array";
-import {select} from "d3-selection";
 
 // import ProfileColumns from "./ProfileColumns";
 import React, {
@@ -344,8 +343,8 @@ function ProfileSearch({
 
   const onFilterLevel = useCallback(filters => {
     console.log("filterLevels", profiles, filters);
-    if (!profiles || !filters) return;
-    const newFilters = filters ? filters.split(",") : [false];
+    if (!profiles) return;
+    const newFilters = filters !== "all" ? filters.split(",") : [false];
 
     let newCubes = [];
     let newLevels = [];
@@ -385,7 +384,7 @@ function ProfileSearch({
   }, [filterCubes, filterDimensionTitle, filterLevels, filterProfiles, profiles]);
 
 
-  useEffect(() => onFilterLevel(false), [filterProfiles, onFilterLevel]);
+  useEffect(() => onFilterLevel(filterProfiles), [filterProfiles, onFilterLevel]);
 
   let activeDimensions;
   if (activeProfile) {
@@ -429,7 +428,7 @@ function ProfileSearch({
   }
 
   console.log("activeDimensions", activeDimensions);
-
+  console.log("results", results);
   // TODO: enable hotkey events
   useHotkeys([
     ["ArrowLeft", () => console.log("arrow left")],

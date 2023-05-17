@@ -1,5 +1,5 @@
 import {
-  Anchor, Box, Flex, Popover, List, Paper
+  Anchor, Box, Flex, Popover, List, Paper, Center
 } from "@mantine/core";
 import React, {
   forwardRef, useMemo, useRef, useState
@@ -91,6 +91,8 @@ export default function Subnav(props) {
 
     return flattenedSections;
   };
+
+  const {icons} = props;
 
   const [fixed, setFixed] = useState(false);
   const [openSlug, setOpenSlug] = useState(false);
@@ -185,10 +187,10 @@ export default function Subnav(props) {
               className={`cp-subnav-link ${sections.length >= 5 ? "u-font-xs" : "u-font-sm"}`}
               to={section.slug}
             >
-              {/* {section.icon && blueprintIcons.find(i => i === section.icon) &&
-                <Icon className="cp-subnav-link-icon" icon={section.icon} />
-              } */}
-              {section.short && stripHTML(section.short) ? stripHTML(section.short) : stripHTML(section.title)}
+              <Center sx={{gap: 5}}>
+                {section.icon && icons[section.icon]}
+                {section.short && stripHTML(section.short) ? stripHTML(section.short) : stripHTML(section.title)}
+              </Center>
             </AnchorLink>
           </Box>
         </Popover.Target>
@@ -228,7 +230,6 @@ export default function Subnav(props) {
       <Paper
         component="nav"
         pos="sticky"
-        bottom={0}
         top={0}
         className={`cp-subnav ${fixed ? "is-fixed" : "is-static"}`}
         ref={subnav}

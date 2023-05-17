@@ -162,9 +162,9 @@ function Hero({
 
   return (
     <Stack className="cp-hero" component="header" style={{overflow: "show", width: "100%"}} pos="relative" align="center">
-      <Group sx={{zIndex: 4}} w="100%" p="xl">
+      <Flex sx={{zIndex: 4}} w="100%" p="xl">
         {/* caption */}
-        <div className="cp-hero-caption" align="flex-start">
+        <div className="cp-hero-caption" style={{flexGrow: 1}}>
           {heading}
           {statContent}
           {paragraphs}
@@ -185,7 +185,7 @@ function Hero({
           </Box>
           : null
         }
-      </Group>
+      </Flex>
 
       {/* display image credits, and images */}
       {profile.images.length

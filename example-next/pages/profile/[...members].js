@@ -10,7 +10,7 @@ import {useRouter} from "next/router";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {Profile, NonIdealState, cmsDefaultPaths, cmsDefaultProps} from "@datawheel/canon-next";
 import customSections from "../../cms/sections";
-
+import {IconChartLine, IconFolders, IconWorld} from "@tabler/icons-react";
 
 function ProfilePage({profile, formatters}) {
   const router = useRouter();
@@ -26,6 +26,11 @@ function ProfilePage({profile, formatters}) {
       searchProps={{placeholder: "Seach profiles"}}
       // and your custom sections mapping object:
       // customSections={customSections}
+      icons={{
+        "timeline-line-chart": <IconChartLine />,
+        "folder-close": <IconFolders />,
+        "globe-network": <IconWorld />
+      }}
       t={t}
     />
   );

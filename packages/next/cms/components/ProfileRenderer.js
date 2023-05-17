@@ -34,6 +34,7 @@ function ProfileRenderer({
     (href, member) => `${href}/${member.slug}/${member.memberSlug || member.id}`,
     "/profile"
   ),
+  icons,
   searchProps = {},
   customSections = {},
   t
@@ -87,6 +88,7 @@ function ProfileRenderer({
     variables,
     initialVariables,
     searchProps,
+    icons,
     print,
     linkify,
     customSections,
@@ -124,7 +126,7 @@ function ProfileRenderer({
           </div>
           : null }
 
-        {!hideSubnav && <Subnav sections={groupedSections} />}
+        {!hideSubnav && <Subnav sections={groupedSections} icons={icons} />}
 
         <Container className="cp-main" id="main" fluid px="xl">
           {(comparisonSections.length ? comparisonSections : groupedSections).map((groupings, i) =>
