@@ -2,7 +2,7 @@ import {defineConfig} from "tsup";
 
 export default defineConfig(options => ({
   clean: true,
-  entry: ["index.js"],
+  entry: ["index.js", "utils.js"],
   bundle: true,
   format: ["esm"],
   target: "es2016",

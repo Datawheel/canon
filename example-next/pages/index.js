@@ -4,7 +4,27 @@ import {ProfileSearch} from "@datawheel/canon-next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useDisclosure} from "@mantine/hooks";
+import {stripHTML} from "@datawheel/canon-next/utils";
 
+
+const customProfileGroups = {
+  "World": "Country",
+  "Trade Bloc": "International Organizations"
+};
+
+const profileSearchConfig = {
+  placeholder: "Explore World Trade",
+  display: "grid",
+  limit: 20,
+  filters: true,
+  showExamples: true,
+  filterProfileTitle: content => {
+    // remove HTML tags and parenthesis suffixes from labels
+    const stripped = stripHTML(content.label.replace(/\s{0,}\([A-z].*\)/, ""));
+    return customProfileGroups[stripped] || stripped;
+
+  }
+};
 // eslint-disable-next-line require-jsdoc
 export default function Home() {
   const {t} = useTranslation("profile");
@@ -22,7 +42,7 @@ export default function Home() {
           <Button mt="md" onClick={() => handlers.open()}>Search Profiles</Button>
         </Container>
         <Modal opened={opened} onClose={() => handlers.close()} fullScreen>
-          <ProfileSearch t={t} display="grid" filters limit={20} showExamples/>
+          <ProfileSearch {...profileSearchConfig} t={t}/>
         </Modal>
       </main>
     </>
@@ -30,6 +50,7 @@ export default function Home() {
 }
 
 
+// eslint-disable-next-line require-jsdoc
 export async function getStaticProps({locale}) {
   return {
     props: {

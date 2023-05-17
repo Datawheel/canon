@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link.js";
 import {
-  Stack, Text, Card, BackgroundImage, Group, Overlay
+  Text, Card, BackgroundImage, Group, Overlay
 } from "@mantine/core";
 import {trim} from "d3plus-text";
 import {max} from "d3-array";
@@ -14,6 +14,8 @@ function titleSize(title) {
   if (length > 20 || longestWord > 15) return "md";
   return "lg";
 }
+
+/** */
 function ProfileTile({
   data,
   joiner = " & ",
@@ -62,22 +64,25 @@ function ProfileTile({
             return (
               <div key={JSON.stringify(r)}>
                 { i > 0 && <Text size="md" color="white" span>{trim(joiner)}</Text> }
-                <Stack className="cms-profilesearch-tile-link-text" justify="center">
+                <div className="cms-profilesearch-tile-link-text">
                   <Text color="white" size={titleSize(title)}>{title}</Text>
                   <Text color="white" size="xs">{subtitleFormat(r)}</Text>
-                </Stack>
+                </div>
               </div>
             );
           })}
         </Group>
         <Group spacing={0} top={0} left={0} pos="absolute" h="100%" w="100%" noWrap>
           {data.map(r =>
-            <div key={`tile-image-${r.id}`} style={{height: "100%", width: "100%"}}>
+            <div key={`tile-image-${r.id}`} style={{
+              height: "100%",
+              width: `${100 / data.length}%`
+            }}>
               <BackgroundImage
                 className="tile-image"
                 sx={{
                   height: "100%",
-                  width: `${100 / data.length}%`
+                  width: "100%"
                 }}
                 src={`${process.env.NEXT_PUBLIC_CMS}/image?slug=${r.slug}&id=${r.id}&size=thumb`}
               />
