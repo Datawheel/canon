@@ -1,18 +1,18 @@
 import React, {useContext} from "react";
 import {useRouter} from "next/router";
 
-import {UnstyledButton, Button, Text} from "@mantine/core";
+import {UnstyledButton, Button, Text, Paper} from "@mantine/core";
 import {useDisclosure} from "@mantine/hooks";
 import {IconSquarePlus, IconSquareMinus} from "@tabler/icons-react";
 
 import ProfileContext from "../ProfileContext";
-import ProfileSearch from "./ProfileSearch";
+import {ProfileSearch} from "./ProfileSearch";
 
 const ComparisonButton = () => {
   const [comparisonSearch, comparisonSearchHandlers] = useDisclosure(false);
   const router = useRouter();
   const {pathname, query} = router;
-  const {t, variables, compareSlug} = useContext(ProfileContext);
+  const {t, variables, compareSlug, profileId} = useContext(ProfileContext);
 
   const addComparison = slug => router.replace(
     {pathname,
@@ -37,13 +37,14 @@ const ComparisonButton = () => {
     ? removeComparison
     : comparisonSearchHandlers.toggle;
 
-  return <div className="cp-comparison-add">
+  return <div className="cp-comparison-add" style={{position: "relative"}}>
     {
       comparisonSearch &&
-    <div>
       <ProfileSearch
         t={t}
+        defaultProfiles={`${profileId}`}
         display="list"
+        inputProps={{size: "sm"}}
         renderListItem={(result, i, link, title, subtitle) =>
           result[0].id === variables.id
             ? null
@@ -56,8 +57,9 @@ const ComparisonButton = () => {
               </UnstyledButton>
             </li>
         }
+        pos="absolute"
+        sx={{zIndex: 9, top: "100%"}}
       />
-    </div>
     }
     <Button
       onClick={handleClick}

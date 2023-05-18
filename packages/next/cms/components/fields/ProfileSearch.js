@@ -12,15 +12,12 @@ import {
   group, max, merge, min
 } from "d3-array";
 
-
-
-
 // import ProfileColumns from "./ProfileColumns";
 import React, {
   useState, useEffect, useRef, useCallback
 } from "react";
 import {
-  Box, Text, TextInput, Tabs, ScrollArea, SimpleGrid, FocusTrap
+  Box, Text, TextInput, Tabs, ScrollArea, SimpleGrid, FocusTrap, Modal, Paper
 } from "@mantine/core";
 import {useDebouncedValue, useHotkeys} from "@mantine/hooks";
 import {useRouter} from "next/router.js";
@@ -80,6 +77,8 @@ import NonIdealState from "../../../core/components/NonIdealState";
 
 function DimensionFilters({
   activeDimensions,
+  filterHierarchyTitle,
+  filterCubeTitle,
   onFilterLevel}) {
 
 
@@ -104,7 +103,7 @@ function DimensionFilters({
             const dimensionValue = d.levels ? d.levels.join(",") : d.cubes.join(",");
             const levels = d.sortedLevels
               ? d.sortedLevels : d.sortedCubes;
-
+            const filterTitle = d.sortedLevels ? filterHierarchyTitle : filterCubeTitle;
             return <Tabs.List key={dimensionValue}>
               <Tabs.Tab
                 key={dimensionValue}
@@ -113,10 +112,11 @@ function DimensionFilters({
                 <Text dangerouslySetInnerHTML={{__html: d.title}} />
               </Tabs.Tab>
               {
-                levels.map(l => <Tabs.Tab
-                  value={l}
-                  key={l}
-                >{l}</Tabs.Tab>)
+                levels.map(l =>
+                  <Tabs.Tab
+                    value={l}
+                    key={l}
+                  >{filterTitle(l)}</Tabs.Tab>)
               }
             </Tabs.List>;
           })}
@@ -223,7 +223,6 @@ function useSearchResults({
     if (filterCubes) url += `&cubeName=${filterCubes}`;
     if (showLaterals) url += "&showLaterals=true";
 
-    console.log("url", url);
     setLoading(url);
 
     const controller = new AbortController();
@@ -245,9 +244,9 @@ function useSearchResults({
   }, [query, filterLevels, filterCubes, filterProfiles, showLaterals, showExamples,  limit, locale]);
   return [results, loading];
 }
-function ProfileSearch({
+export function ProfileSearch({
   // default props
-  activeKey = false,
+  // activeKey = false,
   availableProfiles = [],
   filters = false,
   defaultCubes = false,
@@ -298,7 +297,9 @@ function ProfileSearch({
     (href, member) => `${href}/${member.slug}/${member.memberSlug || member.id}`,
     "/profile"
   ),
-  t
+  inputProps = {},
+  t,
+  ...rest
 }) {
   const {locale} = useRouter();
 
@@ -315,7 +316,6 @@ function ProfileSearch({
   const [debouncedQuery] = useDebouncedValue(query, 400);
   const profiles = useCMSProfiles();
 
-  console.log("profiles", profiles);
   const ignoredTermsRegex = ignoredTerms && ignoredTerms.length > 0
     ? new RegExp(`\\b(${ignoredTerms.join("|")})\\b`, "ig")
     : false;
@@ -345,7 +345,6 @@ function ProfileSearch({
 
 
   const onFilterLevel = useCallback(filters => {
-    console.log("filterLevels", profiles, filters);
     if (!profiles) return;
     const newFilters = filters !== "all" ? filters.split(",") : [false];
 
@@ -381,7 +380,6 @@ function ProfileSearch({
         }
       });
     });
-    console.log("setting", unique(newCubes).join(","), unique(newLevels).join(","));
     setFilterCubes(unique(newCubes).join(","));
     setFilterLevels(unique(newLevels).join(","));
   }, [filterCubes, filterDimensionTitle, filterLevels, filterProfiles, profiles]);
@@ -430,8 +428,6 @@ function ProfileSearch({
     activeDimensions = dimensions.filter(d => (d.levels || d.cubes).length > 1);
   }
 
-  console.log("activeDimensions", activeDimensions);
-  console.log("results", results);
   // TODO: enable hotkey events
   useHotkeys([
     ["ArrowLeft", () => console.log("arrow left")],
@@ -441,7 +437,7 @@ function ProfileSearch({
   ]);
   return (
     <FocusTrap active>
-      <Box className="cms-profilesearch" pos="relative">
+      <Box className="cms-profilesearch" pos="relative" {...rest}>
         <Box>
           <Text component="label" sx={{display: "block", width: 0, height: 0, overflow: "hidden"}}>
             <Text className="u-visually-hidden" key="slt" span>
@@ -457,6 +453,7 @@ function ProfileSearch({
             onFocus={() => setActive(true)}
             onChange={event => setQuery(event.target.value)}
             autoFocus
+            {...inputProps}
           />
           <ProfileFilters
             profiles={profiles}
@@ -480,6 +477,8 @@ function ProfileSearch({
               setFilterCubes={setFilterCubes}
               setFilterLevels={setFilterLevels}
               activeDimensions={activeDimensions}
+              filterCubeTitle={filterCubeTitle}
+              filterHierarchyTitle={filterHierarchyTitle}
               onFilterLevel={onFilterLevel}
             />
           }
@@ -558,7 +557,28 @@ function ProfileSearch({
                     const listProfiles = (results.grouped || [])
                       .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
                     return (
-                      <ul key="list" className="cms-profilesearch-list" pos="absolute">
+                      <Paper
+                        component="ul"
+                        key="list"
+                        className="cms-profilesearch-list"
+                        pos="absolute"
+                        shadow="sm"
+                        sx={theme => ({
+                          "listStyleType": "none",
+                          "padding": "0px !important",
+                          "left": 0,
+                          "right": 0,
+                          "margin": 0,
+                          "& li": {
+                            padding: theme.spacing.xs,
+                            marginTop: 0
+                          },
+                          "& li:hover": {
+                            background: "rgba(0, 0, 0, .2)",
+                            cursor: "pointer"
+                          }
+                        })}
+                      >
                         {listProfiles.map((result, j) => renderListItem(
                           result,
                           j,
@@ -566,7 +586,7 @@ function ProfileSearch({
                           result.map(titleFormat).join(joiner),
                           result.map(subtitleFormat).join(joiner)
                         ))}
-                      </ul>
+                      </Paper>
                     );
                 }
               })()
@@ -580,4 +600,8 @@ function ProfileSearch({
   );
 }
 
-export default ProfileSearch;
+export function ProfileSearchModal({profileSearchProps, modalProps}) {
+  return <Modal {...modalProps}>
+    <ProfileSearch {...profileSearchProps} />
+  </Modal>;
+}

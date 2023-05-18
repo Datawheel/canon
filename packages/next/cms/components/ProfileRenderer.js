@@ -77,6 +77,7 @@ function ProfileRenderer({
   // Don't wrap into useMemo yet!
   // eslint-disable-next-line react/jsx-no-constructed-context-values
   const context = {
+    profileId: profile.id,
     meta: profile.meta,
     formatters: formatterFunctions,
     onSelector,

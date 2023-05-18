@@ -8,7 +8,6 @@ import {
   Flex,
   Group,
   List,
-  Modal,
   Overlay,
   Paper,
   Stack,
@@ -32,7 +31,7 @@ import stripP from "../../utils/formatters/stripP";
 //   .replace(/\-$/g, "");
 // import PDFButton from "./components/PDFButton";
 
-import ProfileSearch from "../fields/ProfileSearch";
+import {ProfileSearchModal} from "../fields/ProfileSearch";
 
 /** the profile hero, AKA header, AKA splash */
 function Hero({
@@ -282,28 +281,24 @@ function Hero({
         />
 
       }
-
-      <Modal
-        size="80%"
-        className="cp-hero-search"
-        opened={clickedIndex !== undefined}
-        onClose={() => setClickedIndex(undefined)}
-      >
-        <ProfileSearch
-          defaultProfiles={`${profile.id}`}
-          defaultQuery={contents ? stripHTML(contents.title) : ""}
-          filters
-          inputFontSize="lg"
-          display="grid"
-          showExamples
-          linkify={linkify}
-          t={t}
-          // eslint-disable-next-line react/jsx-props-no-spreading
-          {...searchProps}
-        />
-
-      </Modal>
-
+      <ProfileSearchModal
+        defaultProfiles={`${profile.id}`}
+        defaultQuery={contents ? stripHTML(contents.title) : ""}
+        filters
+        inputFontSize="lg"
+        display="grid"
+        showExamples
+        linkify={linkify}
+        t={t}
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...searchProps}
+        modalProps={{
+          size: "80%",
+          className: "cp-hero-search",
+          opened: clickedIndex !== undefined,
+          onClose: () => setClickedIndex(undefined)
+        }}
+      />
     </Stack>
   );
 }
