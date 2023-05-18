@@ -19,8 +19,7 @@ import Mirror from "./Viz/Mirror";
 
 import ComparisonButton from "./fields/ComparisonButton";
 
-// TODO
-// const comparisonsEnabled = process.env.NEXT_PUBLIC_PROFILE_COMPARISON;
+const comparisonsEnabled = process.env.NEXT_PUBLIC_PROFILE_COMPARISON;
 // const comparisonExclude = process.env.NEXT_PUBLIC_PROFILE_COMPARISON_EXCLUDE;
 
 function ProfileRenderer({
@@ -112,7 +111,7 @@ function ProfileRenderer({
               key="cp-hero"
               profile={profile}
               contents={heroSection || null}
-              comparisonButton={<ComparisonButton />}
+              comparisonButton={comparisonsEnabled && <ComparisonButton />}
               {...hideElements}
             />
             {

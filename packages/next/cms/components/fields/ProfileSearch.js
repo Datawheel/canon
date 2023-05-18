@@ -27,54 +27,6 @@ import stripHTML from "../../utils/formatters/stripHTML";
 import {IconSearch} from "@tabler/icons-react";
 import NonIdealState from "../../../core/components/NonIdealState";
 
-// /** used for up/down arrow movement */
-// function findSibling(elem, dir = "next") {
-//   let node = elem.parentNode;
-//   while (node.tagName.toLowerCase() !== "li") node = node.parentNode;
-
-//   let sibling = node[`${dir}Sibling`];
-
-//   if (!sibling) {
-//     const list = node.parentNode.parentNode;
-//     if (list.tagName.toLowerCase() === "li") {
-//       const column = list[`${dir}Sibling`];
-//       const items = select(column).selectAll("li");
-//       sibling = dir === "next" ? select(column).select("li").node()
-//         : items.nodes()[items.size() - 1];
-//     }
-//   }
-
-//   return sibling ? select(sibling).select("a").node() : sibling;
-// }
-
-// /** used for left/right arrow movement */
-// function findNeighbor(elem, dir = "next") {
-//   let node = elem.parentNode;
-//   while (node.tagName.toLowerCase() !== "li") node = node.parentNode;
-//   const nodeBounds = node.getBoundingClientRect();
-//   const columnX = nodeBounds.left;
-//   const nodeY = nodeBounds.top;
-//   const list = node.parentNode.parentNode;
-//   let nextColumns = Array.from(select(list).selectAll("li").nodes())
-//     .filter(d => dir === "next"
-//       ? d.getBoundingClientRect().left > columnX : d.getBoundingClientRect().left < columnX);
-//   if (dir === "previous") nextColumns = nextColumns.reverse();
-//   let sibling = nextColumns.find((d, i) => d.getBoundingClientRect().top === nodeY || i === nextColumns.length - 1);
-
-//   if (!sibling) {
-//     const column = list[`${dir}Sibling`];
-//     nextColumns = Array.from(select(column).selectAll("li").nodes())
-//       .filter(d => dir === "next"
-//         ? d.getBoundingClientRect().left > columnX : d.getBoundingClientRect().left < columnX);
-//     if (dir === "previous") nextColumns = nextColumns.reverse();
-//     sibling = nextColumns.find(d => d.getBoundingClientRect().top === nodeY);
-//     if (!sibling && nextColumns.length) sibling = nextColumns[dir === "previous" ? 0 : nextColumns.length - 1];
-//   }
-
-//   return sibling ? select(sibling).select("a").node() : sibling;
-// }
-
-
 function DimensionFilters({
   activeDimensions,
   filterHierarchyTitle,
