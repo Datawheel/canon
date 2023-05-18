@@ -270,7 +270,7 @@ function Hero({
           </Group>
           <Overlay
             opacity={1}
-            gradient="linear-gradient(0deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 1) 100%)"
+            gradient="linear-gradient(0deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0.8) 100%)"
             blur={2}
             zIndex={1}
           />
