@@ -26,6 +26,7 @@ function ProfilePage({profile, formatters}) {
       searchProps={{placeholder: "Seach profiles"}}
       // and your custom sections mapping object:
       // customSections={customSections}
+      // you can also add a icons mapping to replace legacy blueprint icons
       icons={{
         "timeline-line-chart": <IconChartLine />,
         "chart": <IconChartLine />,

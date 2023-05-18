@@ -151,7 +151,6 @@ function Section({
     />
   );
 
-  console.log(title);
   const mainTitle =
     title &&
     <Title
@@ -275,9 +274,6 @@ function Section({
       ref={section}
       id={`cp-section-${contents.id}`}
       key={`cp-section-${contents.id}`}
-      sx={{
-        border: "1px solid black"
-      }}
     >
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
       <Layout {...componentProps} />
