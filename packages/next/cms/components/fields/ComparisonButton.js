@@ -63,7 +63,7 @@ const ComparisonButton = () => {
       onClick={handleClick}
       leftIcon={!compareSlug ? <IconSquarePlus size="0.8rem" /> : <IconSquareMinus size="0.8rem" />}
       size="xs"
-      variant="light"
+      // variant="light"
       compact>{t("CMS.Profile.Add Comparison")}</Button>
   </div>;
 };

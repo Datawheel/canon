@@ -12,6 +12,9 @@ import {
   group, max, merge, min
 } from "d3-array";
 
+
+
+
 // import ProfileColumns from "./ProfileColumns";
 import React, {
   useState, useEffect, useRef, useCallback
@@ -440,7 +443,7 @@ function ProfileSearch({
     <FocusTrap active>
       <Box className="cms-profilesearch" pos="relative">
         <Box>
-          <Text component="label">
+          <Text component="label" sx={{display: "block", width: 0, height: 0, overflow: "hidden"}}>
             <Text className="u-visually-hidden" key="slt" span>
               {t("CMS.Search.Search profiles")}
             </Text>
@@ -483,21 +486,18 @@ function ProfileSearch({
         </Box>
         <Box
           className={`cms-profilesearch-container cms-profilesearch-container-${position}`}
-          pos="absolute"
           key="container"
+          pos="relative"
           ref={resultContainer}
           top="100%"
-          left={0}
-          right={0}
           mt="sm"
-          bg="white"
           sx={{zIndex: 10}}
         >
           {
             (position !== "absolute" || active) && results
               ? (() => {
                 if (!results.grouped.length) {
-                  return <NonIdealState message={t("CMS.Search.No results", {query: debouncedQuery})} />;
+                  return <NonIdealState height="auto" message={t("CMS.Search.No results", {query: debouncedQuery})} />;
                 }
 
                 switch (display) {
@@ -571,8 +571,8 @@ function ProfileSearch({
                 }
               })()
               : loading && (position !== "absolute" || active)
-                ? <NonIdealState key="loading" message={t("CMS.Search.Loading")} />
-                : position !== "absolute" ? <NonIdealState height={"auto"} graphic={<IconSearch />} message={t("CMS.Search.Empty")} /> : null
+                ? <NonIdealState height="auto" key="loading" message={t("CMS.Search.Loading")} />
+                : position !== "absolute" ? <NonIdealState height="auto" graphic={<IconSearch />} message={t("CMS.Search.Empty")} /> : null
           }
         </Box>
       </Box>

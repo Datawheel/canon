@@ -13,11 +13,12 @@ import {
   Paper,
   Stack,
   Text,
-  Title
+  Title,
+  UnstyledButton
 } from "@mantine/core";
 import {
-  IconChevronDown,
-  IconChevronUp
+  IconSearch,
+  IconPhoto
 } from "@tabler/icons-react";
 import ProfileContext  from "../ProfileContext";
 import SourceGroup from "../Viz/SourceGroup";
@@ -109,10 +110,10 @@ function Hero({
       statContent =
         <Flex
           className="cp-stat-content"
-          justify="space-between"
+          justify="flex-start"
           align="flex-start"
           direction="row"
-          gap="md"
+          gap="xl"
           wrap="wrap"
           w="100%"
         >
@@ -141,20 +142,18 @@ function Hero({
   // heading & subhead(s)
 
   const heading =
-    <Stack>
-      <Title
-        order={1}
-        onClick={() => titleClick(1)}
-        sx={{
-          "&:hover": {
-            cursor: "pointer"
-          }
-        }}
-        dangerouslySetInnerHTML={{__html: stripP(title)}}
-      />
+    <div>
+      <h1>
+        <UnstyledButton w="100%" onClick={() => titleClick(1)}>
+          <Flex justify="space-between" align="center">
+            <Title component="span" size="h1" dangerouslySetInnerHTML={{__html: stripP(title)}} inherit/>
+            <IconSearch />
+          </Flex>
+        </UnstyledButton>
+      </h1>
       {subtitleContent}
       {comparisonButton}
-    </Stack>
+    </div>
   ;
   // custom images can be uploaded with no flickr source. Only show the "image credits" section
   // if at least one of the images has the flickr data to show
@@ -173,7 +172,7 @@ function Hero({
 
         {/* print JUST the first visualization */}
         {contents && contents.visualizations && contents.visualizations.length
-          ? <Box key={contents.visualizations[0].id} className="cp-hero-figure" maw={400}>
+          ? <Box key={contents.visualizations[0].id} className="cp-hero-figure" maw={400} sx={{flexGrow: 1}}>
             <Viz
               section={this}
               config={contents.visualizations[0]}
@@ -192,17 +191,17 @@ function Hero({
         ? <>
           {/* credits */}
           {type !== "story" && hasAuthor &&
-            <Stack
-              spacing={0}
+            <Box
               style={{
                 zIndex: 8, position: "absolute", right: 10, top: 10
               }}
             >
               <Button
                 onClick={() => setCreditsVisible(!creditsVisible)}
-                leftIcon={creditsVisible ? <IconChevronUp /> : <IconChevronDown />}
+                leftIcon={<IconPhoto size="0.9rem"/>}
                 size="xs"
-                variant="subtle"
+                variant={creditsVisible ? "light" : "subtle"}
+                compact
               >
                 {t(
                   "CMS.Profile.image_credits",
@@ -213,15 +212,15 @@ function Hero({
                   }
                 )}
               </Button>
-              <Collapse in={creditsVisible}>
+              <Collapse pos="absolute" in={creditsVisible}>
                 {profile.images.map((img, i) =>
-                  <Paper key={JSON.stringify(img)} shadow="xs" p="xs" mt={5} radius={0}>
-                    <Text>
+                  <Paper key={JSON.stringify(img)} shadow="xs" p="xs" mt={5} radius={"sm"}>
+                    <Text size="sm">
                       Image
                       {" "}
                       {i + 1}
                     </Text>
-                    <List size="xs">
+                    <List size="xs" listStyleType="none" pl={"0px !important"} mb={"0px !important"} mt="sm">
                       {img.author &&
                         <List.Item>
                           {t("CMS.Profile.photograph_by", {author: img.author})}
@@ -245,7 +244,7 @@ function Hero({
                   </Paper>
                 )}
               </Collapse>
-            </Stack>
+            </Box>
           }
 
           {/* images */}
@@ -270,7 +269,8 @@ function Hero({
             )}
           </Group>
           <Overlay
-            opacity={0.7}
+            opacity={1}
+            gradient="linear-gradient(0deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 1) 100%)"
             blur={2}
             zIndex={1}
           />
@@ -289,7 +289,6 @@ function Hero({
         opened={clickedIndex !== undefined}
         onClose={() => setClickedIndex(undefined)}
       >
-
         <ProfileSearch
           defaultProfiles={`${profile.id}`}
           defaultQuery={contents ? stripHTML(contents.title) : ""}

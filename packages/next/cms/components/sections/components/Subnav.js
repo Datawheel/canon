@@ -103,6 +103,7 @@ export default function Subnav(props) {
   const sections = useMemo(flattenSections, [props.sections]);
   const hasSubgroups = useMemo(() => sections.some(s => s.children && s.children.some(c => c.children)), [JSON.stringify(sections)]);
 
+
   const onBlur = e => {
     const {currentTarget} = e;
     const targetSlug = currentTarget.querySelector(".cp-subnav-link").href.split("#")[1];
@@ -116,6 +117,7 @@ export default function Subnav(props) {
 
   useWindowEvent("scroll", () => {
     const topBorder = 200; // parseStyle("nav-height") + parseStyle("subnav-height");
+    // eslint-disable-next-line require-jsdoc
     function getSectionWrapper(slug) {
       let elem = document.getElementById(slug);
       while (
@@ -204,7 +206,7 @@ export default function Subnav(props) {
                   onClick={() => setOpenSlug(false)}
                   to={child.slug}
                 >
-                  {/* <Icon className="cp-subnav-group-link-icon" icon={child.icon && blueprintIcons.find(i => i === child.icon) ? child.icon : "dot"} /> */}
+                  {child.icon && icons[child.icon]}
                   {child.short && stripHTML(child.short) ? stripHTML(child.short) : stripHTML(child.title)}
                 </AnchorLink>
               </List.Item>
@@ -244,7 +246,7 @@ export default function Subnav(props) {
       >
         {children}
         {sections.length
-          ?             <List
+          ? <List
             display="flex"
             className="cp-subnav-list"
             key="l"
@@ -312,7 +314,7 @@ export default function Subnav(props) {
           </List>
           : null}
         {hasSubgroups && currSection
-          ?             <List w="100%" sx={theme => ({gap: theme.spacing.md, alignItems: "center", justifyContent: "center"})} display="flex" className="cp-subnav-list cp-subnav-secondary" key="s" listStyleType="none">
+          ? <List w="100%" sx={theme => ({gap: theme.spacing.md, alignItems: "center", justifyContent: "center"})} display="flex" className="cp-subnav-list cp-subnav-secondary" key="s" listStyleType="none">
             {(currSection ? currSection.children : []).map(section =>
               <List.Item
                 mt="0px !important"

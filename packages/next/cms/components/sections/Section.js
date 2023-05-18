@@ -5,8 +5,9 @@ import {nest} from "d3-collection";
 
 // import CustomSections from "CustomSections";
 import {
-  Text, Flex, Anchor, Button
+  Text, Flex, Anchor, Button, Title, Box
 } from "@mantine/core";
+import {IconLink} from "@tabler/icons-react";
 import {useWindowEvent} from "@mantine/hooks";
 import isIE from "../../utils/isIE.js";
 // import throttle from "../../utils/throttle";
@@ -26,6 +27,7 @@ import MultiColumn from "./MultiColumn";
 import SingleColumn from "./SingleColumn";
 import Tabs from "./Tabs";
 import ProfileContext from "../ProfileContext";
+import {stripHTML} from "../../../utils.js";
 
 // User must define custom sections in app/cms/sections, and export them from an index.js in that folder.
 
@@ -149,39 +151,28 @@ function Section({
     />
   );
 
+  console.log(title);
   const mainTitle =
     title &&
-    <Flex
-      className={`cp-section-heading-wrapper ${layoutClass}-heading-wrapper`}
-      wrap="nowrap"
-      justify="center"
-      direction="row-reverse"
-      align="flex-end"
-      gap="xs"
+    <Title
+      component={`${headingLevel}`}
+      size={headingLevel}
+      id={slug}
+      className={`cp-section-heading ${layoutClass}-heading${layout !== "Hero" && showAnchor ? " cp-section-anchored-heading" : ""}`}
+      sx={{
+        "& .cp-heading-anchor": {
+          visibility: "hidden"
+        },
+        "&:hover .cp-heading-anchor": {
+          visibility: "visible"
+        }
+      }}
     >
-      <Parse
-        El={headingLevel}
-        id={slug}
-        className={`cp-section-heading ${layoutClass}-heading${
-          layout !== "Hero" && showAnchor
-            ? " cp-section-anchored-heading" : ""}`}
-        tabIndex="0"
-      >
-        {title}
-      </Parse>
-      {showAnchor &&
-
-        <Link href={`#${slug}`} className={`cp-section-heading-anchor ${layoutClass}-heading-anchor`} passHref legacyBehavior>
-          <Anchor>
-          #
-            <Text display="none" className="u-visually-hidden" span>permalink to section</Text>
-          </Anchor>
-        </Link>
-      }
-    </Flex>
-
-
-  ;
+      {stripHTML(title)}
+      <Anchor href={`#${slug}`} ml="sm">
+        <IconLink className="cp-heading-anchor" size="1.2rem"/>
+      </Anchor>
+    </Title>;
 
   const subTitle =
     contents.position !== "sticky" && subtitles.map((content, i) =>
@@ -268,13 +259,12 @@ function Section({
     hideOptions,
     loading,
     contents,
-    // these were set as context child props. Not possible with new Context API
     updateSource,
     onSetVariables
   };
 
   return (
-    <section
+    <Box
       className={`cp-section cp-${toKebabCase(contents.type)}-section${
         contents.position === "sticky" ? " is-sticky" : ""
       }${
@@ -285,6 +275,9 @@ function Section({
       ref={section}
       id={`cp-section-${contents.id}`}
       key={`cp-section-${contents.id}`}
+      sx={{
+        border: "1px solid black"
+      }}
     >
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
       <Layout {...componentProps} />
@@ -296,7 +289,7 @@ function Section({
           <div className="ie-sticky-section-color-fixer" />
         </>
       }
-    </section>
+    </Box>
   );
 }
 

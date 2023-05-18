@@ -39,7 +39,7 @@ export default function Default({
         span={12}
         className="cp-section-content cp-default-section-caption"
       >
-        <Stack spacing="sm">
+        <Stack spacing="xs">
           {heading}
           {filters}
           {stats}

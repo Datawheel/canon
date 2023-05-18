@@ -1,17 +1,14 @@
 import {defineConfig} from "tsup";
 
 export default defineConfig(options => ({
-  clean: true,
+  clean: !options.watch,
   entry: ["index.js", "utils.js"],
   bundle: true,
   format: ["esm"],
-  target: "es2016",
   outExtension() {
     return {js: ".js"};
   },
   loader: {".js": "jsx"},
-  // shims: true,
   splitting: false,
-  treeshake: true,
-  external: ["CustomSections"]
+  treeshake: true
 }));

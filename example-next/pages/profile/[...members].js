@@ -9,8 +9,8 @@ import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {Profile, NonIdealState, cmsDefaultPaths, cmsDefaultProps} from "@datawheel/canon-next";
-import customSections from "../../cms/sections";
-import {IconChartLine, IconFolders, IconWorld} from "@tabler/icons-react";
+// import customSections from "../../cms/sections";
+import {IconChartLine, IconFolders, IconWorld, IconPackage, IconUser} from "@tabler/icons-react";
 
 function ProfilePage({profile, formatters}) {
   const router = useRouter();
@@ -28,8 +28,11 @@ function ProfilePage({profile, formatters}) {
       // customSections={customSections}
       icons={{
         "timeline-line-chart": <IconChartLine />,
+        "chart": <IconChartLine />,
         "folder-close": <IconFolders />,
-        "globe-network": <IconWorld />
+        "globe-network": <IconWorld />,
+        "box": <IconPackage />,
+        "person": <IconUser />
       }}
       t={t}
     />
