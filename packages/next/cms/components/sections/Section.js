@@ -1,11 +1,10 @@
 /* eslint-disable react/no-array-index-key */
-import Link from "next/link.js";
 import React, {useState, useRef, useContext} from "react";
 import {nest} from "d3-collection";
 
 // import CustomSections from "CustomSections";
 import {
-  Text, Flex, Anchor, Button, Title, Box
+  Flex, Anchor, Button, Title, Box
 } from "@mantine/core";
 import {IconLink} from "@tabler/icons-react";
 import {useWindowEvent} from "@mantine/hooks";
