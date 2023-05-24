@@ -129,7 +129,8 @@ function ProfileFilters({
 function useCMSProfiles() {
   const [profiles, setProfiles] = useState(false);
   useEffect(() => {
-    axios.get(`${process.env.NEXT_PUBLIC_CMS}/cms/profiles`)
+    const url = new URL("/api/cms/profiles", process.env.NEXT_PUBLIC_CMS).href;
+    axios.get(url)
       .then(resp => resp.data.filter(p => p.visible))
       .then(profiles => setProfiles(profiles))
       .catch(() => setProfiles([]));
@@ -169,12 +170,13 @@ function useSearchResults({
     // Remove multiples spaces with just one -caused by the ignore terms regex and trim it
     filteredQuery = filteredQuery.replace(/\s\s+/g, " ").trim();
 
-    let url = `${process.env.NEXT_PUBLIC_CMS}profilesearch?query=${filteredQuery}&limit=${limit}&locale=${locale}`;
+    let url = `/api/profilesearch?query=${filteredQuery}&limit=${limit}&locale=${locale}`;
     if (filterProfiles !== "all") url += `&profile=${filterProfiles}`;
     if (filterLevels) url += `&hierarchy=${filterLevels}`;
     if (filterCubes) url += `&cubeName=${filterCubes}`;
     if (showLaterals) url += "&showLaterals=true";
 
+    url = new URL(url, process.env.NEXT_PUBLIC_CMS).href;
     setLoading(url);
 
     const controller = new AbortController();
@@ -552,7 +554,7 @@ export function ProfileSearch({
   );
 }
 
-export function ProfileSearchModal({profileSearchProps, modalProps}) {
+export function ProfileSearchModal({modalProps, ...profileSearchProps}) {
   return <Modal {...modalProps}>
     <ProfileSearch {...profileSearchProps} />
   </Modal>;
