@@ -5,6 +5,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-nested-ternary */
 
+import yn from "yn";
 import React, {useState} from "react";
 import {useRouter} from "next/router.js";
 import {Container} from "@mantine/core";
@@ -19,8 +20,8 @@ import Mirror from "./Viz/Mirror";
 
 import ComparisonButton from "./fields/ComparisonButton";
 
-const comparisonsEnabled = process.env.NEXT_PUBLIC_PROFILE_COMPARISON;
-// const comparisonExclude = process.env.NEXT_PUBLIC_PROFILE_COMPARISON_EXCLUDE;
+const comparisonsEnabled = yn(process.env.NEXT_PUBLIC_PROFILE_COMPARISON);
+const comparisonExclude = process.env.NEXT_PUBLIC_PROFILE_COMPARISON_EXCLUDE ?? "";
 
 function ProfileRenderer({
   formatters,
@@ -60,7 +61,9 @@ function ProfileRenderer({
 
   if (comparisonLoading) return <NonIdealState />;
 
-
+  const excludeComparison = profile.dims.some(
+    d => comparisonExclude.split(",").includes(d.memberSlug)
+  );
   // TODO
   // Do print stuff
   const hideElements = {
@@ -111,7 +114,11 @@ function ProfileRenderer({
               key="cp-hero"
               profile={profile}
               contents={heroSection || null}
-              comparisonButton={comparisonsEnabled && <ComparisonButton />}
+              comparisonButton={
+                comparisonsEnabled &&
+                !excludeComparison &&
+                <ComparisonButton />
+              }
               {...hideElements}
             />
             {

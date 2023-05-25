@@ -72,7 +72,14 @@ export default function Home() {
           <Button mt="md" onClick={() => handlers.open()}>Search Profiles</Button>
         </Container>
         <Modal opened={opened} onClose={() => handlers.close()} fullScreen>
-          <ProfileSearch {...profileSearchConfig} t={t}/>
+          <ProfileSearch
+            display="grid"
+            filters
+            showExamples
+            t={t}
+            // OEC config
+            // {...profileSearchConfig}
+          />
         </Modal>
       </main>
     </>

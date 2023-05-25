@@ -1,7 +1,7 @@
 import React, {useContext} from "react";
 import {useRouter} from "next/router";
 
-import {UnstyledButton, Button, Text, Paper} from "@mantine/core";
+import {UnstyledButton, Button, Text} from "@mantine/core";
 import {useDisclosure} from "@mantine/hooks";
 import {IconSquarePlus, IconSquareMinus} from "@tabler/icons-react";
 
