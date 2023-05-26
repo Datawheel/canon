@@ -37,6 +37,7 @@ const ComparisonButton = ({error = false}) => {
     ? removeComparison
     : comparisonSearchHandlers.toggle;
 
+  const label = compareSlug ? t("CMS.Profile.Remove Comparison") : t("CMS.Profile.Add Comparison");
   return <div className="cp-comparison-add" style={{position: "relative"}}>
     {
       comparisonSearch &&
@@ -67,7 +68,7 @@ const ComparisonButton = ({error = false}) => {
       leftIcon={!compareSlug || error ? <IconSquarePlus size="0.8rem" /> : <IconSquareMinus size="0.8rem" />}
       size="xs"
       color={error ? "red" : "blue"}
-      compact>{!error ? t("CMS.Profile.Add Comparison") : "Error. Please, try again."}</Button>
+      compact>{!error ?  label : t("CMS.Profile.Comparison Error")}</Button>
   </div>;
 };
 
