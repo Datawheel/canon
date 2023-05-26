@@ -62,7 +62,7 @@ function ProfileRenderer({
   if (comparisonLoading) return <NonIdealState />;
 
   const excludeComparison = profile.dims.some(
-    d => comparisonExclude.split(",").includes(d.memberSlug)
+    d => comparisonExclude.split(",").includes(d.slug)
   );
   // TODO
   // Do print stuff
