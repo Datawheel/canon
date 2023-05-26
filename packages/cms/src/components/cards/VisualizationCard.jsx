@@ -207,7 +207,7 @@ class VisualizationCard extends Component {
       <Card {...cardProps}>
         {/* viz preview */}
         {!isOpen && !fetchingVariables &&
-          <Viz {...vizProps} key="v" />
+          <Viz {...vizProps} key="v" hideOptions={true} />
         }
 
         {/* editor */}
