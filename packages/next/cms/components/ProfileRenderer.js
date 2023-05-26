@@ -48,7 +48,7 @@ function ProfileRenderer({
   const [loading] = useState(false);
   const initialVariables = initialProfile.variables;
   const profileState = useReportState(initialProfile, formatters);
-  const {profile, comparison, formatterFunctions, comparisonLoading, compareSlug} = profileState;
+  const {profile, comparison, formatterFunctions, comparisonLoading, compareSlug, comparisonError} = profileState;
 
   const print = query.print === "true";
 
@@ -117,7 +117,7 @@ function ProfileRenderer({
               comparisonButton={
                 comparisonsEnabled &&
                 !excludeComparison &&
-                <ComparisonButton />
+                <ComparisonButton error={comparisonError} />
               }
               {...hideElements}
             />

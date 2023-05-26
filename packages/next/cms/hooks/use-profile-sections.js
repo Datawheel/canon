@@ -60,7 +60,7 @@ export default function useProfileSections(profile, comparison) {
   const comparisonSections = [];
 
   if (comparison) {
-
+    console.log("comparison", comparison);
     const comparifySection = (rawSection, payload) => ({
 
       ...rawSection,

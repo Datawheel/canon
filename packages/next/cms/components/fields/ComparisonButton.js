@@ -8,7 +8,7 @@ import {IconSquarePlus, IconSquareMinus} from "@tabler/icons-react";
 import ProfileContext from "../ProfileContext";
 import {ProfileSearch} from "./ProfileSearch";
 
-const ComparisonButton = () => {
+const ComparisonButton = ({error = false}) => {
   const [comparisonSearch, comparisonSearchHandlers] = useDisclosure(false);
   const router = useRouter();
   const {pathname, query} = router;
@@ -33,7 +33,7 @@ const ComparisonButton = () => {
       {shallow: true}
     );
   };
-  const handleClick = compareSlug
+  const handleClick = compareSlug && !error
     ? removeComparison
     : comparisonSearchHandlers.toggle;
 
@@ -63,10 +63,11 @@ const ComparisonButton = () => {
     }
     <Button
       onClick={handleClick}
-      leftIcon={!compareSlug ? <IconSquarePlus size="0.8rem" /> : <IconSquareMinus size="0.8rem" />}
+      className={`cp-comparison-button ${error && "cp-comparison-button-error"}`}
+      leftIcon={!compareSlug || error ? <IconSquarePlus size="0.8rem" /> : <IconSquareMinus size="0.8rem" />}
       size="xs"
-      // variant="light"
-      compact>{t("CMS.Profile.Add Comparison")}</Button>
+      color={error ? "red" : "blue"}
+      compact>{!error ? t("CMS.Profile.Add Comparison") : "Error. Please, try again."}</Button>
   </div>;
 };
 

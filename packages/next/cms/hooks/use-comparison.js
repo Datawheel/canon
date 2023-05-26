@@ -9,6 +9,7 @@ export default function useComparison(profile) {
 
   const [comparison, setComparison] = useState(null);
   const [comparisonLoading, setComparisonLoading] = useState(false);
+  const [comparisonError, setComparisonError] = useState(false);
   const {query, locale} = useRouter();
   const compareSlug = query?.compare;
 
@@ -17,16 +18,23 @@ export default function useComparison(profile) {
   useEffect(() => {
     if (compareSlug) {
       setComparisonLoading(true);
-      const url = `${process.env.NEXT_PUBLIC_CMS}profile?slug=${slug}&id=${compareSlug}&locale=${locale}`;
+      const url = new URL(`/api/profile?slug=${slug}&id=${compareSlug}&locale=${locale}`, `${process.env.NEXT_PUBLIC_CMS}`).href;
       axios.get(url)
-        .then(formatProfileResponse)
-        .then(data => {
-          setComparison(data);
-          setComparisonLoading(false);
-        })
-        .catch(() => {
-          alert("Error loading comparison");
-          setComparisonLoading(false);
+        .then(resp => {
+          // The profile API endpoint doesn't give a proper HTTP error
+          if (resp.data.error) {
+            setComparison(null);
+            setComparisonError(true);
+            setComparisonLoading(false);
+            return;
+          }
+          else {
+            const data = formatProfileResponse(resp);
+            setComparison(data);
+            setComparisonError(false);
+            setComparisonLoading(false);
+          }
+
         });
     }
     else {
@@ -34,5 +42,5 @@ export default function useComparison(profile) {
     }
   }, [compareSlug, locale, slug]);
 
-  return {compareSlug, comparison, comparisonLoading, setComparison};
+  return {compareSlug, comparison, comparisonLoading, setComparison, comparisonError};
 }

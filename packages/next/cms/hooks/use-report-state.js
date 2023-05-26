@@ -25,7 +25,7 @@ export default function useReportState(initialProfile, formatters) {
 
   const formatterFunctions = useMemo(() => funcifyFormatterByLocale(formatters, locale), [formatters, locale]);
 
-  const {compareSlug, comparisonLoading, comparison, setComparison} = useComparison(profile);
+  const {compareSlug, comparisonLoading, comparison, setComparison, comparisonError} = useComparison(profile);
 
   useEffect(() => {
     // if length is 1, then we only have the member slug, render profile as comes from the server
@@ -45,7 +45,7 @@ export default function useReportState(initialProfile, formatters) {
     });
 
     setComparison(comparison => {
-      if (comparison) {
+      if (comparison && !comparisonError) {
         const compVars = comparison.variables;
         const newComp = prepareProfile(compVars._rawProfile, compVars, formatterFunctions, locale, split.comparison);
         return {...comparison, ...newComp};
@@ -53,7 +53,7 @@ export default function useReportState(initialProfile, formatters) {
       return comparison;
     });
 
-  }, [query, formatterFunctions, locale, initialProfile, setComparison, setProfile]);
+  }, [query, formatterFunctions, locale, initialProfile, setComparison, setProfile, comparisonError]);
 
-  return {profile, comparison, formatterFunctions, comparisonLoading, compareSlug, setProfile};
+  return {profile, comparison: !comparisonError && comparison, formatterFunctions, comparisonLoading, compareSlug, setProfile, comparisonError};
 }
