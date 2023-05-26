@@ -277,7 +277,7 @@ class Options extends Component {
     let elem = component;
 
     // get the visualization
-    if (imageContext === "viz" && component.viz.viz) {
+    if (imageContext === "viz" && component.viz && component.viz.viz) {
       elem = component.viz.viz;
 
       // d3plus visualizations render within a container; use it for the image
@@ -287,7 +287,7 @@ class Options extends Component {
     }
 
     // get the section
-    else if (imageContext === "section" && component.section.section) {
+    else if (imageContext === "section" && component.section && component.section.section) {
       return component.section.section;
     }
 
