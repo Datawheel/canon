@@ -1,7 +1,7 @@
 import {Grid, SimpleGrid, Stack} from "@mantine/core";
-import React, {useRef} from "react";
-// eslint-disable-next-line import/no-cycle
+import React, {useRef, useContext} from "react";
 import Viz from "../Viz/Viz";
+import ProfileContext from "../ProfileContext";
 
 const VizMemo = React.memo(Viz);
 
@@ -26,6 +26,7 @@ export default function Default({
   onSetVariables
 }) {
   const section = useRef(null);
+  const {comparison} = useContext(ProfileContext);
   return (
     <Grid
       className={`cp-section-inner cp-default-section-inner cp-${slug}-section-inner ${loading ? "is-loading" : ""}`}
@@ -34,7 +35,7 @@ export default function Default({
     >
       {/* sidebar */}
       <Grid.Col
-        md={4}
+        md={comparison ? 12 : 4}
         sm={12}
         span={12}
         className="cp-section-content cp-default-section-caption"
@@ -52,7 +53,7 @@ export default function Default({
       {/* caption */}
       {visualizations.length
         ? <Grid.Col
-          md={8}
+          md={comparison ? 12 : 8}
           sm={12}
           span={12}
           className={`cp-default-section-figure${
