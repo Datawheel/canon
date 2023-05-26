@@ -37,7 +37,8 @@
       "image_credits": "{{action}} image credits",
       "photograph_by": "Photograph by {{author}}",
       "Remove Comparison": "Remove Comparison",
-      "Comparison Error": "Error, please try again."
+      "Comparison Error": "Error, please try again.",
+      "in": "in"
     },
     "Search": {
       "All": "All",

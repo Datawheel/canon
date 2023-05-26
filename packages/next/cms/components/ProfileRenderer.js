@@ -52,7 +52,7 @@ function ProfileRenderer({
 
   const print = query.print === "true";
 
-  const {heroSection, groupedSections, comparisonSections} =  useProfileSections(profile, comparison);
+  const {heroSection, groupedSections, comparisonSections} =  useProfileSections(profile, comparison, t);
 
   // construct callbacks
   const onSelector = useOnSelector(selectors, router);

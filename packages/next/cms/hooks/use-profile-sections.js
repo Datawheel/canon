@@ -52,7 +52,7 @@ function groupOuterSections(groupedSections, innerGroup) {
 }
 
 /** */
-export default function useProfileSections(profile, comparison) {
+export default function useProfileSections(profile, comparison, t) {
   const {sections} = profile;
   // find Hero section
   const heroSection = sections.find(l => l.type === "Hero");
@@ -74,7 +74,7 @@ export default function useProfileSections(profile, comparison) {
       // differentiate the two comparitors
       title: rawSection.title.includes(payload.variables.name)
         ? rawSection.title
-        : rawSection.title.replace(/\<\/p\>$/g, ` - ${payload.variables.name}</p>`)
+        : rawSection.title.replace(/\<\/p\>$/g, ` ${t("CMS.Profile.in")} ${payload.variables.name}</p>`)
 
     });
 
