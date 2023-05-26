@@ -11,73 +11,126 @@ import {unique} from "d3plus-common";
 import {
   group, max, merge, min
 } from "d3-array";
-import {select} from "d3-selection";
 
 // import ProfileColumns from "./ProfileColumns";
 import React, {
-  useState, useEffect, useRef
+  useState, useEffect, useRef, useCallback
 } from "react";
 import {
-  Box, Text, TextInput, Flex, Group, ScrollArea, Anchor, SimpleGrid, FocusTrap
+  Box, Text, TextInput, Tabs, ScrollArea, SimpleGrid, FocusTrap, Modal, Paper
 } from "@mantine/core";
 import {useDebouncedValue, useHotkeys} from "@mantine/hooks";
 import {useRouter} from "next/router.js";
 import ProfileTile from "./ProfileTile";
 import groupMeta from "../../utils/groupMeta";
 import stripHTML from "../../utils/formatters/stripHTML";
+import {IconSearch} from "@tabler/icons-react";
 import NonIdealState from "../../../core/components/NonIdealState";
 
-/** used for up/down arrow movement */
-function findSibling(elem, dir = "next") {
-  let node = elem.parentNode;
-  while (node.tagName.toLowerCase() !== "li") node = node.parentNode;
+function DimensionFilters({
+  activeDimensions,
+  filterHierarchyTitle,
+  filterCubeTitle,
+  onFilterLevel}) {
 
-  let sibling = node[`${dir}Sibling`];
 
-  if (!sibling) {
-    const list = node.parentNode.parentNode;
-    if (list.tagName.toLowerCase() === "li") {
-      const column = list[`${dir}Sibling`];
-      const items = select(column).selectAll("li");
-      sibling = dir === "next" ? select(column).select("li").node()
-        : items.nodes()[items.size() - 1];
+  const tabChangeHandler = value => {
+
+    const isDimension = activeDimensions.some(d => {
+      const dimensionValue = d.levels ? d.levels.join(",") : d.cubes.join(",");
+      return dimensionValue === value;
+    });
+    if (isDimension) {
+      onFilterLevel(false);
     }
-  }
-
-  return sibling ? select(sibling).select("a").node() : sibling;
+    else {
+      onFilterLevel(value);
+    }
+  };
+  return (
+    <div>
+      <Tabs className="cms-profilsearch-filters-dimensions" onTabChange={tabChangeHandler}>
+        {
+          activeDimensions.map(d => {
+            const dimensionValue = d.levels ? d.levels.join(",") : d.cubes.join(",");
+            const levels = d.sortedLevels
+              ? d.sortedLevels : d.sortedCubes;
+            const filterTitle = d.sortedLevels ? filterHierarchyTitle : filterCubeTitle;
+            return <Tabs.List key={dimensionValue}>
+              <Tabs.Tab
+                key={dimensionValue}
+                value={dimensionValue}
+              >
+                <Text dangerouslySetInnerHTML={{__html: d.title}} />
+              </Tabs.Tab>
+              {
+                levels.map(l =>
+                  <Tabs.Tab
+                    value={l}
+                    key={l}
+                  >{filterTitle(l)}</Tabs.Tab>)
+              }
+            </Tabs.List>;
+          })}
+      </Tabs>
+    </div>
+  );
 }
 
-/** used for left/right arrow movement */
-function findNeighbor(elem, dir = "next") {
-  let node = elem.parentNode;
-  while (node.tagName.toLowerCase() !== "li") node = node.parentNode;
-  const nodeBounds = node.getBoundingClientRect();
-  const columnX = nodeBounds.left;
-  const nodeY = nodeBounds.top;
-  const list = node.parentNode.parentNode;
-  let nextColumns = Array.from(select(list).selectAll("li").nodes())
-    .filter(d => dir === "next"
-      ? d.getBoundingClientRect().left > columnX : d.getBoundingClientRect().left < columnX);
-  if (dir === "previous") nextColumns = nextColumns.reverse();
-  let sibling = nextColumns.find((d, i) => d.getBoundingClientRect().top === nodeY || i === nextColumns.length - 1);
+/** */
+function ProfileFilters({
+  profiles,
+  filters,
+  filterProfiles,
+  setFilterProfiles,
+  filterProfileTitle,
+  availableProfiles,
+  t}) {
 
-  if (!sibling) {
-    const column = list[`${dir}Sibling`];
-    nextColumns = Array.from(select(column).selectAll("li").nodes())
-      .filter(d => dir === "next"
-        ? d.getBoundingClientRect().left > columnX : d.getBoundingClientRect().left < columnX);
-    if (dir === "previous") nextColumns = nextColumns.reverse();
-    sibling = nextColumns.find(d => d.getBoundingClientRect().top === nodeY);
-    if (!sibling && nextColumns.length) sibling = nextColumns[dir === "previous" ? 0 : nextColumns.length - 1];
+  let profileGroups = [];
+  if (profiles && filters) {
+    const filteredProfiles = (profiles || [])
+      .filter(d => !availableProfiles.length || availableProfiles.includes(d.meta[0].slug));
+    profileGroups = Array.from(group(filteredProfiles, d => filterProfileTitle(d.content, d.meta)))
+      .sort((a, b) => min(a[1], d => d.ordering) - min(b[1], d => d.ordering));
   }
+  if (!profiles || !filters) return null;
+  return (
 
-  return sibling ? select(sibling).select("a").node() : sibling;
+    <Tabs
+      variant="pills"
+      radius="sm"
+      my={"xs"}
+      value={filterProfiles}
+      onTabChange={setFilterProfiles}
+    >
+      <Tabs.List position="center">
+        <Tabs.Tab value="all">
+          <Text dangerouslySetInnerHTML={{__html: filterProfileTitle({label: t("CMS.Search.All")})}} span />
+        </Tabs.Tab>
+        {
+          profileGroups.length > 0 &&
+          profileGroups.map(g => {
+            const profileIds = g[1].map(p => p.id);
+            const value = profileIds.join(",");
+            return (
+              <Tabs.Tab
+                key={value}
+                value={value}>
+                <Text dangerouslySetInnerHTML={{__html: g[0]}} span/>
+              </Tabs.Tab>
+
+            );
+          }) }
+      </Tabs.List>
+    </Tabs>
+  );
 }
-
 function useCMSProfiles() {
   const [profiles, setProfiles] = useState(false);
   useEffect(() => {
-    axios.get(`${process.env.NEXT_PUBLIC_CMS}/cms/profiles`)
+    const url = new URL("/api/cms/profiles", process.env.NEXT_PUBLIC_CMS).href;
+    axios.get(url)
       .then(resp => resp.data.filter(p => p.visible))
       .then(profiles => setProfiles(profiles))
       .catch(() => setProfiles([]));
@@ -98,9 +151,9 @@ function useSearchResults({
   formatResults,
   showExamples
 }) {
-  console.log(query);
   const [results, setResults] = useState(false);
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (!showExamples && !query.length) {
       setResults(false);
@@ -117,12 +170,13 @@ function useSearchResults({
     // Remove multiples spaces with just one -caused by the ignore terms regex and trim it
     filteredQuery = filteredQuery.replace(/\s\s+/g, " ").trim();
 
-    let url = `${process.env.NEXT_PUBLIC_CMS}/profilesearch?query=${filteredQuery}&limit=${limit}&locale=${locale}`;
-    if (filterProfiles) url += `&profile=${filterProfiles}`;
+    let url = `/api/profilesearch?query=${filteredQuery}&limit=${limit}&locale=${locale}`;
+    if (filterProfiles !== "all") url += `&profile=${filterProfiles}`;
     if (filterLevels) url += `&hierarchy=${filterLevels}`;
     if (filterCubes) url += `&cubeName=${filterCubes}`;
     if (showLaterals) url += "&showLaterals=true";
 
+    url = new URL(url, process.env.NEXT_PUBLIC_CMS).href;
     setLoading(url);
 
     const controller = new AbortController();
@@ -141,17 +195,17 @@ function useSearchResults({
 
     // eslint-disable-next-line consistent-return
     return () => controller.abort();
-  }, [query, filterLevels, filterCubes, filterProfiles, showLaterals]);
+  }, [query, filterLevels, filterCubes, filterProfiles, showLaterals, showExamples,  limit, locale]);
   return [results, loading];
 }
-function ProfileSearch({
+export function ProfileSearch({
   // default props
-  activeKey = false,
+  // activeKey = false,
   availableProfiles = [],
   filters = false,
   defaultCubes = false,
   defaultLevels = false,
-  defaultProfiles = false,
+  defaultProfiles = "all",
   filterCubeTitle = d => d,
   filterDimensionTitle = d => d,
   filterHierarchyTitle = d => d,
@@ -197,7 +251,9 @@ function ProfileSearch({
     (href, member) => `${href}/${member.slug}/${member.memberSlug || member.id}`,
     "/profile"
   ),
-  t
+  inputProps = {},
+  t,
+  ...rest
 }) {
   const {locale} = useRouter();
 
@@ -241,14 +297,18 @@ function ProfileSearch({
   }
   const activeProfile = profileGroups.find(g => g[1].map(p => p.id).join(",") === filterProfiles);
 
-  const onFilterLevels = filters => {
-    if (!profiles || !filters) return;
-    const newFilters = filters ? filters.split(",") : [false];
+
+  const onFilterLevel = useCallback(filters => {
+    if (!profiles) return;
+    const newFilters = filters !== "all" ? filters.split(",") : [false];
+
     let newCubes = [];
     let newLevels = [];
+
     const profileIds = filterProfiles ? filterProfiles.split(",").map(Number) : [];
     const cubeNames = filterCubes ? filterCubes.split(",") : [];
     const levelNames = filterLevels ? filterLevels.split(",") : [];
+
     const activeMetas = merge(profiles
       .filter(p => profileIds.includes(p.id))
       .map(p => p.meta));
@@ -257,6 +317,7 @@ function ProfileSearch({
       activeMetas,
       d => filterDimensionTitle(d.dimension)
     ), arr => [unique(merge(arr[1].map(a => a.levels))), unique(arr[1].map(a => a.cubeName))]);
+
     hierarchyGroups.forEach(([l, c]) => {
       newFilters.forEach(level => {
         if (c.length > 1) {
@@ -275,9 +336,10 @@ function ProfileSearch({
     });
     setFilterCubes(unique(newCubes).join(","));
     setFilterLevels(unique(newLevels).join(","));
-  };
+  }, [filterCubes, filterDimensionTitle, filterLevels, filterProfiles, profiles]);
 
-  useEffect(() => onFilterLevels(filterProfiles), [filterProfiles]);
+
+  useEffect(() => onFilterLevel(filterProfiles), [filterProfiles, onFilterLevel]);
 
   let activeDimensions;
   if (activeProfile) {
@@ -329,9 +391,9 @@ function ProfileSearch({
   ]);
   return (
     <FocusTrap active>
-      <Box className="cms-profilesearch">
+      <Box className="cms-profilesearch" pos="relative" {...rest}>
         <Box>
-          <Text component="label">
+          <Text component="label" sx={{display: "block", width: 0, height: 0, overflow: "hidden"}}>
             <Text className="u-visually-hidden" key="slt" span>
               {t("CMS.Search.Search profiles")}
             </Text>
@@ -339,103 +401,56 @@ function ProfileSearch({
           <TextInput
             ref={textInput}
             className="cp-input"
+            icon={<IconSearch />}
+            size="xl"
             placeholder={placeholder}
             onFocus={() => setActive(true)}
             onChange={event => setQuery(event.target.value)}
             autoFocus
+            {...inputProps}
           />
-          {profiles && filters &&
-          <Group
-            component="ul"
-            gap="md"
-            position="center"
-            spacing="xs"
-            sx={{listStyle: "none"}}
-          >
-            <Text
-              component="li"
-              key="filters-all"
-              fw={!filterProfiles ? 700 : 400}
-              sx={{"cursor": "pointer", "&:hover": {textDecoration: "underline"}}}
-              onClick={() => setFilterProfiles(false)}
-              dangerouslySetInnerHTML={{__html: filterProfileTitle({label: t("CMS.Search.All")})}}
+          <ProfileFilters
+            profiles={profiles}
+            filters={filters}
+            filterProfiles={filterProfiles}
+            setFilterProfiles={setFilterProfiles}
+            filterProfileTitle={filterProfileTitle}
+            availableProfiles={availableProfiles}
+            onFilterLevel={onFilterLevel}
+            t={t}
+          />
+          {
+            activeDimensions &&
+            activeDimensions.length > 0 &&
+            <DimensionFilters
+              profiles={profiles}
+              filters={filters}
+              filterCubes={filterCubes}
+              filterLevels={filterLevels}
+              filterDimensionTitle={filterDimensionTitle}
+              setFilterCubes={setFilterCubes}
+              setFilterLevels={setFilterLevels}
+              activeDimensions={activeDimensions}
+              filterCubeTitle={filterCubeTitle}
+              filterHierarchyTitle={filterHierarchyTitle}
+              onFilterLevel={onFilterLevel}
             />
-            { profileGroups.map(g => {
-              const profileIds = g[1].map(p => p.id);
-              return (
-                <Text
-                  component="li"
-                  id={`filters-${profileIds.join("-")}`}
-                  sx={{"cursor": "pointer", "&:hover": {textDecoration: "underline"}}}
-                  className={`cms-profilesearch-filters-profile ${profileIds.join(",") === filterProfiles ? "active" : ""}`}
-                  key={`filters-${profileIds.join("-")}`}
-                  fw={profileIds.join(",") === filterProfiles ? 700 : 400}
-                  onClick={() => setFilterProfiles(profileIds.join(","))}
-                  dangerouslySetInnerHTML={{__html: g[0]}}
-                />
-              );
-            }) }
-          </Group>
           }
-          { activeDimensions
-            ? <div className="cms-profilesearch-filters-dimensions">
-              { activeDimensions.map(d =>
-                <Flex
-                  component="ul"
-                  gap="md"
-                  sx={{listStyle: "none"}}
-                  key={`filters-dimension-${d.dimensions.join(",").replace(/\s/g, "-")}`}
-                  className="cms-profilesearch-filters-levels"
-                >
-                  { d.levels
-                    ? <Anchor
-                      className={`cms-profilesearch-filters-dimension${filterLevels && filterLevels.includes(d.levels.join(",")) ? " active" : ""}`}
-                      onClick={() => onFilterLevels(false)}
-                      dangerouslySetInnerHTML={{__html: d.title}}
-                    />
-                    : <Anchor
-                      className={`cms-profilesearch-filters-dimension${filterCubes && filterCubes.includes(d.cubes.join(",")) ? " active" : ""}`}
-                      onClick={() => onFilterLevels(false)}
-                      dangerouslySetInnerHTML={{__html: d.title}}
-                    />
-                  }
-                  {d.sortedLevels
-                    ? d.sortedLevels.map(l =>
-                      <Anchor
-                        key={`filters-level-${l}`}
-                        className={`cms-profilesearch-filters-level${filterLevels && !filterLevels.includes(d.levels.join(",")) && filterLevels.includes(l) ? " active" : ""}`}
-                        onClick={() => onFilterLevels(l)}
-                        dangerouslySetInnerHTML={{__html: filterHierarchyTitle(l, activeProfile[0])}}
-                      />
-                    )
-                    : d.sortedCubes.map(l =>
-                      <Anchor
-                        key={`filters-level-${l}`}
-                        bg={
-                          filterCubes &&
-                        !filterCubes.includes(d.cubes.join(",")) && filterCubes.includes(l) ? "grey" : "none"
-                        }
-                        className={`cms-profilesearch-filters-level${filterCubes && !filterCubes.includes(d.cubes.join(",")) && filterCubes.includes(l) ? " active" : ""}`}
-                        onClick={() => onFilterLevels(l)}
-                        dangerouslySetInnerHTML={{__html: filterCubeTitle(l.split(",")[0], activeProfile[0])}}
-                      />
-                    )}
-                </Flex>
-              ) }
-            </div>
-            : null }
         </Box>
-
-        <div
+        <Box
           className={`cms-profilesearch-container cms-profilesearch-container-${position}`}
           key="container"
+          pos="relative"
           ref={resultContainer}
+          top="100%"
+          mt="sm"
+          sx={{zIndex: 10}}
         >
           {
             (position !== "absolute" || active) && results
               ? (() => {
                 if (!results.grouped.length) {
-                  return <NonIdealState message={t("CMS.Search.No results", {query: debouncedQuery})} />;
+                  return <NonIdealState height="auto" message={t("CMS.Search.No results", {query: debouncedQuery})} />;
                 }
 
                 switch (display) {
@@ -496,7 +511,28 @@ function ProfileSearch({
                     const listProfiles = (results.grouped || [])
                       .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
                     return (
-                      <ul key="list" className="cms-profilesearch-list">
+                      <Paper
+                        component="ul"
+                        key="list"
+                        className="cms-profilesearch-list"
+                        pos="absolute"
+                        shadow="sm"
+                        sx={theme => ({
+                          "listStyleType": "none",
+                          "padding": "0px !important",
+                          "left": 0,
+                          "right": 0,
+                          "margin": 0,
+                          "& li": {
+                            padding: theme.spacing.xs,
+                            marginTop: 0
+                          },
+                          "& li:hover": {
+                            background: "rgba(0, 0, 0, .2)",
+                            cursor: "pointer"
+                          }
+                        })}
+                      >
                         {listProfiles.map((result, j) => renderListItem(
                           result,
                           j,
@@ -504,18 +540,22 @@ function ProfileSearch({
                           result.map(titleFormat).join(joiner),
                           result.map(subtitleFormat).join(joiner)
                         ))}
-                      </ul>
+                      </Paper>
                     );
                 }
               })()
               : loading && (position !== "absolute" || active)
-                ? <NonIdealState key="loading" message={t("CMS.Search.Loading")} />
-                : position !== "absolute" ? <NonIdealState message={t("CMS.Search.Empty")} /> : null
+                ? <NonIdealState height="auto" key="loading" message={t("CMS.Search.Loading")} />
+                : position !== "absolute" ? <NonIdealState height="auto" graphic={<IconSearch />} message={t("CMS.Search.Empty")} /> : null
           }
-        </div>
+        </Box>
       </Box>
     </FocusTrap>
   );
 }
 
-export default ProfileSearch;
+export function ProfileSearchModal({modalProps, ...profileSearchProps}) {
+  return <Modal {...modalProps}>
+    <ProfileSearch {...profileSearchProps} />
+  </Modal>;
+}

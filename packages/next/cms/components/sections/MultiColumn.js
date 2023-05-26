@@ -1,11 +1,12 @@
 import {Box} from "@mantine/core";
-import {useRef} from "react";
+import React, {useRef} from "react";
 import Viz from "../Viz/Viz";
 
+/** */
 export default function MultiColumn(
   {
-    configOverride, slug, title, heading, hideOptions, paragraphs, loading, filters, resetButton, stats, sources, visualizations = [], vizHeadingLevel, updateSource, onSetVariables,
-  },
+    configOverride, slug, title, heading, hideOptions, paragraphs, loading, filters, resetButton, stats, sources, visualizations = [], vizHeadingLevel, updateSource, onSetVariables
+  }
 ) {
   const section = useRef(null);
   return (
@@ -21,7 +22,7 @@ export default function MultiColumn(
         className="cp-section-content cp-multi-column-section-caption"
         sx={{
           columnWidth: "600px",
-          gridColumnGap: 20,
+          gridColumnGap: 20
         }}
       >
         {filters}
@@ -29,7 +30,7 @@ export default function MultiColumn(
         {paragraphs}
         {sources}
         {resetButton}
-        {visualizations.map((visualization, ii) => (
+        {visualizations.map((visualization, ii) =>
           <Viz
             section={section}
             config={visualization}
@@ -42,7 +43,7 @@ export default function MultiColumn(
             updateSource={updateSource}
             onSetVariables={onSetVariables}
           />
-        ))}
+        )}
       </Box>
     </Box>
   );

@@ -1,5 +1,5 @@
 import {
-  Anchor, Box, Flex, Popover, List, Paper, Menu
+  Anchor, Box, Flex, Popover, List, Paper, Center
 } from "@mantine/core";
 import React, {
   forwardRef, useMemo, useRef, useState
@@ -92,6 +92,8 @@ export default function Subnav(props) {
     return flattenedSections;
   };
 
+  const {icons} = props;
+
   const [fixed, setFixed] = useState(false);
   const [openSlug, setOpenSlug] = useState(false);
   const [currSection, setCurrSection] = useState(false);
@@ -100,6 +102,7 @@ export default function Subnav(props) {
   const subnav = useRef(null);
   const sections = useMemo(flattenSections, [props.sections]);
   const hasSubgroups = useMemo(() => sections.some(s => s.children && s.children.some(c => c.children)), [JSON.stringify(sections)]);
+
 
   const onBlur = e => {
     const {currentTarget} = e;
@@ -114,6 +117,7 @@ export default function Subnav(props) {
 
   useWindowEvent("scroll", () => {
     const topBorder = 200; // parseStyle("nav-height") + parseStyle("subnav-height");
+    // eslint-disable-next-line require-jsdoc
     function getSectionWrapper(slug) {
       let elem = document.getElementById(slug);
       while (
@@ -185,10 +189,10 @@ export default function Subnav(props) {
               className={`cp-subnav-link ${sections.length >= 5 ? "u-font-xs" : "u-font-sm"}`}
               to={section.slug}
             >
-              {/* {section.icon && blueprintIcons.find(i => i === section.icon) &&
-                <Icon className="cp-subnav-link-icon" icon={section.icon} />
-              } */}
-              {section.short && stripHTML(section.short) ? stripHTML(section.short) : stripHTML(section.title)}
+              <Center sx={{gap: 5}}>
+                {section.icon && icons[section.icon]}
+                {section.short && stripHTML(section.short) ? stripHTML(section.short) : stripHTML(section.title)}
+              </Center>
             </AnchorLink>
           </Box>
         </Popover.Target>
@@ -202,7 +206,7 @@ export default function Subnav(props) {
                   onClick={() => setOpenSlug(false)}
                   to={child.slug}
                 >
-                  {/* <Icon className="cp-subnav-group-link-icon" icon={child.icon && blueprintIcons.find(i => i === child.icon) ? child.icon : "dot"} /> */}
+                  {child.icon && icons[child.icon]}
                   {child.short && stripHTML(child.short) ? stripHTML(child.short) : stripHTML(child.title)}
                 </AnchorLink>
               </List.Item>
@@ -228,13 +232,12 @@ export default function Subnav(props) {
       <Paper
         component="nav"
         pos="sticky"
-        bottom={0}
         top={0}
         className={`cp-subnav ${fixed ? "is-fixed" : "is-static"}`}
         ref={subnav}
         key="s"
         sx={theme => ({
-          zIndex: 20,
+          zIndex: 3,
           display: "flex",
           flexDirection: "column",
           borderRadius: 0,
@@ -243,7 +246,7 @@ export default function Subnav(props) {
       >
         {children}
         {sections.length
-          ?             <List
+          ? <List
             display="flex"
             className="cp-subnav-list"
             key="l"
@@ -311,7 +314,7 @@ export default function Subnav(props) {
           </List>
           : null}
         {hasSubgroups && currSection
-          ?             <List w="100%" sx={theme => ({gap: theme.spacing.md, alignItems: "center", justifyContent: "center"})} display="flex" className="cp-subnav-list cp-subnav-secondary" key="s" listStyleType="none">
+          ? <List w="100%" sx={theme => ({gap: theme.spacing.md, alignItems: "center", justifyContent: "center"})} display="flex" className="cp-subnav-list cp-subnav-secondary" key="s" listStyleType="none">
             {(currSection ? currSection.children : []).map(section =>
               <List.Item
                 mt="0px !important"

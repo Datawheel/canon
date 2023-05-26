@@ -4,7 +4,7 @@
    - [ ] allow CustomVizzes
 */
 
-import {useContext, useRef} from "react";
+import React, {useContext, useRef} from "react";
 import {useRouter} from "next/router.js";
 
 import {Title} from "@mantine/core";
@@ -22,6 +22,11 @@ import Table from "./Table";
 // const vizTypes = {Table, Graphic, HTML, ...d3plus, ...CustomVizzes};
 const vizTypes = {HTML, Table, ...d3plus};
 
+/**
+ *
+ * @param {*} props
+ * @returns
+ */
 function Viz(props) {
   const {
     className = "",
@@ -147,7 +152,7 @@ function Viz(props) {
       <div
         className={`${namespace}-viz-figure${vizConfig.height || type === "Graphic"
           ? " with-explicit-height" : ""}`}
-        style={{minHeight: 600}}
+        style={{minHeight: 400}}
       >
         <Visualization
           key="viz-key"

@@ -1,10 +1,11 @@
+import React from "react";
 import {
-  BackgroundImage, Center, Flex, Loader, LoadingOverlay, Stack, Text,
+  BackgroundImage, Center, Flex, Loader, LoadingOverlay, Stack, Text
 } from "@mantine/core";
 import SVG from "react-inlinesvg";
 
 function NonIdealState({
-  image = null, message = "Loading...", graphic = <Loader />, height = "100vh", logo = null,
+  image = null, message = "Loading...", graphic = <Loader />, height = "100vh", logo = null
 }) {
   return (
     <BackgroundImage src={image} h={height}>
@@ -21,7 +22,7 @@ function NonIdealState({
               <Text color="dimmed" size="lg" weight="bold">{message}</Text>
             </Stack>
           </Flex>
-)}
+        )}
         overlayBlur={5}
         visible
       />

@@ -1,11 +1,23 @@
-import {useContext, useState} from "react";
+import React, {useContext, useState} from "react";
 import {nest} from "d3-collection";
 import {
-  Button, Group, Collapse, Paper, Text, BackgroundImage, List,
-  Stack, Overlay, Flex, Title, Modal, Box
+  BackgroundImage,
+  Box,
+  Button,
+  Collapse,
+  Flex,
+  Group,
+  List,
+  Overlay,
+  Paper,
+  Stack,
+  Text,
+  Title,
+  UnstyledButton
 } from "@mantine/core";
 import {
-  IconChevronDown, IconChevronUp
+  IconSearch,
+  IconPhoto
 } from "@tabler/icons-react";
 import ProfileContext  from "../ProfileContext";
 import SourceGroup from "../Viz/SourceGroup";
@@ -19,15 +31,13 @@ import stripP from "../../utils/formatters/stripP";
 //   .replace(/\-$/g, "");
 // import PDFButton from "./components/PDFButton";
 
-// import {Dialog} from "@blueprintjs/core";
-
-import ProfileSearch from "../fields/ProfileSearch";
+import {ProfileSearchModal} from "../fields/ProfileSearch";
 
 /** the profile hero, AKA header, AKA splash */
 function Hero({
   comparisonButton,
   contents,
-  hidePDF = false,
+  // hidePDF = false,
   hideTitleSearch = false,
   loading,
   profile,
@@ -86,7 +96,6 @@ function Hero({
       subtitleContent = contents.subtitles.map(subhead =>
         <Title
           order={2}
-          align="center"
           key={`${subhead.subtitle}-subhead`}
           dangerouslySetInnerHTML={{__html: stripP(subhead.subtitle)}}
         />
@@ -100,10 +109,10 @@ function Hero({
       statContent =
         <Flex
           className="cp-stat-content"
-          justify="space-between"
+          justify="flex-start"
           align="flex-start"
           direction="row"
-          gap="md"
+          gap="xl"
           wrap="wrap"
           w="100%"
         >
@@ -132,41 +141,37 @@ function Hero({
   // heading & subhead(s)
 
   const heading =
-    <Stack>
-      <Title
-        align="center"
-        order={1}
-        onClick={() => titleClick(1)}
-        sx={{
-          "&:hover": {
-            cursor: "pointer"
-          }
-        }}
-        dangerouslySetInnerHTML={{__html: stripP(title)}}
-      />
+    <div>
+      <h1>
+        <UnstyledButton w="100%" onClick={() => titleClick(1)}>
+          <Flex justify="space-between" align="center">
+            <Title component="span" size="h1" dangerouslySetInnerHTML={{__html: stripP(title)}} inherit/>
+            <IconSearch />
+          </Flex>
+        </UnstyledButton>
+      </h1>
       {subtitleContent}
-    </Stack>
+      {comparisonButton}
+    </div>
   ;
-
   // custom images can be uploaded with no flickr source. Only show the "image credits" section
   // if at least one of the images has the flickr data to show
   const hasAuthor = profile.images.some(d => d.author);
 
   return (
-    <Stack className="cp-hero" component="header" style={{overflow: "hidden", width: "100%"}} pos="relative" align="center">
-      <Flex sx={{zIndex: 2}} w="100%" align="center" p="xl" gap={100}>
-        {/* { hidePDF ? null : <PDFButton className="cp-hero-pdf" filename={filename(profile.title)} /> } */}
+    <Stack className="cp-hero" component="header" style={{overflow: "show", width: "100%"}} pos="relative" align="center">
+      <Flex sx={{zIndex: 4}} w="100%" p="xl">
         {/* caption */}
-        <Stack className="cp-hero-caption" align="flex-start" px="xl">
+        <div className="cp-hero-caption" style={{flexGrow: 1}}>
           {heading}
           {statContent}
           {paragraphs}
           {sourceContent}
-        </Stack>
+        </div>
 
         {/* print JUST the first visualization */}
         {contents && contents.visualizations && contents.visualizations.length
-          ? <Box key={contents.visualizations[0].id} className="cp-hero-figure" maw={400}>
+          ? <Box key={contents.visualizations[0].id} className="cp-hero-figure" maw={400} sx={{flexGrow: 1}}>
             <Viz
               section={this}
               config={contents.visualizations[0]}
@@ -185,17 +190,17 @@ function Hero({
         ? <>
           {/* credits */}
           {type !== "story" && hasAuthor &&
-            <Stack
-              spacing={0}
+            <Box
               style={{
                 zIndex: 8, position: "absolute", right: 10, top: 10
               }}
             >
               <Button
                 onClick={() => setCreditsVisible(!creditsVisible)}
-                leftIcon={creditsVisible ? <IconChevronUp /> : <IconChevronDown />}
+                leftIcon={<IconPhoto size="0.9rem"/>}
                 size="xs"
-                variant="subtle"
+                variant={creditsVisible ? "light" : "subtle"}
+                compact
               >
                 {t(
                   "CMS.Profile.image_credits",
@@ -206,15 +211,15 @@ function Hero({
                   }
                 )}
               </Button>
-              <Collapse in={creditsVisible}>
+              <Collapse pos="absolute" in={creditsVisible}>
                 {profile.images.map((img, i) =>
-                  <Paper key={JSON.stringify(img)} shadow="xs" p="xs" mt={5} radius={0}>
-                    <Text>
+                  <Paper key={JSON.stringify(img)} shadow="xs" p="xs" mt={5} radius={"sm"}>
+                    <Text size="sm">
                       Image
                       {" "}
                       {i + 1}
                     </Text>
-                    <List size="xs">
+                    <List size="xs" listStyleType="none" pl={"0px !important"} mb={"0px !important"} mt="sm">
                       {img.author &&
                         <List.Item>
                           {t("CMS.Profile.photograph_by", {author: img.author})}
@@ -238,7 +243,7 @@ function Hero({
                   </Paper>
                 )}
               </Collapse>
-            </Stack>
+            </Box>
           }
 
           {/* images */}
@@ -247,9 +252,10 @@ function Hero({
             style={{
               height: "100%", width: "100%", position: "absolute"
             }}
+            grow
             noWrap
           >
-            {profile.images.map((img, i) => img.src &&
+            {profile.images.map(img => img.src &&
               <BackgroundImage
                 style={{
                   height: "100%",
@@ -262,42 +268,37 @@ function Hero({
             )}
           </Group>
           <Overlay
-            opacity={0.7}
-            // color={colorScheme === "dark" ? "#000" : "#fff"}
+            opacity={1}
+            gradient="linear-gradient(0deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0.8) 100%)"
             blur={2}
             zIndex={1}
           />
         </>
-        :          <Overlay
+        : <Overlay
           opacity={0.7}
           blur={2}
           zIndex={1}
         />
 
       }
-
-      <Modal
-        size="80%"
-        className="cp-hero-search"
-        opened={clickedIndex !== undefined}
-        onClose={() => setClickedIndex(undefined)}
-      >
-
-        <ProfileSearch
-          defaultProfiles={`${profile.id}`}
-          defaultQuery={contents ? stripHTML(contents.title) : ""}
-          filters
-          inputFontSize="lg"
-          display="grid"
-          showExamples
-          linkify={linkify}
-          t={t}
-          // eslint-disable-next-line react/jsx-props-no-spreading
-          {...searchProps}
-        />
-
-      </Modal>
-
+      <ProfileSearchModal
+        defaultProfiles={`${profile.id}`}
+        defaultQuery={contents ? stripHTML(contents.title) : ""}
+        filters
+        inputFontSize="lg"
+        display="grid"
+        showExamples
+        linkify={linkify}
+        t={t}
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...searchProps}
+        modalProps={{
+          size: "80%",
+          className: "cp-hero-search",
+          opened: clickedIndex !== undefined,
+          onClose: () => setClickedIndex(undefined)
+        }}
+      />
     </Stack>
   );
 }
