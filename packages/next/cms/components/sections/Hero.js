@@ -191,6 +191,7 @@ function Hero({
           {/* credits */}
           {type !== "story" && hasAuthor &&
             <Box
+              className="cp-image-credits-btn"
               style={{
                 zIndex: 8, position: "absolute", right: 10, top: 10
               }}
@@ -211,7 +212,7 @@ function Hero({
                   }
                 )}
               </Button>
-              <Collapse pos="absolute" in={creditsVisible}>
+              <Collapse className="cp-image-credits"  pos="absolute" in={creditsVisible}>
                 {profile.images.map((img, i) =>
                   <Paper key={JSON.stringify(img)} shadow="xs" p="xs" mt={5} radius={"sm"}>
                     <Text size="sm">
