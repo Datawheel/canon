@@ -1,4 +1,4 @@
-import {useRouter} from "next/router";
+import {useRouter} from "next/router.js";
 import {useState, useEffect} from "react";
 import formatProfileResponse from "../utils/formatProfileResponse";
 import axios from "axios";

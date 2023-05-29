@@ -1,4 +1,4 @@
-import {useRouter} from "next/router";
+import {useRouter} from "next/router.js";
 import {useEffect, useMemo, useState} from "react";
 import prepareProfile from "../utils/prepareProfile";
 import funcifyFormatterByLocale from "../utils/funcifyFormatterByLocale";
