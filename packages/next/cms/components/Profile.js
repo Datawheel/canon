@@ -1,8 +1,10 @@
+import React from "react";
 import {
   TypographyStylesProvider
 } from "@mantine/core";
 import {NonIdealState, ProfileRenderer} from "../..";
 
+/** */
 function Profile(props) {
   const {profile} = props;
 

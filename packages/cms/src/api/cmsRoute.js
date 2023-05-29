@@ -469,7 +469,7 @@ module.exports = function(app) {
     const {profileData, includeAllMembers} = req.body;
     const {profile_id} = profileData;  // eslint-disable-line
     profileData.dimension = profileData.dimName;
-    const oldmeta = await db.profile_meta.findOne({where: {id: profileData.id}}).catch(catcher);
+    const oldmeta = await db.profile_meta.findOne({where: {id: profileData.id || null}}).catch(catcher);
     // Inserts are simple
     if (!oldmeta) {
       // If no ordering was provided, divine ordering from meta length.
@@ -484,7 +484,7 @@ module.exports = function(app) {
     // Updates are more complex - the user may have changed levels, or even modified the dimension
     // entirely. We have to prune the search before repopulating it.
     else {
-      await db.profile_meta.update(profileData, {where: {id: profileData.id}});
+      await db.profile_meta.update(profileData, {where: {id: profileData.id || null}});
       if (oldmeta.cubeName !== profileData.cubeName || oldmeta.dimension !== profileData.dimension || oldmeta.levels.join() !== profileData.levels.join()) {
         pruneSearch(oldmeta.cubeName, oldmeta.dimension, oldmeta.levels, db);
         await populateSearch(profileData, db, false, false, includeAllMembers);

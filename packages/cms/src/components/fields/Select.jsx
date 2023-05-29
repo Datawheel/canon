@@ -30,7 +30,7 @@ export default class Select extends Component {
 
         <Icon className={`${namespace}-select-icon`} icon="caret-down" />
 
-        <select disabled={disabled} className={`${namespace}-select ${disabled ? `${namespace}-select-disabled` : ""}`} onChange={onChange} value={value} tabIndex={tabIndex}>
+        <select disabled={disabled} className={`${namespace}-select ${namespace}-select-currentValue-${value} ${disabled ? ` ${namespace}-select-disabled` : ""}`} onChange={onChange} value={value} tabIndex={tabIndex}>
           {options && filteredOptions.map(option =>
             <option value={option} key={`select-option-${option}`}>
               {option}

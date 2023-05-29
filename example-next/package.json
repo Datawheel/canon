@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@datawheel/canon-next": "^0.1.0",
+    "@datawheel/canon-next": "*",
     "@emotion/react": "^11.10.6",
     "@emotion/server": "^11.10.0",
     "@mantine/core": "^5.10.4",

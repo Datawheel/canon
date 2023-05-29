@@ -2,10 +2,12 @@
   "name": "@datawheel/canon-next",
   "version": "0.2.0",
   "description": "Nextjs components for sites migrating away from canon-core.",
-  "main": "./dist/index.js",
   "exports": {
     ".": {
       "import": "./dist/index.js"
+    },
+    "./utils": {
+      "import": "./dist/utils.js"
     }
   },
   "engines": {
@@ -34,7 +36,8 @@
     "prepublishOnly": "tsup",
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint"
   },
   "dependencies": {
     "@mantine/core": "^5.6.3",
@@ -54,7 +57,8 @@
     "next-i18next": "^13.1.5",
     "react": "^18.0.2",
     "react-inlinesvg": "^3.0.1",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz",
+    "yn": "^5.0.0"
   },
   "peerDependencies": {
     "next": "^13.1.6"

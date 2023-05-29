@@ -62,7 +62,7 @@ class Options extends Component {
     this.state = {
       backgroundColor: true,
       id: uuid(),
-      imageContext: "viz",
+      imageContext: "section",
       imageFormat: "png",
       imageProcessing: false,
       includeSlug: true,
@@ -211,11 +211,13 @@ class Options extends Component {
             selects.forEach(select => {
               // create a fake element with properties of the select menu
               const fakeSelect = document.createElement("p");
-              // get the selected option
-              fakeSelect.innerHTML = select.options[select.selectedIndex].text;
               // get the classes from the real select & add them to the fake
               const classes = select.classList;
               fakeSelect.className = classes; // .className syntax needed for IE
+              // get the selected option
+              const selectedValue = classes[1].replace("cp-select-currentValue-", "");
+              const selectedOption = Array.from(select.options).find(d => d.value === selectedValue);
+              fakeSelect.innerHTML = (selectedOption || select.options[0]).text;
               // I'm the captain now
               select.parentNode.replaceChild(fakeSelect, select);
             });
@@ -275,7 +277,7 @@ class Options extends Component {
     let elem = component;
 
     // get the visualization
-    if (imageContext === "viz" && component.viz.viz) {
+    if (imageContext === "viz" && component.viz && component.viz.viz) {
       elem = component.viz.viz;
 
       // d3plus visualizations render within a container; use it for the image
@@ -285,7 +287,7 @@ class Options extends Component {
     }
 
     // get the section
-    else if (imageContext === "section" && component.section.section) {
+    else if (imageContext === "section" && component.section && component.section.section) {
       return component.section.section;
     }
 
@@ -488,16 +490,6 @@ class Options extends Component {
               <div className="save-image-button-group-wrapper">
                 <h3 className="save-image-button-group-label label u-font-xs">{t("CMS.Options.Image area")}</h3>
                 <ButtonGroup className="save-image-button-group">
-                  {!isTable && <Button
-                    className="save-image-format-button"
-                    fontSize="xs"
-                    icon="timeline-line-chart"
-                    iconPosition="left"
-                    onClick={() => this.setState({imageContext: "viz"})}
-                    active={imageContext === "viz"}
-                  >
-                    {t("CMS.Options.visualization only")}
-                  </Button> }
                   <Button
                     className="save-image-format-button"
                     fontSize="xs"
@@ -511,6 +503,16 @@ class Options extends Component {
                   >
                     {t("CMS.Options.entire section")}
                   </Button>
+                  {!isTable && <Button
+                    className="save-image-format-button"
+                    fontSize="xs"
+                    icon="timeline-line-chart"
+                    iconPosition="left"
+                    onClick={() => this.setState({imageContext: "viz"})}
+                    active={imageContext === "viz"}
+                  >
+                    {t("CMS.Options.visualization only")}
+                  </Button> }
                 </ButtonGroup>
               </div>
 
