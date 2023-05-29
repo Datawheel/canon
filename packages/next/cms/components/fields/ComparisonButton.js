@@ -38,7 +38,7 @@ const ComparisonButton = ({error = false}) => {
     : comparisonSearchHandlers.toggle;
 
   const label = compareSlug ? t("CMS.Profile.Remove Comparison") : t("CMS.Profile.Add Comparison");
-  return <div className="cp-comparison-add" style={{position: "relative"}}>
+  return <div className={compareSlug ? "cp-comparison-remove" : "cp-comparison-add"} style={{position: "relative"}}>
     {
       comparisonSearch &&
       <ProfileSearch
