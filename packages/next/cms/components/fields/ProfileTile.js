@@ -9,7 +9,7 @@ import {max} from "d3-array";
 /** Determines font-size based on title */
 function titleSize(title) {
   const {length} = title;
-  const longestWord = max(length ? title.match(/\w+/g).map(t => t.length) : 0);
+  const longestWord = max(length ? title.match(/[\u0621-\u064A\w]+/g).map(t => t.length) : 0);
   if (length > 30 || longestWord > 25) return "sm";
   if (length > 20 || longestWord > 15) return "md";
   return "lg";
