@@ -28,6 +28,7 @@ import {IconSearch} from "@tabler/icons-react";
 import NonIdealState from "../../../core/components/NonIdealState";
 
 function DimensionFilters({
+  activeProfile,
   activeDimensions,
   filterHierarchyTitle,
   filterCubeTitle,
@@ -68,7 +69,9 @@ function DimensionFilters({
                   <Tabs.Tab
                     value={l}
                     key={l}
-                  >{filterTitle(l)}</Tabs.Tab>)
+                  >
+                    <Text dangerouslySetInnerHTML={{__html: filterTitle(l, activeProfile[0])}}/>
+                  </Tabs.Tab>)
               }
             </Tabs.List>;
           })}
@@ -424,6 +427,7 @@ export function ProfileSearch({
             activeDimensions &&
             activeDimensions.length > 0 &&
             <DimensionFilters
+              activeProfile={activeProfile}
               profiles={profiles}
               filters={filters}
               filterCubes={filterCubes}
