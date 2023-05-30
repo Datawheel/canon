@@ -284,9 +284,7 @@ function Hero({
       }
       <ProfileSearchModal
         defaultProfiles={`${profile.id}`}
-        defaultQuery={contents ? stripHTML(contents.title) : ""}
         filters
-        inputFontSize="lg"
         display="grid"
         showExamples
         linkify={linkify}
