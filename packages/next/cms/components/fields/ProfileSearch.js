@@ -41,7 +41,7 @@ function DimensionFilters({
       return dimensionValue === value;
     });
     if (isDimension) {
-      onFilterLevel(false);
+      onFilterLevel("all");
     }
     else {
       onFilterLevel(value);
@@ -49,7 +49,7 @@ function DimensionFilters({
   };
   return (
     <div>
-      <Tabs className="cms-profilsearch-filters-dimensions" onTabChange={tabChangeHandler}>
+      <Tabs className="cms-profilesearch-filters-dimensions" onTabChange={tabChangeHandler}>
         {
           activeDimensions.map(d => {
             const dimensionValue = d.levels ? d.levels.join(",") : d.cubes.join(",");
@@ -98,6 +98,7 @@ function ProfileFilters({
   return (
 
     <Tabs
+      className="cms-profilesearch-filters-profiles"
       variant="pills"
       radius="sm"
       my={"xs"}
@@ -300,7 +301,7 @@ export function ProfileSearch({
 
   const onFilterLevel = useCallback(filters => {
     if (!profiles) return;
-    const newFilters = filters !== "all" ? filters.split(",") : [false];
+    const newFilters = filters !== "all" && filters ? filters.split(",") : [false];
 
     let newCubes = [];
     let newLevels = [];
@@ -339,7 +340,7 @@ export function ProfileSearch({
   }, [filterCubes, filterDimensionTitle, filterLevels, filterProfiles, profiles]);
 
 
-  useEffect(() => onFilterLevel(filterProfiles), [filterProfiles, onFilterLevel]);
+  useEffect(() => onFilterLevel(false), [filterProfiles]);
 
   let activeDimensions;
   if (activeProfile) {
