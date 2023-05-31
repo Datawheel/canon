@@ -16,6 +16,7 @@ export default function SectionGrouping({children, layout}) {
     <div className={`cp-section-grouping ${layoutClass}`}>
       <Group
         className={`cp-section-grouping-inner ${layoutClass}-inner`}
+        align="flex-start"
         spacing="xl"
         noWrap={!smallerThanMd}
         grow

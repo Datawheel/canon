@@ -1,6 +1,6 @@
 /*
   TODO
-   - [ ] port Graphic/HTML/Table viz types
+   - [ ] port HTML/Table viz types
    - [ ] allow CustomVizzes
 */
 
@@ -16,11 +16,11 @@ import propify from "../../utils/d3plusPropify";
 import HTML from "./HTML";
 // User must define custom sections in app/cms/sections, and export them from an index.js in that folder.
 // import * as CustomVizzes from "CustomVizzes";
-// import Graphic from "./Graphic";
+import Graphic from "./Graphic";
 // import HTML from "./HTML";
 import Table from "./Table";
 // const vizTypes = {Table, Graphic, HTML, ...d3plus, ...CustomVizzes};
-const vizTypes = {HTML, Table, ...d3plus};
+const vizTypes = {HTML, Table, Graphic, ...d3plus};
 
 /**
  *
