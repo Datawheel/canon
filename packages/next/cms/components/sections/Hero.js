@@ -292,7 +292,10 @@ function Hero({
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...searchProps}
         modalProps={{
+          // overridable
           size: "80%",
+          ...searchProps?.modalProps || {},
+          // not-overridable
           className: "cp-hero-search",
           opened: clickedIndex !== undefined,
           onClose: () => setClickedIndex(undefined)
