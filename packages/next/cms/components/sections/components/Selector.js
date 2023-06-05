@@ -86,9 +86,10 @@ export default function Selector(props) {
     // options under selectCutoff; button group
     if (options.length <= selectCutoff && options.every(b => stripHTML(b.label || variables[b.option]).length < 20)) {
       return (
-        <Stack>
-          <Text>{title}</Text>
+        <Stack className="cp-select" spacing={0}>
+          <Text className="cp-select-label">{title}</Text>
           <SegmentedControl
+            className="cp-select-control"
             defaultValue={activeValue}
             onChange={value => onSelector(name, value, isComparison)}
             data={options.map(o => ({value: o.option, label: stripHTML(o.label || variables[o.option])}))}
@@ -100,6 +101,7 @@ export default function Selector(props) {
     // options over selectCutoff; select menu
     return (
       <Select
+        className="cp-select"
         label={title}
         fontSize={fontSize}
         id={slug}
