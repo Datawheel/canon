@@ -1,15 +1,11 @@
 {
   "name": "@datawheel/canon-next",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Nextjs components for sites migrating away from canon-core.",
   "main": "./dist/index.js",
   "exports": {
-    ".": {
-      "import": "./dist/index.js"
-    },
-    "./utils": {
-      "import": "./dist/utils.js"
-    }
+    ".": "./dist/index.js",
+    "./utils":  "./dist/utils.js"
   },
   "engines": {
     "node": "^16.0.0"
