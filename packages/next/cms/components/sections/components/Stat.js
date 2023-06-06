@@ -10,10 +10,10 @@ import stripP from "../../../utils/formatters/stripP";
  * @returns
  */
 function Stat({
-  label, value, subtitle
+  label, value, subtitle, ...rest
 }) {
   return (
-    <Stack className="cp-stat" align="flex-start" maw={250} spacing={0} my="md">
+    <Stack className="cp-stat" align="flex-start" maw={250} spacing={0} my="md" {...rest}>
       {label &&
         <Text dangerouslySetInnerHTML={{__html: stripP(label)}} span />
       }

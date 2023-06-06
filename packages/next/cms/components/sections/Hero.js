@@ -191,6 +191,7 @@ function Hero({
           {/* credits */}
           {type !== "story" && hasAuthor &&
             <Box
+              className="cp-image-credits-btn"
               style={{
                 zIndex: 8, position: "absolute", right: 10, top: 10
               }}
@@ -211,7 +212,7 @@ function Hero({
                   }
                 )}
               </Button>
-              <Collapse pos="absolute" in={creditsVisible}>
+              <Collapse className="cp-image-credits"  pos="absolute" in={creditsVisible}>
                 {profile.images.map((img, i) =>
                   <Paper key={JSON.stringify(img)} shadow="xs" p="xs" mt={5} radius={"sm"}>
                     <Text size="sm">
@@ -283,9 +284,7 @@ function Hero({
       }
       <ProfileSearchModal
         defaultProfiles={`${profile.id}`}
-        defaultQuery={contents ? stripHTML(contents.title) : ""}
         filters
-        inputFontSize="lg"
         display="grid"
         showExamples
         linkify={linkify}
@@ -293,7 +292,10 @@ function Hero({
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...searchProps}
         modalProps={{
+          // overridable
           size: "80%",
+          ...searchProps?.modalProps || {},
+          // not-overridable
           className: "cp-hero-search",
           opened: clickedIndex !== undefined,
           onClose: () => setClickedIndex(undefined)

@@ -1,8 +1,8 @@
 import React, {useContext} from "react";
-import {useRouter} from "next/router";
+import {useRouter} from "next/router.js";
 
 import {UnstyledButton, Button, Text} from "@mantine/core";
-import {useDisclosure} from "@mantine/hooks";
+import {useDisclosure, useClickOutside} from "@mantine/hooks";
 import {IconSquarePlus, IconSquareMinus} from "@tabler/icons-react";
 
 import ProfileContext from "../ProfileContext";
@@ -11,8 +11,9 @@ import {ProfileSearch} from "./ProfileSearch";
 const ComparisonButton = ({error = false}) => {
   const [comparisonSearch, comparisonSearchHandlers] = useDisclosure(false);
   const router = useRouter();
+  const ref = useClickOutside(() => comparisonSearchHandlers.close());
   const {pathname, query} = router;
-  const {t, variables, compareSlug, profileId} = useContext(ProfileContext);
+  const {t, variables, compareSlug, profileId, comparison} = useContext(ProfileContext);
 
   const addComparison = slug => router.replace(
     {pathname,
@@ -37,8 +38,8 @@ const ComparisonButton = ({error = false}) => {
     ? removeComparison
     : comparisonSearchHandlers.toggle;
 
-  const label = compareSlug ? t("CMS.Profile.Remove Comparison") : t("CMS.Profile.Add Comparison");
-  return <div className="cp-comparison-add" style={{position: "relative"}}>
+  const label = comparison ? t("CMS.Profile.Remove Comparison") : t("CMS.Profile.Add Comparison");
+  return <div ref={ref} className={comparison ? "cp-comparison-remove" : "cp-comparison-add"} style={{position: "relative"}}>
     {
       comparisonSearch &&
       <ProfileSearch
@@ -65,7 +66,7 @@ const ComparisonButton = ({error = false}) => {
     <Button
       onClick={handleClick}
       className={`cp-comparison-button ${error && "cp-comparison-button-error"}`}
-      leftIcon={!compareSlug || error ? <IconSquarePlus size="0.8rem" /> : <IconSquareMinus size="0.8rem" />}
+      leftIcon={!comparison ? <IconSquarePlus size="0.8rem" /> : <IconSquareMinus size="0.8rem" />}
       size="xs"
       color={error ? "red" : "blue"}
       compact>{!error ?  label : t("CMS.Profile.Comparison Error")}</Button>

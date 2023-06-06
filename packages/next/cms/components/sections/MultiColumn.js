@@ -21,8 +21,9 @@ export default function MultiColumn(
       <Box
         className="cp-section-content cp-multi-column-section-caption"
         sx={{
-          columnWidth: "600px",
-          gridColumnGap: 20
+          columnWidth: "20rem",
+          columnCount: 3,
+          columnFill: "balance"
         }}
       >
         {filters}

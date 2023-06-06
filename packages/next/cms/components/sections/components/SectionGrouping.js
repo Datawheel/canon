@@ -1,6 +1,7 @@
 import React from "react";
-import {Group} from "@mantine/core";
+import {Group, useMantineTheme} from "@mantine/core";
 import toKebabCase from "../../../utils/formatters/toKebabCase";
+import {useMediaQuery} from "@mantine/hooks";
 
 /**
  *
@@ -9,12 +10,15 @@ import toKebabCase from "../../../utils/formatters/toKebabCase";
  */
 export default function SectionGrouping({children, layout}) {
   const layoutClass = `cp-${toKebabCase(layout)}-section-grouping`;
-
+  const theme = useMantineTheme();
+  const smallerThanMd = useMediaQuery(`${theme.breakpoints.md}px`);
   return (
     <div className={`cp-section-grouping ${layoutClass}`}>
       <Group
         className={`cp-section-grouping-inner ${layoutClass}-inner`}
+        align="flex-start"
         spacing="xl"
+        noWrap={!smallerThanMd}
         grow
       >
         {children}

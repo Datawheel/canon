@@ -28,6 +28,7 @@ import {IconSearch} from "@tabler/icons-react";
 import NonIdealState from "../../../core/components/NonIdealState";
 
 function DimensionFilters({
+  activeProfile,
   activeDimensions,
   filterHierarchyTitle,
   filterCubeTitle,
@@ -41,7 +42,7 @@ function DimensionFilters({
       return dimensionValue === value;
     });
     if (isDimension) {
-      onFilterLevel(false);
+      onFilterLevel("all");
     }
     else {
       onFilterLevel(value);
@@ -49,7 +50,7 @@ function DimensionFilters({
   };
   return (
     <div>
-      <Tabs className="cms-profilsearch-filters-dimensions" onTabChange={tabChangeHandler}>
+      <Tabs className="cms-profilesearch-filters-dimensions" onTabChange={tabChangeHandler}>
         {
           activeDimensions.map(d => {
             const dimensionValue = d.levels ? d.levels.join(",") : d.cubes.join(",");
@@ -68,7 +69,9 @@ function DimensionFilters({
                   <Tabs.Tab
                     value={l}
                     key={l}
-                  >{filterTitle(l)}</Tabs.Tab>)
+                  >
+                    <Text dangerouslySetInnerHTML={{__html: filterTitle(l, activeProfile[0])}}/>
+                  </Tabs.Tab>)
               }
             </Tabs.List>;
           })}
@@ -98,6 +101,7 @@ function ProfileFilters({
   return (
 
     <Tabs
+      className="cms-profilesearch-filters-profiles"
       variant="pills"
       radius="sm"
       my={"xs"}
@@ -300,7 +304,7 @@ export function ProfileSearch({
 
   const onFilterLevel = useCallback(filters => {
     if (!profiles) return;
-    const newFilters = filters !== "all" ? filters.split(",") : [false];
+    const newFilters = filters !== "all" && filters ? filters.split(",") : [false];
 
     let newCubes = [];
     let newLevels = [];
@@ -339,7 +343,7 @@ export function ProfileSearch({
   }, [filterCubes, filterDimensionTitle, filterLevels, filterProfiles, profiles]);
 
 
-  useEffect(() => onFilterLevel(filterProfiles), [filterProfiles, onFilterLevel]);
+  useEffect(() => onFilterLevel(false), [filterProfiles]);
 
   let activeDimensions;
   if (activeProfile) {
@@ -423,6 +427,7 @@ export function ProfileSearch({
             activeDimensions &&
             activeDimensions.length > 0 &&
             <DimensionFilters
+              activeProfile={activeProfile}
               profiles={profiles}
               filters={filters}
               filterCubes={filterCubes}

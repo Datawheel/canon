@@ -57,9 +57,25 @@ export default function useProfileSections(profile, comparison, t) {
   // find Hero section
   const heroSection = sections.find(l => l.type === "Hero");
 
+  // filter modal and hero sections from the rest of the report
+  const renderSections = sections
+    .filter(l => l.type !== "Hero" && l.position !== "modal")
+    .map(l => {
+    // rename old section names
+      const slug = l.slug ?? `section-${l.id}`;
+      if (l.type === "TextViz" || l.position === "sticky") return {...l, type: "Default", slug};
+      if (l.type === "Column") return {...l, type: "SingleColumn", slug};
+      return {...l, slug};
+    });
+
   const comparisonSections = [];
 
   if (comparison) {
+
+    // function used to clone and modify a raw "section" in order
+    // to prep it to be viewed side-by-side with a comparitor section
+    // with similar content
+
     const comparifySection = (rawSection, payload) => ({
 
       ...rawSection,
@@ -78,10 +94,20 @@ export default function useProfileSections(profile, comparison, t) {
 
     });
 
-    sections
+    renderSections
       .reduce((arr, rawSection) => {
 
-        const comp = comparison.sections.find(s => s.id === rawSection.id);
+        const comp = comparison
+          .sections
+          .filter(l => l.type !== "Hero" && l.position !== "modal")
+          .map(l => {
+            // rename old section names
+            const slug = l.slug ?? `section-${l.id}`;
+            if (l.type === "TextViz" || l.position === "sticky") return {...l, type: "Default", slug};
+            if (l.type === "Column") return {...l, type: "SingleColumn", slug};
+            return {...l, slug};
+          })
+          .find(s => s.id === rawSection.id);
         if (comp) {
 
           const section = comparifySection(rawSection, profile);
@@ -98,20 +124,8 @@ export default function useProfileSections(profile, comparison, t) {
       }, []);
 
   }
-  // function used to clone and modify a raw "section" in order
-  // to prep it to be viewed side-by-side with a comparitor section
-  // with similar content
 
-  // filter modal and hero sections from the rest of the report
-  const renderSections = sections
-    .filter(l => l.type !== "Hero" && l.position !== "modal")
-    .map(l => {
-    // rename old section names
-      const slug = l.slug ?? `section-${l.id}`;
-      if (l.type === "TextViz" || l.position === "sticky") return {...l, type: "Default", slug};
-      if (l.type === "Column") return {...l, type: "SingleColumn", slug};
-      return {...l, slug};
-    });
+
 
 
   const innerGroups = renderSections
