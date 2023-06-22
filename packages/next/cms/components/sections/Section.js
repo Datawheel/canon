@@ -252,7 +252,7 @@ function Section({
     sources: sourceContent,
     paragraphs: layout === "Tabs" ? contents.descriptions : paragraphs,
     resetButton,
-    visualizations: contents.position !== "sticky" ? visualizations : [],
+    visualizations: contents.position !== "sticky" ? visualizations.map(v => ({...v, comparison: contents.comparison})) : [],
     vizHeadingLevel: `h${parseInt(headingLevel.replace("h", ""), 10) + 1}`,
     hideOptions,
     loading,
