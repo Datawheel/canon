@@ -71,11 +71,27 @@ export default function Home() {
           <Title>Example App for sites using canon-next</Title>
           <Button mt="md" onClick={() => handlers.open()}>Search Profiles</Button>
         </Container>
-        <Modal opened={opened} onClose={() => handlers.close()} fullScreen>
+        <Modal
+          styles={{
+            modal: {
+              display: "flex",
+              flexDirection: "column",
+              height: "100%"
+            },
+            body: {
+              maxHeight: "calc(100% - 44px)",
+              flexBasis: "100%",
+              flexShrink: 1
+            }
+          }}
+          opened={opened}
+          onClose={() => handlers.close()}
+          fullScreen>
           <ProfileSearch
             display="grid"
             filters
             showExamples
+            limit={20}
             t={t}
             // OEC config
             // {...profileSearchConfig}
