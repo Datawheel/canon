@@ -93,6 +93,7 @@ export default function Home() {
             showExamples
             limit={20}
             t={t}
+            defaultProfiles={"all"}
             // OEC config
             // {...profileSearchConfig}
           />

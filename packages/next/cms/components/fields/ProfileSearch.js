@@ -181,7 +181,6 @@ function useSearchResults({
     if (showLaterals) url += "&showLaterals=true";
 
     url = new URL(url, process.env.NEXT_PUBLIC_CMS).href;
-    console.log("setting loading");
     setLoading(url);
 
     const controller = new AbortController();
@@ -388,12 +387,12 @@ export function ProfileSearch({
   }
 
   // TODO: enable hotkey events
-  useHotkeys([
-    ["ArrowLeft", () => console.log("arrow left")],
-    ["ArrowUp", () => console.log("arrow up")],
-    ["ArrowRight", () => console.log("arrow right")],
-    ["ArrowDown", () => console.log("arrow down")]
-  ]);
+  // useHotkeys([
+  //   ["ArrowLeft", () => console.log("arrow left")],
+  //   ["ArrowUp", () => console.log("arrow up")],
+  //   ["ArrowRight", () => console.log("arrow right")],
+  //   ["ArrowDown", () => console.log("arrow down")]
+  // ]);
   return (
     <FocusTrap active>
       <Flex direction={"column"} className="cms-profilesearch" pos="relative" h="100%" {...rest}>
@@ -565,7 +564,22 @@ export function ProfileSearch({
 }
 
 export function ProfileSearchModal({modalProps, ...profileSearchProps}) {
-  return <Modal {...modalProps}>
+  return <Modal
+    styles={{
+      content: {
+        display: "flex",
+        flexDirection: "column",
+        height: "100%"
+      },
+      body: {
+        maxHeight: "calc(100% - 54px)",
+        boxSizing: "border-box",
+        flexBasis: "100%",
+        flexShrink: 1
+      },
+      overlay: {zIndex: 90}
+    }}
+    {...modalProps}>
     <ProfileSearch {...profileSearchProps} />
   </Modal>;
 }
