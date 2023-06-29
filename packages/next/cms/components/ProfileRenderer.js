@@ -6,7 +6,7 @@
 /* eslint-disable no-nested-ternary */
 
 import yn from "yn";
-import React, {useState} from "react";
+import React, {useState, useMemo} from "react";
 import {useRouter} from "next/router.js";
 import {Container} from "@mantine/core";
 import {Hero, NonIdealState, ProfileContext} from "../..";
@@ -19,12 +19,14 @@ import Subnav from "./sections/components/Subnav";
 import Mirror from "./Viz/Mirror";
 
 import ComparisonButton from "./fields/ComparisonButton";
+import useRoleProtected from "../hooks/use-role-protected";
 
 const comparisonsEnabled = yn(process.env.NEXT_PUBLIC_PROFILE_COMPARISON);
 const comparisonExclude = process.env.NEXT_PUBLIC_PROFILE_COMPARISON_EXCLUDE ?? "";
 
 function ProfileRenderer({
   formatters,
+  user,
   hideAnchor, // strip out heading anchor link
   hideOptions, // strip out visualization options buttons
   hideHero, // strip out the hero section
@@ -43,7 +45,7 @@ function ProfileRenderer({
   const router = useRouter();
   const {query} = router;
   // use query string as single source of truth for selectors
-  const selectors = {...router.query};
+  const selectors = useMemo(() => router.query, [JSON.stringify(router.query)]);
 
   const [loading] = useState(false);
   const initialVariables = initialProfile.variables;
@@ -59,6 +61,7 @@ function ProfileRenderer({
   const {onSetVariables} = useOnSetVariables(profileState, selectors);
   const onTabSelect = useOnTabSelect(selectors, router);
 
+  useRoleProtected(user, onSetVariables);
   if (comparisonLoading) return <NonIdealState />;
 
   const excludeComparison = profile.dims.some(
