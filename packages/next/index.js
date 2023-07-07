@@ -9,7 +9,6 @@ export {default as ProfileTile} from "./cms/components/fields/ProfileTile.js";
 
 export {default as Hero} from "./cms/components/sections/Hero.js";
 
-
 // Elements to be used by Custom Sections
 // export {default as PDFButton} from "./components/sections/components/PDFButton.jsx";
 export {default as Selector} from "./cms/components/sections/components/Selector.js";

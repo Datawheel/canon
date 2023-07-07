@@ -6,11 +6,13 @@
 /* eslint-disable no-nested-ternary */
 
 import yn from "yn";
-import React, {useState, useMemo} from "react";
+import React, {useState, useMemo, memo} from "react";
 import {useRouter} from "next/router.js";
 import {Container} from "@mantine/core";
 import {Hero, NonIdealState, ProfileContext} from "../..";
-import {useProfileSections, useReportState, useOnSelector, useOnSetVariables, useOnTabSelect} from "../hooks";
+import {
+  useProfileSections, useReportState, useOnSelector, useOnSetVariables, useOnTabSelect,
+} from "../hooks";
 
 import Section from "./sections/Section";
 import Related from "./sections/Related";
@@ -21,6 +23,7 @@ import Mirror from "./Viz/Mirror";
 import ComparisonButton from "./fields/ComparisonButton";
 import useRoleProtected from "../hooks/use-role-protected";
 
+const MemoSection = memo(Section, (prevProps, newProps) => JSON.stringify(prevProps) === JSON.stringify(newProps));
 const comparisonsEnabled = yn(process.env.NEXT_PUBLIC_PROFILE_COMPARISON);
 const comparisonExclude = process.env.NEXT_PUBLIC_PROFILE_COMPARISON_EXCLUDE ?? "";
 
@@ -32,16 +35,15 @@ function ProfileRenderer({
   hideHero, // strip out the hero section
   hideSubnav, // strip out the subnav
   profile: initialProfile,
-  linkify = profile => profile.reduce(
+  linkify = (profile) => profile.reduce(
     (href, member) => `${href}/${member.slug}/${member.memberSlug || member.id}`,
-    "/profile"
+    "/profile",
   ),
   icons,
   searchProps = {},
   customSections = {},
-  t
+  t,
 }) {
-
   const router = useRouter();
   const {query} = router;
   // use query string as single source of truth for selectors
@@ -50,11 +52,13 @@ function ProfileRenderer({
   const [loading] = useState(false);
   const initialVariables = initialProfile.variables;
   const profileState = useReportState(initialProfile, formatters);
-  const {profile, comparison, formatterFunctions, comparisonLoading, compareSlug, comparisonError} = profileState;
+  const {
+    profile, comparison, formatterFunctions, comparisonLoading, compareSlug, comparisonError,
+  } = profileState;
 
   const print = query.print === "true";
 
-  const {heroSection, groupedSections, comparisonSections} =  useProfileSections(profile, comparison, t);
+  const {heroSection, groupedSections, comparisonSections} = useProfileSections(profile, comparison, t);
 
   // construct callbacks
   const onSelector = useOnSelector(selectors, router);
@@ -65,7 +69,7 @@ function ProfileRenderer({
   if (comparisonLoading) return <NonIdealState />;
 
   const excludeComparison = profile.dims.some(
-    d => comparisonExclude.split(",").includes(d.slug)
+    (d) => comparisonExclude.split(",").includes(d.slug),
   );
   // TODO
   // Do print stuff
@@ -74,7 +78,7 @@ function ProfileRenderer({
     hideOptions,
     // hides PDF buttons and clickable titles when in comparison mode
     hidePDF: comparison,
-    hideTitleSearch: comparison
+    hideTitleSearch: comparison,
   };
 
   const relatedProfiles = profile.neighbors;
@@ -98,7 +102,7 @@ function ProfileRenderer({
     print,
     linkify,
     customSections,
-    t
+    t,
   };
 
   return (
@@ -106,78 +110,90 @@ function ProfileRenderer({
       <div className={`cp${print ? " cp-print" : ""}`}>
 
         { !hideHero
-          ? <div
-            className={`cp-hero-group ${comparison ? "comparison" : ""}`}
-            style={{
-              display: "flex",
-              flexWrap: "nowrap"
-            }}
-          >
-            <Hero
-              key="cp-hero"
-              profile={profile}
-              contents={heroSection || null}
-              comparisonButton={
-                comparisonsEnabled &&
-                !excludeComparison &&
-                <ComparisonButton error={comparisonError} />
+          ? (
+            <div
+              className={`cp-hero-group ${comparison ? "comparison" : ""}`}
+              style={{
+                display: "flex",
+                flexWrap: "nowrap",
+              }}
+            >
+              <Hero
+                key="cp-hero"
+                profile={profile}
+                contents={heroSection || null}
+                comparisonButton={
+                comparisonsEnabled
+                && !excludeComparison
+                && <ComparisonButton error={comparisonError} />
               }
-              {...hideElements}
-            />
-            {
-              comparison &&
+                {...hideElements}
+              />
+              {
+              comparison
+              && (
               <Hero
                 key="cp-hero-comparison"
                 profile={comparison}
-                contents={comparison.sections.find(l => l.type === "Hero") || null}
+                contents={comparison.sections.find((l) => l.type === "Hero") || null}
                 {...hideElements}
               />
+              )
             }
-          </div>
+            </div>
+          )
           : null }
 
         {!hideSubnav && <Subnav sections={groupedSections} icons={icons} />}
 
-        <Container className="cp-main" id="main" fluid px="xl">
-          {(comparisonSections.length ? comparisonSections : groupedSections).map((groupings, i) =>
+        <Container
+          className="cp-main"
+          id="main"
+          fluid
+          px="xl"
+        >
+          {(comparisonSections.length ? comparisonSections : groupedSections).map((groupings, i) => (
             <div className={`cp-grouping${comparisonSections.length ? " cp-grouping-comparison" : ""}`} key={i}>
-              {groupings.map((innerGrouping, ii) => innerGrouping.length === 1
+              {groupings.map((innerGrouping, ii) => (innerGrouping.length === 1
                 // ungrouped section
-                ? <Section
-                  contents={innerGrouping[0]}
-                  onSetVariables={onSetVariables}
-                  headingLevel={groupedSections.length === 1 || ii === 0
-                    ? "h2"
-                    : groupings.find(g => g[0].type.toLowerCase() === "subgrouping") &&
-                      innerGrouping[0].type.toLowerCase() !== "subgrouping" ? "h4"
-                      : "h3"}
-                  loading={loading}
+                ? (
+                  <MemoSection
+                    contents={innerGrouping[0]}
+                    onSetVariables={onSetVariables}
+                    headingLevel={groupedSections.length === 1 || ii === 0
+                      ? "h2"
+                      : groupings.find((g) => g[0].type.toLowerCase() === "subgrouping")
+                      && innerGrouping[0].type.toLowerCase() !== "subgrouping" ? "h4"
+                        : "h3"}
+                    loading={loading}
                   // eslint-disable-next-line react/no-array-index-key
-                  key={`${innerGrouping[0].slug}-${innerGrouping[0].id}`}
-                  {...hideElements}
-                />
+                    key={`${innerGrouping[0].slug}-${innerGrouping[0].id}`}
+                    {...hideElements}
+                  />
+                )
 
-                : <SectionGrouping key={innerGrouping[0].slug} layout={innerGrouping[0].type}>
-                  {innerGrouping.map(section =>
-                    <Section
-                      contents={section}
-                      onSetVariables={onSetVariables}
-                      headingLevel={groupedSections.length === 1 || ii === 0
-                        ? "h2"
-                        : groupings.find(g => g[0].type.toLowerCase() === "subgrouping") &&
-                            innerGrouping[0].type.toLowerCase() !== "subgrouping" ? "h4"
-                          : "h3"}
-                      loading={loading}
-                      key={`${section.slug}`}
-                      {...hideElements}
-                    />
-                  )}
-                </SectionGrouping>
-              )}
+                : (
+                  <SectionGrouping key={innerGrouping[0].slug} layout={innerGrouping[0].type}>
+                    {innerGrouping.map((section) => (
+                      <MemoSection
+                        contents={section}
+                        onSetVariables={onSetVariables}
+                        headingLevel={groupedSections.length === 1 || ii === 0
+                          ? "h2"
+                          : groupings.find((g) => g[0].type.toLowerCase() === "subgrouping")
+                            && innerGrouping[0].type.toLowerCase() !== "subgrouping" ? "h4"
+                            : "h3"}
+                        loading={loading}
+                        key={`${section.slug}`}
+                        {...hideElements}
+                      />
+                    ))}
+                  </SectionGrouping>
+                )))}
             </div>
-          )}
-          {!hideHero && !print && relatedProfiles && relatedProfiles.length > 0 &&
-            <Related profiles={relatedProfiles} />}
+          ))}
+          {!hideHero && !print && relatedProfiles && relatedProfiles.length > 0
+            && <Related profiles={relatedProfiles} />}
         </Container>
       </div>
       {/* hidden DOM element for rendering visualization/section to save as image */}

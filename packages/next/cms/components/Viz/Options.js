@@ -3,11 +3,11 @@ import React, {useContext, useEffect, useState} from "react";
 import {useRouter} from "next/router.js";
 
 import {
-  Flex, Group, ActionIcon, Modal, Button, Tabs, Checkbox, Stack, Text, Center, SegmentedControl, Box
+  Flex, Group, ActionIcon, Modal, Button, Tabs, Checkbox, Stack, Text, Center, SegmentedControl, Box,
 } from "@mantine/core";
 import {
   IconTable,
-  IconPhoto, IconShare, IconX, IconChartLine, IconLayoutDistributeHorizontal, IconDownload
+  IconPhoto, IconShare, IconX, IconChartLine, IconLayoutDistributeHorizontal, IconDownload,
 } from "@tabler/icons-react";
 
 import {select} from "d3-selection";
@@ -25,23 +25,21 @@ import ShareDirectLink from "./ShareDirectLink";
 import ShareTwitterLink from "./ShareTwitterLink";
 import ShareFacebookLink from "./ShareFacebookLink";
 
-
 const {DataTable} = MantineDataTable;
-
 
 const DOWNLOAD_TYPES = {
   CSV: "CSV",
   JSON: "JSON",
-  XLS: "XLS"
+  XLS: "XLS",
 };
 
 const PAGE_SIZE = 15;
 
-const filename = str => strip(str.replace(/<[^>]+>/g, ""))
+const filename = (str) => strip(str.replace(/<[^>]+>/g, ""))
   .replace(/^\-/g, "")
   .replace(/\-$/g, "");
 
-const getBackground = elem => {
+const getBackground = (elem) => {
   // Is current element's background color set?
   const color = select(elem).style("background-color");
   if (color !== "rgba(0, 0, 0, 0)" && color !== "transparent") return color;
@@ -53,7 +51,7 @@ const getBackground = elem => {
 
 /** */
 function DataPanel({
-  data, dataFormat, dataAttachments, title, origin, t
+  data, dataFormat, dataAttachments, title, origin, t,
 }) {
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState([]);
@@ -61,33 +59,31 @@ function DataPanel({
   const paths = typeof data === "string" ? [data] : data;
   const dataURLs = typeof data === "string"
     ? [data] : Array.isArray(data)
-      ? data.filter(d => typeof d === "string") : false;
+      ? data.filter((d) => typeof d === "string") : false;
 
-  const onDownload = type => {
+  const onDownload = (type) => {
     const zip = new JSZip();
     if (type === DOWNLOAD_TYPES.JSON) {
       zip.file(`${filename(title)}.json`, JSON.stringify(results));
-    }
-    else if (type === DOWNLOAD_TYPES.XLS) {
+    } else if (type === DOWNLOAD_TYPES.XLS) {
       const ws = XLSX.utils.json_to_sheet(results);
       const wb = XLSX.utils.book_new();
       const SHEET_NAME_MAX_LENGTH = 30;
       XLSX.utils.book_append_sheet(wb, ws, filename(title).substring(0, SHEET_NAME_MAX_LENGTH));
       const xls = XLSX.write(wb, {bookType: "xlsx", bookSST: true, type: "binary"});
       zip.file(`${filename(title)}.xlsx`, xls, {binary: true});
-    }
-    else if (type === DOWNLOAD_TYPES.CSV) { // csv
+    } else if (type === DOWNLOAD_TYPES.CSV) { // csv
       const colDelim = ",";
       const rowDelim = "\r\n";
 
       const columns = results && results[0] ? Object.keys(results[0]) : [];
-      let csv = columns.map(val => `\"${val}\"`).join(colDelim);
+      let csv = columns.map((val) => `\"${val}\"`).join(colDelim);
 
       for (let i = 0; i < results.length; i++) {
         const data = results[i];
 
         csv += rowDelim;
-        csv += columns.map(key => {
+        csv += columns.map((key) => {
           const val = data[key];
 
           return typeof val === "number" ? val
@@ -96,8 +92,7 @@ function DataPanel({
       }
       // add generated data table to ZIP
       zip.file(`${filename(title)}.csv`, csv);
-    }
-    else {
+    } else {
       console.error(`Invalid download type: ${type}`);
       return;
     }
@@ -107,13 +102,13 @@ function DataPanel({
         ? Array.isArray(dataAttachments) ? dataAttachments : [dataAttachments] : [];
 
       const requests = [];
-      attachmentURLs.forEach(url => {
+      attachmentURLs.forEach((url) => {
         requests.push(axios.get(url, {responseType: "blob"}));
       });
 
       Promise.all(requests)
-        .then(responses => {
-          responses.forEach(response => {
+        .then((responses) => {
+          responses.forEach((response) => {
             if (response.status === 200 || response.status === 0) {
               // Pull data, grab file name, and add to ZIP
               const blob = new Blob([response.data], {type: response.data.type});
@@ -123,24 +118,22 @@ function DataPanel({
           });
           return zip.generateAsync({type: "blob"});
         })
-        .then(content => saveAs(content, `${filename(title)}.zip`));
-    }
-    else {
+        .then((content) => saveAs(content, `${filename(title)}.zip`));
+    } else {
       // No attachments listed in config, only ZIP data table
       zip.generateAsync({type: "blob"})
-        .then(content => saveAs(content, `${filename(title)}.zip`));
+        .then((content) => saveAs(content, `${filename(title)}.zip`));
     }
   };
 
   useEffect(() => {
-    Promise.all(paths.map(path => typeof path === "string" ? axios.get(path) : {data: path})).then(resps => {
-      const loaded = resps.map(d => d.data);
+    Promise.all(paths.map((path) => (typeof path === "string" ? axios.get(path) : {data: path}))).then((resps) => {
+      const loaded = resps.map((d) => d.data);
       let results;
       try {
         results = dataFormat(loaded.length === 1 ? loaded[0] : loaded);
         if (typeof results === "object" && !(results instanceof Array)) results = results.data || [];
-      }
-      catch (e) {
+      } catch (e) {
         console.log("Error in Options Panel: ", e);
         results = [];
       }
@@ -153,13 +146,13 @@ function DataPanel({
   return (
     <Stack spacing="lg">
       {
-        dataURLs.map((link, i) =>
+        dataURLs.map((link, i) => (
           <ShareDirectLink
             key={link}
             link={link.indexOf("http") === 0 ? link : `${origin}${link}`}
             label={`${t("CMS.Options.Endpoint")}${dataURLs.length > 1 ? ` ${i + 1}` : ""}`}
           />
-        )
+        ))
       }
       <Box h={300}>
         <DataTable
@@ -175,7 +168,7 @@ function DataPanel({
           recordsPerPage={PAGE_SIZE}
           onPageChange={setPage}
           // define columns
-          columns={Object.keys(results[0]).map(key => ({accessor: key}))}
+          columns={Object.keys(results[0]).map((key) => ({accessor: key}))}
         />
       </Box>
       <Group position="apart" grow>
@@ -207,7 +200,7 @@ function DataPanel({
 
 /** */
 function ImagePanel({
-  mirrorSelector, title, component, t
+  mirrorSelector, title, component, t,
 }) {
   const [backgroundColor, setBackgroundcolor] = useState(true);
   const [imageFormat, setImageFormat] = useState("png");
@@ -251,14 +244,11 @@ function ImagePanel({
           {
             callback: () => setImageProcessing(false),
             filename: filename(title),
-            type: "svg"
+            type: "svg",
           },
-          {background}
+          {background},
         );
-      }
-
-      // construct the png image in the mirror
-      else {
+      } else {
         // get node dimensions (fudged to account for padding & Mirror footer)
         const width = node.offsetWidth + 40;
         const height = node.offsetHeight + 120;
@@ -277,12 +267,13 @@ function ImagePanel({
         setTimeout(() => {
           mirror.querySelector(".mirror-content-inner").innerHTML = "";
           mirror.querySelector(".mirror-content-inner").appendChild(node);
-          mirror.querySelector(".mirror-footer-text-url").innerHTML = origin.replace("http://", "").replace("https://", "");
+          mirror.querySelector(".mirror-footer-text-url").innerHTML = origin.replace("http://", "")
+            .replace("https://", "");
 
           // select elements aren't being rendered to the canvas; replace them
           const selects = mirror.querySelectorAll(".cp-select");
           if (selects) {
-            selects.forEach(select => {
+            selects.forEach((select) => {
               // create a fake element with properties of the select menu
               const fakeSelect = document.createElement("p");
               // get the selected option
@@ -298,7 +289,7 @@ function ImagePanel({
           // // swap out table header buttons with spans
           const tableHeaders = mirror.querySelectorAll(".rt-th");
           if (tableHeaders) {
-            tableHeaders.forEach(header => {
+            tableHeaders.forEach((header) => {
               // create a fake element with properties of the header header
               const fakeHeader = document.createElement("span");
               // remove header button screen reader text & icon
@@ -330,14 +321,13 @@ function ImagePanel({
                 setImageProcessing(false);
               },
               filename: filename(title),
-              type: imageFormat
+              type: imageFormat,
             },
-            {background}
+            {background},
           );
         });
       }
-    }
-    else {
+    } else {
       setImageProcessing(false);
     }
   };
@@ -357,33 +347,35 @@ function ImagePanel({
           >
             {t("CMS.Options.Image area")}
           </Text>
-          {!isTable &&
+          {!isTable
 
+                && (
                 <SegmentedControl
                   onChange={setImageContext}
                   data={[
                     {
                       label:
-                        <Center>
-                          <IconChartLine />
-                          <Text ml="sm" tt="uppercase" size="xs" inherit>{t("CMS.Options.visualization only")}</Text>
-                        </Center>,
-                      value: "viz"
+  <Center>
+    <IconChartLine />
+    <Text ml="sm" tt="uppercase" size="xs" inherit>{t("CMS.Options.visualization only")}</Text>
+  </Center>,
+                      value: "viz",
                     },
                     {
                       label:
-                        <Center>
-                          <IconLayoutDistributeHorizontal />
-                          <Text ml="sm" tt="uppercase" size="xs" inherit>{t("CMS.Options.entire section")}</Text>
-                        </Center>,
-                      value: "section"
+  <Center>
+    <IconLayoutDistributeHorizontal />
+    <Text ml="sm" tt="uppercase" size="xs" inherit>{t("CMS.Options.entire section")}</Text>
+  </Center>,
+                      value: "section",
                     }]}
                 />
-          }
+                )}
         </Group>
         {
-          svgAvailable && imageContext !== "section" &&
+          svgAvailable && imageContext !== "section"
 
+                && (
                 <Group position="apart" noWrap>
                   <Text
                     className="save-image-button-group-label label u-font-xs"
@@ -396,30 +388,31 @@ function ImagePanel({
                     data={[
                       {
                         label:
-                          <Center>
-                            <IconChartLine />
-                            <Text ml="sm" tt="uppercase" size="xs" inherit>
-                              <Text display="none">{t("CMS.Options.Save visualization as")}</Text>
-                              {" "}
-                              PNG
-                            </Text>
-                          </Center>,
-                        value: "png"
+  <Center>
+    <IconChartLine />
+    <Text ml="sm" tt="uppercase" size="xs" inherit>
+      <Text display="none">{t("CMS.Options.Save visualization as")}</Text>
+      {" "}
+      PNG
+    </Text>
+  </Center>,
+                        value: "png",
                       },
                       {
                         label:
-                          <Center>
-                            <IconLayoutDistributeHorizontal />
-                            <Text ml="sm" tt="uppercase" size="xs" inherit>
-                              <Text display="none">{t("CMS.Options.Save visualization as")}</Text>
-                              {" "}
-                              SVG
-                            </Text>
-                          </Center>,
-                        value: "svg"
+  <Center>
+    <IconLayoutDistributeHorizontal />
+    <Text ml="sm" tt="uppercase" size="xs" inherit>
+      <Text display="none">{t("CMS.Options.Save visualization as")}</Text>
+      {" "}
+      SVG
+    </Text>
+  </Center>,
+                        value: "svg",
                       }]}
                   />
                 </Group>
+                )
 
         }
         <Group />
@@ -427,7 +420,7 @@ function ImagePanel({
         <Checkbox
           label={t("CMS.Options.Transparent Background")}
           checked={!backgroundColor}
-          onChange={event => setBackgroundcolor(!event.target.checked)}
+          onChange={(event) => setBackgroundcolor(!event.target.checked)}
         />
         <Button
           className="save-image-download-button"
@@ -450,7 +443,7 @@ function ImagePanel({
 
 /** */
 function SharePanel({
-  origin, slug, t
+  origin, slug, t,
 }) {
   const [includeSlug, setIncludeSlug] = useState(true);
   const router = useRouter();
@@ -460,7 +453,7 @@ function SharePanel({
     <Stack spacing="md" className="share-dialog">
       <ShareDirectLink link={shareLink} label="Direct Link" />
       <Checkbox
-        onChange={() => setIncludeSlug(value => !value)}
+        onChange={() => setIncludeSlug((value) => !value)}
         checked={includeSlug}
         label={t("CMS.Options.Scroll to section")}
         className="u-font-xs"
@@ -478,7 +471,7 @@ function SharePanel({
 
 /** */
 export default function Options({
-  data, title, slug, dataFormat, dataAttachments, component, mirrorSelector = ".mirror"
+  data, title, slug, dataFormat, dataAttachments, component, mirrorSelector = ".mirror",
 }) {
   const {t} = useContext(ProfileContext);
   const [dialogOpen, setDialogOpen] = useState(null);
@@ -495,18 +488,21 @@ export default function Options({
         <Group position="right" w="100%">
           <ActionIcon
             component="button"
+            aria-label={t("CMS.Options.View Data")}
             onClick={() => setDialogOpen("view-data")}
           >
             <IconTable size={18} />
           </ActionIcon>
           <ActionIcon
             component="button"
+            aria-label={t("CMS.Options.Save Image")}
             onClick={() => setDialogOpen("save-image")}
           >
             <IconPhoto size={18} />
           </ActionIcon>
           <ActionIcon
             component="button"
+            aria-label={t("CMS.Options.Share")}
             onClick={() => setDialogOpen("share")}
           >
             <IconShare size={18} />
@@ -519,9 +515,11 @@ export default function Options({
         size="70%"
         onClose={() => setDialogOpen(null)}
         withCloseButton={false}
-        transition="fade"
-        transitionDuration={600}
-        transitionTimingFunction="ease"
+        transitionProps={{
+          duration: 600,
+          transition: "fade",
+          timingFunction: "ease",
+        }}
         centered
       >
         <div style={{position: "relative"}}>
