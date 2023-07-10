@@ -23,6 +23,8 @@ export default function useReportState(initialProfile, formatters) {
   const [profile, setProfile] = useState(initialProfile);
   const {query, locale} = useRouter();
 
+  useEffect(() => setProfile(initialProfile), [initialProfile]);
+
   const formatterFunctions = useMemo(() => funcifyFormatterByLocale(formatters, locale), [formatters, locale]);
 
   const {compareSlug, comparisonLoading, comparison, setComparison, comparisonError} = useComparison(profile);

@@ -27,7 +27,7 @@
     "eslint": "^7.32.0",
     "eslint-plugin-react": "^7.32.2",
     "shelljs": "^0.8.5",
-    "turbo": "^1.9.3"
+    "turbo": "^1.6.3"
   },
   "workspaces": [
     "packages/next",

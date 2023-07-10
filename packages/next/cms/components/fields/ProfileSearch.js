@@ -17,14 +17,14 @@ import React, {
   useState, useEffect, useRef, useCallback
 } from "react";
 import {
-  Box, Text, TextInput, Tabs, ScrollArea, SimpleGrid, FocusTrap, Modal, Paper
+  Box, Text, TextInput, Tabs, ScrollArea, SimpleGrid, FocusTrap, Modal, Paper, Flex
 } from "@mantine/core";
 import {useDebouncedValue, useHotkeys} from "@mantine/hooks";
 import {useRouter} from "next/router.js";
 import ProfileTile from "./ProfileTile";
 import groupMeta from "../../utils/groupMeta";
 import stripHTML from "../../utils/formatters/stripHTML";
-import {IconSearch} from "@tabler/icons-react";
+import {IconSearch, IconZoomExclamation} from "@tabler/icons-react";
 import NonIdealState from "../../../core/components/NonIdealState";
 
 function DimensionFilters({
@@ -195,7 +195,7 @@ function useSearchResults({
           setLoading(false);
         }
       })
-      .catch(() => setLoading(false));
+      .catch(() => {});
 
     // eslint-disable-next-line consistent-return
     return () => controller.abort();
@@ -387,15 +387,15 @@ export function ProfileSearch({
   }
 
   // TODO: enable hotkey events
-  useHotkeys([
-    ["ArrowLeft", () => console.log("arrow left")],
-    ["ArrowUp", () => console.log("arrow up")],
-    ["ArrowRight", () => console.log("arrow right")],
-    ["ArrowDown", () => console.log("arrow down")]
-  ]);
+  // useHotkeys([
+  //   ["ArrowLeft", () => console.log("arrow left")],
+  //   ["ArrowUp", () => console.log("arrow up")],
+  //   ["ArrowRight", () => console.log("arrow right")],
+  //   ["ArrowDown", () => console.log("arrow down")]
+  // ]);
   return (
     <FocusTrap active>
-      <Box className="cms-profilesearch" pos="relative" {...rest}>
+      <Flex direction={"column"} className="cms-profilesearch" pos="relative" h="100%" {...rest}>
         <Box>
           <Text component="label" sx={{display: "block", width: 0, height: 0, overflow: "hidden"}}>
             <Text className="u-visually-hidden" key="slt" span>
@@ -447,15 +447,19 @@ export function ProfileSearch({
           key="container"
           pos="relative"
           ref={resultContainer}
-          top="100%"
+          h="100%"
           mt="sm"
-          sx={{zIndex: 10}}
+          sx={{
+            zIndex: 10,
+            flexShrink: 1,
+            overflow: "hidden"
+          }}
         >
           {
-            (position !== "absolute" || active) && results
+            (position !== "absolute" || active) && (results && !loading)
               ? (() => {
                 if (!results.grouped.length) {
-                  return <NonIdealState height="auto" message={t("CMS.Search.No results", {query: debouncedQuery})} />;
+                  return <NonIdealState height="100%" graphic={<IconZoomExclamation size="2rem" />} message={t("CMS.Search.No results", {query: debouncedQuery})} />;
                 }
 
                 switch (display) {
@@ -464,7 +468,7 @@ export function ProfileSearch({
                       .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
 
                     return (
-                      <ScrollArea.Autosize mah="60vh" sx={{overflow: "hidden"}}>
+                      <ScrollArea.Autosize mah="100%" sx={{overflow: "hidden"}}>
                         <SimpleGrid
                           key="grid"
                           breakpoints={[
@@ -554,13 +558,28 @@ export function ProfileSearch({
                 : position !== "absolute" ? <NonIdealState height="auto" graphic={<IconSearch />} message={t("CMS.Search.Empty")} /> : null
           }
         </Box>
-      </Box>
+      </Flex>
     </FocusTrap>
   );
 }
 
 export function ProfileSearchModal({modalProps, ...profileSearchProps}) {
-  return <Modal {...modalProps}>
+  return <Modal
+    styles={{
+      content: {
+        display: "flex",
+        flexDirection: "column",
+        height: "100%"
+      },
+      body: {
+        maxHeight: "calc(100% - 54px)",
+        boxSizing: "border-box",
+        flexBasis: "100%",
+        flexShrink: 1
+      },
+      overlay: {zIndex: 90}
+    }}
+    {...modalProps}>
     <ProfileSearch {...profileSearchProps} />
   </Modal>;
 }

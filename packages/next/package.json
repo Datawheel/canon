@@ -1,14 +1,11 @@
 {
   "name": "@datawheel/canon-next",
-  "version": "0.2.5",
+  "version": "0.2.10",
   "description": "Nextjs components for sites migrating away from canon-core.",
   "main": "./dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./utils":  "./dist/utils.js"
-  },
-  "engines": {
-    "node": "^16.0.0"
+    "./utils": "./dist/utils.js"
   },
   "files": [
     "dist",
@@ -61,7 +58,15 @@
     "next": "^13.1.6"
   },
   "devDependencies": {
-    "tsup": "^6.6.3"
+    "tsup": "^6.6.3",
+    "@next/eslint-plugin-next": "^13.4.7",
+    "eslint": "^8.43.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-next": "^13.4.7",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0"
   },
   "type": "module"
 }

@@ -1,10 +1,12 @@
 /* eslint-disable react/no-array-index-key */
-import React, {useState, useRef, useContext} from "react";
+import React, {
+  useState, useRef, useContext, useMemo, useCallback,
+} from "react";
 import {nest} from "d3-collection";
 
 // import CustomSections from "CustomSections";
 import {
-  Flex, Anchor, Button, Title, Box
+  Flex, Anchor, Button, Title, Box,
 } from "@mantine/core";
 import {IconLink} from "@tabler/icons-react";
 import {useWindowEvent} from "@mantine/hooks";
@@ -36,9 +38,8 @@ import {stripHTML} from "../../../utils.js";
 // TODO:
 // - On set variables and reset variables
 
-
 const sectionTypes = {
-  Default, Grouping, SubGrouping, MultiColumn, SingleColumn, Tabs // ...CustomSections
+  Default, Grouping, SubGrouping, MultiColumn, SingleColumn, Tabs, // ...CustomSections
 };
 
 /** */
@@ -69,17 +70,18 @@ function Section({
    */
 
   // Note: this function gets passed Viz
-  const onSetVariables = (newVariables, forceMats, isComparison) => {
+  const onSetVariables = useCallback((newVariables, forceMats, isComparison) => {
     // eslint-disable-next-line react/destructuring-assignment
     const initialVariables = rest.initialVariables || ctx.initialVariables || {};
     const changedVariables = {};
-    Object.keys(newVariables).forEach(key => {
+    Object.keys(newVariables).forEach((key) => {
       changedVariables[key] = initialVariables[key];
     });
     setChangedVariables(changedVariables);
     setShowReset(Object.keys(changedVariables).length > 0);
     if (rest.onSetVariables) rest.onSetVariables(newVariables, forceMats, isComparison);
-  };
+  // eslint-disable-next-line react/destructuring-assignment
+  }, [ctx.initialVariables]);
 
   const resetVariables = () => {
     const {comparison} = contents;
@@ -99,8 +101,7 @@ function Section({
       if (screenTop !== containerTop) {
         if (containerTop < screenTop && !isStickyIE) {
           setIsStickyIE(true);
-        }
-        else if (containerTop > screenTop && isStickyIE) {
+        } else if (containerTop > screenTop && isStickyIE) {
           setIsStickyIE(false);
         }
       }
@@ -109,25 +110,23 @@ function Section({
 
   useWindowEvent("scroll", scrollHandler);
 
-  const updateSource = newSources => {
+  const updateSource = useCallback((newSources) => {
     if (!newSources) {
       setSources([]);
-    }
-    else {
-      setSources(oldSources => {
+    } else {
+      setSources((oldSources) => {
         const addSources = newSources
-          .map(s => s.annotations)
+          .map((s) => s.annotations)
         // filter out new sources that already are on the sources state variable.
-          .filter(source =>
-            source && source.source_name && !oldSources.find(s => s.source_name === source.source_name)
+          .filter(
+            (source) => source && source.source_name && !oldSources.find((s) => s.source_name === source.source_name),
           );
         return [...oldSources, ...addSources];
       });
     }
-  };
+  }, []);
   const layout = contents.type;
   const layoutClass = `cp-${toKebabCase(layout)}-section`;
-
 
   const allSectionTypes = {...sectionTypes, ...customSections};
   const Layout = contents.position === "sticky" ? Default : allSectionTypes[layout] || Default;
@@ -135,11 +134,11 @@ function Section({
   const showAnchor = !(isModal || hideAnchor);
 
   const {
-    slug, title, descriptions, subtitles, visualizations
+    slug, title, descriptions, subtitles, visualizations,
   } = contents;
   const selectors = contents.selectors || [];
 
-  const filters = selectors.map(selector =>
+  const filters = selectors.map((selector) => (
     <Selector
       key={selector.id}
       // eslint-disable-next-line react/jsx-props-no-spreading
@@ -148,10 +147,10 @@ function Section({
       loading={loading}
       fontSize="xxs"
     />
-  );
+  ));
 
-  const mainTitle =
-    title &&
+  const mainTitle = title
+    && (
     <Title
       component={`${headingLevel}`}
       size={headingLevel}
@@ -159,76 +158,75 @@ function Section({
       className={`cp-section-heading ${layoutClass}-heading${layout !== "Hero" && showAnchor ? " cp-section-anchored-heading" : ""}`}
       sx={{
         "& .cp-heading-anchor": {
-          visibility: "hidden"
+          visibility: "hidden",
         },
         "&:hover .cp-heading-anchor": {
-          visibility: "visible"
-        }
+          visibility: "visible",
+        },
       }}
     >
       {stripHTML(title)}
-      <Anchor href={`#${slug}`} ml="sm">
-        <IconLink className="cp-heading-anchor" size="1.2rem"/>
+      <Anchor href={`#${slug}`} aria-label={stripHTML(title)} ml="sm">
+        <IconLink className="cp-heading-anchor" size="1.2rem" />
       </Anchor>
-    </Title>;
+    </Title>
+    );
 
-  const subTitle =
-    contents.position !== "sticky" && subtitles.map((content, i) =>
-      <Parse
-        className={`cp-section-subhead display ${layoutClass}-subhead`}
+  const subTitle = contents.position !== "sticky" && subtitles.map((content, i) => (
+    <Parse
+      className={`cp-section-subhead display ${layoutClass}-subhead`}
         // eslint-disable-next-line react/no-array-index-key
-        key={`${content.subtitle}-subhead-${i}`}
-      >
-        {content.subtitle}
-      </Parse>
-    )
-  ;
-  const heading =
+      key={`${content.subtitle}-subhead-${i}`}
+    >
+      {content.subtitle}
+    </Parse>
+  ));
+  const heading = (
     <>
       {mainTitle}
       {subTitle}
     </>
-  ;
-
+  );
   let statContent;
 
   const {stats} = contents;
   if (contents.position !== "sticky") {
-    const statGroups = nest().key(d => d.title).entries(stats);
+    const statGroups = nest().key((d) => d.title).entries(stats);
 
     if (stats.length > 0) {
-      statContent =
+      statContent = (
         <Flex
           sx={{
             "& > *": {
-              flex: "1 0 50%"
-            }
+              flex: "1 0 50%",
+            },
           }}
           className={`cp-stat-group-wrapper${stats.length === 1 ? " single-stat" : ""}`}
           wrap="wrap"
         >
           {statGroups.map(({key, values}) => <StatGroup key={key} title={key} stats={values} />)}
         </Flex>
-      ;
+      );
     }
   }
   let paragraphs;
 
   if (descriptions.length && contents.position !== "sticky") {
-    paragraphs = descriptions.map((content, i) =>
+    paragraphs = descriptions.map((content, i) => (
       <Parse
         className={`cp-section-paragraph ${layoutClass}-paragraph`}
         key={`${content.description}-paragraph-${i}`}
       >
         {content.description}
       </Parse>
-    );
+    ));
   }
 
   const sourceContent = <SourceGroup sources={sources} />;
 
-  const resetButton = showReset &&
+  const resetButton = showReset
 
+      && (
       <Button
         onClick={resetVariables}
         className={`cp-var-reset-button ${layoutClass}-var-reset-button`}
@@ -239,8 +237,8 @@ function Section({
       >
         {t("CMS.Section.Reset visualizations")}
       </Button>
-      ;
-
+      );
+  const vizzes = useMemo(() => (contents.position !== "sticky" ? visualizations.map((v) => ({...v, comparison: contents.comparison})) : []), [JSON.stringify(visualizations), contents.comparison]);
   const componentProps = {
     slug,
     title,
@@ -252,13 +250,13 @@ function Section({
     sources: sourceContent,
     paragraphs: layout === "Tabs" ? contents.descriptions : paragraphs,
     resetButton,
-    visualizations: contents.position !== "sticky" ? visualizations : [],
+    visualizations: vizzes,
     vizHeadingLevel: `h${parseInt(headingLevel.replace("h", ""), 10) + 1}`,
     hideOptions,
     loading,
     contents,
     updateSource,
-    onSetVariables
+    onSetVariables,
   };
 
   return (
@@ -278,12 +276,13 @@ function Section({
       <Layout {...componentProps} />
 
       {/* in IE, create empty div set to the height of the stuck element */}
-      {isStickyIE &&
+      {isStickyIE
+        && (
         <>
           <div className="ie-sticky-spacer" style={{height}} />
           <div className="ie-sticky-section-color-fixer" />
         </>
-      }
+        )}
     </Box>
   );
 }

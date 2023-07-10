@@ -1,3 +1,75 @@
 {
-  "extends": "next/core-web-vitals"
+	"env": {
+		"browser": true,
+		"es2021": true,
+		"node": true
+	},
+	"extends": [
+		"plugin:react/recommended",
+		"airbnb",
+		"eslint:recommended",
+		"plugin:@next/next/recommended"
+	],
+	"parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "modules": true
+    }
+  },
+	"plugins": [
+		"react"
+	],
+	"rules": {
+		"object-curly-spacing": [
+			"error",
+			"never"
+		],
+		"import/extensions": "off",
+		"react/jsx-filename-extension": [
+			"error",
+			{
+				"extensions": [
+					".js",
+					".jsx",
+					".ts",
+					".tsx"
+				]
+			}
+		],
+		"react/react-in-jsx-scope": "off",
+		"quotes": [
+			"error",
+			"double"
+		],
+		"default-param-last": 0,
+		"no-console": 1,
+		"react/prop-types": "off",
+		"react/require-default-props": "off",
+		"max-len": [
+			"error",
+			{
+				"ignoreComments": true,
+				"code": 120
+			}
+		],
+		"import/prefer-default-export": "off",
+		"no-use-before-define": "off",
+		"no-shadow": "off",
+		"camelcase": "off",
+		"no-await-in-loop": "off",
+		"react/jsx-props-no-spreading": "off"
+	},
+	"settings": {
+		"import/resolver": {
+			"node": {
+				"extensions": [
+					".js",
+					".jsx",
+					".ts",
+					".tsx"
+				]
+			}
+		}
+	}
 }

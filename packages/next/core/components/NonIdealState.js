@@ -4,6 +4,7 @@ import {
 } from "@mantine/core";
 import SVG from "react-inlinesvg";
 
+/** */
 function NonIdealState({
   image = null, message = "Loading...", graphic = <Loader />, height = "100vh", logo = null
 }) {
@@ -15,8 +16,8 @@ function NonIdealState({
             <Stack
               align="center"
             >
-              {logo && <SVG className="oec-logo" height={100} src={logo} />}
-              <Center>
+              {logo && <SVG className="logo" height={100} src={logo} />}
+              <Center sx={theme => ({color: theme.colors[theme.primaryColor][4]})}>
                 {graphic}
               </Center>
               <Text color="dimmed" size="lg" weight="bold">{message}</Text>
