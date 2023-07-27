@@ -42,6 +42,7 @@ function ProfileRenderer({
   icons,
   searchProps = {},
   customSections = {},
+  relatedTile,
   t,
 }) {
   const router = useRouter();
@@ -100,6 +101,7 @@ function ProfileRenderer({
     searchProps,
     icons,
     print,
+    relatedTile,
     linkify,
     customSections,
     t,

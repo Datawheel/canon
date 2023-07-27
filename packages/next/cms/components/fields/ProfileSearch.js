@@ -9,22 +9,22 @@ import axios from "axios";
 
 import {unique} from "d3plus-common";
 import {
-  group, max, merge, min
+  group, max, merge, min,
 } from "d3-array";
 
 // import ProfileColumns from "./ProfileColumns";
 import React, {
-  useState, useEffect, useRef, useCallback
+  useState, useEffect, useRef, useCallback,
 } from "react";
 import {
-  Box, Text, TextInput, Tabs, ScrollArea, SimpleGrid, FocusTrap, Modal, Paper, Flex
+  Box, Text, TextInput, Tabs, ScrollArea, SimpleGrid, FocusTrap, Modal, Paper, Flex,
 } from "@mantine/core";
 import {useDebouncedValue, useHotkeys} from "@mantine/hooks";
 import {useRouter} from "next/router.js";
+import {IconSearch, IconZoomExclamation} from "@tabler/icons-react";
 import ProfileTile from "./ProfileTile";
 import groupMeta from "../../utils/groupMeta";
 import stripHTML from "../../utils/formatters/stripHTML";
-import {IconSearch, IconZoomExclamation} from "@tabler/icons-react";
 import NonIdealState from "../../../core/components/NonIdealState";
 
 function DimensionFilters({
@@ -32,19 +32,16 @@ function DimensionFilters({
   activeDimensions,
   filterHierarchyTitle,
   filterCubeTitle,
-  onFilterLevel}) {
-
-
-  const tabChangeHandler = value => {
-
-    const isDimension = activeDimensions.some(d => {
+  onFilterLevel,
+}) {
+  const tabChangeHandler = (value) => {
+    const isDimension = activeDimensions.some((d) => {
       const dimensionValue = d.levels ? d.levels.join(",") : d.cubes.join(",");
       return dimensionValue === value;
     });
     if (isDimension) {
       onFilterLevel("all");
-    }
-    else {
+    } else {
       onFilterLevel(value);
     }
   };
@@ -52,29 +49,33 @@ function DimensionFilters({
     <div>
       <Tabs className="cms-profilesearch-filters-dimensions" onTabChange={tabChangeHandler}>
         {
-          activeDimensions.map(d => {
+          activeDimensions.map((d) => {
             const dimensionValue = d.levels ? d.levels.join(",") : d.cubes.join(",");
             const levels = d.sortedLevels
               ? d.sortedLevels : d.sortedCubes;
             const filterTitle = d.sortedLevels ? filterHierarchyTitle : filterCubeTitle;
-            return <Tabs.List key={dimensionValue}>
-              <Tabs.Tab
-                key={dimensionValue}
-                value={dimensionValue}
-              >
-                <Text dangerouslySetInnerHTML={{__html: d.title}} />
-              </Tabs.Tab>
-              {
-                levels.map(l =>
+            return (
+              <Tabs.List key={dimensionValue}>
+                <Tabs.Tab
+                  key={dimensionValue}
+                  value={dimensionValue}
+                >
+                  <Text dangerouslySetInnerHTML={{__html: d.title}} />
+                </Tabs.Tab>
+                {
+                levels.map((l) => (
                   <Tabs.Tab
                     value={l}
                     key={l}
                   >
-                    <Text dangerouslySetInnerHTML={{__html: filterTitle(l, activeProfile[0])}}/>
-                  </Tabs.Tab>)
+                    <Text dangerouslySetInnerHTML={{__html: filterTitle(l, activeProfile[0])}} />
+                  </Tabs.Tab>
+                ))
               }
-            </Tabs.List>;
-          })}
+              </Tabs.List>
+            );
+          })
+}
       </Tabs>
     </div>
   );
@@ -88,14 +89,14 @@ function ProfileFilters({
   setFilterProfiles,
   filterProfileTitle,
   availableProfiles,
-  t}) {
-
+  t,
+}) {
   let profileGroups = [];
   if (profiles && filters) {
     const filteredProfiles = (profiles || [])
-      .filter(d => !availableProfiles.length || availableProfiles.includes(d.meta[0].slug));
-    profileGroups = Array.from(group(filteredProfiles, d => filterProfileTitle(d.content, d.meta)))
-      .sort((a, b) => min(a[1], d => d.ordering) - min(b[1], d => d.ordering));
+      .filter((d) => !availableProfiles.length || availableProfiles.includes(d.meta[0].slug));
+    profileGroups = Array.from(group(filteredProfiles, (d) => filterProfileTitle(d.content, d.meta)))
+      .sort((a, b) => min(a[1], (d) => d.ordering) - min(b[1], (d) => d.ordering));
   }
   if (!profiles || !filters) return null;
   return (
@@ -104,7 +105,7 @@ function ProfileFilters({
       className="cms-profilesearch-filters-profiles"
       variant="pills"
       radius="sm"
-      my={"xs"}
+      my="xs"
       value={filterProfiles}
       onTabChange={setFilterProfiles}
     >
@@ -113,19 +114,21 @@ function ProfileFilters({
           <Text dangerouslySetInnerHTML={{__html: filterProfileTitle({label: t("CMS.Search.All")})}} span />
         </Tabs.Tab>
         {
-          profileGroups.length > 0 &&
-          profileGroups.map(g => {
-            const profileIds = g[1].map(p => p.id);
+          profileGroups.length > 0
+          && profileGroups.map((g) => {
+            const profileIds = g[1].map((p) => p.id);
             const value = profileIds.join(",");
             return (
               <Tabs.Tab
                 key={value}
-                value={value}>
-                <Text dangerouslySetInnerHTML={{__html: g[0]}} span/>
+                value={value}
+              >
+                <Text dangerouslySetInnerHTML={{__html: g[0]}} span />
               </Tabs.Tab>
 
             );
-          }) }
+          })
+}
       </Tabs.List>
     </Tabs>
   );
@@ -135,8 +138,8 @@ function useCMSProfiles() {
   useEffect(() => {
     const url = new URL("/api/cms/profiles", process.env.NEXT_PUBLIC_CMS).href;
     axios.get(url)
-      .then(resp => resp.data.filter(p => p.visible))
-      .then(profiles => setProfiles(profiles))
+      .then((resp) => resp.data.filter((p) => p.visible))
+      .then((profiles) => setProfiles(profiles))
       .catch(() => setProfiles([]));
   }, []);
   return profiles;
@@ -153,7 +156,7 @@ function useSearchResults({
   minQueryLength,
   ignoredTermsRegex,
   formatResults,
-  showExamples
+  showExamples,
 }) {
   const [results, setResults] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -186,10 +189,10 @@ function useSearchResults({
     const controller = new AbortController();
 
     axios.get(url, {
-      signal: controller.signal
+      signal: controller.signal,
     })
       .then(formatResults)
-      .then(resp => {
+      .then((resp) => {
         if (resp) {
           setResults(resp.data);
           setLoading(false);
@@ -199,7 +202,7 @@ function useSearchResults({
 
     // eslint-disable-next-line consistent-return
     return () => controller.abort();
-  }, [query, filterLevels, filterCubes, filterProfiles, showLaterals, showExamples,  limit, locale]);
+  }, [query, filterLevels, filterCubes, filterProfiles, showLaterals, showExamples, limit, locale]);
   return [results, loading];
 }
 export function ProfileSearch({
@@ -210,9 +213,9 @@ export function ProfileSearch({
   defaultCubes = false,
   defaultLevels = false,
   defaultProfiles = "all",
-  filterCubeTitle = d => d,
-  filterDimensionTitle = d => d,
-  filterHierarchyTitle = d => d,
+  filterCubeTitle = (d) => d,
+  filterDimensionTitle = (d) => d,
+  filterHierarchyTitle = (d) => d,
   filterProfileTitle = (content, meta) => {
     if (content && content.label && content.label !== "New Profile Label") {
       return stripHTML(content.label);
@@ -220,7 +223,7 @@ export function ProfileSearch({
     if (meta && meta.length) {
       const groupedMeta = groupMeta(meta);
       return groupedMeta.length > 0
-        ? groupedMeta.map(g => g[0] ? g[0].dimension || g[0].slug : "ERR_META").join(" / ")
+        ? groupedMeta.map((g) => (g[0] ? g[0].dimension || g[0].slug : "ERR_META")).join(" / ")
         : "Unnamed";
     }
     return "Unnamed";
@@ -229,9 +232,9 @@ export function ProfileSearch({
   renderTile = (result, i, tileProps) => <ProfileTile key={`r-${i}`} {...tileProps} data={result} />,
   showExamples = false,
   showLaterals = false,
-  subtitleFormat = d => d.memberHierarchy,
-  titleFormat = d => d.name,
-  formatResults = resp => resp,
+  subtitleFormat = (d) => d.memberHierarchy,
+  titleFormat = (d) => d.name,
+  formatResults = (resp) => resp,
   limit = 10,
   minQueryLength = 1,
   columnOrder = [],
@@ -239,7 +242,7 @@ export function ProfileSearch({
   filterQueryArgs = false,
   joiner = " & ",
   placeholder = "Search...",
-  renderListItem = (result, i, link, title, subtitle) =>
+  renderListItem = (result, i, link, title, subtitle) => (
     <li key={`r-${i}`} className="cms-profilesearch-list-item">
       <Link href={link} className="cms-profilesearch-list-item-link">
         <div>
@@ -248,15 +251,16 @@ export function ProfileSearch({
         </div>
       </Link>
     </li>
-  ,
+  ),
   position = "static",
   display = "list",
-  linkify = profile => profile.reduce(
+  linkify = (profile) => profile.reduce(
     (href, member) => `${href}/${member.slug}/${member.memberSlug || member.id}`,
-    "/profile"
+    "/profile",
   ),
   inputProps = {},
   t,
+  footer,
   ...rest
 }) {
   const {locale} = useRouter();
@@ -289,20 +293,19 @@ export function ProfileSearch({
     minQueryLength,
     ignoredTermsRegex,
     filterQueryArgs,
-    formatResults
+    formatResults,
   });
 
   let profileGroups = [];
   if (profiles && filters) {
     const filteredProfiles = (profiles || [])
-      .filter(d => !availableProfiles.length || availableProfiles.includes(d.meta[0].slug));
-    profileGroups = Array.from(group(filteredProfiles, d => filterProfileTitle(d.content, d.meta)))
-      .sort((a, b) => min(a[1], d => d.ordering) - min(b[1], d => d.ordering));
+      .filter((d) => !availableProfiles.length || availableProfiles.includes(d.meta[0].slug));
+    profileGroups = Array.from(group(filteredProfiles, (d) => filterProfileTitle(d.content, d.meta)))
+      .sort((a, b) => min(a[1], (d) => d.ordering) - min(b[1], (d) => d.ordering));
   }
-  const activeProfile = profileGroups.find(g => g[1].map(p => p.id).join(",") === filterProfiles);
+  const activeProfile = profileGroups.find((g) => g[1].map((p) => p.id).join(",") === filterProfiles);
 
-
-  const onFilterLevel = useCallback(filters => {
+  const onFilterLevel = useCallback((filters) => {
     if (!profiles) return;
     const newFilters = filters !== "all" && filters ? filters.split(",") : [false];
 
@@ -314,24 +317,23 @@ export function ProfileSearch({
     const levelNames = filterLevels ? filterLevels.split(",") : [];
 
     const activeMetas = merge(profiles
-      .filter(p => profileIds.includes(p.id))
-      .map(p => p.meta));
+      .filter((p) => profileIds.includes(p.id))
+      .map((p) => p.meta));
 
     const hierarchyGroups = Array.from(group(
       activeMetas,
-      d => filterDimensionTitle(d.dimension)
-    ), arr => [unique(merge(arr[1].map(a => a.levels))), unique(arr[1].map(a => a.cubeName))]);
+      (d) => filterDimensionTitle(d.dimension),
+    ), (arr) => [unique(merge(arr[1].map((a) => a.levels))), unique(arr[1].map((a) => a.cubeName))]);
 
     hierarchyGroups.forEach(([l, c]) => {
-      newFilters.forEach(level => {
+      newFilters.forEach((level) => {
         if (c.length > 1) {
-          const currCubes = c.find(x => cubeNames.includes(x));
+          const currCubes = c.find((x) => cubeNames.includes(x));
           if (c.includes(level)) newCubes.push(level);
           else if (level && currCubes) newCubes.push(currCubes);
           else newCubes = newCubes.concat(c);
-        }
-        else {
-          const currFilter = l.find(x => levelNames.includes(x));
+        } else {
+          const currFilter = l.find((x) => levelNames.includes(x));
           if (l.includes(level)) newLevels.push(level);
           else if (level && currFilter) newLevels.push(currFilter);
           else newLevels = newLevels.concat(l);
@@ -342,36 +344,35 @@ export function ProfileSearch({
     setFilterLevels(unique(newLevels).join(","));
   }, [filterCubes, filterDimensionTitle, filterLevels, filterProfiles, profiles]);
 
-
   useEffect(() => onFilterLevel(false), [filterProfiles]);
 
   let activeDimensions;
   if (activeProfile) {
     const groupedDimensions = group(
       merge(
-        activeProfile[1].map(p => p.meta)
+        activeProfile[1].map((p) => p.meta),
       ),
-      d => filterDimensionTitle(d.dimension, activeProfile[0])
+      (d) => filterDimensionTitle(d.dimension, activeProfile[0]),
     );
     const dimensions = Array.from(groupedDimensions, ([key, value]) => {
-      const dimensions = unique(value.map(d => d.dimension));
+      const dimensions = unique(value.map((d) => d.dimension));
       const sortedCubes = Array.from(
         group(
           value.map(
-            d => d.cubeName
+            (d) => d.cubeName,
           ),
-          d => filterCubeTitle(d, activeProfile[0])
+          (d) => filterCubeTitle(d, activeProfile[0]),
         ),
-        d => unique(d[1]).join(",")
+        (d) => unique(d[1]).join(","),
       ).sort((a, b) => filterCubeTitle(a, activeProfile[0]).localeCompare(filterCubeTitle(b, activeProfile[0])));
-      const cubes = unique(value.map(d => d.cubeName));
+      const cubes = unique(value.map((d) => d.cubeName));
       if (cubes.length > 1) {
         return {
-          dimensions, title: key, cubes, sortedCubes
+          dimensions, title: key, cubes, sortedCubes,
         };
       }
 
-      const levelSets = value.map(v => v.levels);
+      const levelSets = value.map((v) => v.levels);
       const levels = unique(merge(levelSets));
       return {
         dimensions,
@@ -379,11 +380,11 @@ export function ProfileSearch({
         levels,
         sortedLevels: levels.slice().sort((a, b) => max(
           levelSets,
-          s => s.indexOf(a)
-        ) - max(levelSets, s => s.indexOf(b)))
+          (s) => s.indexOf(a),
+        ) - max(levelSets, (s) => s.indexOf(b))),
       };
     });
-    activeDimensions = dimensions.filter(d => (d.levels || d.cubes).length > 1);
+    activeDimensions = dimensions.filter((d) => (d.levels || d.cubes).length > 1);
   }
 
   // TODO: enable hotkey events
@@ -395,9 +396,14 @@ export function ProfileSearch({
   // ]);
   return (
     <FocusTrap active>
-      <Flex direction={"column"} className="cms-profilesearch" pos="relative" h="100%" {...rest}>
+      <Flex direction="column" className="cms-profilesearch" pos="relative" h="100%" {...rest}>
         <Box>
-          <Text component="label" sx={{display: "block", width: 0, height: 0, overflow: "hidden"}}>
+          <Text
+            component="label"
+            sx={{
+              display: "block", width: 0, height: 0, overflow: "hidden",
+            }}
+          >
             <Text className="u-visually-hidden" key="slt" span>
               {t("CMS.Search.Search profiles")}
             </Text>
@@ -409,7 +415,7 @@ export function ProfileSearch({
             size="xl"
             placeholder={placeholder}
             onFocus={() => setActive(true)}
-            onChange={event => setQuery(event.target.value)}
+            onChange={(event) => setQuery(event.target.value)}
             autoFocus
             {...inputProps}
           />
@@ -424,8 +430,9 @@ export function ProfileSearch({
             t={t}
           />
           {
-            activeDimensions &&
-            activeDimensions.length > 0 &&
+            activeDimensions
+            && activeDimensions.length > 0
+            && (
             <DimensionFilters
               activeProfile={activeProfile}
               profiles={profiles}
@@ -440,6 +447,7 @@ export function ProfileSearch({
               filterHierarchyTitle={filterHierarchyTitle}
               onFilterLevel={onFilterLevel}
             />
+            )
           }
         </Box>
         <Box
@@ -452,7 +460,7 @@ export function ProfileSearch({
           sx={{
             zIndex: 10,
             flexShrink: 1,
-            overflow: "hidden"
+            overflow: "hidden",
           }}
         >
           {
@@ -465,7 +473,7 @@ export function ProfileSearch({
                 switch (display) {
                   case "grid":
                     const gridProfiles = (results.grouped || [])
-                      .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
+                      .filter((d) => !availableProfiles.length || availableProfiles.includes(d[0].slug));
 
                     return (
                       <ScrollArea.Autosize mah="100%" sx={{overflow: "hidden"}}>
@@ -475,12 +483,12 @@ export function ProfileSearch({
                             {minWidth: "xs", cols: 1},
                             {minWidth: "sm", cols: 3},
                             {minWidth: "md", cols: 5},
-                            {minWidth: "lg", cols: 7}
+                            {minWidth: "lg", cols: 7},
                           ]}
                           className="cms-profilesearch-grid"
                         >
                           {gridProfiles.map((data, j) => renderTile(data, j, {
-                            joiner, subtitleFormat, titleFormat, linkify
+                            joiner, subtitleFormat, titleFormat, linkify,
                           }))}
                         </SimpleGrid>
                       </ScrollArea.Autosize>
@@ -490,7 +498,7 @@ export function ProfileSearch({
                     const filteredProfiles = Object.keys(results.profiles || {})
                       .reduce((obj, d) => {
                         let arr = results.profiles[d];
-                        if (availableProfiles.length) arr = arr.filter(p => availableProfiles.includes(p[0].slug));
+                        if (availableProfiles.length) arr = arr.filter((p) => availableProfiles.includes(p[0].slug));
                         // eslint-disable-next-line no-param-reassign
                         if (arr.length) obj[d] = arr;
                         return obj;
@@ -501,7 +509,7 @@ export function ProfileSearch({
                         const bIndex = columnOrder.includes(b) ? columnOrder.indexOf(b) : columnOrder.length + 1;
                         return aIndex - bIndex;
                       })
-                      .map(profile => results.profiles[profile] || []);
+                      .map((profile) => results.profiles[profile] || []);
                     return (
                       null
                       // TODO: ProfileColumns
@@ -518,7 +526,7 @@ export function ProfileSearch({
                   default:
                     // eslint-disable-next-line no-case-declarations
                     const listProfiles = (results.grouped || [])
-                      .filter(d => !availableProfiles.length || availableProfiles.includes(d[0].slug));
+                      .filter((d) => !availableProfiles.length || availableProfiles.includes(d[0].slug));
                     return (
                       <Paper
                         component="ul"
@@ -526,20 +534,20 @@ export function ProfileSearch({
                         className="cms-profilesearch-list"
                         pos="absolute"
                         shadow="sm"
-                        sx={theme => ({
-                          "listStyleType": "none",
-                          "padding": "0px !important",
-                          "left": 0,
-                          "right": 0,
-                          "margin": 0,
+                        sx={(theme) => ({
+                          listStyleType: "none",
+                          padding: "0px !important",
+                          left: 0,
+                          right: 0,
+                          margin: 0,
                           "& li": {
                             padding: theme.spacing.xs,
-                            marginTop: 0
+                            marginTop: 0,
                           },
                           "& li:hover": {
                             background: "rgba(0, 0, 0, .2)",
-                            cursor: "pointer"
-                          }
+                            cursor: "pointer",
+                          },
                         })}
                       >
                         {listProfiles.map((result, j) => renderListItem(
@@ -547,7 +555,7 @@ export function ProfileSearch({
                           j,
                           linkify(result),
                           result.map(titleFormat).join(joiner),
-                          result.map(subtitleFormat).join(joiner)
+                          result.map(subtitleFormat).join(joiner),
                         ))}
                       </Paper>
                     );
@@ -558,28 +566,32 @@ export function ProfileSearch({
                 : position !== "absolute" ? <NonIdealState height="auto" graphic={<IconSearch />} message={t("CMS.Search.Empty")} /> : null
           }
         </Box>
+        {footer && <Box>{footer}</Box>}
       </Flex>
     </FocusTrap>
   );
 }
 
 export function ProfileSearchModal({modalProps, ...profileSearchProps}) {
-  return <Modal
-    styles={{
-      content: {
-        display: "flex",
-        flexDirection: "column",
-        height: "100%"
-      },
-      body: {
-        maxHeight: "calc(100% - 54px)",
-        boxSizing: "border-box",
-        flexBasis: "100%",
-        flexShrink: 1
-      },
-      overlay: {zIndex: 90}
-    }}
-    {...modalProps}>
-    <ProfileSearch {...profileSearchProps} />
-  </Modal>;
+  return (
+    <Modal
+      styles={{
+        content: {
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+        },
+        body: {
+          maxHeight: "calc(100% - 54px)",
+          boxSizing: "border-box",
+          flexBasis: "100%",
+          flexShrink: 1,
+        },
+        overlay: {zIndex: 90},
+      }}
+      {...modalProps}
+    >
+      <ProfileSearch {...profileSearchProps} />
+    </Modal>
+  );
 }

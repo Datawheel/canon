@@ -5,7 +5,7 @@ import Tile from "../fields/ProfileTile";
 
 /** */
 export default function Related({profiles}) {
-  const {t, linkify} = useContext(ProfileContext);
+  const {t, linkify, relatedTile} = useContext(ProfileContext);
   return (
     <section className="cp-related">
       <Title order={2} align="center" className="cp-section-heading cp-related-heading">
@@ -32,7 +32,7 @@ export default function Related({profiles}) {
       >
         {profiles.map((data) => (
           <li key={data[0].id}>
-            <Tile data={data} linkify={linkify} />
+            {relatedTile ? relatedTile(data, linkify) : <Tile data={data} linkify={linkify} />}
           </li>
         ))}
       </Group>
