@@ -68,7 +68,9 @@ const generate = async(path, userOptions = {}, viewportOptions = {}, pageOptions
 
   const browser = await puppeteer.launch({
     args: [
-      `--window-size=${width},${height}`
+      `--window-size=${width},${height}`,
+      "--no-sandbox",
+      "--disable-setuid-sandbox"
     ],
     defaultViewport: assign({width, height}, viewportOptions),
     headless: true,
