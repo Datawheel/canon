@@ -15,10 +15,17 @@ function Stat({
   return (
     <Stack className="cp-stat" align="flex-start" maw={250} spacing={0} my="md" {...rest}>
       {label
-        && <Text dangerouslySetInnerHTML={{__html: stripP(label)}} span />}
-      <Text size="xl" dangerouslySetInnerHTML={{__html: stripP(value)}} span />
+        && <Text className="cp-stat-label" dangerouslySetInnerHTML={{__html: stripP(label)}} span />}
+      <Text className="cp-stat-value" size="xl" dangerouslySetInnerHTML={{__html: stripP(value)}} span />
       {subtitle && subtitle !== "<p>New Subtitle</p>"
-        && <Text dangerouslySetInnerHTML={{__html: stripP(subtitle)}} tt="uppercase" span />}
+        && (
+        <Text
+          className="cp-stat-subtitle"
+          dangerouslySetInnerHTML={{__html: stripP(subtitle)}}
+          tt="uppercase"
+          span
+        />
+        )}
     </Stack>
   );
 }

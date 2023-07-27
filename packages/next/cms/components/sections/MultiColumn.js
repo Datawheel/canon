@@ -1,17 +1,35 @@
 import {Box} from "@mantine/core";
-import React, {useRef} from "react";
+import React, {useContext, useRef} from "react";
 import Viz from "../Viz/Viz";
+import ProfileContext from "../ProfileContext";
 
 /** */
 export default function MultiColumn(
   {
-    configOverride, slug, title, heading, hideOptions, paragraphs, loading, filters, resetButton, stats, sources, visualizations = [], vizHeadingLevel, updateSource, onSetVariables
-  }
+    configOverride,
+    slug,
+    title,
+    heading,
+    hideOptions,
+    paragraphs,
+    loading,
+    filters,
+    resetButton,
+    stats,
+    sources,
+    visualizations = [],
+    vizHeadingLevel,
+    updateSource,
+    onSetVariables,
+  },
 ) {
   const section = useRef(null);
+  const {profileId} = useContext(ProfileContext);
   return (
     <Box
-      className={`cp-section-inner cp-multi-column-section-inner cp-${slug}-section-inner ${loading ? "is-loading" : ""}`}
+      className={`cp-section-inner cp-multi-column-section-inner cp-${
+        slug
+      }-section-inner ${loading ? "is-loading" : ""}`}
       ref={section}
     >
       {/* heading */}
@@ -23,7 +41,7 @@ export default function MultiColumn(
         sx={{
           columnWidth: "20rem",
           columnCount: 3,
-          columnFill: "balance"
+          columnFill: "balance",
         }}
       >
         {filters}
@@ -31,7 +49,7 @@ export default function MultiColumn(
         {paragraphs}
         {sources}
         {resetButton}
-        {visualizations.map((visualization, ii) =>
+        {visualizations.map((visualization) => (
           <Viz
             section={section}
             config={visualization}
@@ -40,11 +58,11 @@ export default function MultiColumn(
             headingLevel={vizHeadingLevel}
             sectionTitle={title}
             hideOptions={hideOptions}
-            key={`${slug}-${ii}`}
+            key={`${profileId}-${visualization.id}`}
             updateSource={updateSource}
             onSetVariables={onSetVariables}
           />
-        )}
+        ))}
       </Box>
     </Box>
   );

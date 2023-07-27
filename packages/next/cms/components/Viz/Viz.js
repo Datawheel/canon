@@ -48,7 +48,7 @@ function Viz(props) {
   const vizRef = useRef(null);
   const context = useContext(ProfileContext);
   const {
-    comparison, compVariables, formatters, onOpenModal = (d) => d, print, variables,
+    comparison, compVariables, formatters, onOpenModal = (d) => d, print, variables, profileId,
   } = context;
   const {toKebabCase = (d) => d} = formatters || {};
 
@@ -69,9 +69,14 @@ function Viz(props) {
   // onSetVariables will either come from ProfileBuilder (CMS) or Profile (Front-end)
   // But either way, it is delivered via context. Have a backup no-op just in case.
   let onSetVariables = (d) => d;
-  if (onSetVariables) {
+  // eslint-disable-next-line react/destructuring-assignment
+  if (props.onSetVariables) {
     if (isComparison) {
-      onSetVariables = (variables, forceMats) => onSetVariables(variables, forceMats, true);
+      // eslint-disable-next-line react/destructuring-assignment
+      onSetVariables = (variables, forceMats) => props.onSetVariables(variables, forceMats, true);
+    } else {
+      // eslint-disable-next-line react/destructuring-assignment
+      onSetVariables = props.onSetVariables;
     }
   }
 
@@ -175,7 +180,7 @@ function Viz(props) {
         style={{minHeight: 400}}
       >
         <Visualization
-          key="viz-key"
+          key={`${profileId}-${id}`}
           className={`d3plus ${namespace}-viz ${namespace}-${toKebabCase(type)}-viz`}
           dataFormat={(resp) => {
             const hasMultiples = vizProps.data

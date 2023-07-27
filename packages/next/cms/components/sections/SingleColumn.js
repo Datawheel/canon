@@ -1,13 +1,29 @@
 import {Stack} from "@mantine/core";
-import React, {useRef} from "react";
+import React, {useContext, useRef} from "react";
 import Viz from "../Viz/Viz";
+import ProfileContext from "../ProfileContext";
 
 /** */
 export default function SingleColumn(props) {
   const {
-    configOverride, slug, title, heading, hideOptions, paragraphs, loading, filters, resetButton, stats, sources, visualizations, vizHeadingLevel, updateSource, onSetVariables
+    configOverride,
+    slug,
+    title,
+    heading,
+    hideOptions,
+    paragraphs,
+    loading,
+    filters,
+    resetButton,
+    stats,
+    sources,
+    visualizations,
+    vizHeadingLevel,
+    updateSource,
+    onSetVariables,
   } = props;
   const section = useRef(null);
+  const {profileId} = useContext(ProfileContext);
   return (
     <Stack
       className={`cp-section-inner cp-single-column-section-inner cp-${slug}-section-inner${
@@ -26,7 +42,7 @@ export default function SingleColumn(props) {
         {paragraphs}
         {sources}
         {resetButton}
-        {visualizations.map((visualization, ii) =>
+        {visualizations.map((visualization) => (
           <Viz
             section={section}
             config={visualization}
@@ -35,11 +51,11 @@ export default function SingleColumn(props) {
             sectionTitle={title}
             hideOptions={hideOptions}
             configOverride={configOverride}
-            key={`${slug}-${ii}`}
+            key={`${profileId}-${visualization.id}`}
             updateSource={updateSource}
             onSetVariables={onSetVariables}
           />
-        )}
+        ))}
       </Stack>
     </Stack>
   );

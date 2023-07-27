@@ -8,7 +8,7 @@ import {nest} from "d3-collection";
 import {
   Flex, Anchor, Button, Title, Box,
 } from "@mantine/core";
-import {IconLink} from "@tabler/icons-react";
+import {IconLink, IconArrowBack} from "@tabler/icons-react";
 import {useWindowEvent} from "@mantine/hooks";
 import isIE from "../../utils/isIE.js";
 // import throttle from "../../utils/throttle";
@@ -71,6 +71,7 @@ function Section({
 
   // Note: this function gets passed Viz
   const onSetVariables = useCallback((newVariables, forceMats, isComparison) => {
+    console.log(newVariables, forceMats, isComparison);
     // eslint-disable-next-line react/destructuring-assignment
     const initialVariables = rest.initialVariables || ctx.initialVariables || {};
     const changedVariables = {};
@@ -155,7 +156,8 @@ function Section({
       component={`${headingLevel}`}
       size={headingLevel}
       id={slug}
-      className={`cp-section-heading ${layoutClass}-heading${layout !== "Hero" && showAnchor ? " cp-section-anchored-heading" : ""}`}
+      className={`cp-section-heading ${layoutClass}-heading${
+        layout !== "Hero" && showAnchor ? " cp-section-anchored-heading" : ""}`}
       sx={{
         "& .cp-heading-anchor": {
           visibility: "hidden",
@@ -231,14 +233,18 @@ function Section({
         onClick={resetVariables}
         className={`cp-var-reset-button ${layoutClass}-var-reset-button`}
         fontSize="xs"
-        icon="undo"
-        iconPosition="left"
+        icon={<IconArrowBack />}
         key="var-reset-button"
       >
         {t("CMS.Section.Reset visualizations")}
       </Button>
       );
-  const vizzes = useMemo(() => (contents.position !== "sticky" ? visualizations.map((v) => ({...v, comparison: contents.comparison})) : []), [JSON.stringify(visualizations), contents.comparison]);
+  const vizzes = useMemo(
+    () => (contents.position !== "sticky"
+      ? visualizations.map((v) => ({...v, comparison: contents.comparison}))
+      : []),
+    [JSON.stringify(visualizations), contents.comparison],
+  );
   const componentProps = {
     slug,
     title,

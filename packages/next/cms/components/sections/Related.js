@@ -15,26 +15,26 @@ export default function Related({profiles}) {
         position="stretch"
         component="ul"
         sx={{
-          "listStyleType": "none",
-          "paddingLeft": "0px !important",
+          listStyleType: "none",
+          paddingLeft: "0px !important",
           "& li": {
             marginTop: "0px !important",
-            minWidth: 150
+            minWidth: 150,
           },
 
           "& a": {
-            textDecoration: "none !important"
-          }
+            textDecoration: "none !important",
+          },
         }}
         className="cp-related-tile-list"
         key="tl"
         grow
       >
-        {profiles.map(data =>
+        {profiles.map((data) => (
           <li key={data[0].id}>
             <Tile data={data} linkify={linkify} />
           </li>
-        )}
+        ))}
       </Group>
     </section>
   );

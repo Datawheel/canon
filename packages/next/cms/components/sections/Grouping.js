@@ -1,7 +1,8 @@
-import React, {useRef} from "react";
+import React, {useContext, useRef} from "react";
 import {Box, Stack} from "@mantine/core";
 // eslint-disable-next-line import/no-cycle
 import {Viz} from "../../..";
+import ProfileContext from "../ProfileContext";
 
 /**
  *
@@ -22,9 +23,10 @@ export default function Grouping({
   visualizations,
   vizHeadingLevel,
   updateSource,
-  onSetVariables
+  onSetVariables,
 }) {
   const section = useRef(null);
+  const {profileId} = useContext(ProfileContext);
   return (
     <Box
       className={`
@@ -49,13 +51,13 @@ export default function Grouping({
         visualizations.length > 1 ? " cp-multicolumn-grouping-section-figure" : ""
       }${
         visualizations.filter(
-          viz => viz.logic_simple && viz.logic_simple.type === "Graphic"
+          (viz) => viz.logic_simple && viz.logic_simple.type === "Graphic",
         ).length
           ? " cp-graphic-viz-grid"
           : ""
       }`}
       >
-        {visualizations.map(visualization =>
+        {visualizations.map((visualization) => (
           <Viz
             section={section}
             config={visualization}
@@ -63,11 +65,11 @@ export default function Grouping({
             headingLevel={vizHeadingLevel}
             sectionTitle={title}
             hideOptions={hideOptions}
-            key={visualization.id}
+            key={`${profileId}-${visualization.id}`}
             updateSource={updateSource}
             onSetVariables={onSetVariables}
           />
-        )}
+        ))}
       </Box>
     </Box>
   );
