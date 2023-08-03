@@ -78,7 +78,7 @@
     "flickr-sdk": "^3.9.0",
     "getopts": "^2.2.5",
     "iso-639-1": "^2.0.3",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "jszip": "^3.2.2",
     "localforage": "^1.7.2",
     "lunr": "^2.3.9",
