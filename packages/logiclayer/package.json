@@ -22,7 +22,7 @@
     "mondrian-rest-client": "^1.1.4",
     "perfect-express-sanitizer": "^1.0.9",
     "promise-throttle": "^1.0.0",
-    "sequelize": "^5",
+    "sequelize": "^6",
     "yn": "^4.0.0"
   },
   "devDependencies": {

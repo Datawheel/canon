@@ -24,7 +24,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "liquidjs": "^9.25.0",
-    "sequelize": "^5"
+    "sequelize": "^6"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
