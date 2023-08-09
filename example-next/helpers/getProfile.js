@@ -8,6 +8,9 @@ const getProfile = async(members, locale) => {
   const profileUrl = new URL(`/profile/?${params.join("&")}&locale=${locale}`, NEXT_PUBLIC_CMS).href;
   const res = await axios.get(profileUrl)
     .then(resp => {
+      if (resp.data.errorCode === 301) {
+        console.log("redirect!");
+      }
       const profileData = resp.data;
 
       /** Image Metadata
