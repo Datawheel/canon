@@ -3,8 +3,19 @@ import formatProfileResponse from "../cms/utils/formatProfileResponse";
 
 const getProfile = async (slugs, locale) => {
   const params = slugs
-    .map((m, i) => `${i % 2 ? "id" : "slug"}${2 % (i + 1) ? "2" : ""}=${m}`);
-  const profileUrl = new URL(`/api/profile/?${params.join("&")}&locale=${locale}`, process.env.NEXT_PUBLIC_CMS).href;
+    .map((m, i) => {
+      const idOrSlug = i % 2 ? "id" : "slug";
+      return `${idOrSlug}${2 % (i + 1) ? "2" : ""}=${m || ""}`;
+    });
+
+  const extraSlugs = slugs.length === 2
+    ? ["slug2=<slug2>", "id2=<slug2>", "slug3=<slug3>", "id3=<id3>"]
+    : ["slug3=<slug3>", "id3=<id3>"];
+
+  const profileUrl = new URL(
+    `/api/profile/?${params.concat(extraSlugs).join("&")}&locale=${locale}`,
+    process.env.NEXT_PUBLIC_CMS,
+  ).href;
   const res = await axios.get(profileUrl)
     .then(formatProfileResponse);
   return res;

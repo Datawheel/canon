@@ -1,3 +1,5 @@
+/* eslint-disable react/no-this-in-sfc */
+/* eslint-disable no-underscore-dangle */
 /*
   TODO
    - [ ] port HTML/Table viz types
@@ -10,6 +12,7 @@ import {useRouter} from "next/router.js";
 import {Title} from "@mantine/core";
 import {useViewportSize} from "@mantine/hooks";
 import * as d3plus from "d3plus-react";
+import {colorAssign} from "d3plus-color";
 import Options from "./Options";
 import ProfileContext from "../ProfileContext";
 import propify from "../../utils/d3plusPropify";
@@ -20,6 +23,7 @@ import Graphic from "./Graphic";
 // import HTML from "./HTML";
 import Table from "./Table";
 // const vizTypes = {Table, Graphic, HTML, ...d3plus, ...CustomVizzes};
+
 const vizTypes = {
   HTML, Table, Graphic, ...d3plus,
 };
@@ -200,7 +204,54 @@ function Viz(props) {
           linksFormat={vizProps.linksFormat}
           nodesFormat={vizProps.nodesFormat}
           topojsonFormat={vizProps.topojsonFormat}
-          config={{...vizProps.config, variables, forceUpdate: false}}
+          config={{
+            ...vizProps.config,
+            variables,
+            // overrides
+            forceUpdate: false,
+            shapeConfig: {
+              ...(vizProps.config?.shapeConfig || {}),
+              stroke: undefined,
+              Path: {
+                ...(vizProps.config?.shapeConfig?.Path || {}),
+                // fill: () => "white",
+              },
+              Line: {
+                ...(vizProps.config?.shapeConfig?.Line || {}),
+                stroke(d, i) {
+                  if (this._colorScale) {
+                    const c = this._colorScale(d, i);
+                    if (c !== undefined && c !== null) {
+                      const scale = this._colorScaleClass._colorScale;
+                      const colors = this._colorScaleClass.color();
+                      if (!scale) return colors instanceof Array ? colors[colors.length - 1] : colors;
+                      if (!scale.domain().length) return scale.range()[scale.range().length - 1];
+                      return scale(c);
+                    }
+                  }
+                  const c = this._color(d, i);
+                  return colorAssign(c);
+                },
+                labelConfig: {
+                  ...(vizProps.config?.shapeConfig?.Line?.labelConfig || {}),
+                  fontColor(d, i) {
+                    if (this._colorScale) {
+                      const c = this._colorScale(d, i);
+                      if (c !== undefined && c !== null) {
+                        const scale = this._colorScaleClass._colorScale;
+                        const colors = this._colorScaleClass.color();
+                        if (!scale) return colors instanceof Array ? colors[colors.length - 1] : colors;
+                        if (!scale.domain().length) return scale.range()[scale.range().length - 1];
+                        return scale(c);
+                      }
+                    }
+                    const c = this._color(d, i);
+                    return colorAssign(c);
+                  },
+                },
+              },
+            },
+          }}
         />
       </div>
     </div>
