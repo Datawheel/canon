@@ -9,7 +9,7 @@ const getProfile = async (slugs, locale) => {
     });
 
   const extraSlugs = slugs.length === 2
-    ? ["slug2=<slug2>", "id2=<slug2>", "slug3=<slug3>", "id3=<id3>"]
+    ? ["slug2=<slug2>", "id2=<id2>", "slug3=<slug3>", "id3=<id3>"]
     : ["slug3=<slug3>", "id3=<id3>"];
 
   const profileUrl = new URL(
