@@ -1,11 +1,11 @@
 import React from "react";
 import {
-  TypographyStylesProvider,
+  TypographyStylesProvider, MantineProvider,
 } from "@mantine/core";
 import {NonIdealState, ProfileRenderer} from "../..";
 
 function Profile(props) {
-  const {profile} = props;
+  const {profile, mantineProviderProps, LoaderComponent = NonIdealState} = props;
 
   if (profile.error) {
     const {error, errorCode} = profile;
@@ -13,7 +13,7 @@ function Profile(props) {
       404: "Page Not Found",
     };
     return (
-      <NonIdealState
+      <LoaderComponent
         message={errorMessages[errorCode] || `Error: ${errorCode}`}
         description={error}
 
@@ -22,10 +22,11 @@ function Profile(props) {
   }
 
   return (
-    <TypographyStylesProvider>
-      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-      <ProfileRenderer {...props} />
-    </TypographyStylesProvider>
+    <MantineProvider {...mantineProviderProps} inherit>
+      <TypographyStylesProvider>
+        <ProfileRenderer {...props} />
+      </TypographyStylesProvider>
+    </MantineProvider>
   );
 }
 
