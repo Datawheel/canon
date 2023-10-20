@@ -17,8 +17,9 @@ function ProfilePage({profile, formatters}) {
   const router = useRouter();
   const {t} = useTranslation("profile");
   const theme = useMantineTheme();
-  console.log(theme);
+
   if (router.isFallback) return <NonIdealState />;
+
   return (
     <Box>
       <Profile
@@ -31,6 +32,7 @@ function ProfilePage({profile, formatters}) {
         // customSections={customSections}
         // you can also add a icons mapping to replace legacy blueprint icons
         mantineProviderProps={{theme, emotionCache: router.locale === "ar" ? rtlCache : ltrCache}}
+        user={{role: 10}}
         icons={{
           "timeline-line-chart": <IconChartLine />,
           "chart": <IconChartLine />,

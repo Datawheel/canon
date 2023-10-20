@@ -9,7 +9,7 @@
 import React, {useContext, useEffect, useRef} from "react";
 import {useRouter} from "next/router.js";
 
-import {Title} from "@mantine/core";
+import {Title, useMantineTheme} from "@mantine/core";
 import {useViewportSize} from "@mantine/hooks";
 import * as d3plus from "d3plus-react";
 import {colorAssign} from "d3plus-color";
@@ -51,6 +51,7 @@ function Viz(props) {
 
   const vizRef = useRef(null);
   const context = useContext(ProfileContext);
+  const {colorScheme} = useMantineTheme();
   const {
     comparison, compVariables, formatters, onOpenModal = (d) => d, print, variables, profileId,
   } = context;
@@ -89,11 +90,12 @@ function Viz(props) {
   // clone config object to allow manipulation
   const actions = {onSetVariables, onOpenModal};
 
+  const vizVariables = config.comparison
+    ? compVariables : variables;
   const vizProps = propify(
     config.logic,
     formatters,
-    config.comparison
-      ? compVariables : variables,
+    {...vizVariables, colorScheme},
 
     locale,
 

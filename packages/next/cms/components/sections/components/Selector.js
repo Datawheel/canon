@@ -1,9 +1,9 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable react/destructuring-assignment */
-import React, {useContext} from "react";
+import React, {useContext, useEffect, useState} from "react";
 
 import {
-  SegmentedControl, Select, Stack, Text
+  SegmentedControl, Select, Stack, Text,
 } from "@mantine/core";
 import stripHTML from "../../../utils/formatters/stripHTML";
 
@@ -14,14 +14,24 @@ import ProfileContext from "../../ProfileContext";
 
 export default function Selector(props) {
   const {
-    fontSize, id, loading, options, name, selectCutoff = 3, title, type, isComparison, t
+    fontSize, id, loading, options, name, selectCutoff = 3, title, type, isComparison, t,
   } = props;
   const ctx = useContext(ProfileContext);
+  const [activeValue, setActiveValue] = useState(props.default);
+
+  useEffect(() => {
+    // on first render, check url search params
+    const querySelectors = Object.fromEntries(new URLSearchParams(window.location.search));
+    const activeSelector = querySelectors[name];
+    if (activeSelector) {
+      setActiveValue(activeSelector);
+    }
+  }, []);
+
   const {variables, onSelector} = ctx;
   const comparisons = typeof props.default === "string"
-    ? props.default.split(",").filter(d => d.length)
+    ? props.default.split(",").filter((d) => d.length)
     : props.default || [];
-  const activeValue = props.default;
   const slug = `${name}-${id}`;
   const labels = options.reduce((acc, d) => ({...acc, [d.option]: d.label}), {});
 
@@ -84,15 +94,18 @@ export default function Selector(props) {
     // }
 
     // options under selectCutoff; button group
-    if (options.length <= selectCutoff && options.every(b => stripHTML(b.label || variables[b.option]).length < 20)) {
+    if (options.length <= selectCutoff && options.every((b) => stripHTML(b.label || variables[b.option]).length < 20)) {
       return (
         <Stack className="cp-select" spacing={0}>
           <Text className="cp-select-label">{title}</Text>
           <SegmentedControl
             className="cp-select-control"
-            defaultValue={activeValue}
-            onChange={value => onSelector(name, value, isComparison)}
-            data={options.map(o => ({value: o.option, label: stripHTML(o.label || variables[o.option])}))}
+            value={activeValue}
+            onChange={(value) => {
+              setActiveValue(value);
+              onSelector(name, value, isComparison);
+            }}
+            data={options.map((o) => ({value: o.option, label: stripHTML(o.label || variables[o.option])}))}
             fullWidth
           />
         </Stack>
@@ -105,10 +118,13 @@ export default function Selector(props) {
         label={title}
         fontSize={fontSize}
         id={slug}
-        onChange={value => onSelector(name, value, isComparison)}
+        onChange={(value) => {
+          setActiveValue(value);
+          onSelector(name, value, isComparison);
+        }}
         disabled={loading}
-        defaultValue={activeValue}
-        data={options.map(o => ({value: o.option, label: stripHTML(o.label || variables[o.option])}))}
+        value={activeValue}
+        data={options.map((o) => ({value: o.option, label: stripHTML(o.label || variables[o.option])}))}
       />
     );
   }

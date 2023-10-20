@@ -16,7 +16,7 @@ const splitComparisonKeys = (obj) => {
   return split;
 };
 
-const useOnSetVariables = (profileState, selectors) => {
+const useOnSetVariables = (profileState) => {
   const {locale} = useRouter();
   const {formatterFunctions, setProfile, setComparison} = profileState;
 
@@ -34,6 +34,8 @@ const useOnSetVariables = (profileState, selectors) => {
 
     // If forceMats is true, this function has been called by the componentDidMount, and we must run materializers
     // so that variables like `isLoggedIn` can resolve to true.
+
+    const selectors = Object.fromEntries(new URLSearchParams(window.location.search));
     if (forceMats) {
       setProfile((profile) => {
         const combinedVariables = {...profile.variables, ...newVariables};
@@ -51,38 +53,36 @@ const useOnSetVariables = (profileState, selectors) => {
         );
         return {...profile, ...newProfile};
       });
-    } else {
-      const split = splitComparisonKeys(selectors);
-      if (isComparison) {
-        setComparison((comparison) => {
+    } else if (isComparison) {
+      setComparison((comparison) => {
         // If forceMats is not true, no materializers required. Using the locally stored _rawProfile and the now-combined
         // old and new variables, you have all that you need to make the profile update.
-          const split = splitComparisonKeys(selectors);
+        const split = splitComparisonKeys(selectors);
 
-          const compVars = comparison.variables;
-          const newComparison = prepareProfile(
-            compVars._rawProfile,
-            {...compVars, ...newVariables},
-            formatterFunctions,
-            locale,
-            split.comparison,
-          );
-          return {...comparison, ...newComparison};
-        });
-      } else {
-        setProfile((profile) => {
-          const newProfile = prepareProfile(
-            profile.variables._rawProfile,
-            {...profile.variables, ...newVariables},
-            formatterFunctions,
-            locale,
-            split.profile,
-          );
-          return {...profile, ...newProfile};
-        });
-      }
+        const compVars = comparison.variables;
+        const newComparison = prepareProfile(
+          compVars._rawProfile,
+          {...compVars, ...newVariables},
+          formatterFunctions,
+          locale,
+          split.comparison,
+        );
+        return {...comparison, ...newComparison};
+      });
+    } else {
+      const split = splitComparisonKeys(selectors);
+      setProfile((profile) => {
+        const newProfile = prepareProfile(
+          profile.variables._rawProfile,
+          {...profile.variables, ...newVariables},
+          formatterFunctions,
+          locale,
+          split.profile,
+        );
+        return {...profile, ...newProfile};
+      });
     }
-  }, [formatterFunctions, locale, selectors, setComparison, setProfile]);
+  }, [formatterFunctions, locale, setComparison, setProfile]);
   return {onSetVariables};
 };
 
