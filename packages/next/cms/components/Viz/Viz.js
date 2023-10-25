@@ -211,48 +211,6 @@ function Viz(props) {
             variables,
             // overrides
             forceUpdate: false,
-            shapeConfig: {
-              ...(vizProps.config?.shapeConfig || {}),
-              stroke: undefined,
-              Path: {
-                ...(vizProps.config?.shapeConfig?.Path || {}),
-                // fill: () => "white",
-              },
-              Line: {
-                ...(vizProps.config?.shapeConfig?.Line || {}),
-                stroke(d, i) {
-                  if (this._colorScale) {
-                    const c = this._colorScale(d, i);
-                    if (c !== undefined && c !== null) {
-                      const scale = this._colorScaleClass._colorScale;
-                      const colors = this._colorScaleClass.color();
-                      if (!scale) return colors instanceof Array ? colors[colors.length - 1] : colors;
-                      if (!scale.domain().length) return scale.range()[scale.range().length - 1];
-                      return scale(c);
-                    }
-                  }
-                  const c = this._color(d, i);
-                  return colorAssign(c);
-                },
-                labelConfig: {
-                  ...(vizProps.config?.shapeConfig?.Line?.labelConfig || {}),
-                  fontColor(d, i) {
-                    if (this._colorScale) {
-                      const c = this._colorScale(d, i);
-                      if (c !== undefined && c !== null) {
-                        const scale = this._colorScaleClass._colorScale;
-                        const colors = this._colorScaleClass.color();
-                        if (!scale) return colors instanceof Array ? colors[colors.length - 1] : colors;
-                        if (!scale.domain().length) return scale.range()[scale.range().length - 1];
-                        return scale(c);
-                      }
-                    }
-                    const c = this._color(d, i);
-                    return colorAssign(c);
-                  },
-                },
-              },
-            },
           }}
         />
       </div>
