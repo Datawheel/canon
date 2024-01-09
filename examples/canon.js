@@ -56,10 +56,7 @@ module.exports = {
     //   ]
     // },
     {
-      host: env.CANON_DB_HOST || "localhost",
-      name: env.CANON_DB_NAME,
-      user: env.CANON_DB_USER,
-      pass: env.CANON_DB_PW,
+      connection: process.env.CANON_CMS_DB,
       tables: [
         require("@datawheel/canon-cms/models"),
         require("@datawheel/canon-core/models")
