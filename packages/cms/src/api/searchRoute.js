@@ -4,6 +4,7 @@ const d3Array = require("d3-array");
 const {unique} = require("d3plus-common");
 const jwt = require("jsonwebtoken");
 const groupMeta = require("../utils/groupMeta");
+const sanitizeQuery = require("../utils/sanitizeQuery");
 const multer = require("multer");
 const upload = multer({storage: multer.memoryStorage()});
 
@@ -11,7 +12,7 @@ const {CANON_CMS_CUBES, CANON_CMS_MINIMUM_ROLE, OLAP_PROXY_SECRET, CANON_CMS_LUN
   process.env;
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
-const useLUNR = yn(CANON_CMS_LUNR);
+const useLUNR = CANON_CMS_LUNR !== "false";
 let Base58, flickr, sharp, storage;
 if (process.env.FLICKR_API_KEY) {
   const Flickr = require("flickr-sdk");
@@ -88,11 +89,42 @@ const fetchDimCubes = async db => {
 
 // Convert a legacy-style search result into a scaffolded faked version of what the deepsearch API returns.
 // This allows us to use the same collating code below, whether the results came from legacy or deepsearch.
-const rowToResult = (row, locale) => {
+const rowToResult = (row, locale, query = false, resultsScores = {}) => {
+  let {zvalue} = row;
   const content = row.content.find(c => c.locale === locale);
+  const {name, keywords} = content || {};
+
+  if (name && query) {
+
+    const score = resultsScores[content.id] || 0;
+
+    // sanitize member name for query comparison
+    const cleanName = sanitizeQuery(name);
+    let scoreMod = score;
+
+    // calculate difference in string lengths
+    const diffMod = query.length / cleanName.length;
+
+    // calculate how many starting characters each string shares
+    const matchingStartChars = cleanName.split("").reduce((str, c, i) => {
+      if (str === query.slice(0, i), query.charAt(i) === c) str += c;
+      return str;
+    }, "").length;
+
+    // force exact matches to the top
+    if (cleanName === query || keywords && keywords.includes(query)) scoreMod = 1000000;
+    // bump up results where name starts with query
+    else if (cleanName.startsWith(query)) scoreMod *= 20 * diffMod;
+    // bump up results based on any matching start characters
+    else if (matchingStartChars) scoreMod *= matchingStartChars * diffMod;
+
+    // directly modify zvalue, giving double weight to new scoreMod
+    zvalue = scoreMod * 2 + zvalue;
+  }
+
   return {
-    name: content ? content.name : "",
-    confidence: row.zvalue,
+    name: name || "",
+    confidence: zvalue,
     metadata: {
       id: row.id,
       slug: row.slug,
@@ -558,7 +590,7 @@ module.exports = function(app) {
         // If not launch a warning and use the fallback search.
         // Install it running in the db: "CREATE EXTENSION IF NOT EXISTS unaccent;";
         if (typeof unaccentExtensionInstalled === "undefined") {
-          const [unaccentResult, unaccentMetadata] = await dbQuery(
+          const [, unaccentMetadata] = await dbQuery(
             "SELECT * FROM pg_extension WHERE extname = 'unaccent';"
           );
           unaccentExtensionInstalled = unaccentMetadata.rowCount >= 1;
@@ -579,17 +611,17 @@ module.exports = function(app) {
         let contentIds = [];
         const {searchIndexByLocale} = app.settings.cache;
 
+        let resultsScores = {};
+
         if (useLUNR && searchIndexByLocale[locale]) {
-          const terms = query
-            .replace(/[\+\-\~\*\:\^]/g, ' ') //Remove special characters that are reserved by Lunr https://lunrjs.com/guides/searching.html
-            .split(" ") //Split into individual terms
-            .filter(d => d.trim() !== '') //Remove empty trimmed terms
-            .map(d => `+${d}~1*`) //Add wildcard to each term
-            .join(" "); //Join back into a single string
+          const terms = sanitizeQuery(query)
+            .replace(/([A-z]{2,})/g, txt => `+${txt}`) // marks all 2-character or longer words as required
+            .replace(/(.)$/g, txt => `${txt}*`); // marks the final word as potentially incomplete
 
           // Perform the search using lunr index
           const lunrResults = searchIndexByLocale[locale].search(terms);
           contentIds = lunrResults.map(d => d.ref);
+          resultsScores = lunrResults.reduce((obj, d) => (obj[d.ref] = d.score, obj), {});
         }
         else {
           const terms = query.split(" ");
@@ -692,7 +724,7 @@ module.exports = function(app) {
           order: [["zvalue", "DESC NULLS LAST"]],
           where: searchWhere
         });
-        results.origin = CANON_CMS_LUNR ? "lunr" : "legacy";
+        results.origin = useLUNR ? "lunr" : "legacy";
         results.results = {};
         // Filter out show:false from results
         rows = rows.filter(
@@ -702,7 +734,7 @@ module.exports = function(app) {
           if (!results.results[row.dimension]) {
             results.results[row.dimension] = [];
           }
-          results.results[row.dimension].push(rowToResult(row, locale));
+          results.results[row.dimension].push(rowToResult(row, locale, query, resultsScores));
         });
       }
     }

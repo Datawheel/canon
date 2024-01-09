@@ -1,6 +1,6 @@
 const lunr = require("lunr");
 require("lunr-languages/lunr.stemmer.support")(lunr);
-const yn = require("yn");
+const sanitizeQuery = require("../utils/sanitizeQuery");
 
 const whitelist = ["ar", "da", "de", "du", "en", "es", "fi", "hi", "hu", "it", "ja", "jp", "nl", "no", "pt", "ro", "ru", "sv", "ta", "th", "tr", "vi", "zh"];
 
@@ -16,7 +16,7 @@ for (const locale of nonEnLocales) {
 
 module.exports = async function(app) {
 
-  if (!yn(CANON_CMS_LUNR)) return {};
+  if (CANON_CMS_LUNR === "false") return {};
 
   const {db} = app;
 
@@ -32,11 +32,10 @@ module.exports = async function(app) {
 
       if (locale && locale !== "en") this.use(lunr[locale]);
 
-      this.ref("id");
-
-      this.field("name");
-      this.field("keywords");
-      this.field("attr");
+      this.field("id", {boost: 4}); // boost search by ID to highest
+      this.field("keywords", {boost: 3}); // boost keywords, as they are usually very accurate (ie. "MIT")
+      this.field("searchTerms", {boost: 2}); // boost sanitized search terms
+      this.field("attr"); // fallback to attributes (not sure how useful this is?)
 
       this.pipeline.reset();
       this.searchPipeline.reset();
@@ -44,11 +43,15 @@ module.exports = async function(app) {
       results.forEach(result => {
         const content = result.content.find(d => d.locale === locale);
         if (content) {
+
+          const searchTerms = sanitizeQuery(content.name);
+
           const payload = {
             id: content.id,
             name: content.name,
             keywords: content.keywords,
-            attr: content.attr
+            attr: content.attr,
+            searchTerms
           };
           this.add(payload, {boost: result.zvalue});
         }
