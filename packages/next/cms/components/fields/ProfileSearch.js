@@ -26,7 +26,7 @@ import ProfileTile from "./ProfileTile";
 import groupMeta from "../../utils/groupMeta";
 import stripHTML from "../../utils/formatters/stripHTML";
 import NonIdealState from "../../../core/components/NonIdealState";
-import {useFocus} from "./useFocus";
+import {useFocus} from "../../hooks/useFocus";
 
 function DimensionFilters({
   activeProfile,
@@ -267,7 +267,6 @@ export function ProfileSearch({
   const {locale} = useRouter();
 
   const resultContainer = useRef(null);
-  const textInput = useRef(null);
 
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(false);
