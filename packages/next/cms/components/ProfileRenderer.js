@@ -44,6 +44,8 @@ function ProfileRenderer({
   customSections = {},
   relatedTile,
   t,
+  opened,
+  handlers,
 }) {
   const router = useRouter();
   const {query} = router;
@@ -109,7 +111,7 @@ function ProfileRenderer({
 
   return (
     <ProfileContext.Provider value={context}>
-      <div className={`cp${print ? " cp-print" : ""}`}>
+      <div id="walter" className={`cp${print ? " cp-print" : ""}`}>
 
         { !hideHero
           ? (
@@ -121,6 +123,8 @@ function ProfileRenderer({
               }}
             >
               <Hero
+                opened={opened}
+                handlers={handlers}
                 key="cp-hero"
                 profile={profile}
                 contents={heroSection || null}
@@ -135,6 +139,8 @@ function ProfileRenderer({
               comparison
               && (
               <Hero
+                opened={opened}
+                handlers={handlers}
                 key="cp-hero-comparison"
                 profile={comparison}
                 contents={comparison.sections.find((l) => l.type === "Hero") || null}
