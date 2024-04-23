@@ -111,7 +111,7 @@ function ProfileRenderer({
 
   return (
     <ProfileContext.Provider value={context}>
-      <div id="walter" className={`cp${print ? " cp-print" : ""}`}>
+      <div className={`cp${print ? " cp-print" : ""}`}>
 
         { !hideHero
           ? (
