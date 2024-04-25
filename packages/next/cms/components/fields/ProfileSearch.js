@@ -26,6 +26,7 @@ import ProfileTile from "./ProfileTile";
 import groupMeta from "../../utils/groupMeta";
 import stripHTML from "../../utils/formatters/stripHTML";
 import NonIdealState from "../../../core/components/NonIdealState";
+import {useFocus} from "../../hooks/useFocus";
 
 function DimensionFilters({
   activeProfile,
@@ -266,7 +267,6 @@ export function ProfileSearch({
   const {locale} = useRouter();
 
   const resultContainer = useRef(null);
-  const textInput = useRef(null);
 
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(false);
@@ -277,6 +277,9 @@ export function ProfileSearch({
 
   const [debouncedQuery] = useDebouncedValue(query, 400);
   const profiles = useCMSProfiles();
+  const [inputRef, setInputFocus] = useFocus();
+
+  React.useLayoutEffect(() => setInputFocus(), [setInputFocus]);
 
   const ignoredTermsRegex = ignoredTerms && ignoredTerms.length > 0
     ? new RegExp(`\\b(${ignoredTerms.join("|")})\\b`, "ig")
@@ -409,7 +412,7 @@ export function ProfileSearch({
             </Text>
           </Text>
           <TextInput
-            ref={textInput}
+            ref={inputRef}
             className="cp-input"
             icon={<IconSearch />}
             size="xl"

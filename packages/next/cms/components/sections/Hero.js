@@ -43,18 +43,32 @@ function Hero({
   profile,
   sources,
   type,
+  defaultOpened,
+  searchOpened,
+  searchHandlers = {},
 }) {
   // NOTE: using color scheme here asumes there is theme switch enabled
   // const {colorScheme} = useMantineColorScheme();
-  const [clickedIndex, setClickedIndex] = useState(undefined);
+
+  const [clickedIndex, setClickedIndex] = useState(defaultOpened || undefined);
+
   const [creditsVisible, setCreditsVisible] = useState(false);
+
   const {
     formatters, searchProps, linkify, t,
   } = useContext(ProfileContext);
   const {stripHTML = (d) => d} = formatters || {};
 
+  const isOpenControlled = () => searchOpened != null;
+
   const titleClick = (index) => {
-    setClickedIndex(index);
+    if (typeof searchHandlers.toggle === "function") {
+      searchHandlers.toggle();
+    }
+
+    if (!isOpenControlled()) {
+      setClickedIndex(index);
+    }
     setTimeout(() => {
       document.querySelector(".cp-hero-search .cp-input input").focus();
     }, 300);
@@ -138,7 +152,6 @@ function Hero({
   }
 
   // heading & subhead(s)
-
   const heading = (
     <div>
       <h1>
@@ -311,8 +324,8 @@ function Hero({
           ...searchProps?.modalProps || {},
           // not-overridable
           className: "cp-hero-search",
-          opened: clickedIndex !== undefined,
-          onClose: () => setClickedIndex(undefined),
+          opened: isOpenControlled() ? searchOpened : clickedIndex !== undefined,
+          onClose: isOpenControlled() ? () => searchHandlers.close() : () => setClickedIndex(undefined),
         }}
       />
     </Stack>
