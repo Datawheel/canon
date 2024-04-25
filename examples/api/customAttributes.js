@@ -1,6 +1,6 @@
 const axios = require("axios");
 const yn = require("yn");
-const {CANON_CONST_BASE} = process.env;
+const {CANON_CONST_BASE, CANON_CMS_CUBES} = process.env;
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 const BASE_API = `${CANON_CONST_BASE}data.jsonrecords`;
 
@@ -37,7 +37,8 @@ module.exports = function(app) {
           isNationOrDepartment,
           isNationOrProvince,
           isNationOrDepartmentOrProvince,
-          isDepartmentOrProvince
+          isDepartmentOrProvince,
+          tesseract: CANON_CMS_CUBES
         });
 
       case 3:
@@ -190,7 +191,7 @@ module.exports = function(app) {
         });
 
       default:
-        return res.json({});
+        return res.json({tesseract: CANON_CMS_CUBES});
     }
   });
 };
