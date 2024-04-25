@@ -44,8 +44,8 @@ function Hero({
   sources,
   type,
   defaultOpened,
-  opened,
-  handlers = {},
+  searchOpened,
+  searchHandlers = {},
 }) {
   // NOTE: using color scheme here asumes there is theme switch enabled
   // const {colorScheme} = useMantineColorScheme();
@@ -59,11 +59,11 @@ function Hero({
   } = useContext(ProfileContext);
   const {stripHTML = (d) => d} = formatters || {};
 
-  const isOpenControlled = () => opened != null;
+  const isOpenControlled = () => searchOpened != null;
 
   const titleClick = (index) => {
-    if (typeof handlers.toggle === "function") {
-      handlers.toggle();
+    if (typeof searchHandlers.toggle === "function") {
+      searchHandlers.toggle();
     }
 
     if (!isOpenControlled()) {
@@ -324,8 +324,8 @@ function Hero({
           ...searchProps?.modalProps || {},
           // not-overridable
           className: "cp-hero-search",
-          opened: isOpenControlled() ? opened : clickedIndex !== undefined,
-          onClose: isOpenControlled() ? () => handlers.close() : () => setClickedIndex(undefined),
+          opened: isOpenControlled() ? searchOpened : clickedIndex !== undefined,
+          onClose: isOpenControlled() ? () => searchHandlers.close() : () => setClickedIndex(undefined),
         }}
       />
     </Stack>

@@ -44,8 +44,9 @@ function ProfileRenderer({
   customSections = {},
   relatedTile,
   t,
-  opened,
-  handlers,
+  searchOpened,
+  searchHandlers,
+  defaultOpened,
 }) {
   const router = useRouter();
   const {query} = router;
@@ -123,8 +124,9 @@ function ProfileRenderer({
               }}
             >
               <Hero
-                opened={opened}
-                handlers={handlers}
+                searchOpened={searchOpened}
+                searchHandlers={searchHandlers}
+                defaultOpened={defaultOpened}
                 key="cp-hero"
                 profile={profile}
                 contents={heroSection || null}
@@ -139,8 +141,9 @@ function ProfileRenderer({
               comparison
               && (
               <Hero
-                opened={opened}
-                handlers={handlers}
+                searchOpened={searchOpened}
+                searchHandlers={searchHandlers}
+                defaultOpened={defaultOpened}
                 key="cp-hero-comparison"
                 profile={comparison}
                 contents={comparison.sections.find((l) => l.type === "Hero") || null}
