@@ -26,7 +26,6 @@ import ProfileTile from "./ProfileTile";
 import groupMeta from "../../utils/groupMeta";
 import stripHTML from "../../utils/formatters/stripHTML";
 import NonIdealState from "../../../core/components/NonIdealState";
-import {useFocus} from "../../hooks/useFocus";
 
 function DimensionFilters({
   activeProfile,
@@ -277,10 +276,6 @@ export function ProfileSearch({
 
   const [debouncedQuery] = useDebouncedValue(query, 400);
   const profiles = useCMSProfiles();
-  const [inputRef, setInputFocus] = useFocus();
-
-  React.useLayoutEffect(() => setInputFocus(), [setInputFocus]);
-
   const ignoredTermsRegex = ignoredTerms && ignoredTerms.length > 0
     ? new RegExp(`\\b(${ignoredTerms.join("|")})\\b`, "ig")
     : false;
@@ -412,14 +407,13 @@ export function ProfileSearch({
             </Text>
           </Text>
           <TextInput
-            ref={inputRef}
             className="cp-input"
             icon={<IconSearch />}
             size="xl"
             placeholder={placeholder}
             onFocus={() => setActive(true)}
             onChange={(event) => setQuery(event.target.value)}
-            autoFocus
+            data-autofocus
             {...inputProps}
           />
           <ProfileFilters
