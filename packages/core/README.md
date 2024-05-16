@@ -898,8 +898,9 @@ export CANON_LANGUAGE_DEFAULT="es"
 |`CANON_GOOGLE_TAG_MANAGER`|The unique Google Tag Manager ID for the project (ex. `"GTM-#######"`).|`undefined`|
 |`CANON_HELMET_FRAMEGUARD`|Pass-through option for the "frameguard" property of the [helmet](https://github.com/helmetjs/helmet#how-it-works) initialization.|`false`|
 |`CANON_HOTJAR`|The unique Hotjar ID for the project (ex. `"#######"`).|`undefined`|
-|`CANON_LOGREDUX`|Whether or not to display the (rather verbose) Redux store events in the browser console.|`true`|
+|`CANON_LOGINS_SIGNUP_DISABLE`|Disables the signup API endpoint entirely.|`false`|
 |`CANON_LOGLOCALE`|Whether or not to display the (rather verbose) i18n locale events in the browser console.|`false`|
+|`CANON_LOGREDUX`|Whether or not to display the (rather verbose) Redux store events in the browser console.|`true`|
 |`CANON_PORT`|The port to use for the server.|`3300`|
 |`CANON_SESSION_SECRET`|A unique secret key to use for cookies.|The "name" field from package.json|
 |`CANON_SESSION_TIMEOUT`|The timeout, in milliseconds, for user authentication cookies.|`60 * 60 * 1000` (one hour)|

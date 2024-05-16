@@ -5,7 +5,8 @@ const BuildMail = require("buildmail"),
       Mailgun = require("mailgun-js"),
       bcrypt = require("bcrypt-nodejs"),
       fs = require("fs"),
-      path = require("path");
+      path = require("path"),
+      yn = require("yn");
 
 const {name} = JSON.parse(require("shelljs").cat("package.json"));
 
@@ -21,7 +22,8 @@ const activationRoute = process.env.CANON_ACTIVATION_LINK || "/activate",
       resetEmailFilepath = process.env.CANON_RESET_HTML
         ? path.join(process.cwd(), process.env.CANON_RESET_HTML)
         : path.join(__dirname, "emails/resetPassword.html"),
-      resetRoute = process.env.CANON_RESET_LINK || "/reset";
+      resetRoute = process.env.CANON_RESET_LINK || "/reset",
+      signupDisabled = yn(process.env.CANON_LOGINS_SIGNUP_DISABLE) || false;
 
 const isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) return next();
@@ -105,9 +107,11 @@ module.exports = function(app) {
 
     }));
 
-  app.post("/auth/local/signup", passport.authenticate("local-signup", {
-    failureFlash: false
-  }), (req, res) => res.json({user: req.user}));
+  if (!signupDisabled) {
+    app.post("/auth/local/signup", passport.authenticate("local-signup", {
+      failureFlash: false
+    }), (req, res) => res.json({user: req.user}));
+  }
 
   /** */
   function sendActivation(user, req, err, done) {
