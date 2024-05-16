@@ -34,12 +34,11 @@ const baseTag = process.env.CANON_BASE_URL === undefined ? ""
     <base href='${BASE_URL}'>`;
 
 
-const getCleanedParams = queryParams => {
-  return Object.keys(queryParams).reduce((params, paramKey) => {
-    params[stripHTML(paramKey)] = stripHTML(queryParams[paramKey]);
-    return params;
-  }, {})
-}
+const getCleanedParams = queryParams => Object.keys(queryParams).reduce((params, paramKey) => {
+  params[stripHTML(paramKey)] = stripHTML(queryParams[paramKey]);
+  return params;
+}, {});
+
 /**
     Returns the default server logic for rendering a page.
 */
@@ -255,7 +254,7 @@ export default function(defaultStore = appInitialState, headerConfig, reduxMiddl
 </html>`);
               })
               .catch(err => {
-                res.status(500).send({error: err.toString(), stackTrace: err.stack.toString()});
+                res.status(500).send({error: err.toString(), stackTrace: production ? undefined : err.stack.toString()});
               });
 
           });
