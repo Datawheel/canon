@@ -6,7 +6,17 @@ const jwt = require("jsonwebtoken");
 const groupMeta = require("../utils/groupMeta");
 const sanitizeQuery = require("../utils/sanitizeQuery");
 const multer = require("multer");
-const upload = multer({storage: multer.memoryStorage()});
+const path = require("path");
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter(req, file, callback) {
+    const ext = path.extname(file.originalname);
+    if (![".png", ".jpg", ".gif", ".jpeg"].includes(ext)) {
+      return callback(new Error("Only images are allowed"));
+    }
+    callback(null, true);
+  }
+});
 
 const {CANON_CMS_CUBES, CANON_CMS_MINIMUM_ROLE, OLAP_PROXY_SECRET, CANON_CMS_LUNR} =
   process.env;
