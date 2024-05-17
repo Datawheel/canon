@@ -1,7 +1,6 @@
 const PromiseThrottle = require("promise-throttle"),
       axios = require("axios"),
       collate = require("../utils/collate"),
-      cors = require("cors"),
       formatters4eval = require("../utils/formatters4eval"),
       jwt = require("jsonwebtoken"),
       libs = require("../utils/libs"), /*leave this! needed for the variable functions.*/ //eslint-disable-line
@@ -21,6 +20,7 @@ const {
 
 const verbose = yn(process.env.CANON_CMS_LOGGING);
 const envLoc = process.env.CANON_LANGUAGE_DEFAULT || "en";
+const whitelist = (process.env.CANON_CMS_WHITELIST || "").split(",").filter(Boolean).map(d => new URL(d).origin);
 const forceHTTPS = yn(CANON_CMS_FORCE_HTTPS);
 
 const catcher = e => {
@@ -239,6 +239,11 @@ module.exports = function(app) {
       url = `${origin}${url.indexOf("/") === 0 ? "" : "/"}${url}`;
     }
 
+    if (whitelist.length && !whitelist.includes(new URL(url).origin)) {
+      if (verbose) console.log("Whitelist Error:", url);
+      return Promise.resolve({});
+    }
+
     const config = getConfig({timeout: GENERATOR_TIMEOUT});
 
     return axios.get(url, config)
@@ -413,9 +418,9 @@ module.exports = function(app) {
   };
 
   app.get("/api/story_generators/:pid", async(req, res) => res.json(await runStoryGenerators(req, req.params.pid, req.query.story_generator)));
-  app.post("/api/story_generators/:pid", cors(), async(req, res) => res.json(await runStoryGenerators(req, req.params.pid, req.query.story_generator, req.body.attributes)));
+  app.post("/api/story_generators/:pid", async(req, res) => res.json(await runStoryGenerators(req, req.params.pid, req.query.story_generator, req.body.attributes)));
   app.get("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator)));
-  app.post("/api/generators/:pid", cors(), async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator, req.body.attributes)));
+  app.post("/api/generators/:pid", async(req, res) => res.json(await runGenerators(req, req.params.pid, req.query.generator, req.body.attributes)));
 
   const runMaterializers = async(req, variables, pid, isStory) => {
     const locale = req.query.locale ? req.query.locale : envLoc;
@@ -446,7 +451,7 @@ module.exports = function(app) {
     return returnVariables;
   };
 
-  app.post("/api/materializers/:pid", cors(), async(req, res) => {
+  app.post("/api/materializers/:pid", async(req, res) => {
     const {pid} = req.params;
     const {variables} = req.body;
     const materializer = await db.materializer.findOne({where: {profile_id: pid}}).catch(catcher);
@@ -454,7 +459,7 @@ module.exports = function(app) {
     return res.json(await runMaterializers(req, variables, materializer.profile_id));
   });
 
-  app.post("/api/story_materializers/:pid", cors(), async(req, res) => {
+  app.post("/api/story_materializers/:pid", async(req, res) => {
     const {pid} = req.params;
     const {variables} = req.body;
     const materializer = await db.story_materializer.findOne({where: {story_id: pid}}).catch(catcher);
@@ -818,7 +823,7 @@ module.exports = function(app) {
   */
 
   app.get("/api/profile", async(req, res) => await fetchProfile(req, res));
-  app.post("/api/profile", cors(), async(req, res) => await fetchProfile(req, res));
+  app.post("/api/profile", async(req, res) => await fetchProfile(req, res));
 
   const fetchStory = async(req, res) => {
     // take an arbitrary-length query of slugs and ids and turn them into objects
