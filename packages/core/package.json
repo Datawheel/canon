@@ -3,7 +3,7 @@
   "sideEffects": [
     "*.css"
   ],
-  "version": "0.27.2",
+  "version": "0.27.3",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "./src/index.js",
   "types": "./types/index.d.ts",
