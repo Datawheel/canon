@@ -6,9 +6,6 @@
   "version": "0.27.2",
   "description": "Reusable React environment and components for creating visualization engines.",
   "main": "./src/index.js",
-  "files": [
-    "./models.js"
-  ],
   "types": "./types/index.d.ts",
   "bin": {
     "canon-build": "bin/build.js",
