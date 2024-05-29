@@ -1,5 +1,5 @@
 const models = {
-  users: require.resolve("./src/db/users")
+  users: require.resolve("./src/db/users.js")
 };
 
 module.exports = {
