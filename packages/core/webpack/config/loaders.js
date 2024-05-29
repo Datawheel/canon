@@ -106,6 +106,11 @@ function commonLoaders(props) {
 
   return [
     {
+      test: /\.mjs$/,
+      include: /node_modules/,
+      type: "javascript/auto"
+    },
+    {
       resolve: {
         alias
       },

@@ -2,7 +2,6 @@
 
 import React from "react";
 import {hydrate} from "react-dom";
-import {loadableReady} from "@loadable/component";
 import {createHistory} from "history";
 import {HelmetProvider} from "react-helmet-async";
 import {applyRouterMiddleware, Router, RouterContext, useRouterHistory} from "react-router";
@@ -132,10 +131,10 @@ function renderMiddleware() {
       const chunks = props.components.filter(comp => comp && comp.preload && comp.load);
       const {action, hash, pathname, query, search, state} = location;
 
-      //Launch Optimize activation event if client side navigation
+      // Launch Optimize activation event if client side navigation
       function launchOptimizeEvent() {
         if (CANON_GOOGLE_OPTIMIZE && !window.__SSR__ && window.dataLayer) {
-          window.dataLayer.push({'event': 'optimize.activate'});
+          window.dataLayer.push({event: "optimize.activate"});
         }
       }
 
