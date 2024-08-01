@@ -56,7 +56,7 @@
     "yn": "^5.0.0"
   },
   "peerDependencies": {
-    "next": "^13.1.6"
+    "next": "^14.2.3"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^13.4.7",
