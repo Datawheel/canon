@@ -548,12 +548,14 @@ module.exports = function(app) {
           searchWhere.hierarchy = req.query.hierarchy.split(",");
         }
 
-        let rows = await db.search.findAll({
-          where: searchWhere,
-          include: imageIncludeNoBlobs,
-          order: [["zvalue", "DESC NULLS LAST"]],
-          limit
-        });
+        let rows = await db.search
+          .findAll({
+            where: searchWhere,
+            include: imageIncludeNoBlobs,
+            order: [["zvalue", "DESC NULLS LAST"]],
+            limit
+          })
+          .catch(catcher);
         // Filter out show:false from results
         rows = rows.filter(
           d => !d.content.map(c => c.attr).some(a => a && a.show === false)
@@ -625,6 +627,13 @@ module.exports = function(app) {
 
         if (useLUNR && searchIndexByLocale[locale]) {
           const terms = sanitizeQuery(query)
+            .split(" ")
+            .map(txt =>
+              txt
+                .replace(/^[-+]+/g, "") // remove leading - and +
+                .replace(/[*:^~]+/g, "") // remove all *, :, ^, and ~
+            )
+            .join(" ")
             .replace(/([A-z]{2,})/g, txt => `+${txt}`) // marks all 2-character or longer words as required
             .replace(/(.)$/g, txt => `${txt}*`); // marks the final word as potentially incomplete
 
@@ -725,15 +734,17 @@ module.exports = function(app) {
           searchWhere.cubeName = req.query.cubeName.split(",");
         }
 
-        let rows = await db.search.findAll({
-          include: imageIncludeNoBlobs,
-          // when a limit is provided, it is for EACH dimension, but this initial rowsearch is for a flat member list.
-          // Pad out the limit by multiplying by the number of unique dimensions, then limit (slice) them later.
-          // Not perfect, could probably revisit the logic here.
-          limit: limit * allDimCubes.length,
-          order: [["zvalue", "DESC NULLS LAST"]],
-          where: searchWhere
-        });
+        let rows = await db.search
+          .findAll({
+            include: imageIncludeNoBlobs,
+            // when a limit is provided, it is for EACH dimension, but this initial rowsearch is for a flat member list.
+            // Pad out the limit by multiplying by the number of unique dimensions, then limit (slice) them later.
+            // Not perfect, could probably revisit the logic here.
+            limit: limit * allDimCubes.length,
+            order: [["zvalue", "DESC NULLS LAST"]],
+            where: searchWhere
+          })
+          .catch(catcher);
         results.origin = useLUNR ? "lunr" : "legacy";
         results.results = {};
         // Filter out show:false from results
@@ -934,7 +945,7 @@ module.exports = function(app) {
       rows = await db.search.findAll({
         where,
         include: imageIncludeThumbOnly
-      });
+      }).catch(catcher);
     }
     else if (id) {
       where.id = id.includes(",") ? id.split(",") : id;
@@ -953,7 +964,7 @@ module.exports = function(app) {
       rows = await db.search.findAll({
         where,
         include: imageIncludeThumbOnly
-      });
+      }).catch(catcher);
     }
     else {
       // Check just the first time if unaccent Extension is installed.
@@ -1058,7 +1069,7 @@ module.exports = function(app) {
         limit,
         order: [["zvalue", "DESC NULLS LAST"]],
         where: searchWhere
-      });
+      }).catch(catcher);
     }
 
     rows = rows.map(d => {
