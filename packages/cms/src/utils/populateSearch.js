@@ -207,7 +207,7 @@ const populateSearch = async(profileData, db, metaLookup = false, newSlugs = fal
       if (metaLookup && !searchInsertKeys.includes("imageId")) searchInsertKeys.push("imageId");
       let searchUpdateKeys = searchInsertKeys;
       // On conflict (update), do not attempt to change the slug, unless the user has specified to override.
-      if (!newSlugs) {
+      if (!newSlugs || newSlugs && locale !== envLoc) {
         searchUpdateKeys = searchInsertKeys.filter(d => d !== "slug");
       }
 
